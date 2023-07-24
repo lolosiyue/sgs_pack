@@ -1,3 +1,0 @@
-
-general:caomao role:lord starter:true maxhp:4 hp:1 hand:34,51 
-general:ol_xuhuang role:rebel maxhp:4 acquireSkills:weizhong 
