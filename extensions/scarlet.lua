@@ -12,7 +12,8 @@ s4_cloud_zhangliao = sgs.General(extension, "s4_cloud_zhangliao", "wei", 4, fals
 
 s4_cloud_tuxi = sgs.CreateTriggerSkill {
     name = "s4_cloud_tuxi",
-    events = { sgs.EventPhaseStart, sgs.CardFinished },
+    events = { sgs.EventPhaseStart },
+    --events = { sgs.EventPhaseStart, sgs.CardFinished },
     frequency = sgs.Skill_NotFrequent,
     on_trigger = function(self, event, player, data, room)
         local room = player:getRoom()
@@ -20,7 +21,7 @@ s4_cloud_tuxi = sgs.CreateTriggerSkill {
             local dest = sgs.QVariant()
             dest:setValue(player)
             if p and p:objectName() ~= player:objectName() and room:askForSkillInvoke(p, self:objectName(), dest) then
-                if room:askForDiscard(p, self:objectName(), 999, 1, true, true, "@s4_cloud_tuxi" .. player:objectName()) then
+                if room:askForDiscard(p, self:objectName(), 999, 1, true, true, "@s4_cloud_tuxi:" .. player:objectName()) then
                 else
                     local lose_num = {}
                     for i = 1, p:getHp() do
@@ -48,7 +49,7 @@ s4_cloud_tuxi = sgs.CreateTriggerSkill {
         end
     end,
     can_trigger = function(self, target)
-        return target and target:getPhase() == sgs.Player_Play
+        return target and target:getPhase() == sgs.Player_Play and target:isAlive()
     end
 }
 
@@ -64,6 +65,7 @@ s4_cloud_yongqian = sgs.CreateTriggerSkill {
             if target then
                 local count = data:toInt()
                 data:setValue(count - 1)
+                room:setFixedDistance(player, target, 1);
                 room:setPlayerMark(player, self:objectName() .. target:objectName(), 1)
                 room:addPlayerMark(target, "&" .. self:objectName() .. "+to+#" .. player:objectName())
                 local assignee_list = player:property("extra_slash_specific_assignee"):toString():split("+")
@@ -75,7 +77,7 @@ s4_cloud_yongqian = sgs.CreateTriggerSkill {
             local use = data:toCardUse()
             if use.card and not use.card:isKindOf("SkillCard") then
                 for _, p in sgs.qlist(use.to) do
-                    if use.from and p:objectName() ~= use.from:objectName() and p:getMark(self:objectName() .. player:objectName()) > 0 and room:askForSkillInvoke(p, self:objectName()) then
+                    if use.from and player:objectName() == use.from:objectName() and p:objectName() ~= use.from:objectName() and p:getMark(self:objectName() .. player:objectName()) > 0 and room:askForSkillInvoke(p, self:objectName()) then
                         p:drawCards(1)
                     end
                 end
@@ -100,6 +102,7 @@ s4_cloud_yongqianClear = sgs.CreateTriggerSkill {
                 for _, p in sgs.qlist(room:getAllPlayers()) do
                     if player:getMark("s4_cloud_yongqian" .. p:objectName()) == 0 then continue end
                     table.removeOne(assignee_list, p:objectName())
+                    room:setFixedDistance(player, p, 1);
                     room:setPlayerMark(player, "s4_cloud_yongqian" .. p:objectName(), 0)
                     room:setPlayerMark(p, "&s4_cloud_yongqian+to+#" .. player:objectName(), 0)
                 end
@@ -124,12 +127,26 @@ sgs.LoadTranslationTable {
     ["s4_cloud_zhangliao"] = "张辽",
     ["&s4_cloud_zhangliao"] = "张辽",
     ["#s4_cloud_zhangliao"] = "威震江东",
-    ["designer:s4_cloud_zhangliao"] = "",
+    ["~s4_cloud_zhangliao"] = "孙权小儿",
+    ["designer:s4_cloud_zhangliao"] = "终极植物",
+    ["cv:s4_cloud_zhangliao"] = "三国杀瑞宝",
+    ["illustrator:s4_cloud_zhangliao"] = "云崖",
 
+    ["@s4_cloud_tuxi"] = "你可以弃置至少一张牌或失去至少1点体力，对 %src 使用突襲",
     ["s4_cloud_tuxi"] = "突襲",
-    [":s4_cloud_tuxi"] = "当一名其他角色出牌阶段开始时或当一名其他角色于其出牌阶段使用的一张牌结算结束后，你可以弃置至少一张牌或失去至少1点体力，然后若其手牌数不小于你，你获得其一张手牌；若其装备数不小于你，你弃置其一张牌；若其体力值不小于你，你获得1点护甲，对其造成1点伤害。",
+    --[":s4_cloud_tuxi"] = "当一名其他角色出牌阶段开始时或当一名其他角色于其出牌阶段使用的一张牌结算结束后，你可以弃置至少一张牌或失去至少1点体力，然后若其手牌数不小于你，你获得其一张手牌；若其装备数不小于你，你弃置其一张牌；若其体力值不小于你，你获得1点护甲，对其造成1点伤害。",
+    [":s4_cloud_tuxi"] = "当一名其他角色出牌阶段开始时，你可以弃置至少一张牌或失去至少1点体力，然后若其手牌数不小于你，你获得其一张手牌；若其装备数不小于你，你弃置其一张牌；若其体力值不小于你，你获得1点护甲，对其造成1点伤害。",
+    --["$s4_cloud_tuxi"] = "江东小儿，安敢啼哭？",
+    ["$s4_cloud_tuxi1"] = "江东小儿，安敢啼哭？",
+    ["$s4_cloud_tuxi2"] = "八百虎贲踏江去，十万吴兵丧胆还！",
+
+    ["s4_cloud_yongqian-invoke"] = "你可以发动“勇前”<br/> <b>操作提示</b>: 选择一名其他角色→点击确定<br/>",
     ["s4_cloud_yongqian"] = "勇前",
     [":s4_cloud_yongqian"] = "摸牌阶段，你可以少摸一张牌，然后选择一名其他角色，直到你下回合开始，你对其使用牌无距离和次数限制，当其使用牌指定你为目标后，你可以摸一张牌。",
+    --["$s4_cloud_yongqian"] = "千围万困，吾亦能来去自如！",
+    ["$s4_cloud_yongqian1"] = "千围万困，吾亦能来去自如！",
+    ["$s4_cloud_yongqian2"] = "敌军虽百倍于我，破之易而。",
+
 }
 
 
@@ -355,7 +372,7 @@ sgs.LoadTranslationTable {
 
 
 
-s4_txbw_disgeneralCard = sgs.CreateSkillCard{
+s4_txbw_disgeneralCard = sgs.CreateSkillCard {
     name = "s4_txbw_disgeneral",
     target_fixed = true,
     will_throw = false,
@@ -363,7 +380,7 @@ s4_txbw_disgeneralCard = sgs.CreateSkillCard{
         room:setPlayerMark(source, "@s4_txbw_general", 0)
     end,
 }
-s4_txbw_disgeneral = sgs.CreateViewAsSkill{
+s4_txbw_disgeneral = sgs.CreateViewAsSkill {
     name = "s4_txbw_disgeneral",
     n = 0,
     view_as = function(self, cards)
@@ -378,15 +395,15 @@ s4_txbw_disgeneral = sgs.CreateViewAsSkill{
 }
 
 
-s4_txbw_general = sgs.CreateTriggerSkill{
+s4_txbw_general = sgs.CreateTriggerSkill {
     name = "s4_txbw_general",
     global = true,
     frequency = sgs.Skill_NotFrequent,
-    events = {sgs.GameStart, sgs.EventPhaseChanging},  
+    events = { sgs.GameStart, sgs.EventPhaseChanging },
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart then
-            for _,p in sgs.qlist(room:getAlivePlayers()) do
+            for _, p in sgs.qlist(room:getAlivePlayers()) do
                 if p:getMark("@s4_txbw_general") > 0 then
                     room:attachSkillToPlayer(p, "s4_txbw_disgeneral")
                     room:attachSkillToPlayer(p, "s4_txbw_general_duel")
@@ -401,12 +418,12 @@ s4_txbw_general = sgs.CreateTriggerSkill{
 }
 
 
-s4_txbw_general_duelCard = sgs.CreateSkillCard{
+s4_txbw_general_duelCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel",
     target_fixed = false,
     will_throw = false,
     filter = function(self, targets, to_select)
-        if to_select:objectName() ~= sgs.Self:objectName()  then
+        if to_select:objectName() ~= sgs.Self:objectName() then
             return #targets == 0
         end
         return false
@@ -431,11 +448,11 @@ s4_txbw_general_duelCard = sgs.CreateSkillCard{
         end
         if source:getMark("s4_txbw_general_duel_slash-Clear") == 0 then
             room:addPlayerMark(source, "s4_txbw_general_duel_slash-Clear")
-            room:addPlayerHistory(source, "slash",1)
+            room:addPlayerHistory(source, "slash", 1)
         end
     end,
 }
-s4_txbw_general_duel_chooseCard = sgs.CreateSkillCard{
+s4_txbw_general_duel_chooseCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel_choose",
     target_fixed = false,
     will_throw = false,
@@ -454,23 +471,25 @@ s4_txbw_general_duel_chooseCard = sgs.CreateSkillCard{
         msg.from = source
         msg.to:append(target)
         room:sendLog(msg)
-       
+
         local card_s
         if source:isKongcheng() then
             card_s = room:drawCards(1)
         else
-            card_s = room:askForCard(source, ".!", "s4_txbw_general_duel", sgs.QVariant(), sgs.Card_MethodNone,source,false,"s4_txbw_general_duel",true)
+            card_s = room:askForCard(source, ".!", "s4_txbw_general_duel", sgs.QVariant(), sgs.Card_MethodNone, source,
+                false, "s4_txbw_general_duel", true)
         end
         room:setTag("s4_txbw_general_duel_s", sgs.QVariant(card_s:getId()))
         if target:isKongcheng() then
             card_v = room:drawCards(1)
         else
-            card_v = room:askForCard(target, ".!", "s4_txbw_general_duel", sgs.QVariant(), sgs.Card_MethodNone,source,false,"s4_txbw_general_duel",true)
+            card_v = room:askForCard(target, ".!", "s4_txbw_general_duel", sgs.QVariant(), sgs.Card_MethodNone, source,
+                false, "s4_txbw_general_duel", true)
         end
         room:setTag("s4_txbw_general_duel_v", sgs.QVariant(card_v:getId()))
     end,
 }
-s4_txbw_general_duel_showCard = sgs.CreateSkillCard{
+s4_txbw_general_duel_showCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel_show",
     target_fixed = false,
     will_throw = false,
@@ -493,8 +512,8 @@ s4_txbw_general_duel_showCard = sgs.CreateSkillCard{
 
         local card_s = sgs.Sanguosha:getCard(room:getTag("s4_txbw_general_duel_s"):toInt())
         local card_v = sgs.Sanguosha:getCard(room:getTag("s4_txbw_general_duel_v"):toInt())
-        room:setPlayerMark(source, "s4_txbw_general_duel",card_s:getNumberString())
-        room:setPlayerMark(target, "s4_txbw_general_duel",card_v:getNumberString())
+        room:setPlayerMark(source, "s4_txbw_general_duel", card_s:getNumberString())
+        room:setPlayerMark(target, "s4_txbw_general_duel", card_v:getNumberString())
         local msg1 = sgs.LogMessage()
         msg1.type = "#s4_txbw_general_duel_show_card"
         msg1.from = source
@@ -503,12 +522,13 @@ s4_txbw_general_duel_showCard = sgs.CreateSkillCard{
         msg2.type = "#s4_txbw_general_duel_show_card"
         msg2.from = target
         msg2.arg = card_v:objectName()
-        room:moveCardTo(card_s, source, nil, sgs.Player_DiscardPile,sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_RULEDISCARD, source:objectName(), "s4_txbw_general_duel", ""))
-        room:moveCardTo(card_v, target, nil, sgs.Player_DiscardPile,sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_RULEDISCARD, target:objectName(), "s4_txbw_general_duel", ""))
-   
+        room:moveCardTo(card_s, source, nil, sgs.Player_DiscardPile,
+            sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_RULEDISCARD, source:objectName(), "s4_txbw_general_duel", ""))
+        room:moveCardTo(card_v, target, nil, sgs.Player_DiscardPile,
+            sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_RULEDISCARD, target:objectName(), "s4_txbw_general_duel", ""))
     end,
 }
-s4_txbw_general_duel_calCard = sgs.CreateSkillCard{
+s4_txbw_general_duel_calCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel_cal",
     target_fixed = false,
     will_throw = false,
@@ -541,7 +561,7 @@ s4_txbw_general_duel_calCard = sgs.CreateSkillCard{
         msg2.arg = victim
     end,
 }
-s4_txbw_general_duel_resultCard = sgs.CreateSkillCard{
+s4_txbw_general_duel_resultCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel_result",
     target_fixed = false,
     will_throw = false,
@@ -601,7 +621,7 @@ s4_txbw_general_duel_resultCard = sgs.CreateSkillCard{
         room:setTag("s4_txbw_general_duel_loser", loser)
     end,
 }
-s4_txbw_general_duel_finishCard = sgs.CreateSkillCard{
+s4_txbw_general_duel_finishCard = sgs.CreateSkillCard {
     name = "s4_txbw_general_duel_finish",
     target_fixed = false,
     will_throw = false,
@@ -623,32 +643,33 @@ s4_txbw_general_duel_finishCard = sgs.CreateSkillCard{
         local winner = room:getTag("s4_txbw_general_duel_winner"):toPlayer()
         local loser = room:getTag("s4_txbw_general_duel_loser"):toPlayer()
         if winner and winner:isAlive() and loser and loser:isAlive() then
-            local jink = room:askForCard(loser,"jink","@s4_txbw_general_duel-jink:"..winner:objectName(),sgs.QVariant(),sgs.Card_MethodResponse,nil,false,"",true)
+            local jink = room:askForCard(loser, "jink", "@s4_txbw_general_duel-jink:" .. winner:objectName(),
+                sgs.QVariant(), sgs.Card_MethodResponse, nil, false, "", true)
             if jink then
             else
-                local duel_damage = 1 + winner:getMark("s4_txbw_general_duel_damage") + winner:getMark("s4_txbw_general_duel_damage-Clear")
+                local duel_damage = 1 + winner:getMark("s4_txbw_general_duel_damage") +
+                    winner:getMark("s4_txbw_general_duel_damage-Clear")
                 local damage = sgs.DamageStruct()
                 damage.card = nil
                 damage.from = winner
                 damage.to = loser
                 damage.damage = duel_damage
-                   
+
                 local winCard = sgs.Sanguosha:getCard(room:getTag("s4_txbw_general_duel_wincard"):toInt())
-                if winCard:isKindOf("ThunderSlash") or  winCard:isKindOf("Lighting") then
+                if winCard:isKindOf("ThunderSlash") or winCard:isKindOf("Lighting") then
                     damage.nature = sgs.DamageStruct_Thunder
                 end
-                if winCard:isKindOf("FireSlash") or  winCard:isKindOf("FireAttack") then
+                if winCard:isKindOf("FireSlash") or winCard:isKindOf("FireAttack") then
                     damage.nature = sgs.DamageStruct_Fire
                 end
                 room:damage(damage)
             end
-           
         end
     end,
 }
 
 
-s4_txbw_general_duel = sgs.CreateViewAsSkill{
+s4_txbw_general_duel = sgs.CreateViewAsSkill {
     name = "s4_txbw_general_duel",
     n = 0,
     view_as = function(self, cards)
@@ -659,16 +680,17 @@ s4_txbw_general_duel = sgs.CreateViewAsSkill{
         end
     end,
     enabled_at_play = function(self, player)
-        return player:getMark("@s4_txbw_general") > 0 and player:usedTimes("#s4_txbw_general_duel") < 1 + player:getMark("s4_txbw_general_duel_extra")
+        return player:getMark("@s4_txbw_general") > 0 and
+            player:usedTimes("#s4_txbw_general_duel") < 1 + player:getMark("s4_txbw_general_duel_extra")
     end,
 }
 
 
-s4_txbw_general_duel_rule = sgs.CreateTriggerSkill{
+s4_txbw_general_duel_rule = sgs.CreateTriggerSkill {
     name = "s4_txbw_general_duel",
     global = true,
     frequency = sgs.Skill_NotFrequent,
-    events = {sgs.CardFinished},  
+    events = { sgs.CardFinished },
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -910,39 +932,40 @@ sgs.LoadTranslationTable {
 s4_weiT_caocao = sgs.General(extension, "s4_weiT_caocao", "wei", 4, true)
 s4_weiT_naxian = sgs.CreateTriggerSkill {
     name = "s4_weiT_naxian",
-    events = {sgs.Damaged, sgs.DrawNCards, sgs.GameStart},
+    events = { sgs.Damaged, sgs.DrawNCards, sgs.GameStart },
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.Damaged then
-        local damage = data:toDamage()
-        room:setPlayerMark(player, "&"..self:objectName(), math.max(math.min(player:getHp(), player:getMark("&"..self:objectName())), 2))
-    elseif event == sgs.DrawNCards then
-        local x = player:getMark("&"..self:objectName())
-        if room:askForSkillInvoke(player, self:objectName()) then
-            --xuxu
+            local damage = data:toDamage()
+            room:setPlayerMark(player, "&" .. self:objectName(),
+                math.max(math.min(player:getHp(), player:getMark("&" .. self:objectName())), 2))
+        elseif event == sgs.DrawNCards then
+            local x = player:getMark("&" .. self:objectName())
+            if room:askForSkillInvoke(player, self:objectName()) then
+                --xuxu
+            end
+        elseif event == sgs.GameStart then
+            room:setPlayerMark(player, "&" .. self:objectName(), player:getHp())
         end
-    elseif event == sgs.GameStart then
-        room:setPlayerMark(player, "&"..self:objectName(), player:getHp())
-    end
     end
 }
 s4_weiT_xionglue = sgs.CreateTriggerSkill {
     name = "s4_weiT_xionglue",
-    events = {sgs.Damaged},
+    events = { sgs.Damaged },
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.Damaged then
-        local damage = data:toDamage()
-        if  getWeiTerritoryPile(player):length() > 0 and player:askForSkillInvoke(self:objectName()) then 
-            gainWeiTerritoryPile(getWeiTerritoryPile(player), player, self)
+            local damage = data:toDamage()
+            if getWeiTerritoryPile(player):length() > 0 and player:askForSkillInvoke(self:objectName()) then
+                gainWeiTerritoryPile(getWeiTerritoryPile(player), player, self)
+            end
         end
-    end
     end
 }
 
 s4_weiT_caocao:addSkill(s4_weiT_naxian)
 s4_weiT_caocao:addSkill(s4_weiT_xionglue)
-s4_weiT_caocao:addSkill("s4_weiT_lord&")
+s4_weiT_caocao:addSkill("s4_weiT_lord")
 
 sgs.LoadTranslationTable {
     ["s4_weiT_caocao"] = "曹操",
@@ -967,7 +990,6 @@ sgs.LoadTranslationTable {
 
     ["s4_weiT_ganglie"] = "刚烈",
     [":s4_weiT_ganglie"] = "当你使用【杀】造成伤害或受到【杀】造成的伤害后，你可以作一次判定，若结果为黑色，你获得其一张牌，否则受伤角色对对方造成1点伤害。",
-
     ["s4_weiT_qingjian"] = "清俭",
     [":s4_weiT_qingjian"] = "你可将摸牌阶段外获得的牌置于【魏领土】中。",
 
