@@ -102,7 +102,7 @@ s4_cloud_yongqianClear = sgs.CreateTriggerSkill {
                 for _, p in sgs.qlist(room:getAllPlayers()) do
                     if player:getMark("s4_cloud_yongqian" .. p:objectName()) == 0 then continue end
                     table.removeOne(assignee_list, p:objectName())
-                    room:setFixedDistance(player, p, 1);
+                    room:setFixedDistance(player, p, 0);
                     room:setPlayerMark(player, "s4_cloud_yongqian" .. p:objectName(), 0)
                     room:setPlayerMark(p, "&s4_cloud_yongqian+to+#" .. player:objectName(), 0)
                 end
