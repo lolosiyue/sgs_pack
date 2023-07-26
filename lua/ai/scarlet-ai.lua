@@ -73,28 +73,53 @@ sgs.ai_skill_invoke.s4_cloud_yongyi = function(self, data)
     end
     return true
 end
-
---[[addAiSkills("s4_cloud_yongyi").getTurnUseCard = function(self)
+--[[
+addAiSkills("s4_cloud_yongyi").getTurnUseCard = function(self)
     local record = self.player:property("s4_cloud_yongyiRecords"):toString()
     local records
     if (record) then
         records = record:split(",")
     end
-
-    for d, cn in sgs.list(patterns) do
-        local fs = sgs.Sanguosha:cloneCard(cn)
+        local fs = sgs.Sanguosha:cloneCard("analeptic")
         if fs and fs:isKindOf("Analeptic") then
             fs:setSkillName("s4_cloud_yongyi")
-            d = self:aiUseCard(fs)
+            local d = self:aiUseCard(fs)
             if fs:isAvailable(self.player) and #records > 0 and self.player:getMark("s4_cloud_yongyi_used-Clear") == 0 and
                 d.card and d.to then
-                return fs
+                    return "#s4_cloud_yongyi:.:" .. "analeptic"
             end
         end
         if fs then
             fs:deleteLater()
         end
+end
+]]
+local s4_cloud_yongyi_skill = {}
+s4_cloud_yongyi_skill.name = "s4_cloud_yongyi"
+table.insert(sgs.ai_skills,s4_cloud_yongyi_skill)
+s4_cloud_yongyi_skill.getTurnUseCard = function(self)
+    if self.player:getMark("s4_cloud_yongyi_used-Clear") == 0 then
+	    return sgs.Card_Parse("#s4_cloud_yongyi:.:")
     end
+    return nil
+end
+
+sgs.ai_skill_use_func["#s4_cloud_yongyi"] = function(card,use,self)	
+    local record = self.player:property("s4_cloud_yongyiRecords"):toString()
+    local records
+    if (record) then
+        records = record:split(",")
+    end
+	local fs = sgs.Sanguosha:cloneCard("analeptic")
+    if fs and fs:isKindOf("Analeptic") then
+        fs:setSkillName("s4_cloud_yongyi")
+        local d = self:aiUseCard(fs)
+        if fs:isAvailable(self.player) and #records > 0 and
+            d.card and d.to then
+                use.card = card
+                return
+            end
+	end
 end
 
 sgs.ai_guhuo_card.s4_cloud_yongyi = function(self, toname, class_name)
@@ -103,20 +128,7 @@ sgs.ai_guhuo_card.s4_cloud_yongyi = function(self, toname, class_name)
         return "#s4_cloud_yongyi:.:" .. toname
     end
 end
-]]
 --[[
-function sgs.ai_cardsview.s4_cloud_yongyi(self, class_name, player)
-    if class_name == "Analeptic" then
-        local record = player:property("s4_cloud_yongyiRecords"):toString()
-        local records
-        if (record) then
-            records = record:split(",")
-        end
-        if player:getMark("s4_cloud_yongyi_used-Clear") == 0 and #records > 0 then
-            return ("analeptic:s4_cloud_yongyi[no_suit:0]:.:")
-        end
-    end
-end]]
 function sgs.ai_cardsview_valuable.s4_cloud_yongyi(self, class_name, player)
     if class_name == "Analeptic" then
         local record = player:property("s4_cloud_yongyiRecords"):toString()
@@ -129,7 +141,7 @@ function sgs.ai_cardsview_valuable.s4_cloud_yongyi(self, class_name, player)
         end
         return nil
     end
-end
+end]]
 
 sgs.ai_skill_invoke.s4_weiT_lord = function(self, data)
     return true
