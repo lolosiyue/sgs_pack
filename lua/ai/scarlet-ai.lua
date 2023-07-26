@@ -41,7 +41,85 @@ sgs.ai_skill_discard.s4_cloud_tuxi = function(self, discard_num, min_num, option
         return {}
     end
     if self:isEnemy(target) then
-        return self:askForDiscard("dummy", discard_num, min_num, false, include_equip)
+        if self.player:getHp() > getBestHp(self.player) then
+            return {}
+        end
+        return self:askForDiscard("dummy", 1, 1, false, include_equip)
     end
     return {}
+end
+
+sgs.ai_choicemade_filter.skillInvoke.s4_cloud_tuxi = function(self, player, promptlist)
+    local current = self.room:getCurrent()
+    if promptlist[#promptlist] == "yes" then
+        if not self:needToLoseHp(current, player, nil) then
+            sgs.updateIntention(player, current, 40)
+        end
+    end
+end
+
+sgs.ai_skill_invoke.s4_cloud_liegong = function(self, data)
+    return sgs.ai_skill_invoke.liegong(self, data)
+end
+
+sgs.ai_skill_invoke.s4_cloud_yongyi = function(self, data)
+    local card = data:toCard()
+    local record = self.player:property("s4_cloud_yongyiRecords"):toString()
+    local records
+    if (not record.isEmpty()) then
+        records = record:split(",")
+    end
+    if self:isWeak() and #records <= 2 then
+        return false
+    end
+    return true
+end
+
+addAiSkills("s4_cloud_yongyi").getTurnUseCard = function(self)
+
+    local record = self.player:property("s4_cloud_yongyiRecords"):toString()
+    local records
+    if (not record.isEmpty()) then
+        records = record:split(",")
+    end
+
+    for d, cn in sgs.list(patterns) do
+        local fs = sgs.Sanguosha:cloneCard(cn)
+        if fs and fs:isKindOf("Analeptic") then
+            fs:setSkillName("s4_cloud_yongyi")
+            d = self:aiUseCard(fs)
+            if fs:isAvailable(self.player) and #records > 0 and self.player:getMark("s4_cloud_yongyi-Clear") == 0 and
+                d.card and d.to then
+                return fs
+            end
+        end
+        if fs then
+            fs:deleteLater()
+        end
+    end
+end
+
+sgs.ai_guhuo_card.s4_cloud_yongyi = function(self, toname, class_name)
+
+    if (class_name == "Analeptic") and sgs.Sanguosha:getCurrentCardUseReason() ==
+        sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then
+        return "#s4_cloud_yongyi:.:" .. toname
+    end
+end
+
+sgs.ai_skill_invoke.s4_weiT_lord = function(self, data)
+    return true
+end
+sgs.ai_skill_invoke.s4_weiT_adviser = function(self, data)
+    return true
+end
+sgs.ai_skill_invoke.s4_weiT_gerenal = function(self, data)
+    return true
+end
+
+sgs.ai_skill_invoke.s4_weiT_xionglue = function(self, data)
+    return true
+end
+sgs.ai_skill_invoke.s4_weiT_naxian = function(self, data)
+    return true
 end
