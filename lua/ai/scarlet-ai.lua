@@ -96,30 +96,30 @@ end
 ]]
 local s4_cloud_yongyi_skill = {}
 s4_cloud_yongyi_skill.name = "s4_cloud_yongyi"
-table.insert(sgs.ai_skills,s4_cloud_yongyi_skill)
+table.insert(sgs.ai_skills, s4_cloud_yongyi_skill)
 s4_cloud_yongyi_skill.getTurnUseCard = function(self)
     if self.player:getMark("s4_cloud_yongyi_used-Clear") == 0 then
-	    return sgs.Card_Parse("#s4_cloud_yongyi:.:")
+        return sgs.Card_Parse("#s4_cloud_yongyi:.:analeptic")
     end
     return nil
 end
 
-sgs.ai_skill_use_func["#s4_cloud_yongyi"] = function(card,use,self)	
+sgs.ai_skill_use_func["#s4_cloud_yongyi"] = function(card, use, self)
     local record = self.player:property("s4_cloud_yongyiRecords"):toString()
     local records
     if (record) then
         records = record:split(",")
     end
-	local fs = sgs.Sanguosha:cloneCard("analeptic")
+    local fs = sgs.Sanguosha:cloneCard("analeptic")
+    fs:deleteLater()
     if fs and fs:isKindOf("Analeptic") then
         fs:setSkillName("s4_cloud_yongyi")
         local d = self:aiUseCard(fs)
-        if fs:isAvailable(self.player) and #records > 0 and
-            d.card and d.to then
-                use.card = card
-                return
-            end
-	end
+        if fs:isAvailable(self.player) and #records > 0 and d.card and d.to then
+            use.card = card
+            return
+        end
+    end
 end
 
 sgs.ai_guhuo_card.s4_cloud_yongyi = function(self, toname, class_name)
