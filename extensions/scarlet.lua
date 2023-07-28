@@ -436,6 +436,253 @@ sgs.LoadTranslationTable {
 }
 
 
+s4_cloud_sunqian = sgs.General(extension, "s4_cloud_huangzhong", "wu", 3, false)
+
+s4_cloud_yingzi = sgs.CreateTriggerSkill{
+	name = "s4_cloud_yingzi",
+	frequency = sgs.Skill_Compulsory,
+	events = {sgs.DrawNCards},
+	on_trigger = function(self,event,player,data)
+		local room = player:getRoom()
+		local x = 0
+        if player:getHandcardNum() >= 2 then
+            x = x + 1
+        end
+        if player:getHp() >= 2 then
+            x = x + 1
+        end
+        if player:getEquips():length() >= 1 then
+            x = x + 1
+        end
+        if x > 0 then
+            room:broadcastSkillInvoke("yingzi")--播放配音
+			local count = data:toInt() + x
+			data:setValue(count)
+            room:addMaxCards(player, x, true)
+            room:addPlayerMark(player, "&s4_cloud_yingzi-Clear", x)
+        end
+	end
+}
+
+s4_cloud_zhihengCard = sgs.CreateSkillCard{
+	name = "s4_cloud_zhiheng",
+    target_fixed = true,
+    mute = true,
+	on_use = function(self, room, source, targets)
+		if source:isAlive() then
+            local allhand = true
+    if (source:isKongcheng()) then
+        allhand = false
+        if (allhand) then
+        end
+    end
+    local x = self:subcardsLength()
+    if allhand then
+        x = x + 1
+    end
+			room:drawCards(source, x, "s4_cloud_zhiheng")
+		end
+	end
+}
+s4_cloud_zhiheng = sgs.CreateViewAsSkill{
+	name = "s4_cloud_zhiheng",
+	n = 999,
+	view_filter = function(self, selected, to_select)
+        return not sgs.Self:isJilei(to_select)
+	end,
+	view_as = function(self, cards)
+		if #cards == 0 then return nil end
+		local s4_cloud_zhiheng_card = s4_cloud_zhihengCard:clone()
+		for _,card in pairs(cards) do
+			s4_cloud_zhiheng_card:addSubcard(card)
+		end
+		s4_cloud_zhiheng_card:setSkillName(self:objectName())
+		return s4_cloud_zhiheng_card
+	end,
+	enabled_at_play = function(self, player)
+		return not player:hasUsed("#s4_cloud_zhiheng") and player:canDiscard(player, "he")
+	end
+}
+
+s4_cloud_sunquan:addSkill(s4_cloud_yingzi)
+s4_cloud_sunquan:addSkill("mobilemoujiuyuan")
+
+sgs.LoadTranslationTable {
+    ["s4_cloud_sunquan"] = "孙权",
+    ["#s4_cloud_sunquan"] = "",
+    ["~s4_cloud_sunquan"] = "",
+    ["designer:s4_cloud_sunquan"] = "终极植物",
+    ["cv:s4_cloud_sunquan"] = "",
+    ["illustrator:s4_cloud_sunquan"] = "云崖",
+
+    ["s4_cloud_yingzi"] = "英姿",
+    [":s4_cloud_yingzi"] = "锁定技，摸牌阶段，你多摸X张牌且你本回合的手牌上限+X（X为你满足的条件数：手牌数不小于2、体力值不小于2、装备区的牌数不小于1）。",
+    ["s4_cloud_zhiheng"] = "制衡",
+    [":s4_cloud_zhiheng"] = "出牌阶段限一次，你可以弃置任意张牌，然后摸等量的牌。若你以此法弃置的牌中包括所有手牌，你多摸一张牌。",
+}
+
+s4_lubu = sgs.General(extension, "s4_lubu", "qun", 5)
+s4_xianfeng = sgs.CreateTriggerSkill{
+	name = "s4_xianfeng" ,
+	events = {sgs.TargetSpecified} , 
+	on_trigger = function(self,event,player,data,room)
+		if event==sgs.TargetSpecified
+		then
+			local use = data:toCardUse()
+            if use.card and use.card:isKindOf("Slash") then
+                for _,to in sgs.qlist(use.to) do
+                    if player:distanceTo(to) <= 1 then
+                        room:addPlayerHistory(player,use.card:getClassName(),-1)
+                    end
+                end
+            end
+		end
+		return false
+	end
+}
+s4_xianfeng_TM = sgs.CreateTargetModSkill{
+	name = "#s4_xianfeng_TM",
+	pattern = "Slash",
+	residue_func = function(self, from, card, to)
+		local n = 0
+		if from:hasSkill("s4_xianfeng") and to and from:distanceTo(to) <= 1 then
+			n = 999
+		end
+		return n
+	end,
+}
+s4_jiwu = sgs.CreateTriggerSkill{
+	name = "s4_jiwu" ,
+	events = {sgs.TargetConfirmed, sgs.CardFinished} , 
+	on_trigger = function(self,event,player,data,room)
+		if event==sgs.TargetConfirmed then
+			local use = data:toCardUse()
+            if use.from and use.from:isAlive() and use.card and (use.card:isKindOf("Slash") or use.card:isKindOf("Duel")) then
+                for _,lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+                    if lubu and lubu:distanceTo(use.from) <= 1 then
+                        local choicelist = {}
+                        table.insert(choicelist, "s4_jiwu_no_respond_list")
+                        table.insert(choicelist, "s4_jiwu_draw")
+                        if lubu:getMark("&s4_jiwu_used") == 0 then
+                        table.insert(choicelist, "s4_jiwu_nullified")
+                        end
+                        local card = room:askForDiscard(lubu,"s4_jiwu",3, 1,true,false)
+                        if card then
+                            for i = 1, card:subcardsLength(),1 do
+                                local choice = room:askForChoice(lubu, self:objectName(), table.concat(choicelist, "+"))
+                                if choice == "s4_jiwu_no_respond_list" then
+                                    local list = use.no_respond_list
+                                    for _,to in sgs.qlist(use.to) do
+                                        table.insert(list,to:objectName())
+                                    end
+                                    use.no_respond_list = list
+                                    table.removeOne( choicelist, "s4_jiwu_no_respond_list")
+                                elseif choice == "s4_jiwu_draw" then
+                                    room:setCardFlag(use.card, self:objectName())
+                                    room:setPlayerMark(lubu, "s4_jiwu_"..use.card:getEffectiveId(), 1)
+                                    table.removeOne( choicelist, "s4_jiwu_draw")
+                                elseif choice == "s4_jiwu_nullified" then
+                                    local nullified_list = use.nullified_list
+                                    for _,to in sgs.qlist(use.to) do
+                                        table.insert(nullified_list,to:objectName())
+                                    end
+                                    use.nullified_list = nullified_list
+                                    room:addPlayerMark(lubu, "&s4_jiwu_used")
+                                    table.removeOne( choicelist, "s4_jiwu_nullified")
+                                    local analeptic = sgs.Sanguosha:cloneCard("analeptic")
+                                    analeptic:setSkillName(self:objectName())
+                                    analeptic.deleteLater()
+                                    local useEX = sgs.CardUseStruct()
+                                    useEX.from = lubu
+                                    useEX.card = analeptic
+                                    room:useCard(useEX, false)
+                                    useEX.from = use.from
+                                    room:useCard(useEX, false)
+                                end
+                            end
+                            data:setValue(use)
+                        end
+                    end
+                end
+            end
+        elseif event == sgs.CardFinished then
+            local use = data:toCardUse()
+            if use.card and (use.card:isKindOf("Slash") or use.card:isKindOf("Duel")) and use.card:hasFlag(self:objectName()) then
+                for _,lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+                    if lubu and lubu:getMark("s4_jiwu_"..use.card:getEffectiveId()) > 0 then
+                        lubu:drawCards(2)
+                        room:setPlayerMark(lubu, "s4_jiwu_"..use.card:getEffectiveId(), 0)
+                    end
+                end
+            end
+		end
+		return false
+	end,
+    can_trigger = function(self,target)
+		return target
+	end,
+}
+ov_hengjiangbf = sgs.CreateTriggerSkill{
+	name = "#ov_hengjiangbf",
+--	view_as_skill = ov_danfavs,
+	events = {sgs.CardUsed,sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed},
+	can_trigger = function(self,target)
+		return target
+	end,
+	on_trigger = function(self,event,player,data,room)
+        if (event == sgs.CardUsed or event == sgs.CardResponded) then
+		local card
+        local cardEX
+		if event==sgs.CardResponded
+		then card = data:toCardResponse().m_toCard
+        cardEX = data:toCardResponse().m_Card
+		else card = data:toCardUse().whocard 
+            cardEX= data:toCardUse().card 
+        end
+
+		if not card or not card:hasFlag("s4_jiwu") then return end
+        if not cardEX or not cardEX:isKindOf("Nullification") then return end
+		for _,lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
+            if lubu and lubu:getMark("s4_jiwu_"..card:getEffectiveId()) > 0 then
+                room:setPlayerMark(lubu, "s4_jiwu_"..card:getEffectiveId(), 0)
+            end
+        end
+    elseif event == sgs.EventPhaseStart then
+        if player:getPhase() == sgs.Player_Start and player:hasSkill("s4_jiwu") then
+            if player:getMark("&s4_jiwu_used") > 0 then
+                room:setPlayerMark(player, "&s4_jiwu_used", 0)
+            end
+        end
+    elseif event == sgs.SlashMissed then
+        local effect = data:toSlashEffect()
+		if effect.slash and effect.slash:hasFlag("s4_jiwu")	then
+            for _,lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
+                if lubu and lubu:getMark("s4_jiwu_"..effect.slash:getEffectiveId()) > 0 then
+                    room:setPlayerMark(lubu, "s4_jiwu_"..effect.slash:getEffectiveId(), 0)
+                end
+            end
+		end
+    end
+		return false
+	end,
+}
+sgs.LoadTranslationTable {
+    ["s4_lubu"] = "吕布",
+    ["#s4_lubu"] = "",
+    ["~s4_lubu"] = "",
+    ["designer:s4_lubu"] = "终极植物",
+    ["cv:s4_lubu"] = "",
+    ["illustrator:s4_lubu"] = "",
+
+    ["s4_xianfeng"] = "陷锋",
+    [":s4_xianfeng"] = "锁定技，你计算与其他角色的距离-1；你对距离1以内的角色使用【杀】不计入限制的次数且无次数限制。",
+
+    ["s4_jiwu_no_respond_list"] = "此【杀】或【决斗】不能被响应",
+    ["s4_jiwu_draw"] = "当此【杀】或【决斗】结算结束后，若此牌未被抵消，你摸两张牌",
+    ["s4_jiwu_nullified"] = "此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。",
+    ["s4_jiwu"] = "极武",
+    [":s4_jiwu"] = "当距离1以内的一名角色使用【杀】或【决斗】指定目标时，你可以弃置任意张牌并选择等量项：1.此【杀】或【决斗】不能被响应；2.当此【杀】或【决斗】结算结束后，若此牌未被抵消，你摸两张牌；3.此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。",
+}
 
 s4_txbw_disgeneralCard = sgs.CreateSkillCard {
     name = "s4_txbw_disgeneral",
