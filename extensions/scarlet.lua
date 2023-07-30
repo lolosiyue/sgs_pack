@@ -7,6 +7,16 @@ function RIGHT(self, player)
     if player and player:isAlive() and player:hasSkill(self:objectName()) then return true else return false end
 end
 
+--common prompt
+sgs.LoadTranslationTable {
+    ["#skill_add_damage"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%from对%to造成的伤害增加至%arg2点。", --add
+    ["#skill_add_damage_byother1"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，", --add
+    ["#skill_add_damage_byother2"] = "%from 对%to造成的伤害增加至%arg点。", --add
+    ["#skill_cant_jink"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%to 不能使用【闪】响应 %from 对 %to 使用的【杀】。", --add
+    ["#BecomeTargetBySkill"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%to 成为了 %card 的目标", --add
+    ["#ArmorNullifyDamage"] = "%from 的防具【%arg】效果被触发，抵消 %arg2 點傷害", --add
+    ["#SkillNullifyDamage"] = "%from 的技能【%arg】效果被触发，抵消 %arg2 點傷害", --add
+}
 s4_cloud_zhangliao = sgs.General(extension, "s4_cloud_zhangliao", "wei", 4, false, false, false, 3)
 
 
@@ -187,11 +197,13 @@ s4_cloud_liegong = sgs.CreateTriggerSkill {
             return false
         elseif event == sgs.DamageCaused then
             local damage = data:toDamage()
-            if damage.card and damage.card:isKindOf("Slash") and damage.from then
+            if damage.card and damage.card:isKindOf("Slash") and damage.from and damage.by_user and (not damage.chain) and (not damage.transfer) then
                 if damage.to and (damage.to:getHp() >= player:getHp() or damage.to:getHp() <= player:getAttackRange()) then
                     local _data = sgs.QVariant()
                     _data:setValue(damage.to)
                     if player:askForSkillInvoke(self:objectName(), _data) then
+                        room:broadcastSkillInvoke(self:objectName())
+                        damage.damage = damage.damage + 1
                         local log = sgs.LogMessage()
                         log.type = "#skill_add_damage"
                         log.from = damage.from
@@ -199,8 +211,6 @@ s4_cloud_liegong = sgs.CreateTriggerSkill {
                         log.arg  = self:objectName()
                         log.arg2 = damage.damage
                         room:sendLog(log)
-                        room:broadcastSkillInvoke(self:objectName())
-                        damage.damage = damage.damage + 1
                         data:setValue(damage)
                     end
                 end
@@ -395,6 +405,7 @@ s4_cloud_yongyi = sgs.CreateTriggerSkill {
             local x = math.max(1, #records)
             if player:askForSkillInvoke(self:objectName(), ToData(card)) then
                 player:drawCards(x)
+                room:broadcastSkillInvoke(self:objectName())
                 if card:hasSuit() then
                     table.removeOne(records, suit)
                 end
@@ -423,28 +434,30 @@ extension:insertRelatedSkills("s4_cloud_yongyi", "#s4_cloud_yongyiAttackRange")
 extension:insertRelatedSkills("s4_cloud_yongyi", "#s4_cloud_yongyiAnaleptic")
 sgs.LoadTranslationTable {
     ["s4_cloud_huangzhong"] = "谋黄忠",
-    ["#s4_cloud_huangzhong"] = "",
-    ["~s4_cloud_huangzhong"] = "",
+    ["#s4_cloud_huangzhong"] = "没金铩羽",
+    ["~s4_cloud_huangzhong"] = "弦断弓藏，将老孤亡。",
     ["designer:s4_cloud_huangzhong"] = "终极植物",
-    ["cv:s4_cloud_huangzhong"] = "",
+    ["cv:s4_cloud_huangzhong"] = "予安",
     ["illustrator:s4_cloud_huangzhong"] = "云崖",
 
+    ["$s4_cloud_liegong"] = "矢贯坚石，劲冠三军。",
     ["s4_cloud_liegong"] = "烈弓",
     [":s4_cloud_liegong"] = "当你使用【杀】指定目标后，你可以根据下列条件执行相应的效果：1.若其手牌数不小于你的体力值或不大于你的攻击范围，你可以令其不能响应此【杀】；2.若其体力值不小于你的体力值或不大于你的攻击范围，你可以令此【杀】伤害+1。",
+    ["$s4_cloud_yongyi"] = "吾虽年迈，箭矢犹锋。",
     ["s4_cloud_yongyi"] = "勇毅",
     [":s4_cloud_yongyi"] = "你使用牌时或成为其他角色使用牌的目标后，若此牌有花色且花色未被“勇毅”记录，则记录此花色；否则，你可以摸X张牌，若如此做，移除此花色记录。你的攻击范围加X（X为“勇毅”记录的花色数且至少为1）。每回合限一次，你可以移除一种花色记录，视为使用一张无次数限制的【酒】。",
 }
 
 
-s4_cloud_sunqian = sgs.General(extension, "s4_cloud_huangzhong", "wu", 3, false)
+s4_cloud_sunquan = sgs.General(extension, "s4_cloud_sunquan", "wu", 3, false)
 
-s4_cloud_yingzi = sgs.CreateTriggerSkill{
-	name = "s4_cloud_yingzi",
-	frequency = sgs.Skill_Compulsory,
-	events = {sgs.DrawNCards},
-	on_trigger = function(self,event,player,data)
-		local room = player:getRoom()
-		local x = 0
+s4_cloud_yingzi = sgs.CreateTriggerSkill {
+    name = "s4_cloud_yingzi",
+    frequency = sgs.Skill_Compulsory,
+    events = { sgs.DrawNCards },
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        local x = 0
         if player:getHandcardNum() >= 2 then
             x = x + 1
         end
@@ -455,61 +468,21 @@ s4_cloud_yingzi = sgs.CreateTriggerSkill{
             x = x + 1
         end
         if x > 0 then
-            room:broadcastSkillInvoke("yingzi")--播放配音
-			local count = data:toInt() + x
-			data:setValue(count)
+            local count = data:toInt() + x
+            data:setValue(count)
             room:addMaxCards(player, x, true)
             room:addPlayerMark(player, "&s4_cloud_yingzi-Clear", x)
         end
-	end
-}
-
-s4_cloud_zhihengCard = sgs.CreateSkillCard{
-	name = "s4_cloud_zhiheng",
-    target_fixed = true,
-    mute = true,
-	on_use = function(self, room, source, targets)
-		if source:isAlive() then
-            local allhand = true
-    if (source:isKongcheng()) then
-        allhand = false
-        if (allhand) then
-        end
     end
-    local x = self:subcardsLength()
-    if allhand then
-        x = x + 1
-    end
-			room:drawCards(source, x, "s4_cloud_zhiheng")
-		end
-	end
-}
-s4_cloud_zhiheng = sgs.CreateViewAsSkill{
-	name = "s4_cloud_zhiheng",
-	n = 999,
-	view_filter = function(self, selected, to_select)
-        return not sgs.Self:isJilei(to_select)
-	end,
-	view_as = function(self, cards)
-		if #cards == 0 then return nil end
-		local s4_cloud_zhiheng_card = s4_cloud_zhihengCard:clone()
-		for _,card in pairs(cards) do
-			s4_cloud_zhiheng_card:addSubcard(card)
-		end
-		s4_cloud_zhiheng_card:setSkillName(self:objectName())
-		return s4_cloud_zhiheng_card
-	end,
-	enabled_at_play = function(self, player)
-		return not player:hasUsed("#s4_cloud_zhiheng") and player:canDiscard(player, "he")
-	end
 }
 
 s4_cloud_sunquan:addSkill(s4_cloud_yingzi)
+s4_cloud_sunquan:addSkill("tenyearzhiheng")
 s4_cloud_sunquan:addSkill("mobilemoujiuyuan")
 
 sgs.LoadTranslationTable {
     ["s4_cloud_sunquan"] = "孙权",
-    ["#s4_cloud_sunquan"] = "",
+    ["#s4_cloud_sunquan"] = "东吴大帝",
     ["~s4_cloud_sunquan"] = "",
     ["designer:s4_cloud_sunquan"] = "终极植物",
     ["cv:s4_cloud_sunquan"] = "",
@@ -520,78 +493,81 @@ sgs.LoadTranslationTable {
     ["s4_cloud_zhiheng"] = "制衡",
     [":s4_cloud_zhiheng"] = "出牌阶段限一次，你可以弃置任意张牌，然后摸等量的牌。若你以此法弃置的牌中包括所有手牌，你多摸一张牌。",
 }
+----------------------------------------------------------------
+--https://tieba.baidu.com/p/8501081538
+----------------------------------------------------------------
 
 s4_lubu = sgs.General(extension, "s4_lubu", "qun", 5)
-s4_xianfeng = sgs.CreateTriggerSkill{
-	name = "s4_xianfeng" ,
-	events = {sgs.TargetSpecified} , 
-	on_trigger = function(self,event,player,data,room)
-		if event==sgs.TargetSpecified
-		then
-			local use = data:toCardUse()
+s4_xianfeng = sgs.CreateTriggerSkill {
+    name = "s4_xianfeng",
+    events = { sgs.TargetSpecified },
+    on_trigger = function(self, event, player, data, room)
+        if event == sgs.TargetSpecified
+        then
+            local use = data:toCardUse()
             if use.card and use.card:isKindOf("Slash") then
-                for _,to in sgs.qlist(use.to) do
+                for _, to in sgs.qlist(use.to) do
                     if player:distanceTo(to) <= 1 then
-                        room:addPlayerHistory(player,use.card:getClassName(),-1)
+                        room:addPlayerHistory(player, use.card:getClassName(), -1)
                     end
                 end
             end
-		end
-		return false
-	end
+        end
+        return false
+    end
 }
-s4_xianfeng_TM = sgs.CreateTargetModSkill{
-	name = "#s4_xianfeng_TM",
-	pattern = "Slash",
-	residue_func = function(self, from, card, to)
-		local n = 0
-		if from:hasSkill("s4_xianfeng") and to and from:distanceTo(to) <= 1 then
-			n = 999
-		end
-		return n
-	end,
+s4_xianfeng_TM = sgs.CreateTargetModSkill {
+    name = "#s4_xianfeng_TM",
+    pattern = "Slash",
+    residue_func = function(self, from, card, to)
+        local n = 0
+        if from:hasSkill("s4_xianfeng") and to and from:distanceTo(to) <= 1 then
+            n = 999
+        end
+        return n
+    end,
 }
-s4_jiwu = sgs.CreateTriggerSkill{
-	name = "s4_jiwu" ,
-	events = {sgs.TargetConfirmed, sgs.CardFinished} , 
-	on_trigger = function(self,event,player,data,room)
-		if event==sgs.TargetConfirmed then
-			local use = data:toCardUse()
+s4_jiwu = sgs.CreateTriggerSkill {
+    name = "s4_jiwu",
+    events = { sgs.TargetConfirmed, sgs.CardFinished },
+    on_trigger = function(self, event, player, data, room)
+        if event == sgs.TargetConfirmed then
+            local use = data:toCardUse()
             if use.from and use.from:isAlive() and use.card and (use.card:isKindOf("Slash") or use.card:isKindOf("Duel")) then
-                for _,lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-                    if lubu and lubu:distanceTo(use.from) <= 1 then
+                for _, lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+                    if lubu and lubu:distanceTo(use.from) <= 1 and lubu:objectName() == player:objectName() then
                         local choicelist = {}
                         table.insert(choicelist, "s4_jiwu_no_respond_list")
                         table.insert(choicelist, "s4_jiwu_draw")
-                        if lubu:getMark("&s4_jiwu_used") == 0 then
-                        table.insert(choicelist, "s4_jiwu_nullified")
+                        if lubu:getMark("&s4_jiwu_used+analeptic") == 0 then
+                            table.insert(choicelist, "s4_jiwu_nullified")
                         end
-                        local card = room:askForDiscard(lubu,"s4_jiwu",3, 1,true,false)
+                        local card = room:askForDiscard(lubu, "s4_jiwu", 3, 1, true, true, "@s4_jiwu")
                         if card then
-                            for i = 1, card:subcardsLength(),1 do
+                            for i = 1, card:subcardsLength(), 1 do
                                 local choice = room:askForChoice(lubu, self:objectName(), table.concat(choicelist, "+"))
                                 if choice == "s4_jiwu_no_respond_list" then
                                     local list = use.no_respond_list
-                                    for _,to in sgs.qlist(use.to) do
-                                        table.insert(list,to:objectName())
+                                    for _, to in sgs.qlist(use.to) do
+                                        table.insert(list, to:objectName())
                                     end
                                     use.no_respond_list = list
-                                    table.removeOne( choicelist, "s4_jiwu_no_respond_list")
+                                    table.removeOne(choicelist, "s4_jiwu_no_respond_list")
                                 elseif choice == "s4_jiwu_draw" then
                                     room:setCardFlag(use.card, self:objectName())
-                                    room:setPlayerMark(lubu, "s4_jiwu_"..use.card:getEffectiveId(), 1)
-                                    table.removeOne( choicelist, "s4_jiwu_draw")
+                                    room:setPlayerMark(lubu, "s4_jiwu_" .. use.card:getEffectiveId(), 1)
+                                    table.removeOne(choicelist, "s4_jiwu_draw")
                                 elseif choice == "s4_jiwu_nullified" then
                                     local nullified_list = use.nullified_list
-                                    for _,to in sgs.qlist(use.to) do
-                                        table.insert(nullified_list,to:objectName())
+                                    for _, to in sgs.qlist(use.to) do
+                                        table.insert(nullified_list, to:objectName())
                                     end
                                     use.nullified_list = nullified_list
-                                    room:addPlayerMark(lubu, "&s4_jiwu_used")
-                                    table.removeOne( choicelist, "s4_jiwu_nullified")
+                                    room:addPlayerMark(lubu, "&s4_jiwu_used+analeptic")
+                                    table.removeOne(choicelist, "s4_jiwu_nullified")
                                     local analeptic = sgs.Sanguosha:cloneCard("analeptic")
                                     analeptic:setSkillName(self:objectName())
-                                    analeptic.deleteLater()
+                                    analeptic:deleteLater()
                                     local useEX = sgs.CardUseStruct()
                                     useEX.from = lubu
                                     useEX.card = analeptic
@@ -608,64 +584,73 @@ s4_jiwu = sgs.CreateTriggerSkill{
         elseif event == sgs.CardFinished then
             local use = data:toCardUse()
             if use.card and (use.card:isKindOf("Slash") or use.card:isKindOf("Duel")) and use.card:hasFlag(self:objectName()) then
-                for _,lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-                    if lubu and lubu:getMark("s4_jiwu_"..use.card:getEffectiveId()) > 0 then
+                for _, lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+                    if lubu and lubu:getMark("s4_jiwu_" .. use.card:getEffectiveId()) > 0 then
                         lubu:drawCards(2)
-                        room:setPlayerMark(lubu, "s4_jiwu_"..use.card:getEffectiveId(), 0)
+                        room:setPlayerMark(lubu, "s4_jiwu_" .. use.card:getEffectiveId(), 0)
                     end
                 end
             end
-		end
-		return false
-	end,
-    can_trigger = function(self,target)
-		return target
-	end,
+        end
+        return false
+    end,
+    can_trigger = function(self, target)
+        return target
+    end,
 }
-ov_hengjiangbf = sgs.CreateTriggerSkill{
-	name = "#ov_hengjiangbf",
---	view_as_skill = ov_danfavs,
-	events = {sgs.CardUsed,sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed},
-	can_trigger = function(self,target)
-		return target
-	end,
-	on_trigger = function(self,event,player,data,room)
+s4_jiwuClear = sgs.CreateTriggerSkill {
+    name = "#s4_jiwuClear",
+    --	view_as_skill = ov_danfavs,
+    events = { sgs.CardUsed, sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed },
+    can_trigger = function(self, target)
+        return target
+    end,
+    on_trigger = function(self, event, player, data, room)
         if (event == sgs.CardUsed or event == sgs.CardResponded) then
-		local card
-        local cardEX
-		if event==sgs.CardResponded
-		then card = data:toCardResponse().m_toCard
-        cardEX = data:toCardResponse().m_Card
-		else card = data:toCardUse().whocard 
-            cardEX= data:toCardUse().card 
-        end
+            local card
+            local cardEX
+            if event == sgs.CardResponded
+            then
+                card = data:toCardResponse().m_toCard
+                cardEX = data:toCardResponse().m_Card
+            else
+                card = data:toCardUse().whocard
+                cardEX = data:toCardUse().card
+            end
 
-		if not card or not card:hasFlag("s4_jiwu") then return end
-        if not cardEX or not cardEX:isKindOf("Nullification") then return end
-		for _,lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
-            if lubu and lubu:getMark("s4_jiwu_"..card:getEffectiveId()) > 0 then
-                room:setPlayerMark(lubu, "s4_jiwu_"..card:getEffectiveId(), 0)
-            end
-        end
-    elseif event == sgs.EventPhaseStart then
-        if player:getPhase() == sgs.Player_Start and player:hasSkill("s4_jiwu") then
-            if player:getMark("&s4_jiwu_used") > 0 then
-                room:setPlayerMark(player, "&s4_jiwu_used", 0)
-            end
-        end
-    elseif event == sgs.SlashMissed then
-        local effect = data:toSlashEffect()
-		if effect.slash and effect.slash:hasFlag("s4_jiwu")	then
-            for _,lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
-                if lubu and lubu:getMark("s4_jiwu_"..effect.slash:getEffectiveId()) > 0 then
-                    room:setPlayerMark(lubu, "s4_jiwu_"..effect.slash:getEffectiveId(), 0)
+            if not card or not card:hasFlag("s4_jiwu") then return end
+            if not cardEX or not cardEX:isKindOf("Nullification") then return end
+            for _, lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
+                if lubu and lubu:getMark("s4_jiwu_" .. card:getEffectiveId()) > 0 then
+                    room:setPlayerMark(lubu, "s4_jiwu_" .. card:getEffectiveId(), 0)
                 end
             end
-		end
-    end
-		return false
-	end,
+        elseif event == sgs.EventPhaseStart then
+            if player:getPhase() == sgs.Player_Start and player:hasSkill("s4_jiwu") then
+                if player:getMark("&s4_jiwu_used+analeptic") > 0 then
+                    room:setPlayerMark(player, "&s4_jiwu_used+analeptic", 0)
+                end
+            end
+        elseif event == sgs.SlashMissed then
+            local effect = data:toSlashEffect()
+            if effect.slash and effect.slash:hasFlag("s4_jiwu") then
+                for _, lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
+                    if lubu and lubu:getMark("s4_jiwu_" .. effect.slash:getEffectiveId()) > 0 then
+                        room:setPlayerMark(lubu, "s4_jiwu_" .. effect.slash:getEffectiveId(), 0)
+                    end
+                end
+            end
+        end
+        return false
+    end,
 }
+s4_lubu:addSkill(s4_xianfeng)
+s4_lubu:addSkill(s4_xianfeng_TM)
+extension:insertRelatedSkills("s4_xianfeng", "#s4_xianfeng_TM")
+s4_lubu:addSkill(s4_jiwu)
+s4_lubu:addSkill(s4_jiwuClear)
+extension:insertRelatedSkills("s4_jiwu", "#s4_jiwuClear")
+
 sgs.LoadTranslationTable {
     ["s4_lubu"] = "吕布",
     ["#s4_lubu"] = "",
@@ -676,7 +661,8 @@ sgs.LoadTranslationTable {
 
     ["s4_xianfeng"] = "陷锋",
     [":s4_xianfeng"] = "锁定技，你计算与其他角色的距离-1；你对距离1以内的角色使用【杀】不计入限制的次数且无次数限制。",
-
+    ["@s4_jiwu"] = "你可以发动“极武”弃置任意张牌",
+    ["s4_jiwu_used"] = "极武",
     ["s4_jiwu_no_respond_list"] = "此【杀】或【决斗】不能被响应",
     ["s4_jiwu_draw"] = "当此【杀】或【决斗】结算结束后，若此牌未被抵消，你摸两张牌",
     ["s4_jiwu_nullified"] = "此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。",
