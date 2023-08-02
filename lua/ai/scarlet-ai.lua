@@ -175,7 +175,7 @@ sgs.ai_skill_choice.s4_jiwu = function(self, choices, data)
         if not use.card:hasFlag("s4_jiwu_nullified") then
             local invoke = true
             for _, to in sgs.list(use.to) do
-                if (sgs.getDefenseSlash(to, use.from) > 3) and
+                if (getCardsNum("Jink", to) > 0) and
                     not (self:canLiegong(to, use.from) or use.card:hasFlag("s4_jiwu_no_respond")) then
                     invoke = false
                     break
@@ -190,9 +190,9 @@ sgs.ai_skill_choice.s4_jiwu = function(self, choices, data)
         if use.from and self:isFriend(use.from) and not use.card:hasFlag("s4_jiwu_nullified") then
             for _, to in sgs.qlist(use.to) do
                 if self:isEnemy(to) and (self:isWeak(to) or self:hasHeavyDamage(use.from, use.card, to)) then
-                    if ((use.card:isKindOf("Slash") and sgs.getDefenseSlash(to, use.from) > 3 and
-                        not (self:canLiegong(to, use.from))) or
-                        (use.card:isKindOf("Duel") and getCardsNum("Slash", to, use.from) > 0)) then
+                    if ((use.card:isKindOf("Slash") and getCardsNum("Jink", to) > 0 and
+                                not (self:canLiegong(to, use.from))) or
+                            (use.card:isKindOf("Duel") and getCardsNum("Slash", to, use.from) > 0)) then
                         return "s4_jiwu_no_respond_list"
                     end
                 end
