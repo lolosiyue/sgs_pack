@@ -507,10 +507,16 @@ s4_xianfeng = sgs.CreateTriggerSkill {
         then
             local use = data:toCardUse()
             if use.card and use.card:isKindOf("Slash") then
+                local invoke = false
                 for _, to in sgs.qlist(use.to) do
                     if player:distanceTo(to) <= 1 then
-                        room:addPlayerHistory(player, use.card:getClassName(), -1)
+                        invoke = true
+                        break
+                        
                     end
+                end
+                if invoke then
+                    room:addPlayerHistory(player, use.card:getClassName(), -1)
                 end
             end
         end
@@ -2094,6 +2100,67 @@ s4_txbw_jushouClear = sgs.CreateTriggerSkill {
     end
 }
 
+s4_txbw_chiliVS = sgs.CreateViewAsSkill{
+	name = "s4_txbw_chili",
+	n = 0,
+	view_as = function(self,cards)
+		local pattern = sgs.Sanguosha:getCurrentCardUsePattern()
+		local c = sgs.Sanguosha:cloneCard("nullification")
+		c:setSkillName("s4_txbw_chili")
+		return c
+	end,
+	enabled_at_play = function(self,player)
+		return false
+	end,
+	enabled_at_response = function(self,player,pattern)
+	   	if pattern~="nullification" then return end
+		return player:getMark("@s4_txbw_general") > 0
+	end,
+	enabled_at_nullification = function(self,player)				
+        return player:getMark("@s4_txbw_general") > 0
+	end
+}
+s4_txbw_chili = sgs.CreateTriggerSkill{
+	name = "s4_txbw_chili",
+	events = {sgs.TurnedOver, sgs.CardUsed} ,
+	frequency = sgs.Skill_NotFrequent,
+    view_as_skill = s4_txbw_chiliVS,
+	on_trigger = function(self, event, player, data)
+		local room = player:getRoom()
+        if event == sgs.TurnedOver then
+            if not player:faceUp() then return false end
+		if not room:askForSkillInvoke(player, self:objectName()) then return false end
+		room:setPlayerMark(player, "@s4_txbw_general", 1)
+		
+		local targets = sgs.SPlayerList()
+        for _, p in sgs.qlist(room:getAlivePlayers()) do
+            if player:canDiscard(p, "he") then targets:append(p) end
+        end
+		
+		if targets:isEmpty() then return false end
+		local to_discard = room:askForPlayerChosen(player, targets, self:objectName(), "@s4_txbw_chili-discard", true)
+		if to_discard then
+			local id = room:askForCardChosen(player, to_discard, "ej", self:objectName(), false, sgs.Card_MethodDiscard)
+			room:throwCard(id, to_discard, player)
+		end
+    elseif (event == sgs.CardUsed) then
+        local use = data:toCardUse()
+        if use.card and use.card:isKindOf("Nullification") and use.card:getSkillName() == self:objectName() then
+            local list = use.no_offset_list
+            
+            table.insert(list, "_ALL_TARGETS")
+            use.no_offset_list = list
+            data:setValue(use)
+           
+        end
+        end
+        
+		return false
+	end	
+}
+
+
+
 sgs.LoadTranslationTable {
     ["s4_txbw_caoren"] = "曹仁",
     ["&s4_txbw_caoren"] = "曹仁",
@@ -2109,6 +2176,65 @@ sgs.LoadTranslationTable {
     [":s4_txbw_chili"] = "你可以扣置武将标签并视为使用一张无法被抵消的【无懈可击】。当你从背面翻至正面时，你可以重置武将标签并弃置场上一张牌。",
 
 }
+
+
+s4_txbw_zhanghe = sgs.General(extension, "s4_txbw_zhanghe", "wei", 4, true)
+
+s4_txbw_yishi = sgs.CreateTriggerSkill {
+    name = "s4_txbw_yishi",
+    frequency = sgs.Skill_NotFrequent,
+    events = { sgs.CardFinished },
+    priority = -1,
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        if event == sgs.CardFinished then
+            local use = data:toCardUse()
+            if use.card and use.card:isKindOf("SkillCard") then
+                if use.card:getSkillName() == "s4_txbw_general_duel_choose" then
+                    local card_v = room:getTag("s4_txbw_general_duel_v"):toCard()
+                    local card_s = room:getTag("s4_txbw_general_duel_s"):toCard()
+                    if room:askForSkillInvoke(player, self:objectName()) then
+                        room:removeTag("s4_txbw_general_duel_v")
+                        room:removeTag("s4_txbw_general_duel_s")
+                        room:setTag("s4_txbw_general_duel_s", sgs.QVariant(card_v:getId()))
+                        room:setTag("s4_txbw_general_duel_v", sgs.QVariant(card_s:getId()))
+                    end
+                end
+            end
+        end
+        return false
+    end,
+    can_trigger = function(self, target)
+        return target
+    end
+}
+
+
+
+
+sgs.LoadTranslationTable {
+    ["s4_txbw_zhanghe"] = "张郃",
+    ["&s4_txbw_zhanghe"] = "张郃",
+    ["#s4_txbw_zhanghe"] = "弹指千钧",
+    ["~s4_txbw_zhanghe"] = "",
+    ["designer:s4_txbw_zhanghe"] = "",
+    ["cv:s4_txbw_zhanghe"] = "",
+    ["illustrator:s4_txbw_zhanghe"] = "",
+
+    ["s4_txbw_yishi"] = "易势",
+    [":s4_txbw_yishi"] = "对决牌扣置后，你可以与对方交换之。",
+    ["s4_txbw_qiaobian"] = "巧变",
+    [":s4_txbw_qiaobian"] = "出牌阶段限X次，你可以交换两名角色相同区域里一张牌（X为你已损失的体力值）。",
+
+}
+
+
+
+
+
+
+
+
 
 
 function addWeiTerritoryPile(card, player, self)
