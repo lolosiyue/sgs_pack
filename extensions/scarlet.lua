@@ -1831,7 +1831,7 @@ s4_txbw_jingzhe = sgs.CreateTriggerSkill {
                     n = math.min(p:getSeat(), n)
                 end
                 if player:getSeat() == n then
-                    local x = player:getMark("Global_TurnCount")
+                    local x = getRoundCount(room)
                     if x < 5 then
                         for _, simayi in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
                             if simayi:objectName() == damage.to:objectName() then
@@ -1856,15 +1856,10 @@ s4_txbw_jingzhe = sgs.CreateTriggerSkill {
                 end
             end
         elseif event == sgs.TurnStart then
-            local n = 15
-            for _, p in sgs.qlist(room:getAlivePlayers()) do
-                n = math.min(p:getSeat(), n)
-            end
-            if player:getSeat() == n and not room:getTag("ExtraTurn"):toBool() then
-                if player:getMark("Global_TurnCount") > 5 then
-                    for _, simayi in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-                        room:handleAcquireDetachSkills(simayi, "lianpo")
-                    end
+            local x = getRoundCount(room)
+            if x > 5 then
+                for _, simayi in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+                    room:handleAcquireDetachSkills(simayi, "lianpo")
                 end
             end
         elseif event == sgs.GameStart then
@@ -1943,21 +1938,13 @@ s4_txbw_lianpo = sgs.CreateTriggerSkill {
             if change.to ~= sgs.Player_NotActive then
                 return false
             end
-            local n = 15
-            for _, p in sgs.qlist(room:getAlivePlayers()) do
-                n = math.min(p:getSeat(), n)
-            end
-            for _, p in sgs.qlist(room:getAlivePlayers()) do
-                if p:getSeat() == n then
-                    local x = p:getMark("Global_TurnCount")
-                    if player:getMark("&s4_txbw_lianpo") <= x then
-                        local card = room:askForCard(player, ".|.|" .. player:getMark("&s4_txbw_lianpo"),
-                            "@s4_txbw_lianpo:" .. player:getMark("&s4_txbw_lianpo"), data, sgs.Card_MethodDiscard)
-                        if card then
-                            room:setTag("s4_txbw_lianpo", ToData(player))
-                            room:addPlayerMark(player, "&s4_txbw_lianpo")
-                        end
-                    end
+            local x = getRoundCount(room)
+            if player:getMark("&s4_txbw_lianpo") <= x then
+                local card = room:askForCard(player, ".|.|" .. player:getMark("&s4_txbw_lianpo"),
+                    "@s4_txbw_lianpo:" .. player:getMark("&s4_txbw_lianpo"), data, sgs.Card_MethodDiscard)
+                if card then
+                    room:setTag("s4_txbw_lianpo", ToData(player))
+                    room:addPlayerMark(player, "&s4_txbw_lianpo")
                 end
             end
         end
@@ -2075,6 +2062,7 @@ s4_txbw_yanglei = sgs.CreateTriggerSkill {
                     local supply_shortage = sgs.Sanguosha:cloneCard("supply_shortage", card:getSuit(), card:getNumber())
                     supply_shortage:addSubcard(card)
                     supply_shortage:setSkillName("s4_txbw_yanglei")
+                    supply_shortage:deleteLater()
                     room:useCard(sgs.CardUseStruct(supply_shortage, player, damage.to))
                 end
             end
