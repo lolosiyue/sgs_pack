@@ -12,6 +12,13 @@ sgs.ai_skill_playerchosen.s4_cloud_yongqian = function(self, targets)
     end
     return nil
 end
+function sgs.ai_cardneed.s4_cloud_yongqian(to, card)
+    return to:getHandcardNum() < 3 and card:isKindOf("Slash")
+end
+
+function sgs.ai_cardneed.s4_cloud_tuxi(to, card)
+    return to:isKongcheng()
+end
 
 sgs.ai_skill_choice.s4_cloud_tuxi = function(self, choices)
     return "1"
@@ -64,6 +71,11 @@ end
 function sgs.ai_cardneed.s4_cloud_liegong(to, card)
     return to:getHandcardNum() < 3 and card:isKindOf("Slash")
 end
+
+sgs.card_value.s4_cloud_liegong = {
+    Analeptic = 4.9,
+    Slash = 7.2
+}
 
 sgs.ai_skill_invoke.s4_cloud_yongyi = function(self, data)
     local card = data:toCard()
@@ -118,41 +130,22 @@ sgs.ai_guhuo_card.s4_cloud_yongyi = function(self, toname, class_name)
     end
 end
 
-sgs.ai_skill_discard.s4_jiwu = function(self, discard_num, min_num, optional, include_equip)
-    local data = self.room:getTag("CurrentUseStruct")
-    local x = 0
-    local choicelist = {}
-    if self.player:getMark("&s4_jiwu_used+analeptic") == 0 then
-        table.insert(choicelist, "s4_jiwu_nullified")
-        if sgs.ai_skill_choice.s4_jiwu(self, table.concat(choicelist, "+"), data) ~= "cancel" then
-            x = x + 1
-        else
-            choicelist = {}
-            table.insert(choicelist, "s4_jiwu_no_respond_list")
-            if sgs.ai_skill_choice.s4_jiwu(self, table.concat(choicelist, "+"), data) ~= "cancel" then
-                x = x + 1
-            end
-            choicelist = {}
-            table.insert(choicelist, "s4_jiwu_draw")
-            if sgs.ai_skill_choice.s4_jiwu(self, table.concat(choicelist, "+"), data) ~= "cancel" then
-                x = x + 1
-            end
-        end
-    else
-        choicelist = {}
-        table.insert(choicelist, "s4_jiwu_no_respond_list")
-        if sgs.ai_skill_choice.s4_jiwu(self, table.concat(choicelist, "+"), data) ~= "cancel" then
-            x = x + 1
-        end
-        choicelist = {}
-        table.insert(choicelist, "s4_jiwu_draw")
-        if sgs.ai_skill_choice.s4_jiwu(self, table.concat(choicelist, "+"), data) ~= "cancel" then
-            x = x + 1
-        end
-    end
+sgs.card_value.s4_cloud_yongyi = {
+    Analeptic = 4.9,
+    Slash = 7.2
+}
 
-    if x > 0 then
-        return self:askForDiscard("dummy", x, x, false, include_equip)
+sgs.card_value.s4_xianfeng = {
+    Slash = 7.2
+}
+
+function sgs.ai_cardneed.s4_xianfeng(to, card)
+    return card:isKindOf("Slash")
+end
+
+sgs.ai_skill_discard.s4_jiwu_invoke = function(self, discard_num, min_num, optional, include_equip)
+    if min_num > 0 and (self.player:getCardCount() >= 2 or self:isWeak()) then
+        return self:askForDiscard("dummy", min_num, min_num, false, include_equip)
     end
     return {}
 end
@@ -174,14 +167,15 @@ sgs.ai_skill_choice.s4_jiwu = function(self, choices, data)
     if table.contains(items, "s4_jiwu_draw") then
         if not use.card:hasFlag("s4_jiwu_nullified") then
             local invoke = true
-            for _, to in sgs.list(use.to) do
-                if (getCardsNum("Jink", to) > 0) and
-                    not (self:canLiegong(to, use.from) or use.card:hasFlag("s4_jiwu_no_respond")) then
+            for _, to in sgs.qlist(use.to) do
+                if ((use.card:isKindOf("Slash") and getCardsNum("Jink", to) > 0) or
+                    (use.card:isKindOf("Duel") and getCardsNum("Nullification", to) > 0)) and
+                    not self:needToLoseHp(to, use.from, use.card) then
                     invoke = false
                     break
                 end
             end
-            if invoke then
+            if invoke or use.card:hasFlag("s4_jiwu_no_respond") then
                 return "s4_jiwu_draw"
             end
         end
@@ -189,10 +183,11 @@ sgs.ai_skill_choice.s4_jiwu = function(self, choices, data)
     if table.contains(items, "s4_jiwu_no_respond_list") then
         if use.from and self:isFriend(use.from) and not use.card:hasFlag("s4_jiwu_nullified") then
             for _, to in sgs.qlist(use.to) do
-                if self:isEnemy(to) and (self:isWeak(to) or self:hasHeavyDamage(use.from, use.card, to)) then
+                if self:isEnemy(to) and
+                    (self:isWeak(to) or self:hasHeavyDamage(use.from, use.card, to) or use.card:hasFlag("s4_jiwu")) then
                     if ((use.card:isKindOf("Slash") and getCardsNum("Jink", to) > 0 and
-                                not (self:canLiegong(to, use.from))) or
-                            (use.card:isKindOf("Duel") and getCardsNum("Slash", to, use.from) > 0)) then
+                        not (self:canLiegong(to, use.from))) or
+                        (use.card:isKindOf("Duel") and getCardsNum("Slash", to, use.from) > 0)) then
                         return "s4_jiwu_no_respond_list"
                     end
                 end
@@ -205,6 +200,10 @@ end
 function sgs.ai_cardneed.s4_jiwu(to, card)
     return to:getHandcardNum() < 3 and card:isKindOf("Slash")
 end
+
+sgs.card_value.s4_jiwu = {
+    Slash = 7.2
+}
 
 sgs.ai_skill_invoke.s4_weiT_lord = function(self, data)
     return true

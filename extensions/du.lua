@@ -421,10 +421,12 @@ duWuhun = sgs.CreateTriggerSkill {
             room:setPlayerMark(player, "Blade", 0)
             room:addPlayerMark(player, "BladeUsed")
             room:handleAcquireDetachSkills(player, "huxiao")
+            room:addPlayerMark(player, "&huxiao")
         end
         if player:getMark("ChiTu") == 1 and player:getMark("ChiTuUsed") == 0 then
             room:setPlayerMark(player, "ChiTu", 0)
             room:addPlayerMark(player, "ChiTuUsed")
+            room:addPlayerMark(player, "&chiTu")
             room:handleAcquireDetachSkills(player, "mashu")
         end
         if player:getMark("BladeUsed") == 1 and player:getMark("ChiTuUsed") == 1 then
@@ -617,7 +619,7 @@ du_tongque = sgs.CreateTriggerSkill {
                 for _, lord in sgs.qlist(list) do
                     if lord:hasLordSkill(self:objectName()) and not lord:isKongcheng() then
                         if room:askForSkillInvoke(lord, self:objectName(), data) then
-                            local prompt = string.format("caocao_tongque:%s", lord:getGeneralName())
+                            local prompt = string.format("#caocao_tongque:%s", victim:objectName())
                             local card = room:askForCard(lord, ".", prompt, data, sgs.AskForPeachesDone)
                             victim:obtainCard(card)
                             local hp = victim:getHp()
@@ -763,8 +765,8 @@ tongpaoSlashCard = sgs.CreateSkillCard {
         local dest = sgs.QVariant()
         dest:setValue(zhangfei)
         for _, p in sgs.qlist(lieges) do
-            local slash = room:askForCard(p, "slash", "@tongpao-slash", dest, sgs.Card_MethodResponse, nil, false, "",
-                true)
+            local slash = room:askForCard(p, "slash", "@tongpao-slash:" .. zhangfei:objectName(), dest,
+                sgs.Card_MethodResponse, nil, false, "", true)
             if slash then
                 return slash
             end
@@ -817,7 +819,7 @@ tongpaoSlash = sgs.CreateTriggerSkill {
         if pattern ~= "slash" then
             return false
         end
-        if data:toStringList()[2] == "@tongpao-slash" then
+        if string.startsWith(data:toStringList()[2], "@tongpao-slash") then
             return false
         end
         if not player:askForSkillInvoke("tongpao_slash", data) then
@@ -832,8 +834,8 @@ tongpaoSlash = sgs.CreateTriggerSkill {
         dest:setValue(player)
         local lieges = room:getLieges("wu", player)
         for _, p in sgs.qlist(lieges) do
-            local slash = room:askForCard(p, "slash", "@tongpao-slash", dest, sgs.Card_MethodResponse, nil, false, "",
-                true)
+            local slash = room:askForCard(p, "slash", "@tongpao-slash:" .. player:objectName(), dest,
+                sgs.Card_MethodResponse, nil, false, "", true)
             if slash then
                 room:setPlayerFlag(player, "-tongpao_target")
                 room:provide(slash)
@@ -854,7 +856,7 @@ tongpaoJink = sgs.CreateTriggerSkill {
         if pattern ~= "jink" then
             return false
         end
-        if data:toStringList()[2] == "@tongpao-jink" then
+        if string.startsWith(data:toStringList()[2], "@tongpao-jink") then
             return false
         end
         if not player:askForSkillInvoke("tongpao_jink", data) then
@@ -870,8 +872,8 @@ tongpaoJink = sgs.CreateTriggerSkill {
         local dest = sgs.QVariant()
         dest:setValue(player)
         for _, p in sgs.qlist(lieges) do
-            local jink =
-                room:askForCard(p, "jink", "@tongpao-jink", dest, sgs.Card_MethodResponse, nil, false, "", true)
+            local jink = room:askForCard(p, "jink", "@tongpao-jink:" .. player:objectName(), dest,
+                sgs.Card_MethodResponse, nil, false, "", true)
             if jink then
                 room:provide(jink)
                 return true
@@ -953,8 +955,8 @@ sgs.LoadTranslationTable {
     [":duXiaoguo"] = "当你对一名其他角色造成伤害时，你可以与其拼点，若你赢，则伤害+1。",
     ["tongpao"] = "同袍",
     [":tongpao"] = "当吴势力角色需要使用或打出【杀】或【闪】时，其他吴势力角色可以代为使用或打出【杀】或【闪】",
-    ["tongpao_jink"] = "【同胞】技能被触发，请吴势力角色代为出“闪”",
-    ["tongpao_slash"] = "【同胞】技能被触发，请吴势力角色代为出“杀”",
+    ["tongpao_jink"] = "【同胞】技能被触发，请吴势力角色代 %src 出“闪”",
+    ["tongpao_slash"] = "【同胞】技能被触发，请吴势力角色代 %src 出“杀”",
     ["#tongpao"] = "%from 请吴国势力代为打出【杀】或【闪】",
 
     ["du_zhouxuan"] = "周旋",
@@ -970,10 +972,10 @@ sgs.LoadTranslationTable {
     [":jieyou"] = "你可以将一张♠2~9手牌当【酒】使用。",
 
     ["du_tongque"] = "铜雀",
-    [":du_tongque"] = "<font color=\"orange\"><b>主公技，</b></font>当魏势力角色导致场上女性角色濒死并求桃失败后，你可以将一张手牌交给其，令其复活。该角色摸三张牌，恢复1点体力，失去1点体力上限，将势力改为魏，并改变身份为“内奸”。",
+    [":du_tongque"] = "<font color=\"orange\"><b>主公技，</b></font>当魏势力角色导致女性角色濒死并求桃失败后，你可以将一张手牌交给其，令其复活。该角色摸三张牌，恢复1点体力，失去1点体力上限，将势力改为魏，并改变身份为“内奸”。",
     ["#du_tongque1"] = "%to 被收入 %from 的铜雀台，势力变为魏，身为变为内奸",
     ["#tongque2"] = "%from 被收入 %to 的铜雀台",
-    ["caocao_tongque"] = "请选择一张手牌给该女将",
+    ["#caocao_tongque"] = "请选择一张手牌给 %src",
 
     ["jiuwei"] = "酒威",
     [":jiuwei"] = "你使用的受【酒】影响的【杀】被目标角色的【闪】抵消后，你可以获得其一张牌或弃置其两张牌。",
