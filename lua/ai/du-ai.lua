@@ -545,7 +545,7 @@ sgs.ai_skill_invoke.du_tongque = function(self, data)
     return true
 end
 
-sgs.ai_skill_cardask["caocao_tongque"] = function(self, data)
+sgs.ai_skill_cardask["#caocao_tongque"] = function(self, data)
     local all_cards = self.player:getCards("he")
     if all_cards:isEmpty() then
         return "."
@@ -566,6 +566,9 @@ end
 sgs.ai_event_callback[sgs.ChoiceMade].tongque = function(self, player, data)
     local datastr = data:toString()
     local data_list = datastr:split(":")
+    self.room:writeToConsole(data_list[1])
+    self.room:writeToConsole(data_list[2])
+    self.room:writeToConsole(data_list[3])
     -- if datastr == "cardResponded:.:tongque" then
     if data_list[3] == "tongque" and data_list[4] ~= "_nil_" then
         local dying = self.room:getCurrentDyingPlayer()

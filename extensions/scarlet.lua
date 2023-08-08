@@ -557,6 +557,8 @@ s4_xianfeng = sgs.CreateTriggerSkill {
                     end
                 end
                 if invoke then
+                    room:broadcastSkillInvoke(self:objectName())
+                    room:sendCompulsoryTriggerLog(player, self:objectName())
                     room:addPlayerHistory(player, use.card:getClassName(), -1)
                 end
             end
@@ -598,67 +600,70 @@ s4_jiwu = sgs.CreateTriggerSkill {
                         local choicelist = {}
                         table.insert(choicelist, "s4_jiwu_no_respond_list")
                         table.insert(choicelist, "s4_jiwu_draw")
+
                         if lubu:getMark("&s4_jiwu_used+analeptic") == 0 then
                             table.insert(choicelist, "s4_jiwu_nullified")
                         end
+                        table.insert(choicelist, "cancel")
                         room:setTag("CurrentUseStruct", data)
-                        local card = room:askForDiscard(lubu, "s4_jiwu", 3, 1, true, true, "@s4_jiwu")
-                        if card then
-                            for i = 1, card:subcardsLength(), 1 do
-                                local choice = room:askForChoice(lubu, self:objectName(), table.concat(choicelist, "+"),
-                                    data)
-                                if choice == "s4_jiwu_no_respond_list" then
-                                    local list = use.no_respond_list
-                                    for _, to in sgs.qlist(use.to) do
-                                        table.insert(list, to:objectName())
-                                    end
-                                    use.no_respond_list = list
-                                    room:setCardFlag(use.card, "s4_jiwu_no_respond")
-                                    table.removeOne(choicelist, "s4_jiwu_no_respond_list")
-                                elseif choice == "s4_jiwu_draw" then
-                                    room:setCardFlag(use.card, self:objectName())
-                                    room:setPlayerMark(lubu, "s4_jiwu_" .. use.card:getEffectiveId(), 1)
-                                    table.removeOne(choicelist, "s4_jiwu_draw")
-                                elseif choice == "s4_jiwu_nullified" then
-                                    local nullified_list = use.nullified_list
-                                    for _, to in sgs.qlist(use.to) do
-                                        table.insert(nullified_list, to:objectName())
-                                    end
-                                    use.nullified_list = nullified_list
-                                    room:addPlayerMark(lubu, "&s4_jiwu_used+analeptic")
-                                    table.removeOne(choicelist, "s4_jiwu_nullified")
-                                    local analeptic = sgs.Sanguosha:cloneCard("analeptic")
-                                    analeptic:setSkillName(self:objectName())
-                                    analeptic:deleteLater()
-                                    local useEX = sgs.CardUseStruct()
-                                    useEX.from = lubu
-                                    useEX.card = analeptic
-                                    room:useCard(useEX, false)
-                                    useEX.from = use.from
-                                    room:useCard(useEX, false)
-                                    room:setCardFlag(use.card, "s4_jiwu_nullified")
-                                end
-                                local log = sgs.LogMessage()
-                                log.type = "#ChooseSkill"
-                                log.from = lubu
-                                log.arg = self:objectName()
-                                log.arg2 = choice
-                                room:sendLog(log)
+                        local x = 0
+                        for i = 1, 3, 1 do
+                            local choice = room:askForChoice(lubu, self:objectName(), table.concat(choicelist, "+"),
+                                data)
+                            if choice == "cancel" then
+                                break
                             end
-                            data:setValue(use)
+                            x = x + 1
+                            if choice == "s4_jiwu_no_respond_list" then
+                                local list = use.no_respond_list
+                                for _, to in sgs.qlist(use.to) do
+                                    table.insert(list, to:objectName())
+                                end
+                                use.no_respond_list = list
+                                room:setCardFlag(use.card, "s4_jiwu_no_respond")
+                                table.removeOne(choicelist, "s4_jiwu_no_respond_list")
+                                room:broadcastSkillInvoke(self:objectName(), math.random(1, 2))
+                            elseif choice == "s4_jiwu_draw" then
+                                room:setCardFlag(use.card, self:objectName())
+                                room:setPlayerMark(lubu, "s4_jiwu_" .. use.card:getEffectiveId(), 1)
+                                table.removeOne(choicelist, "s4_jiwu_draw")
+                                room:broadcastSkillInvoke(self:objectName(), math.random(1, 2))
+                                lubu:drawCards(2)
+                            elseif choice == "s4_jiwu_nullified" then
+                                room:broadcastSkillInvoke(self:objectName(), 3)
+                                local nullified_list = use.nullified_list
+                                for _, to in sgs.qlist(use.to) do
+                                    table.insert(nullified_list, to:objectName())
+                                end
+                                use.nullified_list = nullified_list
+                                room:addPlayerMark(lubu, "&s4_jiwu_used+analeptic")
+                                table.removeOne(choicelist, "s4_jiwu_nullified")
+                                local analeptic = sgs.Sanguosha:cloneCard("analeptic")
+                                analeptic:setSkillName(self:objectName())
+                                analeptic:deleteLater()
+                                local useEX = sgs.CardUseStruct()
+                                useEX.from = lubu
+                                useEX.card = analeptic
+                                room:useCard(useEX, false)
+                                useEX.from = use.from
+                                room:useCard(useEX, false)
+                                room:setCardFlag(use.card, "s4_jiwu_nullified")
+                            end
+                            local log = sgs.LogMessage()
+                            log.type = "#ChooseSkill"
+                            log.from = lubu
+                            log.arg = self:objectName()
+                            log.arg2 = choice
+                            room:sendLog(log)
                         end
+                        local card = room:askForDiscard(lubu, "s4_jiwu_invoke", x, x, false, true, "@s4_jiwu:" .. x)
+                        if card then
+                        else
+                            room:loseHp(lubu, 1)
+                        end
+                        data:setValue(use)
+                        room:notifySkillInvoked(player, self:objectName())
                         room:removeTag("CurrentUseStruct")
-                    end
-                end
-            end
-        elseif event == sgs.CardFinished then
-            local use = data:toCardUse()
-            if use.card and (use.card:isKindOf("Slash") or use.card:isKindOf("Duel")) and
-                use.card:hasFlag(self:objectName()) then
-                for _, lubu in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-                    if lubu and lubu:getMark("s4_jiwu_" .. use.card:getEffectiveId()) > 0 then
-                        lubu:drawCards(2)
-                        room:setPlayerMark(lubu, "s4_jiwu_" .. use.card:getEffectiveId(), 0)
                     end
                 end
             end
@@ -696,6 +701,9 @@ s4_jiwuClear = sgs.CreateTriggerSkill {
             for _, lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
                 if lubu and lubu:getMark("s4_jiwu_" .. card:getEffectiveId()) > 0 then
                     room:setPlayerMark(lubu, "s4_jiwu_" .. card:getEffectiveId(), 0)
+                    room:sendCompulsoryTriggerLog(lubu, "s4_jiwu")
+                    room:askForDiscard(lubu, "s4_jiwu", 2, 2, false, true)
+                    room:broadcastSkillInvoke("s4_jiwu", 4)
                 end
             end
         elseif event == sgs.EventPhaseStart then
@@ -710,6 +718,9 @@ s4_jiwuClear = sgs.CreateTriggerSkill {
                 for _, lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
                     if lubu and lubu:getMark("s4_jiwu_" .. effect.slash:getEffectiveId()) > 0 then
                         room:setPlayerMark(lubu, "s4_jiwu_" .. effect.slash:getEffectiveId(), 0)
+                        room:sendCompulsoryTriggerLog(lubu, "s4_jiwu")
+                        room:askForDiscard(lubu, "s4_jiwu", 2, 2, false, true)
+                        room:broadcastSkillInvoke("s4_jiwu", 4)
                     end
                 end
             end
@@ -737,13 +748,22 @@ sgs.LoadTranslationTable {
     ["s4_xianfeng"] = "陷锋",
     ["#s4_xianfeng_D"] = "陷锋",
     [":s4_xianfeng"] = "锁定技，你计算与其他角色的距离-1；你对距离1以内的角色使用【杀】不计入限制的次数且无次数限制。",
-    ["@s4_jiwu"] = "你可以发动“极武”弃置任意张牌",
+    ["$s4_xianfeng1"] = "",
+    ["$s4_xianfeng2"] = "",
+
+    ["@s4_jiwu"] = "你可以发动“极武”弃置 %src 张牌或失去1点体力",
     ["s4_jiwu_used"] = "极武",
+    ["s4_jiwu_invoke"] = "极武",
     ["s4_jiwu_no_respond_list"] = "此【杀】或【决斗】不能被响应",
-    ["s4_jiwu_draw"] = "当此【杀】或【决斗】结算结束后，若此牌未被抵消，你摸两张牌",
+    ["s4_jiwu_draw"] = "摸两张牌，当此【杀】或【决斗】被抵消时，你弃置两张牌",
     ["s4_jiwu_nullified"] = "此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。",
     ["s4_jiwu"] = "极武",
-    [":s4_jiwu"] = "当距离1以内的一名角色使用【杀】或【决斗】指定目标时，你可以弃置任意张牌并选择等量项：1.此【杀】或【决斗】不能被响应；2.当此【杀】或【决斗】结算结束后，若此牌未被抵消，你摸两张牌；3.此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。"
+    [":s4_jiwu"] = "当距离1以内的一名角色使用【杀】或【决斗】指定目标时，你可以选择任意项并弃置等量张牌或失去1点体力：1.此【杀】或【决斗】不能被响应；2.摸两张牌，当此【杀】或【决斗】被抵消时，你弃置两张牌；3.此【杀】或【决斗】无效，你与此牌使用者各视为使用一张无次数限制的【酒】，然后移除此选项直到你下回合开始。",
+    ["$s4_jiwu1"] = "",
+    ["$s4_jiwu2"] = "",
+    ["$s4_jiwu3"] = "",
+    ["$s4_jiwu4"] = ""
+
 }
 ----------------------------------------------------------------
 -- https://tieba.baidu.com/p/8519622496
