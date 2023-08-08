@@ -39,7 +39,9 @@ end
 listIndexOf = function(theqlist, theitem)
     local index = 0
     for _, item in sgs.qlist(theqlist) do
-        if item == theitem then return index end
+        if item == theitem then
+            return index
+        end
         index = index + 1
     end
 end
@@ -59,15 +61,14 @@ s4_cloud_zhangliao = sgs.General(extension, "s4_cloud_zhangliao", "wei", 4, fals
 
 s4_cloud_tuxi = sgs.CreateTriggerSkill {
     name = "s4_cloud_tuxi",
-    events = { sgs.EventPhaseStart },
+    events = {sgs.EventPhaseStart},
     -- events = { sgs.EventPhaseStart, sgs.CardFinished },
     frequency = sgs.Skill_NotFrequent,
     on_trigger = function(self, event, player, data, room)
         local room = player:getRoom()
         for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-            local dest = sgs.QVariant()
-            dest:setValue(player)
-            if p and p:objectName() ~= player:objectName() and room:askForSkillInvoke(p, self:objectName(), dest) then
+            if p and p:objectName() ~= player:objectName() and
+                room:askForSkillInvoke(p, self:objectName(), ToQVData(player)) then
                 room:broadcastSkillInvoke(self:objectName())
                 if room:askForDiscard(p, self:objectName(), 999, 1, true, true, "@s4_cloud_tuxi:" .. player:objectName()) then
                 else
@@ -105,7 +106,7 @@ s4_cloud_tuxi = sgs.CreateTriggerSkill {
 
 s4_cloud_yongqian = sgs.CreateTriggerSkill {
     name = "s4_cloud_yongqian",
-    events = { sgs.DrawNCards, sgs.TargetConfirmed },
+    events = {sgs.DrawNCards, sgs.TargetConfirmed},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.DrawNCards and RIGHT(self, player) then
@@ -144,7 +145,7 @@ s4_cloud_yongqian = sgs.CreateTriggerSkill {
 
 s4_cloud_yongqianClear = sgs.CreateTriggerSkill {
     name = "#s4_cloud_yongqianClear",
-    events = { sgs.EventPhaseChanging },
+    events = {sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.EventPhaseChanging then
             if data:toPhaseChange().to == sgs.Player_Start then
@@ -201,7 +202,7 @@ s4_cloud_huangzhong = sgs.General(extension, "s4_cloud_huangzhong", "shu", 3, fa
 
 s4_cloud_liegong = sgs.CreateTriggerSkill {
     name = "s4_cloud_liegong",
-    events = { sgs.TargetConfirmed, sgs.DamageCaused },
+    events = {sgs.TargetConfirmed, sgs.DamageCaused},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.TargetConfirmed then
@@ -235,9 +236,7 @@ s4_cloud_liegong = sgs.CreateTriggerSkill {
             if damage.card and damage.card:isKindOf("Slash") and damage.from and damage.by_user and (not damage.chain) and
                 (not damage.transfer) then
                 if damage.to and (damage.to:getHp() >= player:getHp() or damage.to:getHp() <= player:getAttackRange()) then
-                    local _data = sgs.QVariant()
-                    _data:setValue(damage.to)
-                    if player:askForSkillInvoke(self:objectName(), _data) then
+                    if player:askForSkillInvoke(self:objectName(), ToQVData(damage.to)) then
                         room:broadcastSkillInvoke(self:objectName())
                         damage.damage = damage.damage + 1
                         local log = sgs.LogMessage()
@@ -289,7 +288,7 @@ s4_cloud_yongyiCard = sgs.CreateSkillCard {
             card = sgs.Sanguosha:cloneCard("analeptic")
             card:setSkillName("_s4_cloud_yongyi")
             return card and card:targetFilter(qtargets, to_select, player) and
-                not player:isProhibited(to_select, card, qtargets)
+                       not player:isProhibited(to_select, card, qtargets)
         end
 
         local card = sgs.Sanguosha:cloneCard("analeptic")
@@ -298,7 +297,7 @@ s4_cloud_yongyiCard = sgs.CreateSkillCard {
             return card:isAvailable(player)
         end
         return card and card:targetFilter(qtargets, to_select, player) and
-            not player:isProhibited(to_select, card, qtargets)
+                   not player:isProhibited(to_select, card, qtargets)
     end,
     feasible = function(self, targets, player)
         local card = sgs.Sanguosha:cloneCard("analeptic")
@@ -408,19 +407,19 @@ s4_cloud_yongyiVS = sgs.CreateZeroCardViewAsSkill {
         newanal:setSkillName(self:objectName())
         newanal:deleteLater()
         return #player:property("s4_cloud_yongyiRecords"):toString():split(",") > 0 and
-            player:getMark("s4_cloud_yongyi_used-Clear") == 0 and player:usedTimes("Analeptic") <=
-            sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, player, newanal)
+                   player:getMark("s4_cloud_yongyi_used-Clear") == 0 and player:usedTimes("Analeptic") <=
+                   sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, player, newanal)
     end,
     enabled_at_response = function(self, player, pattern)
         return #player:property("s4_cloud_yongyiRecords"):toString():split(",") > 0 and
-            string.find(pattern, "analeptic") and player:getMark("s4_cloud_yongyi_used-Clear") == 0
+                   string.find(pattern, "analeptic") and player:getMark("s4_cloud_yongyi_used-Clear") == 0
     end
 }
 
 s4_cloud_yongyi = sgs.CreateTriggerSkill {
     name = "s4_cloud_yongyi",
     view_as_skill = s4_cloud_yongyiVS,
-    events = { sgs.CardUsed, sgs.CardResponded, sgs.TargetConfirmed },
+    events = {sgs.CardUsed, sgs.CardResponded, sgs.TargetConfirmed},
     on_trigger = function(self, event, player, data, room)
         local card = nil
         if (event == sgs.CardUsed) then
@@ -501,7 +500,7 @@ s4_cloud_sunquan = sgs.General(extension, "s4_cloud_sunquan", "wu", 3, false)
 s4_cloud_yingzi = sgs.CreateTriggerSkill {
     name = "s4_cloud_yingzi",
     frequency = sgs.Skill_Compulsory,
-    events = { sgs.DrawNCards },
+    events = {sgs.DrawNCards},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         local x = 0
@@ -545,7 +544,7 @@ sgs.LoadTranslationTable {
 s4_lubu = sgs.General(extension, "s4_lubu", "qun", 5)
 s4_xianfeng = sgs.CreateTriggerSkill {
     name = "s4_xianfeng",
-    events = { sgs.TargetSpecified },
+    events = {sgs.TargetSpecified},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.TargetSpecified then
             local use = data:toCardUse()
@@ -587,7 +586,7 @@ s4_xianfeng_D = sgs.CreateDistanceSkill {
 
 s4_jiwu = sgs.CreateTriggerSkill {
     name = "s4_jiwu",
-    events = { sgs.TargetConfirmed, sgs.CardFinished },
+    events = {sgs.TargetConfirmed, sgs.CardFinished},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.TargetConfirmed then
             local use = data:toCardUse()
@@ -672,7 +671,7 @@ s4_jiwu = sgs.CreateTriggerSkill {
 }
 s4_jiwuClear = sgs.CreateTriggerSkill {
     name = "#s4_jiwuClear",
-    events = { sgs.CardUsed, sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed },
+    events = {sgs.CardUsed, sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed},
     can_trigger = function(self, target)
         return target
     end,
@@ -776,7 +775,7 @@ s4_txbw_general_gain = sgs.CreateTriggerSkill {
     name = "s4_txbw_general_gain",
     global = true,
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.GameStart },
+    events = {sgs.GameStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         room:addPlayerMark(player, "@s4_txbw_general")
@@ -804,7 +803,7 @@ s4_txbw_general = sgs.CreateTriggerSkill {
     name = "s4_txbw_general",
     global = true,
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.GameStart },
+    events = {sgs.GameStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart then
@@ -1053,7 +1052,7 @@ s4_txbw_general_duel_finishCard = sgs.CreateSkillCard {
             if jink then
             else
                 local duel_damage = 1 + winner:getMark("s4_txbw_general_duel_damage") +
-                    winner:getMark("s4_txbw_general_duel_damage-Clear")
+                                        winner:getMark("s4_txbw_general_duel_damage-Clear")
                 local damage = sgs.DamageStruct()
                 damage.card = nil
                 damage.from = winner
@@ -1086,7 +1085,7 @@ s4_txbw_general_duel = sgs.CreateViewAsSkill {
     end,
     enabled_at_play = function(self, player)
         return player:getMark("@s4_txbw_general") > 0 and player:usedTimes("#s4_txbw_general_duel") < 1 +
-            player:getMark("s4_txbw_general_duel_extra") + player:getMark("s4_txbw_general_duel_extra-Clear")
+                   player:getMark("s4_txbw_general_duel_extra") + player:getMark("s4_txbw_general_duel_extra-Clear")
     end
 }
 
@@ -1094,7 +1093,7 @@ s4_txbw_general_duel_rule = sgs.CreateTriggerSkill {
     name = "s4_txbw_general_duel",
     global = true,
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -1198,7 +1197,7 @@ s4_txbw_xuchu = sgs.General(extension, "s4_txbw_xuchu", "wei", 4, true)
 s4_txbw_luoyiBuff = sgs.CreateTriggerSkill {
     name = "#s4_txbw_luoyiBuff",
     frequency = sgs.Skill_Frequent,
-    events = { sgs.DamageCaused, sgs.EventPhaseChanging },
+    events = {sgs.DamageCaused, sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.DamageCaused then
             local damage = data:toDamage()
@@ -1225,7 +1224,7 @@ s4_txbw_luoyiBuff = sgs.CreateTriggerSkill {
 s4_txbw_luoyi = sgs.CreateTriggerSkill {
     name = "s4_txbw_luoyi",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.EventPhaseChanging },
+    events = {sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         local change = data:toPhaseChange()
@@ -1294,7 +1293,7 @@ s4_txbw_dianwei = sgs.General(extension, "s4_txbw_dianwei", "wei", 4, true)
 s4_txbw_feidang = sgs.CreateTriggerSkill {
     name = "s4_txbw_feidang",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -1308,7 +1307,7 @@ s4_txbw_feidang = sgs.CreateTriggerSkill {
                         player:objectName() and player:hasSkill(self:objectName()) then
                         if room:askForSkillInvoke(player, self:objectName(), ToQVData(winner)) then
                             if room:askForCard(player, "Weapon", "s4_txbw_feidang:" .. winner:objectName(),
-                                    ToQVData(winner)) then
+                                ToQVData(winner)) then
                             else
                                 room:loseHp(player, 1)
                             end
@@ -1352,7 +1351,7 @@ s4_txbw_zhangliao = sgs.General(extension, "s4_txbw_zhangliao", "wei", 4, true)
 
 s4_txbw_tuxiClear = sgs.CreateTriggerSkill {
     name = "#s4_txbw_tuxiClear",
-    events = { sgs.EventPhaseChanging },
+    events = {sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.EventPhaseChanging then
             if data:toPhaseChange().to == sgs.Player_NotActive then
@@ -1373,7 +1372,7 @@ s4_txbw_tuxiClear = sgs.CreateTriggerSkill {
 }
 s4_txbw_tuxi = sgs.CreateTriggerSkill {
     name = "s4_txbw_tuxi",
-    events = { sgs.DrawNCard },
+    events = {sgs.DrawNCard},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.DrawNCards then
@@ -1402,7 +1401,7 @@ s4_txbw_tuxi = sgs.CreateTriggerSkill {
 }
 s4_txbw_husha = sgs.CreateTriggerSkill {
     name = "s4_txbw_husha",
-    events = { sgs.PreCardUsed, sgs.EventPhaseChanging },
+    events = {sgs.PreCardUsed, sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.PreCardUsed then
             local use = data:toCardUse()
@@ -1441,7 +1440,7 @@ s4_txbw_pangde = sgs.General(extension, "s4_txbw_pangde", "wei", 4, true)
 s4_txbw_juesi = sgs.CreateTriggerSkill {
     name = "s4_txbw_juesi",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -1498,7 +1497,7 @@ s4_txbw_dengai = sgs.General(extension, "s4_txbw_dengai", "wei", 4, true)
 s4_txbw_motian = sgs.CreateTriggerSkill {
     name = "s4_txbw_motian",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -1566,7 +1565,7 @@ s4_txbw_zhenyueVS = sgs.CreateOneCardViewAsSkill {
 s4_txbw_zhenyue = sgs.CreateTriggerSkill {
     name = "s4_txbw_zhenyue",
     view_as_skill = s4_txbw_zhenyueVS,
-    events = { sgs.GameStart },
+    events = {sgs.GameStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart then
@@ -1633,7 +1632,7 @@ s4_txbw_huibian = sgs.CreateZeroCardViewAsSkill {
 s4_txbw_hujia = sgs.CreateTriggerSkill {
     name = "s4_txbw_hujia",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.PreCardUsed },
+    events = {sgs.PreCardUsed},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.PreCardUsed then
@@ -1683,7 +1682,7 @@ s4_txbw_yujin = sgs.General(extension, "s4_txbw_yujin", "wei", 4, true)
 s4_txbw_yizhong = sgs.CreateTriggerSkill {
     name = "s4_txbw_yizhong",
     frequency = sgs.Skill_Compulsory,
-    events = { sgs.SlashEffected },
+    events = {sgs.SlashEffected},
     on_trigger = function(self, event, player, data)
         local effect = data:toSlashEffect()
         if effect.slash:isBlack() then
@@ -1698,7 +1697,7 @@ s4_txbw_yizhong = sgs.CreateTriggerSkill {
 s4_txbw_yizhong_duel = sgs.CreateTriggerSkill {
     name = "#s4_txbw_yizhong",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -1728,7 +1727,7 @@ s4_txbw_yizhong_duel = sgs.CreateTriggerSkill {
 }
 s4_txbw_niansheng = sgs.CreateTriggerSkill {
     name = "s4_txbw_niansheng",
-    events = { sgs.EnterDying },
+    events = {sgs.EnterDying},
     frequency = sgs.Skill_Frequent,
     on_trigger = function(self, event, player, data, room)
         local target = room:getCurrentDyingPlayer()
@@ -1758,7 +1757,7 @@ s4_txbw_niansheng = sgs.CreateTriggerSkill {
 s4_txbw_nianshengClear = sgs.CreateTriggerSkill {
     name = "#s4_txbw_nianshengClear",
     frequency = sgs.Skill_Compulsory,
-    events = { sgs.DamageInflicted, sgs.EventPhaseStart },
+    events = {sgs.DamageInflicted, sgs.EventPhaseStart},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.DamageInflicted then
             local damage = data:toDamage()
@@ -1820,7 +1819,7 @@ s4_txbw_simayi = sgs.General(extension, "s4_txbw_simayi", "wei", 3, true)
 s4_txbw_jingzhe = sgs.CreateTriggerSkill {
     name = "s4_txbw_jingzhe",
     frequency = sgs.Skill_Compulsory,
-    events = { sgs.DamageInflicted, sgs.GameStart, sgs.TurnStart },
+    events = {sgs.DamageInflicted, sgs.GameStart, sgs.TurnStart},
     on_trigger = function(self, event, player, data, room)
         if event == sgs.DamageInflicted then
             local damage = data:toDamage()
@@ -1880,7 +1879,7 @@ s4_txbw_jingzhe = sgs.CreateTriggerSkill {
 }
 s4_txbw_taohui = sgs.CreateTriggerSkill {
     name = "s4_txbw_taohui",
-    events = { sgs.EventPhaseChanging },
+    events = {sgs.EventPhaseChanging},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         local change = data:toPhaseChange()
@@ -1906,7 +1905,7 @@ s4_txbw_taohui = sgs.CreateTriggerSkill {
 }
 s4_txbw_taohuiGive = sgs.CreateTriggerSkill {
     name = "#s4_txbw_taohuiGive",
-    events = { sgs.EventPhaseStart },
+    events = {sgs.EventPhaseStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if room:getTag("s4_txbw_taohui") then
@@ -1927,7 +1926,7 @@ s4_txbw_taohuiGive = sgs.CreateTriggerSkill {
 
 s4_txbw_lianpo = sgs.CreateTriggerSkill {
     name = "s4_txbw_lianpo",
-    events = { sgs.EventPhaseChanging, sgs.EventAcquireSkill, sgs.GameStart },
+    events = {sgs.EventPhaseChanging, sgs.EventAcquireSkill, sgs.GameStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart or (event == sgs.EventAcquireSkill and data:toString() == "s4_txbw_lianpo") then
@@ -1953,7 +1952,7 @@ s4_txbw_lianpo = sgs.CreateTriggerSkill {
 }
 s4_txbw_lianpoGive = sgs.CreateTriggerSkill {
     name = "#s4_txbw_lianpoGive",
-    events = { sgs.EventPhaseStart },
+    events = {sgs.EventPhaseStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if room:getTag("s4_txbw_lianpo") then
@@ -1994,7 +1993,7 @@ s4_txbw_xuhuang = sgs.General(extension, "s4_txbw_xuhuang", "wei", 4, true)
 s4_txbw_wanpo = sgs.CreateTriggerSkill {
     name = "s4_txbw_wanpo",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished, sgs.DamageCaused },
+    events = {sgs.CardFinished, sgs.DamageCaused},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -2036,7 +2035,7 @@ s4_txbw_wanpo = sgs.CreateTriggerSkill {
 s4_txbw_yanglei = sgs.CreateTriggerSkill {
     name = "s4_txbw_yanglei",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.Damage },
+    events = {sgs.Damage},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -2110,7 +2109,7 @@ s4_txbw_jushou = sgs.CreatePhaseChangeSkill {
 s4_txbw_jushouClear = sgs.CreateTriggerSkill {
     name = "#s4_txbw_jushouClear",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -2158,7 +2157,7 @@ s4_txbw_chiliVS = sgs.CreateViewAsSkill {
 }
 s4_txbw_chili = sgs.CreateTriggerSkill {
     name = "s4_txbw_chili",
-    events = { sgs.TurnedOver, sgs.CardUsed },
+    events = {sgs.TurnedOver, sgs.CardUsed},
     frequency = sgs.Skill_NotFrequent,
     view_as_skill = s4_txbw_chiliVS,
     on_trigger = function(self, event, player, data)
@@ -2225,7 +2224,7 @@ s4_txbw_zhanghe = sgs.General(extension, "s4_txbw_zhanghe", "wei", 4, true)
 s4_txbw_yishi = sgs.CreateTriggerSkill {
     name = "s4_txbw_yishi",
     frequency = sgs.Skill_NotFrequent,
-    events = { sgs.CardFinished },
+    events = {sgs.CardFinished},
     priority = -1,
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -2359,7 +2358,7 @@ s4_weiT_adviser = sgs.CreateTriggerSkill {
         local room = player:getRoom()
         local use = data:toCardUse()
         if (use.card and use.card:getTypeId() == sgs.Card_TypeTrick and player:getMark("&s4_weiT_adviser-Clear") == 0 and
-                getWeiTerritoryPile(player):length() > 0) and player:askForSkillInvoke(self:objectName()) then
+            getWeiTerritoryPile(player):length() > 0) and player:askForSkillInvoke(self:objectName()) then
             gainWeiTerritoryPile(getWeiTerritoryPile(player), player, self)
             room:addPlayerMark(player, "&s4_weiT_adviser-Clear")
         end
@@ -2401,7 +2400,7 @@ sgs.LoadTranslationTable {
 s4_weiT_caocao = sgs.General(extension, "s4_weiT_caocao", "wei", 4, true)
 s4_weiT_naxian = sgs.CreateTriggerSkill {
     name = "s4_weiT_naxian",
-    events = { sgs.Damaged, sgs.DrawNCards, sgs.GameStart },
+    events = {sgs.Damaged, sgs.DrawNCards, sgs.GameStart},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.Damaged then
@@ -2439,7 +2438,7 @@ s4_weiT_naxian = sgs.CreateTriggerSkill {
 }
 s4_weiT_xionglue = sgs.CreateTriggerSkill {
     name = "s4_weiT_xionglue",
-    events = { sgs.Damaged },
+    events = {sgs.Damaged},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.Damaged then
@@ -2470,7 +2469,7 @@ s4_weiT_xiahoudun = sgs.General(extension, "s4_weiT_xiahoudun", "wei", 4, true)
 
 s4_weiT_ganglie = sgs.CreateTriggerSkill {
     name = "s4_weiT_ganglie",
-    events = { sgs.Damage, sgs.Damaged },
+    events = {sgs.Damage, sgs.Damaged},
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         local damage = data:toDamage()
@@ -2506,7 +2505,7 @@ s4_weiT_ganglie = sgs.CreateTriggerSkill {
 
 s4_weiT_qingjian = sgs.CreateTriggerSkill {
     name = "s4_weiT_qingjian",
-    events = { sgs.CardsMoveOneTime },
+    events = {sgs.CardsMoveOneTime},
     on_trigger = function(self, event, player, data)
         local move = data:toMoveOneTime()
         local room = player:getRoom()
@@ -2546,4 +2545,4 @@ sgs.LoadTranslationTable {
 
 }
 
-return { extension }
+return {extension}
