@@ -184,7 +184,7 @@ sgs.ai_skill_use["@@duYinling"] = function(self, prompt)
     for i = 1, #self.enemies, 1 do
         local p = self.enemies[i]
         if p:hasSkills(
-            "jijiu|qingnang|xinzhan|leiji|nosleiji|olleiji|jieyin|beige|kanpo|liuli|qiaobian|zhiheng|guidao|longhun|xuanfeng|tianxiang|ol_tianxiang|noslijian|lijian") then
+                "jijiu|qingnang|xinzhan|leiji|nosleiji|olleiji|jieyin|beige|kanpo|liuli|qiaobian|zhiheng|guidao|longhun|xuanfeng|tianxiang|ol_tianxiang|noslijian|lijian") then
             if add_player(p) == 1 then
                 return ("#duYinlingCard:.:->%s"):format(targets[1])
             end
@@ -290,7 +290,7 @@ sgs.ai_skill_invoke.duXiaoguo = function(self, data)
         return false
     end
     if (self.player:getHandcardNum() >= self.player:getHp() or self:getMaxCard():getNumber() > 10 or
-        (self:needKongcheng() and self.player:getHandcardNum() == 1) or not self:hasLoseHandcardEffective()) and
+            (self:needKongcheng() and self.player:getHandcardNum() == 1) or not self:hasLoseHandcardEffective()) and
         not self:doNotDiscard(damage.to, "h", true) and
         not (self.player:getHandcardNum() == 1 and self:doNotDiscard(damage.to, "e", true)) then
         return true
@@ -389,7 +389,7 @@ sgs.ai_skill_use_func["#du_zhouxuanCard"] = function(card, use, self)
             for _, enemy in ipairs(self.enemies) do
                 if enemy:isMale() and not enemy:hasSkill("kongcheng") then
                     if ((enemy:hasSkill("lianying") or (jwfy and self:isFriend(jwfy, enemy))) and
-                        self:damageMinusHp(enemy, 1) > 0) or
+                            self:damageMinusHp(enemy, 1) > 0) or
                         (enemy:getHp() < 3 and self:damageMinusHp(enemy, 0) > 0 and enemy:getHandcardNum() > 0) or
                         (enemy:getHandcardNum() >= enemy:getHp() and enemy:getHp() > 2 and self:damageMinusHp(enemy, 0) >=
                             -1) or (enemy:getHandcardNum() - enemy:getHp() > 2) then
@@ -485,7 +485,7 @@ end
 
 function sgs.ai_cardneed.jieyou(to, card, self)
     return card:getSuit() == sgs.Card_Spade and ((card:getNumber() >= 2) and card:getNumber() <= 9) and
-               (getKnownCard(to, self.player, "club", false) + getKnownCard(to, self.player, "spade", false)) == 0
+        (getKnownCard(to, self.player, "club", false) + getKnownCard(to, self.player, "spade", false)) == 0
 end
 
 sgs.ai_skill_invoke.jiuwei = function(self, data)
@@ -566,9 +566,9 @@ end
 sgs.ai_event_callback[sgs.ChoiceMade].tongque = function(self, player, data)
     local datastr = data:toString()
     local data_list = datastr:split(":")
-    self.room:writeToConsole(data_list[1])
-    self.room:writeToConsole(data_list[2])
-    self.room:writeToConsole(data_list[3])
+    --self.room:writeToConsole(data_list[1])
+    --self.room:writeToConsole(data_list[2])
+    --self.room:writeToConsole(data_list[3])
     -- if datastr == "cardResponded:.:tongque" then
     if data_list[3] == "tongque" and data_list[4] ~= "_nil_" then
         local dying = self.room:getCurrentDyingPlayer()
