@@ -14,6 +14,83 @@ sgs.ai_need_damaged.blood_gudan = function(self, attacker, player)
 	return false
 end
 
+sgs.double_slash_skill = sgs.double_slash_skill .. "|blood_hj"
+
+
+local blood_hj_skill = {}
+blood_hj_skill.name = "blood_hj"
+table.insert(sgs.ai_skills, blood_hj_skill)
+blood_hj_skill.getTurnUseCard = function(self)
+	if  self.player:hasUsed("#blood_hj")  then return end
+	return sgs.Card_Parse("#blood_hj:.:")
+end
+
+sgs.ai_skill_use_func["#blood_hj"] = function(card, use, self)
+	local max_card = self:getMaxCard()
+	if not max_card then return end
+	local max_point = max_card:getNumber()
+
+	local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
+	local duel = sgs.Sanguosha:cloneCard("Duel")
+	duel:deleteLater()
+	self:useCardDuel(duel, dummy_use)
+	self:sort(self.enemies, "defense")
+	local target
+	if dummy_use.card and dummy_use.to then
+	for _, enemy in ipairs(dummy_use.to) do
+		if not enemy:isKongcheng() and not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) then
+			local enemy_max_card = self:getMaxCard(enemy)
+			local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
+			if ((max_point > enemy_max_point) or (max_point > 9)) and self:getCardsNum("Slash") >= getCardsNum("Slash", enemy, self.player) then
+				target = enemy
+				break
+			end
+		end
+	end
+end
+	if target and dummy_use.card then
+		use.card = sgs.Card_Parse("#blood_hj:.:")
+				if use.to then use.to:append(target) end
+				return
+	end
+end
+
+sgs.ai_use_priority["#blood_hj"] =sgs.ai_use_priority.XiechanCard
+sgs.ai_use_value["#blood_hj"] = sgs.ai_use_value.XiechanCard
+sgs.ai_card_intention["#blood_hj"] = sgs.ai_card_intention.XiechanCard
+
+function sgs.ai_skill_pindian.blood_hj(minusecard,self,requestor)
+	local maxcard = self:getMaxCard()
+	return ( maxcard:getNumber()<6 and  minusecard or maxcard )
+end
+
+sgs.ai_cardneed.blood_hj = function(to,card,self)
+	local cards = to:getHandcards()
+	local has_big = false
+	for _,c in sgs.qlist(cards)do
+		local flag = string.format("%s_%s_%s","visible",self.room:getCurrent():objectName(),to:objectName())
+		if c:hasFlag("visible") or c:hasFlag(flag) then
+			if c:getNumber()>10 then
+				has_big = true
+				break
+			end
+		end
+	end
+	if not has_big then
+		return card:getNumber()>10
+	else
+		return card:isKindOf("Slash") or card:isKindOf("Analeptic")
+	end
+end
+
+
+sgs.ai_need_damaged.blood_hunzi = function(self, attacker, player)
+	if  player:hasSkill("blood_hunzi") and player:getMark("blood_hunzi") == 0 and self:getEnemyNumBySeat(self.room:getCurrent(), player, player, true) < 1
+		and (player:getHp() == 1)  and not (player:getCardCount(true) > 3 ) then
+		return true
+	end
+	return false
+end
 
 
 sgs.ai_suit_priority.luaangyang = function(self, card)
@@ -42,58 +119,7 @@ sgs.ai_skill_choice["changeToWu"] = function(self, choices, data)
 	return items[math.random(1,#items)]
 end
 
-function sgs.ai_cardneed.blood_hj(to, card)
-	return to:getCardCount() <= 2 and (card:getNumber() > 10)
-end
-
-local blood_hj_skill = {}
-blood_hj_skill.name = "blood_hj"
-table.insert(sgs.ai_skills, blood_hj_skill)
-blood_hj_skill.getTurnUseCard = function(self)
-	if  self.player:hasUsed("#blood_hj")  then return end
-	return sgs.Card_Parse("#blood_hj:.:")
-end
-
-sgs.ai_skill_use_func["#blood_hj"] = function(card, use, self)
-	local max_card = self:getMaxCard()
-	if not max_card then return end
-	local max_point = max_card:getNumber()
-
-	--local dummy_use = { isDummy = true, blood_hj = true, to = sgs.SPlayerList() }
-	--local duel = sgs.Sanguosha:cloneCard("Duel")
-	--self:useCardDuel(duel, dummy_use)
-	--if not dummy_use.card or not dummy_use.card:isKindOf("Duel") then return end
-	self:sort(self.enemies, "defense")
-	local target
-	for _, enemy in ipairs(self.enemies) do
-		if not enemy:isKongcheng() and not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) then
-			local enemy_max_card = self:getMaxCard(enemy)
-			local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
-			if ((max_point > enemy_max_point) or (max_point > 9)) and self:getCardsNum("Slash") >= getCardsNum("Slash", enemy, self.player) then
-				target = enemy
-				break
-			end
-		end
-	end
-	if target then
-		use.card = sgs.Card_Parse("#blood_hj:.:")
-				if use.to then use.to:append(target) end
-				return
-	end
-end
-
-sgs.ai_use_priority["#blood_hj"] =sgs.ai_use_priority.XiechanCard
-sgs.ai_use_value["#blood_hj"] = sgs.ai_use_value.XiechanCard
-sgs.ai_card_intention["#blood_hj"] = sgs.ai_card_intention.XiechanCard
-
-sgs.ai_need_damaged.blood_hunzi = function(self, attacker, player)
-	if  player:hasSkill("blood_hunzi") and player:getMark("blood_hunzi") == 0 and self:getEnemyNumBySeat(self.room:getCurrent(), player, player, true) < 1
-		and (player:getHp() == 1)  and not (player:getCardCount(true) > 3 ) then
-		return true
-	end
-	return false
-end
-
+sgs.Active_cardneed_skill = sgs.Active_cardneed_skill .. "|luaxiongfeng"
 
 
 sgs.ai_skill_use["@@luaxiongfeng"] = function(self, prompt)
@@ -135,7 +161,7 @@ local x = self.player:getMark("luaxiongfeng")
 		if not self.yinghun then
 			for _, enemy in ipairs(self.enemies) do
 				if hasManjuanEffect(enemy) then
-				luaxiongfengchoice = "d1tx"
+				self.luaxiongfengchoice = "d1tx"
 					return ("#luaxiongfeng:.:->%s"):format(enemy:objectName())
 				end
 			end

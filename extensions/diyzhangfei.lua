@@ -19,11 +19,11 @@ zfduanhecard = sgs.CreateSkillCard{
 		judge.good = false
 		judge.play_animation = true
 		room:judge(judge)
-		if judge:isBad() and not source:isNude() then
+		if judge:isBad() and source:canDiscard(source, "he") then
 			room:askForDiscard(source, "zfduanhe", 1, 1, false, true,"zfduanhe",".")
 		elseif judge:isGood() then
 			for _,tg in ipairs(targets) do
-				room:setPlayerMark(tg, "&zfduanhe", 1)
+				room:setPlayerMark(tg, "&zfduanhe+to+#"..source:objectName(), 1)
 				room:setPlayerMark(tg, "@zfduanhe", 1)
 				--room:setPlayerCardLimitation(tg, "use,response", "BasicCard", true)
 				room:setPlayerCardLimitation(tg, "use,response", "BasicCard", false)
@@ -55,15 +55,25 @@ zfduanhe = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.to:getMark("&zfduanhe")==0 then return false end
-			room:setPlayerMark(damage.to, "&zfduanhe", 0)
-			room:setPlayerMark(damage.to, "@zfduanhe", 0)
-			room:removePlayerCardLimitation(damage.to, "use,response", "BasicCard")
+			if not damage.to or damage.to:isDead() then return false end
+			for _,zhangfei in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				for _,mark in sgs.list(damage.to:getMarkNames()) do
+					if string.find(mark,"&"..self:objectName().."+to+#".. zhangfei:objectName()) and damage.to:getMark(mark) > 0 then
+						room:setPlayerMark(damage.to, "&zfduanhe", 0)
+						room:setPlayerMark(damage.to, "@zfduanhe", 0)
+						room:removePlayerCardLimitation(damage.to, "use,response", "BasicCard")
+					end
+				end
+			end
 		elseif event == sgs.EventPhaseStart and player:hasSkill(self:objectName()) and player:getPhase()==sgs.Player_NotActive then
 			for _,to in sgs.qlist(room:getAlivePlayers()) do
-				room:setPlayerMark(to, "&zfduanhe", 0)
-				room:setPlayerMark(to, "@zfduanhe", 0)
-				room:removePlayerCardLimitation(to, "use,response", "BasicCard")
+				for _,mark in sgs.list(to:getMarkNames()) do
+					if string.find(mark,"&"..self:objectName().."+to+#".. player:objectName()) and to:getMark(mark) > 0 then
+						room:setPlayerMark(to, "&zfduanhe+to+#"..player:objectName(), 0)
+						room:setPlayerMark(to, "@zfduanhe", 0)
+						room:removePlayerCardLimitation(to, "use,response", "BasicCard")
+					end
+				end
 			end
 		end
 	end,

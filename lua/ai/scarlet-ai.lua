@@ -64,6 +64,8 @@ sgs.ai_choicemade_filter.skillInvoke.s4_cloud_tuxi = function(self, player, prom
     end
 end
 
+sgs.dont_kongcheng_skill = sgs.dont_kongcheng_skill .. "|s4_cloud_tuxi"
+
 sgs.ai_skill_invoke.s4_cloud_liegong = function(self, data)
     return sgs.ai_skill_invoke.liegong(self, data)
 end
@@ -76,6 +78,13 @@ sgs.card_value.s4_cloud_liegong = {
     Analeptic = 4.9,
     Slash = 7.2
 }
+
+sgs.ai_ajustdamage_from.s4_cloud_liegong = function(self, from, to, card, nature)
+    if card:isKindOf("Slash") and to and (to:getHp() >= from:getHp() or to:getHp() <= from:getAttackRange())
+    then
+        return 1
+    end
+end
 
 sgs.ai_skill_invoke.s4_cloud_yongyi = function(self, data)
     local card = data:toCard()
@@ -135,6 +144,12 @@ sgs.card_value.s4_cloud_yongyi = {
     Slash = 7.2
 }
 
+sgs.ai_skill_defense.s4_cloud_yongyi = function(self,to)
+	return #to:property("s4_cloud_yongyiRecords"):toString():split(",")
+end
+
+
+
 sgs.card_value.s4_xianfeng = {
     Slash = 7.2
 }
@@ -142,6 +157,8 @@ sgs.card_value.s4_xianfeng = {
 function sgs.ai_cardneed.s4_xianfeng(to, card)
     return card:isKindOf("Slash")
 end
+
+sgs.double_slash_skill = sgs.double_slash_skill .. "|s4_xianfeng"
 
 sgs.ai_skill_discard.s4_jiwu_invoke = function(self, discard_num, min_num, optional, include_equip)
     if min_num > 0 and (self.player:getCardCount() >= 2 or self:isWeak()) then

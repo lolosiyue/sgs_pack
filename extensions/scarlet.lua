@@ -2567,4 +2567,45 @@ sgs.LoadTranslationTable {
 
 }
 
+--[[ s4_acg_canna = sgs.General(extension, "s4_acg_canna", "qun", 2, false)
+
+s4_acg_paoxiao = sgs.CreateTriggerSkill {
+    name = "s4_acg_paoxiao",
+    events = { sgs.CardUsed },
+    on_trigger = function(self, event, player, data, room)
+        if event == sgs.CardUsed then
+            local use = data:toCardUse()
+            if use.card and use.card:isKindOf("Slash") and use.card:getNumber() <= player:getMaxHp() then
+                room:addPlayerHistory(player, use.card:getClassName(), -1)
+                room:broadcastSkillInvoke(self:objectName())
+                room:sendCompulsoryTriggerLog(player, self:objectName())
+                local thunder_slash = sgs.Sanguosha:cloneCard("ThunderSlash", use.card:getSuit(), use.card:getNumber())
+                if (not use.card:isVirtualCard() or use.card:subcardsLength() > 0) then
+                    thunder_slash:addSubcard(use.card)
+                    
+                end
+                thunder_slash:setSkillName("s4_acg_paoxiao")
+            local can_use = true
+            for _, p in sgs.qlist(use.to) do
+                if (not player:canSlash(p, thunder_slash, false)) then
+                    can_use = false
+                    break
+                end
+            end
+                
+            if can_use then
+                use.card = thunder_slash
+                data:setValue(use)
+                if use.card:getNumber() == player:getMaxHp() then
+                    player:drawCards(1)
+                end
+            end
+            end
+        end
+        return false
+    end
+} ]]
+
+
+
 return { extension }

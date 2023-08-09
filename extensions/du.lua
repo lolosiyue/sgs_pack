@@ -59,7 +59,6 @@ jfTakeCard = sgs.CreateSkillCard {
 			room:fillAG(jin, source)
 			local id = room:askForAG(source, jin, false, "jinfan")
 			room:clearAG(source)
-			local card = sgs.Sanguosha:getCard(id)
 			local choice = room:askForChoice(target, "jinfan", "jinfanTake_allow=" .. source:objectName() ..
 				"+jinfanTake_disallow=" .. source:objectName())
 			if choice:startsWith("jinfanTake_allow") then

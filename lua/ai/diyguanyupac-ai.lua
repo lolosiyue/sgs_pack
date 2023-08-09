@@ -55,3 +55,8 @@ sgs.ai_use_priority["#luajuaocard"] =sgs.ai_use_priority.XiechanCard
 sgs.ai_use_value["#luajuaocard"] = sgs.ai_use_value.XiechanCard
 sgs.ai_card_intention["#luajuaocard"] = sgs.ai_card_intention.XiechanCard
 
+sgs.double_slash_skill = sgs.double_slash_skill .. "|luajuao"
+
+sgs.ai_cardneed.luajuao = function(to, card, self)
+    return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
+end

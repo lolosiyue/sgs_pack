@@ -13,6 +13,7 @@ blood_gudan = sgs.CreateTriggerSkill{
 		local source = dying_data.who
 		if source:objectName() == player:objectName() then
 			if player:askForSkillInvoke(self:objectName(), data) then
+				room:addPlayerMark(player, "&"..self:objectName())
 			room:broadcastSkillInvoke("blood_gudan")
 		    room:notifySkillInvoked(player,self:objectName())
 	        local log=sgs.LogMessage()
@@ -42,6 +43,13 @@ blood_gudan = sgs.CreateTriggerSkill{
 				if not player:faceUp() then
 					player:turnOver()
 				end
+				local jsonValue = {
+					10,
+					player:objectName(),
+					"shenzhaoyun",
+					"longhun",
+				}
+				room:doBroadcastNotify(sgs.CommandType.S_COMMAND_LOG_EVENT, json.encode(jsonValue))
 			end
 		end
 		return false
@@ -72,7 +80,7 @@ name="blood_hj",
 target_fixed=false,
 will_throw=false,
 filter=function(self,targets,to_select)
-	return #targets==0 and not to_select:isKongcheng() and to_select:objectName()~=sgs.Self:objectName()
+	return #targets==0 and  sgs.Self:canPindian(to_select) and to_select:objectName()~=sgs.Self:objectName()
 end,
 on_use = function(self, room, source, targets) 
 		local tiger = targets[1]
@@ -81,7 +89,7 @@ on_use = function(self, room, source, targets)
 		if success then			
 			local duel = sgs.Sanguosha:cloneCard("duel", sgs.Card_NoSuit, 0)
 			duel:setSkillName("blood_hj")
-			if not(tiger:isKongcheng() and tiger:hasSkill("kongcheng")) then
+			if not(source:isCardLimited(duel, sgs.Card_MethodUse) or source:isProhibited(tiger, duel) ) then
 				local use = sgs.CardUseStruct()
 				use.card = duel
 				use.from = source
@@ -107,60 +115,7 @@ end
 
 
 blood_sunbofu:addSkill(blood_hj)
---[[
-blood_hunzi=sgs.CreateTriggerSkill{
-	name = "blood_hunzi$",
-	frequency = sgs.Skill_Wake,
-    events = {sgs.AskForPeaches},
-	on_trigger = function(self, event, player, data)
-		local room = player:getRoom()
-		local dying_data = data:toDying()
-		local source = dying_data.who
-		if source:objectName() == player:objectName() then
-			room:broadcastSkillInvoke("blood_hunzi")
-		    room:notifySkillInvoked(player,self:objectName())
-	        local log=sgs.LogMessage()
-	        log.from=player
-	        log.arg=self:objectName()
-	        log.type="#TriggerSkill"
-	        room:sendLog(log)
-	        room:broadcastSkillInvoke(self:objectName())
-            room:doLightbox("hunziAnimate$",5000)
-				room:addPlayerMark(player, "blood_hunzi")
-				player:throwAllCards()
-				local maxhp = player:getMaxHp()
-				local hp = math.min(1, maxhp)
-				room:setPlayerProperty(player, "hp", sgs.QVariant(hp))
-				player:drawCards(3)
-				if room:changeMaxHpForAwakenSkill(player, -1) then
-		        room:handleAcquireDetachSkills(player,"-blood_hj")
-		        room:handleAcquireDetachSkills(player, "yingzi")
-		        room:handleAcquireDetachSkills(player, "yinghun")
-		        room:setPlayerMark(player, "hunzi", 1)
-				if player:isChained() then
-					local damage = dying_data.damage
-					if (damage == nil) or (damage.nature == sgs.DamageStruct_Normal) then
-						room:setPlayerProperty(player, "chained", sgs.QVariant(false))
-					end
-				end
-				if not player:faceUp() then
-					player:turnOver()
-				end
-				end
-		end
-		return false
-	end, 
-	can_trigger = function(self, target)
-		if target then
-			if target:hasLordSkill(self:objectName()) then
-				if target:isAlive() then
-					return target:getMark("blood_hunzi") < 1
-				end
-			end
-		end
-		return false
-	end
-}]]
+
 blood_hunzi=sgs.CreateTriggerSkill{
 	name = "blood_hunzi$",
 	frequency = sgs.Skill_Wake,
@@ -210,18 +165,6 @@ blood_hunzi=sgs.CreateTriggerSkill{
         return true
     end,
     
-    
-    
-	--[[can_trigger = function(self, target)
-		if target then
-			if target:hasLordSkill(self:objectName()) then
-				if target:isAlive() then
-					return target:getMark("blood_hunzi") < 1
-				end
-			end
-		end
-		return false
-	end]]
 }
 
 
@@ -235,7 +178,7 @@ sgs.LoadTranslationTable{
 ["#blood_zhaozilong"]="长坂坡圣骑",
 ["blood_gudan"]="孤胆",
 ["@gudan"]="孤胆",
-[":blood_gudan"]="<font color=\"red\"><b>限定技，</b></font>当你进入濒死状态时，你可以弃置区域内的所有牌，然后将你的武将牌翻至正面朝上并重置之，摸四张牌恢复体力至1，并减2点体力上限，失去“龙胆”，获得“龙魂”，“绝境”直到游戏结束。",
+[":blood_gudan"]="<font color=\"red\"><b>限定技，</b></font>当你进入濒死状态时，你可以弃置你区域内的牌，然后复原你的武将牌，摸四张牌体力回复至1点，并失去2点体力上限，失去“龙胆”，获得“龙魂”，“绝境”。",
 ["$blood_gudan"]="赤胆平乱世，龙枪定江山",
 ["blood_sunbofu"]="孙伯符",
 ["#blood_sunbofu"]="东吴奠基人",
@@ -245,7 +188,7 @@ sgs.LoadTranslationTable{
 [":blood_hj"]="<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以与一名其他角色拼点，若你赢，视为对其使用一张决斗，若你没有赢，则失去一点体力。",
 ["$blood_hj"]="小霸王在此，匹夫受死！",
 ["blood_hunzi"]="魂姿",
-[":blood_hunzi"]="<font color=\"orange\"><b>主公技，</b></font><font color=\"purple\"><b>觉醒技，</b></font>当你进入濒死状态时，你必须弃置区域内的所有牌，将武将牌翻至正面朝上并重置之，摸三张牌体力恢复至1，并减1点体力上限，失去技能”虎踞“，获得技能“英姿”和“英魂”直到游戏结束。",
+[":blood_hunzi"]="<font color=\"orange\"><b>主公技，</b></font><font color=\"purple\"><b>觉醒技，</b></font>当你进入濒死状态时，你须弃置你区域内的牌，复原你的武将牌，摸三张牌体力回复至1点，并失去1点体力上限，失去“虎踞”，获得“英姿”和“英魂”。",
 ["$blood_hunzi"]="父亲在上，魂佑江东；公瑾在旁，智定天下！",
 ["hunziAnimate$"]="image=image/animate/hunzi.png",
 
@@ -320,6 +263,8 @@ luaxiongfeng = sgs.CreateTriggerSkill{
         and player:getPhase() ~= sgs.Player_NotActive then 
         local room = player:getRoom()
         room:addPlayerMark(player,self:objectName(),move.card_ids:length())
+        room:addPlayerMark(player,"&"..self:objectName().."-Clear",move.card_ids:length())
+
       end
     elseif event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_Finish then 
       local room = player:getRoom()
@@ -351,25 +296,10 @@ luaangyang = sgs.CreateTriggerSkill{
   end
 }
 
-luaangyang_mh = sgs.CreateMaxCardsSkill{
-  name = "#luaangyang_mh",
-  fixed_func = function(self,target)
-    local hp = target:getHp()
-    local mhp = target:getMaxHp()
-    local x = sgs.Sanguosha:correctMaxCards(target)
-    if target:hasSkill(self:objectName()) then return mhp-x 
-    else return hp 
-    end
-  end
-}
---extension:insertRelatedSkills("luaangyang","#luaangyang_mh")
 
 local Skills = sgs.SkillList()
 if not sgs.Sanguosha:getSkill("luaangyang") then
 Skills:append(luaangyang)
-end
-if not sgs.Sanguosha:getSkill("#luaangyang_mh") then 
-Skills:append(luaangyang_mh)
 end
 sgs.Sanguosha:addSkills(Skills)
 
@@ -396,7 +326,6 @@ luajuying = sgs.CreateTriggerSkill{
         if room:askForChoice(target,"changeToWu","yes+no") == "yes" then 
            room:setPlayerProperty(target,"kingdom",sgs.QVariant("wu"))
            room:handleAcquireDetachSkills(target,"luaangyang")
-        --room:acquireSkill(target,"#luaangyang_mh")
           count = count + 1
         end
         end
@@ -430,7 +359,7 @@ sgs.LoadTranslationTable{
   [":luaangyang"] = "每当你使用或成为一张决斗或红色杀的目标后，你可以令一名角色摸一张牌。",
   ["@luaangyang-to"] = "请选择【昂扬】的对象，可以不选",
   ["luajuying"] = "聚英",
-  [":luajuying"] = "<font color=\"orange\"><b>主公技，</b></font><font color=\"red\"><b>限定技，</b></font>准备阶段开始时，若你不为袁术，你可以将势力变为吴，场上所有存活的群势力角色可以选择与的你势力相同，若如此做，你与以此法改变势力的角色获得“昂扬”直到游戏结束，然后你减1点体力上限，摸X张牌。（X为这些角色的数量）",
+  [":luajuying"] = "<font color=\"orange\"><b>主公技，</b></font><font color=\"red\"><b>限定技，</b></font>准备阶段开始时，若你不为袁术，你可以将势力变为吴，场上所有存活的群势力角色可以选择与的你势力相同，若如此做，你与以此法改变势力的角色获得“昂扬”，然后你减1点体力上限，摸X张牌。（X为这些角色的数量）",
   ["$luajuying1"] = "属于我们的时代开始了！",
   ["$luaxiongfeng1"] = "吾乃江东小霸王孙伯符！",
   ["$luaxiongfeng2"] = "义兵再起，暴乱必除！",

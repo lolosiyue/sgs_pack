@@ -32,7 +32,7 @@ sgs.ai_skill_use_func["#jfTakeCard"] = function(card, use, self)
     if sgs.ai_role[self.player:objectName()] == "neutral" then
         sgs.ai_use_priority["#jfTakeCard"] = 0
     end
-    if self.player:hasUsed("jfTakeCard") then
+    if self.player:hasUsed("#jfTakeCard") then
         return
     end
     local zhanglu
@@ -233,6 +233,7 @@ sgs.ai_skill_use["@@duYinling"] = function(self, prompt)
     return "."
 end
 
+
 sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
     local lord = getLord(self.player)
     local nostuxi_lord = false
@@ -265,6 +266,9 @@ sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
         end
     end
 end
+
+sgs.drawpeach_skill = sgs.drawpeach_skill .. "|duYinling"
+
 
 sgs.ai_cardneed.duXiaoguo = function(to, card, self)
     return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
@@ -487,6 +491,12 @@ function sgs.ai_cardneed.jieyou(to, card, self)
     return card:getSuit() == sgs.Card_Spade and ((card:getNumber() >= 2) and card:getNumber() <= 9) and
         (getKnownCard(to, self.player, "club", false) + getKnownCard(to, self.player, "spade", false)) == 0
 end
+
+sgs.jieyou_suit_value = {
+	spade = 5,
+}
+
+sgs.ai_suit_priority.jieyou = "diamond|heart|club|spade"
 
 sgs.ai_skill_invoke.jiuwei = function(self, data)
     local effect = data:toSlashEffect()
