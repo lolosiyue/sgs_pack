@@ -133,18 +133,20 @@ function setInitialTables()
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
-		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai"
+		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
+		"|s4_cloud_tuxi" --add
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
-		"qiaobian|lirang|mingce|fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan"
-
+		"qiaobian|lirang|mingce|fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan" ..
+		"|luaxiongfeng" --add
 	sgs.notActive_cardneed_skill = "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|leiji|nosleiji" ..
 		"qingjian|zhuhai|qinxue|jspdanqi|" .. sgs.dont_kongcheng_skill
 
 	sgs.cardneed_skill = sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill
 
-	sgs.drawpeach_skill = "tuxi|qiaobian"
+	sgs.drawpeach_skill = "tuxi|qiaobian" ..
+		"|duYinling" --add
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong"
@@ -165,13 +167,14 @@ function setInitialTables()
 
 	sgs.double_slash_skill =
 		"paoxiao|tenyearpaoxiao|olpaoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|" ..
-		"qiangwu|luanji"
+		"qiangwu|luanji" ..
+		"|luajuao|s4_xianfeng" --add
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe"
 
-	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang|"..
-	"du_jiyu" --add
+	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang|" ..
+		"du_jiyu" --add
 
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
@@ -6906,7 +6909,10 @@ function getBestHp(owner)
 	if owner:hasSkills("quanji+zili") and owner:getMark("zili") == 0 then return owner:getMaxHp() - 1 end
 
 	--du
-	if owner:hasSkills("jinfan+du_jieying") and owner:getMark("du_jieying") == 0 and owner:getPile("du_jin"):length() >= 2 then return owner:getMaxHp() - 2 end
+	if owner:hasSkills("jinfan+du_jieying") and owner:getMark("du_jieying") == 0 and owner:getPile("du_jin"):length() >= 2 then
+		return
+			owner:getMaxHp() - 2
+	end
 	--yy
 	if owner:hasSkill("luanixi") then return owner:getMaxHp() - 1 end
 

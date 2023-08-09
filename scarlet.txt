@@ -3,6 +3,5 @@ crash:
 
 test:
 dusunjian 
-dudongzhuo
 blood_hj
 blood_gudan

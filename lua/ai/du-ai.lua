@@ -267,9 +267,6 @@ sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
     end
 end
 
-sgs.drawpeach_skill = sgs.drawpeach_skill .. "|duYinling"
-
-
 sgs.ai_cardneed.duXiaoguo = function(to, card, self)
     return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
 end
@@ -493,7 +490,7 @@ function sgs.ai_cardneed.jieyou(to, card, self)
 end
 
 sgs.jieyou_suit_value = {
-	spade = 5,
+    spade = 5,
 }
 
 sgs.ai_suit_priority.jieyou = "diamond|heart|club|spade"

@@ -3,13 +3,13 @@ extension = sgs.Package("diyzhangfei")
 
 diyzhangfei = sgs.General(extension, "diyzhangfei", "shu", 4)
 
-zfduanhecard = sgs.CreateSkillCard{
+zfduanhecard = sgs.CreateSkillCard {
 	name = "zfduanhe",
 	will_throw = false,
 	target_fixed = false,
 	once = true,
 	filter = function(self, targets, to_select, player)
-		return #targets<2 and to_select:objectName() ~= player:objectName()
+		return #targets < 2 and to_select:objectName() ~= player:objectName()
 	end,
 	on_use = function(self, room, source, targets)
 		local judge = sgs.JudgeStruct()
@@ -20,10 +20,10 @@ zfduanhecard = sgs.CreateSkillCard{
 		judge.play_animation = true
 		room:judge(judge)
 		if judge:isBad() and source:canDiscard(source, "he") then
-			room:askForDiscard(source, "zfduanhe", 1, 1, false, true,"zfduanhe",".")
+			room:askForDiscard(source, "zfduanhe", 1, 1, false, true, "zfduanhe", ".")
 		elseif judge:isGood() then
-			for _,tg in ipairs(targets) do
-				room:setPlayerMark(tg, "&zfduanhe+to+#"..source:objectName(), 1)
+			for _, tg in ipairs(targets) do
+				room:setPlayerMark(tg, "&zfduanhe+to+#" .. source:objectName(), 1)
 				room:setPlayerMark(tg, "@zfduanhe", 1)
 				--room:setPlayerCardLimitation(tg, "use,response", "BasicCard", true)
 				room:setPlayerCardLimitation(tg, "use,response", "BasicCard", false)
@@ -31,7 +31,7 @@ zfduanhecard = sgs.CreateSkillCard{
 		end
 	end,
 }
-zfduanhevs = sgs.CreateViewAsSkill{
+zfduanhevs = sgs.CreateViewAsSkill {
 	name = "zfduanhe",
 	n = 0,
 	view_as = function(self, cards)
@@ -44,32 +44,32 @@ zfduanhevs = sgs.CreateViewAsSkill{
 		return false
 	end,
 }
-zfduanhe = sgs.CreateTriggerSkill{
+zfduanhe = sgs.CreateTriggerSkill {
 	name = "zfduanhe",
 	view_as_skill = zfduanhevs,
-	events = {sgs.Damage, sgs.EventPhaseStart},
+	events = { sgs.Damaged, sgs.EventPhaseStart },
 	can_trigger = function()
 		return true
 	end,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if event == sgs.Damage then
+		if event == sgs.Damaged then
 			local damage = data:toDamage()
 			if not damage.to or damage.to:isDead() then return false end
-			for _,zhangfei in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-				for _,mark in sgs.list(damage.to:getMarkNames()) do
-					if string.find(mark,"&"..self:objectName().."+to+#".. zhangfei:objectName()) and damage.to:getMark(mark) > 0 then
-						room:setPlayerMark(damage.to, "&zfduanhe", 0)
+			for _, zhangfei in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				for _, mark in sgs.list(damage.to:getMarkNames()) do
+					if string.find(mark, "&" .. self:objectName() .. "+to+#" .. zhangfei:objectName()) and damage.to:getMark(mark) > 0 then
+						room:setPlayerMark(damage.to, "&zfduanhe+to+#" .. zhangfei:objectName(), 0)
 						room:setPlayerMark(damage.to, "@zfduanhe", 0)
 						room:removePlayerCardLimitation(damage.to, "use,response", "BasicCard")
 					end
 				end
 			end
-		elseif event == sgs.EventPhaseStart and player:hasSkill(self:objectName()) and player:getPhase()==sgs.Player_NotActive then
-			for _,to in sgs.qlist(room:getAlivePlayers()) do
-				for _,mark in sgs.list(to:getMarkNames()) do
-					if string.find(mark,"&"..self:objectName().."+to+#".. player:objectName()) and to:getMark(mark) > 0 then
-						room:setPlayerMark(to, "&zfduanhe+to+#"..player:objectName(), 0)
+		elseif event == sgs.EventPhaseStart and player:hasSkill(self:objectName()) and player:getPhase() == sgs.Player_NotActive then
+			for _, to in sgs.qlist(room:getAlivePlayers()) do
+				for _, mark in sgs.list(to:getMarkNames()) do
+					if string.find(mark, "&" .. self:objectName() .. "+to+#" .. player:objectName()) and to:getMark(mark) > 0 then
+						room:setPlayerMark(to, "&zfduanhe+to+#" .. player:objectName(), 0)
 						room:setPlayerMark(to, "@zfduanhe", 0)
 						room:removePlayerCardLimitation(to, "use,response", "BasicCard")
 					end
@@ -81,14 +81,14 @@ zfduanhe = sgs.CreateTriggerSkill{
 
 diyzhangfei:addSkill(zfduanhe)
 
-sgs.LoadTranslationTable{
+sgs.LoadTranslationTable {
 	["diyzhangfei"] = "张飞",
-	
+
 	["#diyzhangfei"] = "万夫莫敌",
 	["zfduanhe"] = "断喝",
 	[":zfduanhe"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以指定至多两名其他角色，然后你进行一次判定，若判定结果为红桃，你弃置一张牌。否则，被指定的角色不能使用或打出基本牌，直到其受到一次伤害或你的回合结束。",
 	["$zfduanhe1"] = "燕人张飞在此！",
 	["$zfduanhe2"] = "手下败将，还敢负隅顽抗！",
-	
+
 	["designer:diyzhangfei"] = "wubuchenzhou",
 }
