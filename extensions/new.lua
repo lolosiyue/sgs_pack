@@ -21,29 +21,11 @@ lualilian=sgs.CreateTriggerSkill{--新神杀已实现
 									room:notifySkillInvoked(player, self:objectName())
 									fangzhu:trigger(event, room, player, data)
 								end
-													--[[	player:drawCards(2)   
-														local hnum = player:getHandcardNum() 
-														local cdlist = sgs.IntList()  
-														cdlist:append(player:handCards():at(hnum-1))   
-														cdlist:append(player:handCards():at(hnum-2))  
-														room:askForYiji(player, cdlist)  
-														if(player:getHandcardNum() == hnum-1) then
-														celist = sgs.IntList()
-														celist:append(player:handCards():at(hnum-2))
-														room:askForYiji(player, celist)
-														end]]
-
                                 end 
                                 if choice == "luayihengturn" then---选择2
 
-								local luayiheng = room:findPlayerBySkillName("lualilian")
-					local x=0
-					while x<1 do
-					    if not room:askForSkillInvoke(luayiheng,"lualilian") then break end
 					    local target = room:askForPlayerChosen(player, room:getOtherPlayers(player), "lualilian")
 					    target:turnOver()
-					    x=x+1
-						end
                                 end
                         return false
 					end
@@ -133,10 +115,6 @@ luajuemou=sgs.CreateTriggerSkill{--觉醒 可实现
 			room:broadcastSkillInvoke("luajuemou")  --音效  ok
 			local choice = room:askForChoice(player,self:objectName(),"luajuemouHp+luajuemouCd")
 			if choice == "luajuemouHp" then 
-                --[[local recover = sgs.RecoverStruct()
-                recover.who = player
-                recover.reason = self
-                room:recover(player,recover)]]
                 room:recover(player, sgs.RecoverStruct(player))
             end 
             if choice == "luajuemouCd" then
@@ -363,37 +341,19 @@ luaxumou=sgs.CreateTriggerSkill{--蓄谋 实现
     events = {sgs.EventPhaseStart},
 	    
 	on_trigger=function(self,event,player,data)
-		--if (not player:faceUp()) then return false end
         local room = player:getRoom()
-		--[[local x = player:getHp()
-		local m = {}
-		for _,p in sgs.qlist(room:getOtherPlayers(player)) do
-			table.insert(m,p:getHp())			
-		end
-		if x > math.min(unpack(m)) then m=nil return false end]]
 		local log = sgs.LogMessage()
 		log.from = player
 		log.type = "#luaxumou"
 		room:sendLog(log)
 		
 		room:broadcastSkillInvoke("luaxumou")  --音效  ok
-		
-
-		--[[local can_invoke = true
-		for _, p in sgs.qlist(room:getAllPlayers()) do
-			if player:getHp() > p:getHp() then
-				can_invoke = false
-				break
-			end
-		end
-		if can_invoke then]]
-			room:addPlayerMark(player, "luaxumou")
+		room:addPlayerMark(player, "luaxumou")
 			if room:changeMaxHpForAwakenSkill(player, 1) then
 				player:drawCards(2)
 				room:handleAcquireDetachSkills(player, "luaguidao")
 				room:handleAcquireDetachSkills(player, "luaqiyi")
 			end
-		--end
 		
         return false
     end,
@@ -642,9 +602,6 @@ luaJC=sgs.CreateTriggerSkill{
 	name="luaJC",
  	frequency = sgs.Skill_Limited,
  	events = {sgs.Dying},
-				can_trigger=function(self,player)
-  		return player:getRoom():findPlayerBySkillName(self:objectName())
- 	end,
 	on_trigger=function(self,event,player,data)
 		local room = player:getRoom()
 		if not player:hasSkill(self:objectName()) then return false end
@@ -1160,6 +1117,7 @@ on_trigger=function(self,event,player,data)
                     dummy:addSubcard(sgs.Sanguosha:getCard(cd))
                 end
                 player:obtainCard(dummy)
+				dummy:deleteLater()
             end
         end
     end

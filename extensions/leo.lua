@@ -132,6 +132,7 @@ on_effect = function(self, effect)
 			end
 			room:setPlayerFlag(effect.to, "-leo_InTempMoving")
 			effect.from:obtainCard(dummy)
+			dummy:deleteLater()
 	room:broadcastSkillInvoke("tuxi")
 end,
 }
@@ -601,7 +602,7 @@ luayuanlue_card = sgs.CreateSkillCard
 		local room = effect.from:getRoom()
 		local handcardnum = to:getHandcardNum()
 		local hp = to:getHp()
-		local x = 0
+		local x = math.min(math.abs( handcardnum - hp ), 4)
 		if handcardnum>hp then
 			room:broadcastSkillInvoke("qiaobian",3)
 			x = handcardnum-hp
@@ -656,7 +657,7 @@ luajiezhiVS=sgs.CreateViewAsSkill{
 	n=1,
 	response_or_use = true,
 	view_filter=function(self,selected,to_select)
-		return true
+		return not to_select:isEquipped()
 	end,
 view_as=function(self,cards)
 	if #cards==0 then return nil end
@@ -806,7 +807,7 @@ luazhuixi_card = sgs.CreateSkillCard
 		local data = sgs.QVariant()
 			data:setValue(effect.to)
 			effect.from:setTag("luazhuixiTarget",data) 
-            room:addPlayerMark(effect.from, "&luazhuixi+"..effect.to:objectName().."-Clear")
+            room:addPlayerMark(effect.to, "&luazhuixi+to+#"..effect.from:objectName().."-Clear")
 	end
 }
 
@@ -1662,6 +1663,7 @@ luashanquan_card = sgs.CreateSkillCard
 			room:setPlayerFlag(target, "-leo_InTempMoving")
 		local x = dummy:subcardsLength()
 source:obtainCard(dummy, true)
+dummy:deleteLater()
 local to_goback
 local prompt = string.format("@luashanquanmove:%s", x)
 to_goback = room:askForExchange(source, self:objectName(), x, x, true, prompt)

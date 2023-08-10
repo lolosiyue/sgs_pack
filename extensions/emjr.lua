@@ -373,6 +373,7 @@ echineiGive = sgs.CreateTriggerSkill{
 				end
 				player:obtainCard(dummy)
 			end
+			dummy:deleteLater()
 			room:clearAG()
 		end
 	end
@@ -599,11 +600,9 @@ ejisiVS = sgs.CreateViewAsSkill{
 		local room = player:getRoom()
 		local target = room:getCurrent()
 		if not target or target:isDead() or target:getPhase() == sgs.Player_NotActive then return false end
-		if not player:isKongcheng() then
-			if not target:isKongcheng() then
-				if target:objectName() ~= player:objectName() then
-					return not player:hasFlag("ejisiUsed")
-				end
+		if player:canPindian(target) then
+			if target:objectName() ~= player:objectName() then
+				return not player:hasFlag("ejisiUsed")
 			end
 		end
 		return false

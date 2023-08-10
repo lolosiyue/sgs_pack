@@ -45,9 +45,9 @@ LuaJuecaiA = sgs.CreateTriggerSkill{
 		if damage then
 			local list = room:findPlayersBySkillName(self:objectName())
 			for _,p in sgs.qlist(list) do
-			if not room:getCurrent():hasFlag(self:objectName()..p:objectName().."A") then
+			if p:getMark(self:objectName().."A".."-Clear") == 0 then
 					if p:askForSkillInvoke(self:objectName(), data) then
-					room:getCurrent():setFlags(self:objectName()..p:objectName().."A")
+						room:addPlayerMark(p, self:objectName().."A".."-Clear")
 						room:broadcastSkillInvoke("LuaJuecaiA", math.random(1,5))
 						--room:drawCards(p, 1)
                         p:drawCards(1, self:objectName())
@@ -62,11 +62,11 @@ LuaJuecaiA = sgs.CreateTriggerSkill{
 			local list = room:findPlayersBySkillName(self:objectName())
 			for _,p in sgs.qlist(list) do
 				if p:canDiscard(player, "he") then --裸的
-					if not room:getCurrent():hasFlag(self:objectName()..p:objectName().."B") then
+					if p:getMark(self:objectName().."B".."-Clear") == 0 then
 						local dest = sgs.QVariant()
 						dest:setValue(player)
 						if p:askForSkillInvoke("LuaJuecaiB", dest) then
-						room:getCurrent():setFlags(self:objectName()..p:objectName().."B")
+						room:addPlayerMark(p, self:objectName().."B".."-Clear")
 							room:broadcastSkillInvoke("LuaJuecaiA",math.random(1,5))
 							local id = room:askForCardChosen(p,player,"he","LuaJuecaiA")
 							room:throwCard(id,player,p)

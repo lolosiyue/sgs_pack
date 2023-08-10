@@ -45,6 +45,7 @@ LuaChicheng = sgs.CreateTriggerSkill{
 				if player:hasSkill("LuaCheng") then
 			    --room:handleAcquireDetachSkills(player, "LuaChi")
                 room:acquireOneTurnSkills(player, "LuaCheng", "LuaChi")
+				room:addPlayerMark(player, "&LuaChi-Clear")
 			end
 		end
 	end
@@ -90,6 +91,7 @@ LuaChuanyun_skill = sgs.CreateTriggerSkill{
 			if (player:hasSkill("LuaChuanyun")) and (count > 2) then 
 			 	--room:handleAcquireDetachSkills(player, "LuaPaoxiaoC")
                 room:acquireOneTurnSkills(player, "LuaChuanyun", "LuaPaoxiaoC")
+				room:addPlayerMark(player, "&LuaPaoxiaoC-Clear")
 			end
 		end
 	end
@@ -131,13 +133,6 @@ LuaLongya = sgs.CreateTriggerSkill{
 	end
 }
 
-Table2IntList = function(theTable)
-	local result = sgs.IntList()
-	for i = 1, #theTable, 1 do
-		result:append(theTable[i])
-	end
-	return result
-end
 LuaLongyaT = sgs.CreateTriggerSkill{
 	name = "#LuaLongyaT" ,
 	events = {sgs.TargetConfirmed} ,
@@ -246,7 +241,6 @@ sgs.LoadTranslationTable{
    ["@zhican"] = "破甲",
    ["zhican"] = "破甲",
    
-   [":LuaChi"] = "你与其他角色相互计算距离时，始终-2",
    ["designer:caoxueyang"] = "Caelamza",
    ["illustrator:caoxueyang"]="伊吹五月",
 

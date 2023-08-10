@@ -1,7 +1,16 @@
 crash:
+setPlayerCardLimitation
+
 
 
 test:
 dusunjian 
 blood_hj
 blood_gudan
+diyzhangfei
+diyguanyu
+woft
+
+audio:
+du
+lubu

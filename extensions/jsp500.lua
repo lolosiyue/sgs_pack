@@ -16,6 +16,7 @@ fjsp_youlong = sgs.CreateTriggerSkill{
 			local damage = data:toDamage()
 			local slash = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit,0)
         	slash:setSkillName(self:objectName())
+			slash:deleteLater()
             local targets = sgs.SPlayerList()
 			if zhaoyun:canSlash(damage.from, slash, false) then
 				targets:append(damage.from)
@@ -80,7 +81,7 @@ dangqianCard = sgs.CreateSkillCard{
 	will_throw = true,
 	filter = function(self,targets,to_select)
     local player = sgs.Self 	
-    return #targets < player:getHp() and not to_select:isAllNude()
+    return #targets < player:getHp() and player:canDisCard(to_select, "he")
     end,
 	feasible = function(self,targets)
 	return #targets > 0
@@ -151,13 +152,6 @@ guishu = sgs.CreateTriggerSkill{
         end			
 		return false
 	end ,
-	--[[can_trigger = function (self,target)
-	return target and target:isAlive() and target:hasSkill(self:objectName())
-				and (target:getPhase() == sgs.Player_Start)
-				and (target:getMark("guishu") == 0)
-				--and (target:getKingdom() == "qun")
-				--and (not target:isLord())
-	end]]
     can_wake = function(self, event, player, data, room)
 	if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then return false end
 	if player:canWake(self:objectName()) then return true end

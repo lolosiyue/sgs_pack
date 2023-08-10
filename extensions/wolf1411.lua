@@ -83,19 +83,28 @@ renzha = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		local phase = player:getPhase()
 	    if phase == sgs.Player_Start then
-		    local me = room:findPlayerBySkillName(self:objectName())
-		    if me:isLord() and (not player:isAllNude()) and player:getKingdom() == "shu" and player:objectName() ~= me:objectName() then
-			    if player:askForSkillInvoke(self:objectName()) then
-				    room:broadcastSkillInvoke(self:objectName())
-			        local card_id = room:askForCardChosen(me, player, "hej", self:objectName())
-			        room:obtainCard(me, sgs.Sanguosha:getCard(card_id), room:getCardPlace(card_id) ~= sgs.Player_PlaceHand)
-	            end
-			end
+			local liubeis = sgs.SPlayerList()
+				for _, p in sgs.qlist(room:getOtherPlayers(player)) do
+					if p:hasLordSkill(self:objectName()) then
+						liubeis:append(p)
+					end
+				end
+				while not liubeis:isEmpty() and not player:isAllNude() do
+					local liubei = room:askForPlayerChosen(player, liubeis, self:objectName(), "@renzha-to", true)
+					if liubei then
+						room:broadcastSkillInvoke(self:objectName())
+						local card_id = room:askForCardChosen(liubei, player, "hej", self:objectName())
+			        	room:obtainCard(liubei, sgs.Sanguosha:getCard(card_id), room:getCardPlace(card_id) ~= sgs.Player_PlaceHand)
+						liubeis:removeOne(liubei)
+					else
+						break
+					end
+				end
 		end
 		return false
 	end, 
 	can_trigger = function(self, target)
-		return target
+		return target and (target:getKingdom() == "shu")
 	end
 }
 langliubei:addSkill(lalong)
@@ -245,16 +254,18 @@ duanqiao = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		local card = damage.card
 		local from = damage.from
-		if card and (card:isKindOf("Slash") or card:isKindOf("Duel")) and from:isAlive() and (not from:isNude()) then
-			local splayer = room:findPlayerBySkillName(self:objectName())
-			if splayer and from:objectName()~= splayer:objectName() and splayer:inMyAttackRange(from) then
-				if room:askForSkillInvoke(splayer, self:objectName(), data) then
+		if card and (card:isKindOf("Slash") or card:isKindOf("Duel")) and from:isAlive() then
+			for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+			if p and from:objectName()~= p:objectName() and from:isAlive() and p:inMyAttackRange(from) and p:canDisCard(from, "he") then
+				if room:askForSkillInvoke(p, self:objectName(), data) then
 				    room:broadcastSkillInvoke(self:objectName())
-					local to_throw = room:askForCardChosen(splayer, from, "he", self:objectName())
+					room:notifySkillInvoked(p,self:objectName())
+					local to_throw = room:askForCardChosen(p, from, "he", self:objectName())
 					local card = sgs.Sanguosha:getCard(to_throw)
-					room:throwCard(card, from, splayer)
+					room:throwCard(card, from, p)
 				end
 			end
+		end
 		end
 		return false
 	end, 
@@ -270,12 +281,13 @@ langzhangfei:addSkill(duanqiao)
 shengui = sgs.CreateTriggerSkill{
 	name = "shengui",
 	frequency = sgs.Skill_NotFrequent,
-	events = {sgs.TargetConfirmed, sgs.SlashEffected},
+	events = {sgs.TargetConfirmed},
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if event == sgs.TargetConfirmed then
 			local use = data:toCardUse()
 			if use.card:isKindOf("Slash") and player:objectName() == use.from:objectName() and player:isAlive() and player:hasSkill(self:objectName()) then
+				local list = use.nullified_list
 		    	for _, p in sgs.qlist(use.to) do
 				    if p:isKongcheng() then return false end
 					local dest = sgs.QVariant()
@@ -284,35 +296,26 @@ shengui = sgs.CreateTriggerSkill{
 				    	room:showAllCards(p)
 						room:broadcastSkillInvoke(self:objectName())
 			        	local jink = sgs.Sanguosha:cloneCard("jink", sgs.Card_NoSuit, 0)
-						local n = 0
 				    	for _, id in sgs.qlist(p:handCards()) do
 					    	if sgs.Sanguosha:getCard(id):isKindOf("Jink") then
-						    	n = n + 1
 						    	jink:addSubcard(id)
 					    	end
 				    	end
 				    	if not jink:getSubcards():isEmpty() then
 					    	room:throwCard(jink, p)
 				    	end
-						if n > 1 then
-					    	p:setMark("unhurt", 1)
+						if jink:subcardsLength() > 1 then
+					    	table.insert(list,p:objectName())
 						end
                         jink:deleteLater()
 					end
 				end
-			end
-		elseif event == sgs.SlashEffected then
-		    local effect = data:toSlashEffect()
-			if effect.to:getMark("unhurt") > 0 then
-			    effect.to:setMark("unhurt", 0)
-			    return true
+				use.nullified_list = list
+				data:setValue(use)
 			end
 		end
 		return false
 	end,
-	can_trigger = function(self, target)
-		return target
-	end
 }
 shejiCard = sgs.CreateSkillCard{
 	name = "shejiCard",
@@ -332,21 +335,12 @@ shejiCard = sgs.CreateSkillCard{
         slash:deleteLater()
 	end
 }
-shejiVS = sgs.CreateViewAsSkill{
+shejiVS = sgs.CreateZeroCardViewAsSkill{
 	name = "sheji",
-	n = 999,
-	view_filter = function(self, selected, to_select)
-		return not to_select:isEquipped()
-	end,
 	view_as = function(self, cards)
-		local count = sgs.Self:getHandcardNum()
-		if #cards == count then
 			local card = shejiCard:clone()
-			for _,cd in pairs(cards) do
-				card:addSubcard(cd)
-			end
+			card:addSubcard(sgs.Self:getHandcards())
 			return card
-		end
 	end,
 	enabled_at_play = function(self, player)
 		return false
@@ -428,6 +422,7 @@ sgs.LoadTranslationTable{
    [":fuhei"] = "<font color=\"blue\"><b>锁定技，</b></font>你的红桃牌均视为黑桃牌。",
    ["renzha"] = "仁诈",
    [":renzha"] = "<font color=\"orange\"><b>主公技，</b></font>一名其他蜀势力角色回合开始时，其可以令你获得其区域内一张牌。",
+   ["@renzha-to"] = "请选择“仁诈”的目标角色",
    
    ["suzhan"] = "速斩",
    [":suzhan"] = "<font color=\"blue\"><b>锁定技，</b></font>你与装备区没有牌的角色距离为1，你使用【杀】对装备区没有牌的角色造成的伤害+1。",
@@ -614,15 +609,17 @@ jieffan = sgs.CreateTriggerSkill{
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local dying = data:toDying()
-		local splayer = room:findPlayerBySkillName(self:objectName())
-		if not splayer then return false end
-		if not splayer:inMyAttackRange(dying.who) then return false end
-		local card = room:askForCard(splayer, ".Trick", self:objectName(), data)
-		if not card then return false end
+		for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+            if p  and p:inMyAttackRange(dying.who) then
+		local card = room:askForCard(p, ".Trick", self:objectName(), data)
+		if card then 
 		local killer = sgs.DamageStruct()
-		killer.from = splayer
+		killer.from = p
 		room:killPlayer(dying.who, killer)
 		return false
+		end
+	end
+		end
 	end
 }
 langmadai:addSkill(jieffan)
