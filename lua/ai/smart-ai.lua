@@ -2277,6 +2277,7 @@ function SmartAI:objectiveLevel(to)
 end
 
 function SmartAI:isFriend(other, another)
+	global_room:writeToConsole(debug.traceback())
 	if another then
 		local of, af = self:isFriend(other), self:isFriend(another)
 		return of ~= nil and of == af
@@ -7769,6 +7770,9 @@ function canNiepan(player)
 		or player:hasSkill("mobileniepan") and player:getMark("@mobileniepanMark") > 0
 		or player:hasSkill("olniepan") and player:getMark("@olniepanMark") > 0
 		or player:hasSkill("fuli") and player:getMark("@laoji") > 0
+		--add
+		or player:hasSkill("blood_gudan") and player:getMark("@gudan") > 0
+		or player:hasLordSkill("blood_hunzi") and player:getMark("blood_hunzi") == 0
 end
 
 function SmartAI:adjustAIRole()

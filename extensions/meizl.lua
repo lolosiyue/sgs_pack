@@ -96,7 +96,6 @@ meizljinlian = sgs.CreateTriggerSkill{
 						local source = move.from
 						if source and source:objectName() == player:objectName() then
 							local places = move.from_places
-							local room = player:getRoom()
 							if places:contains(sgs.Player_PlaceHand) or places:contains(sgs.Player_PlaceEquip) then
 								if player:askForSkillInvoke(self:objectName(), data) then
 									player:drawCards(1)
