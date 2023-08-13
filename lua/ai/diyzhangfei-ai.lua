@@ -27,15 +27,17 @@ sgs.ai_skill_use_func["#zfduanhe"] = function(card, use, self)
 			end
 		end
 	end
-	if #targets == 0 then return end
 	local slashcount = self:getCardsNum("Slash")
-	if slashcount > 0 then
+	if #targets > 0 and slashcount > 0 then
 		use.card = sgs.Card_Parse("#zfduanhe:.:")
 		if use.to then
 			for i = 1, #targets, 1 do
+				self.player:speak("T6")
 				use.to:append(targets[i])
 			end
+			self.player:speak("T7")
 		end
+		self.player:speak("T8")
 		return
 	end
 end

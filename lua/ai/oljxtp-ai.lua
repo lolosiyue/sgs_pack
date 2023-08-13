@@ -280,7 +280,7 @@ function sgs.ai_slash_prohibit.olleiji(self,from,to,card) -- @todo: Qianxi flag 
 		local other_rebel
 		for _,player in sgs.list(self.room:getOtherPlayers(from))do
 			if sgs.ai_role[player:objectName()]=="rebel"
-			or sgs.compareRoleEvaluation(player,"rebel","loyalist")=="rebel"
+			or self:compareRoleEvaluation(player,"rebel","loyalist")=="rebel"
 			then
 				other_rebel = player
 				break
@@ -306,7 +306,6 @@ sgs.ai_skill_cardask["@olguidao-card"]=function(self,data)
 	local all_cards = sgs.ai_skill_cardask["@guidao-card"](self,data)
 	if all_cards~="." then return all_cards end
 	local judge = data:toJudge()
-	local player = self.player
 	all_cards = self:addHandPile("he")
 	if #all_cards<1 then return "." end
 	local cards = {}
@@ -323,7 +322,7 @@ sgs.ai_skill_cardask["@olguidao-card"]=function(self,data)
 			or judge.card:isKindOf("Jink") and self:getCardsNum("Jink")<1
 			or judge.card:getSuit()==0 and self:getSuitNum("spade",true)<1
 			or self:getUseValue(judge.card)>self:getUseValue(sgs.Sanguosha:getCard(id))
-			or #self.enemies>0 and judge.who:objectName()==player:objectName() and player:hasSkill("olleiji")
+			or #self.enemies>0 and judge.who:objectName()==self.player:objectName() and self.player:hasSkill("olleiji")
 			then return id end
 		end
 	end
@@ -343,7 +342,7 @@ sgs.ai_skill_cardask["@olguidao-card"]=function(self,data)
 			or judge.card:isKindOf("Jink") and self:getCardsNum("Jink")<1
 			or judge.card:getSuit()==0 and self:getSuitNum("spade",true)<1
 			or self:getUseValue(judge.card)>self:getUseValue(sgs.Sanguosha:getCard(id))
-			or #self.enemies>0 and judge.who:objectName()==player:objectName() and player:hasSkill("olleiji")
+			or #self.enemies>0 and judge.who:objectName()==self.player:objectName() and self.player:hasSkill("olleiji")
 			then return id end
 		end
 	end
@@ -356,7 +355,6 @@ end
 sgs.ai_suit_priority.olguidao = sgs.ai_suit_priority.guidao
 
 sgs.ai_useto_revises.olguidao = function(self,card,use,p)
-	local player = self.player
 	if card:isKindOf("Indulgence")
 	then
 		if self:isFriend(p) and p:getCardCount()>2
@@ -1383,7 +1381,6 @@ addAiSkills("olchangbiao").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["OLChangbiaoCard"] = function(card,use,self)
-	local player = self.player
 	use.card = card
 	if use.to then use.to = self.olcb_to end
 end
@@ -1396,14 +1393,13 @@ addAiSkills("oltiaoxin").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["OLTiaoxinCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.enemies,"handcard")
 	for _,ep in sgs.list(self.enemies)do
-		if ep:inMyAttackRange(player)
+		if ep:inMyAttackRange(self.player)
 		and ep:getCardCount()>0
 		then
 			if self:getCardsNum("Jink","h")>0
-			or player:getHandcardNum()>ep:getHandcardNum()
+			or self.player:getHandcardNum()>ep:getHandcardNum()
 			then
 				use.card = card
 				if use.to then use.to:append(ep) end
@@ -1418,11 +1414,10 @@ sgs.ai_use_priority.OLTiaoxinCard = 4.8
 
 sgs.ai_skill_use["@@olzaiqi"] = function(self,prompt)
 	local valid = {}
-	local player = self.player
 	local destlist = self.room:getAllPlayers()
     destlist = sgs.QList2Table(destlist) -- 将列表转换为表
     self:sort(destlist,"hp")
-	local n = player:getMark("mobilezaiqi-Clear")
+	local n = self.player:getMark("mobilezaiqi-Clear")
 	for _,friend in sgs.list(destlist)do
 		if #valid>=n then break end
 		if self:isFriend(friend) then table.insert(valid,friend:objectName()) end
@@ -1439,7 +1434,6 @@ sgs.ai_skill_use["@@olzaiqi"] = function(self,prompt)
 end
 
 sgs.ai_skill_choice.olzaiqi = function(self,choices,data)
-	local player = self.player
 	local items = choices:split("+")
 	local target = data:toPlayer()
 	if self:isFriend(target)
@@ -1463,7 +1457,6 @@ addAiSkills("olduanliang").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_playerchosen.oljiezi = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"handcard")
     for _,target in sgs.list(destlist)do
@@ -1477,14 +1470,13 @@ sgs.ai_skill_playerchosen.oljiezi = function(self,players)
 end
 
 sgs.ai_skill_choice.olqiaobian = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	self.olqiaobian_phase = items[1]:split("=")[2]
 	local can = false
 	if #items>2
 	then
 		if self.olqiaobian_phase=="judge"
-		and self:canDisCard(player,"j")
+		and self:canDisCard(self.player,"j")
 		and self:getCardsNum("Nullification")<1
 		then can = true end
 		if self.olqiaobian_phase=="draw"
@@ -1537,18 +1529,18 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 			can = can and #self:getTurnUse()<3
 		end
 		if self.olqiaobian_phase=="discard"
-		and player:getHandcardNum()>player:getMaxCards()
+		and self.player:getHandcardNum()>self.player:getMaxCards()
 		then can = true end
 		if can
 		then
-			if player:getCardCount()>3
-			and player:getMark("&olzhbian")<3
+			if self.player:getCardCount()>3
+			and self.player:getMark("&olzhbian")<3
 			then return items[1] end
 			return items[2]
 		end
 	else
 		if self.olqiaobian_phase=="judge"
-		and self:canDisCard(player,"j")
+		and self:canDisCard(self.player,"j")
 		then can = true end
 		if self.olqiaobian_phase=="draw"
 		then
@@ -1600,7 +1592,7 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 			can = can and #self:getTurnUse()<3
 		end
 		if self.olqiaobian_phase=="discard"
-		and player:getHandcardNum()>player:getMaxCards()
+		and self.player:getHandcardNum()>self.player:getMaxCards()
 		then can = true end
 		if can
 		then
@@ -1612,7 +1604,6 @@ end
 
 sgs.ai_skill_use["@@olqiaobian"] = function(self,prompt)
 	local valid = {}
-	local player = self.player
 	local destlist = self.room:getAllPlayers()
     destlist = sgs.QList2Table(destlist) -- 将列表转换为表
     self:sort(destlist,"hp")
@@ -1801,7 +1792,7 @@ end
 sgs.ai_use_value.OLQiangxiCard = 5.4
 sgs.ai_use_priority.OLQiangxiCard = 4.8
 
-sgs.ai_skill_playerchosen.olhujia = function(self,players)
+sgs.ai_skill_playerchosen["#olhujia"] = function(self,players)
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do
@@ -1813,7 +1804,6 @@ sgs.ai_skill_playerchosen.olhujia = function(self,players)
 		and self:isWeak(target)
 		then return target end
 	end
-	return
 end
 
 

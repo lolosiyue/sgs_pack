@@ -326,15 +326,16 @@ local function GuanXing(self,cards)
 	if sgs.cardEffect and sgs.cardEffect.card:isKindOf("Dongzhuxianji")
 	or sgs.guanXingFriend
 	then
-		for i,c in sgs.list(table.copyFrom(bottom))do
+		for _,c in sgs.list(table.copyFrom(bottom))do
 			if self.player:getPhase()<=sgs.Player_Play
 			and (self:getCardsNum(c:getClassName())<2 or self:getUseValue(c)>6)
 			and c:isAvailable(self.player) and self:aiUseCard(c).card
 			then table.insert(up,c) table.removeOne(bottom,c) end
 		end
 		sgs.guanXingFriend = false
-		for i,c in sgs.list(table.copyFrom(bottom))do
-			if self:getUseValue(c)>6
+		for _,c in sgs.list(table.copyFrom(bottom))do
+			if self:getUseValue(c)>5
+			and self:getCardsNum(c:getClassName())<2
 			then
 				table.insert(up,c)
 				table.removeOne(bottom,c)

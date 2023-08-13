@@ -210,19 +210,16 @@ sgs.ai_need_damaged.fankui = function (self,attacker,player)
 	return false
 end
 
-
-sgs.ai_skill_cardask["@guicai-card"]=function(self,data)
+sgs.ai_skill_cardask["@guicai-card"] = function(self,data)
 	local judge = data:toJudge()
-
-	if self.room:getMode():find("_mini_46") and not judge:isGood() then return "$"..self.player:handCards():first() end
-	if self:needRetrial(judge) then
+	if sgs.getMode:find("_mini_46") and not judge:isGood()
+	then return "$"..self.player:handCards():first() end
+	if self:needRetrial(judge)
+	then
 		local cards = self:addHandPile("he")
 		local card_id = self:getRetrialCardId(cards,judge)
-		if card_id~=-1 then
-			return "$"..card_id
-		end
+		if card_id~=-1 then return "$"..card_id end
 	end
-
 	return "."
 end
 
@@ -1926,11 +1923,10 @@ local function getKurouCard(self,not_slash)
 			end
 		end
 	elseif not self.player:getEquips():isEmpty() then
-		local player = self.player
-		if player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
-		elseif player:getWeapon() and self:evaluateWeapon(self.player:getWeapon())<3
-				and not (player:getWeapon():isKindOf("Crossbow") and hold_crossbow) then card_id = player:getWeapon():getId()
-		elseif player:getArmor() and self:evaluateArmor(self.player:getArmor())<2 then card_id = player:getArmor():getId()
+		if self.player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
+		elseif self.player:getWeapon() and self:evaluateWeapon(self.player:getWeapon())<3
+				and not (self.player:getWeapon():isKindOf("Crossbow") and hold_crossbow) then card_id = self.player:getWeapon():getId()
+		elseif self.player:getArmor() and self:evaluateArmor(self.player:getArmor())<2 then card_id = self.player:getArmor():getId()
 		end
 	end
 	if not card_id then
@@ -2488,7 +2484,7 @@ end
 
 sgs.ai_card_intention.LiuliCard = function(self,card,from,to)
 	sgs.ai_liuli_effect = true
-	if not hasExplicitRebel(self.room) then sgs.ai_liuli_user = from
+	if not self:hasExplicitRebel() then sgs.ai_liuli_user = from
 	else sgs.ai_liuli_user = nil end
 end
 
@@ -2970,11 +2966,10 @@ function SmartAI:getLijianCard()
 			end
 		end
 	elseif not self.player:getEquips():isEmpty() then
-		local player = self.player
-		if player:getWeapon() then card_id = player:getWeapon():getId()
-		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
-		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
-		elseif player:getArmor() and player:getHandcardNum()<=1 then card_id = player:getArmor():getId()
+		if self.player:getWeapon() then card_id = self.player:getWeapon():getId()
+		elseif self.player:getOffensiveHorse() then card_id = self.player:getOffensiveHorse():getId()
+		elseif self.player:getDefensiveHorse() then card_id = self.player:getDefensiveHorse():getId()
+		elseif self.player:getArmor() and self.player:getHandcardNum()<=1 then card_id = self.player:getArmor():getId()
 		end
 	end
 	if not card_id then
@@ -3232,7 +3227,7 @@ function SmartAI:findLijianTarget(card_name,use)
 			first = males[1]
 			second = males[2]
 			if lord and first:getHp()<=1 then
-				if self.player:isLord() or sgs.isRolePredictable() then
+				if self.player:isLord() or isRolePredictable() then
 					local friend_maxSlash = findFriend_maxSlash(self,first)
 					if friend_maxSlash then second = friend_maxSlash end
 				elseif lord:isMale() and not self:hasSkills("wuyan|noswuyan",lord) then

@@ -662,9 +662,6 @@ end
 sgs.ai_skill_cardask["@tongpao-jink"] = function(self, data)
     local players = self.room:getOtherPlayers(self.player)
     local target = data:toPlayer()
-    --[[for _, p in sgs.qlist(players) do
-		if p:hasFlag("tongpao_target") then target = p break end
-	end]]
     if target and self:isFriend(target) then
         return self:getCardId("Jink")
     end
@@ -698,8 +695,9 @@ function sgs.ai_slash_prohibit.tongpao(self, from, to, card)
     return false
 end
 
+--fail
 local tongpaoSlash_skill = {
-    name = "tongpaoSlash"
+    name = "tongpaoSlash&"
 }
 table.insert(sgs.ai_skills, tongpaoSlash_skill)
 tongpaoSlash_skill.getTurnUseCard = function(self) -- 考虑主动使用连理杀
@@ -710,17 +708,17 @@ tongpaoSlash_skill.getTurnUseCard = function(self) -- 考虑主动使用连理�
     end
 end
 
+
 sgs.ai_skill_use_func["#tongpaoSlashCard"] = function(card, use, self)
-    if self.player:hasUsed("#tongpaoSlashCard") and self.player:hasFlag("Global_tongpaoFailed") then
+    if self.player:getKingdom() ~= "wu" and self.player:hasFlag("Global_tongpaoFailed") then
         return
     end
-
-    if use.card then
-        use.card = card
+    local slashcount = self:getCardsNum("Slash")
+    if slashcount > 1 and self:getOverflow() > 0 then
+        return
     end
-    local dummy_use = {
-        isDummy = true
-    }
+    if use.card then use.card = card end
+    local dummy_use = { isDummy = true }
     dummy_use.to = sgs.SPlayerList()
     if self.player:hasFlag("slashTargetFix") then
         for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
@@ -730,18 +728,19 @@ sgs.ai_skill_use_func["#tongpaoSlashCard"] = function(card, use, self)
         end
     end
     local slash = sgs.Sanguosha:cloneCard("slash")
-    slash:deleteLater()
     self:useCardSlash(slash, dummy_use)
     if dummy_use.card and dummy_use.to:length() > 0 then
-        sgs.tongpaoSlash = self.player
         use.card = card
         for _, p in sgs.qlist(dummy_use.to) do
-            if use.to then
-                use.to:append(p)
-            end
+            if use.to then use.to:append(p) end
         end
     end
 end
+
+sgs.ai_use_value["#tongpaoSlashCard"] = sgs.ai_use_value.Slash + 0.1
+sgs.ai_use_priority["#tongpaoSlashCard"] = sgs.ai_use_priority.Slash + 0.1
+
+
 
 sgs.ai_choicemade_filter.cardResponded["@tongpao-slash"] = function(self, player, promptlist)
     if promptlist[#promptlist] ~= "_nil_" then
@@ -780,9 +779,10 @@ end
 sgs.ai_skill_invoke["tongpao_slash"] = function(self, data)
     local asked = data:toStringList()
     local prompt = asked[2]
-    if self:askForCard("slash", prompt, 1) == "." then
-        return false
-    end
+    -- if self:askForCard("slash", prompt, 1) == "." then
+    --    return false
+    -- end
+
 
     local lieges = self.room:getLieges("wu", self.player)
     for _, p in sgs.qlist(lieges) do

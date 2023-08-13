@@ -1,6 +1,5 @@
 
 sgs.ai_skill_invoke.liandui = function(self,data)
-	local player = self.player
 	local items = data:toString():split(":")
 	if #items>1
 	then
@@ -10,7 +9,6 @@ sgs.ai_skill_invoke.liandui = function(self,data)
 end
 
 sgs.ai_skill_invoke.lianduiother = function(self,data)
-	local player = self.player
 	local items = data:toString():split(":")
 	if #items>1
 	then
@@ -28,8 +26,7 @@ addAiSkills("biejun-give").getTurnUseCard = function(self)
 		self.biejun_to = p
 		if self:isFriend(p)
 		then
-			if #cards>self.player:getMaxCards()
-			and self.toUse and #self.toUse<1
+			if #cards>self.player:getMaxCards() and #self.toUse<1
 			then return sgs.Card_Parse("@BiejunCard="..cards[1]:getEffectiveId()) end
 		else
 			local pcs = self:poisonCards(cards)
@@ -41,14 +38,13 @@ addAiSkills("biejun-give").getTurnUseCard = function(self)
 			and self:isWeak(p)
 			and p:getHandcardNum()<3
 			and #cards>self.player:getMaxCards()
-			and self.toUse and #self.toUse>1
+			and #self.toUse>1
 			then return sgs.Card_Parse("@BiejunCard="..cards[1]:getEffectiveId()) end
 		end
 	end
 end
 
 sgs.ai_skill_use_func["BiejunCard"] = function(card,use,self)
-	local player = self.player
 	if self.biejun_to
 	then
 		use.card = card
@@ -60,8 +56,7 @@ sgs.ai_use_value.BiejunCard = 0.4
 sgs.ai_use_priority.BiejunCard = 5.8
 
 sgs.ai_skill_invoke.biejun = function(self,data)
-	local player = self.player
-	return not player:faceUp() or self:isWeak()
+	return not self.player:faceUp() or self:isWeak()
 end
 
 sgs.ai_can_damagehp.biejun = function(self,from,card,to)
@@ -76,7 +71,6 @@ sgs.ai_can_damagehp.biejun = function(self,from,card,to)
 end
 
 sgs.ai_skill_playerchosen.sangu = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"handcard",true)
     for _,target in sgs.list(destlist)do
@@ -100,7 +94,6 @@ sgs.ai_skill_playerchosen.sangu = function(self,players)
 end
 
 sgs.ai_skill_askforag.sangu = function(self,card_ids)
-	local player = self.player
     local cards = {}
 	for c,id in sgs.list(card_ids)do
 		table.insert(cards,sgs.Sanguosha:getCard(id))
@@ -110,25 +103,23 @@ sgs.ai_skill_askforag.sangu = function(self,card_ids)
 		if self:isEnemy(self.sangu_to) and c:isAvailable(self.sangu_to)
 		or self:isFriend(self.sangu_to) and not c:isAvailable(self.sangu_to)
 		then continue end
-		if player:getMark("SanguRecord_"..c:objectName().."-PlayClear")>0
+		if self.player:getMark("SanguRecord_"..c:objectName().."-PlayClear")>0
 		and i<#cards/3 then return c:getEffectiveId() end
 	end
 	for i,c in sgs.list(cards)do
-		if player:getMark("SanguRecord_"..c:objectName().."-PlayClear")>0
+		if self.player:getMark("SanguRecord_"..c:objectName().."-PlayClear")>0
 		and i<#cards/3 then return c:getEffectiveId() end
 	end
 	return cards[1]:getEffectiveId()
 end
 
 sgs.ai_skill_invoke.bushilk = function(self,data)
-	local player = self.player
-	return player:getHandcardNum()>0
+	return self.player:getHandcardNum()>0
 end
 
 sgs.ai_skill_discard.koujing = function(self,max,min,optional)
 	local to_cards = {}
-    local player = self.player
-	local cards = player:getCards("h")
+	local cards = self.player:getCards("h")
 	cards = self:sortByUseValue(cards)
 	local touse = self:getTurnUse()
    	for c,h in sgs.list(cards)do
@@ -147,12 +138,11 @@ sgs.ai_skill_discard.koujing = function(self,max,min,optional)
 end
 
 sgs.ai_skill_invoke.koujing = function(self,data)
-	local player = self.player
-	local ids = player:getTag("KoujingShowCards"):toIntList()
+	local ids = self.player:getTag("KoujingShowCards"):toIntList()
 	if ids:length()>0
 	then
-		return player:getHp()+self:getCardsNum("Peach")+self:getCardsNum("Analeptic")<=ids:length()
-		or player:getHandcardNum()>=ids:length()
+		return self.player:getHp()+self:getCardsNum("Peach")+self:getCardsNum("Analeptic")<=ids:length()
+		or self.player:getHandcardNum()>=ids:length()
 	end
 end
 

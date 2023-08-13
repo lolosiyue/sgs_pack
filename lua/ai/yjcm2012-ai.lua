@@ -852,7 +852,7 @@ local qice_skill = {}
 qice_skill.name = "qice"
 table.insert(sgs.ai_skills,qice_skill)
 qice_skill.getTurnUseCard = function(self)
-	if self.toUse and #self.toUse>1 then return end
+	if #self.toUse>1 then return end
 	local ids = self.player:handCards()
 	local canCs = {}
 	for c,p in ipairs(patterns)do

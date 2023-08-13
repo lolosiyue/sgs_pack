@@ -23,9 +23,8 @@ sgs.ai_use_priority.MobileRenRenshiCard = 2.3
 
 sgs.ai_skill_discard["@mobilerensheyi-give"] = function(self,x,n)
 	local cards = {}
-    local player = self.player
-	local damage = player:getTag("mobilerensheyi_data"):toDamage()
-    local handcards = sgs.QList2Table(player:getCards("he"))
+	local damage = self.player:getTag("mobilerensheyi_data"):toDamage()
+    local handcards = sgs.QList2Table(self.player:getCards("he"))
     self:sortByKeepValue(handcards) -- 按保留值排序
    	for _,h in sgs.list(handcards)do
 		if #cards>=n then break end
@@ -43,9 +42,8 @@ addAiSkills("mobilerenboming").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileRenBomingCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.friends_noself,"hand")
-	local ejian_names = player:getTag("mobilerenejian_names"):toStringList()
+	local ejian_names = self.player:getTag("mobilerenejian_names"):toStringList()
 	for _,ep in sgs.list(self.friends_noself)do
 		if ep:getHandcardNum()<3
 		or table.contains(ejian_names,ep:objectName())
@@ -115,7 +113,6 @@ sgs.ai_use_value.MobileRenMuzhenCard = 9.4
 sgs.ai_use_priority.MobileRenMuzhenCard = 3.8
 
 sgs.ai_skill_playerchosen.mobilerenyaohu = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card")
     for _,target in sgs.list(destlist)do
@@ -131,15 +128,13 @@ sgs.ai_skill_playerchosen.mobilerenyaohu = function(self,players)
 end
 
 sgs.ai_skill_choice.mobilerenyaohu = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	return items[1]
 end
 
 sgs.ai_target_revises.mobilerenyaohu = function(to,card,self)
-	local player = self.player
 	if card:isDamageCard() and self:isEnemy(to)
-	and player:getMark("mobilerenyaohu_"..to:objectName().."-PlayClear")>0
+	and self.player:getMark("mobilerenyaohu_"..to:objectName().."-PlayClear")>0
 	then
 		local ds = self:askForDiscard("yaohu",2,2,false,true)
 		if #ds<2 or self:getUseValue(card)<self:getKeepValue(sgs.Sanguosha:getCard(ds[1]))+self:getKeepValue(sgs.Sanguosha:getCard(ds[2]))
@@ -149,8 +144,7 @@ end
 
 sgs.ai_skill_discard["mobilerenyaohu"] = function(self,x,n)
 	local cards = {}
-    local player = self.player
-    local hcards = sgs.QList2Table(player:getCards("he"))
+    local hcards = sgs.QList2Table(self.player:getCards("he"))
     self:sortByKeepValue(hcards) -- 按保留值排序
    	for _,h in sgs.list(hcards)do
 		if #cards>=n then break end

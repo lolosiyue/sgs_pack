@@ -1,9 +1,8 @@
 
 sgs.ai_skill_discard.mobileyongxizhan = function(self)
-    local player = self.player
    	local target = self.room:getCurrent()
 	local cards = {}
-    local handcards = sgs.QList2Table(player:getCards("he"))
+    local handcards = sgs.QList2Table(self.player:getCards("he"))
     self:sortByKeepValue(handcards) -- 按保留值排序
    	for _,h in sgs.list(handcards)do
 		if self:isFriend(target)

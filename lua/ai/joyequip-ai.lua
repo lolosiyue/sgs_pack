@@ -647,7 +647,7 @@ sgs.ai_need_retrial_func["typhoon"] = function(self,judge,isGood,who,isFriend,lo
     return false
 end
 --相关信息：改判动机值
-sgs.ai_retrial_intention["typhoon"] = function(self,player,who,judge,last_judge)
+sgs.ai_retrial_intention["typhoon"] = function(self,judge,start_good)
     return 0
 end
 --[[

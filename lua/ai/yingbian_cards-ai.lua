@@ -58,7 +58,7 @@ function SmartAI:useCardChuqibuyi(card,use)
 	self:sort(self.enemies,"hp")
 	local enemies = {}
 	for _,enemy in sgs.list(self.enemies)do
-		if use.current_targets and table.contains(use.current_targets,enemy:objectName()) then
+		if isCurrent(use.current_targets,enemy) then
 		elseif CanToCard(card,self.player,enemy) and self:isGoodTarget(enemy,self.enemies,card)
 		then table.insert(enemies,enemy) end
 	end
@@ -68,7 +68,7 @@ function SmartAI:useCardChuqibuyi(card,use)
 	if card:getSuit()>=sgs.Card_NoSuitBlack
 	then
 		use.card = card
-		for i = 1,#enemies do
+		for i=1,#enemies do
 			if use.to then
 				use.to:append(enemies[i])
 				if use.to:length()>extraTarget
@@ -131,7 +131,7 @@ function SmartAI:useCardZhujinqiyuan(card,use)
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,p in sgs.list(self:findPlayerToDiscard("hej",false,false,tos,true,"zhujinqiyuan"))do
-		if use.current_targets and table.contains(use.current_targets,p:objectName()) then continue end
+		if isCurrent(use.current_targets,p) then continue end
 		if table.contains(tos,p) and use.to
 		then
 			use.card = card
@@ -398,10 +398,7 @@ sgs.ai_skill_playerchosen.yb_zhuzhan2 = function(self,targets)
 	local use = self.player:getTag("yb_zhuzhan2_data"):toCardUse()
 	if not use or use.card then return nil end
 	local tos = self:sort(targets,"hp")
-	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = {}}
-	for _,p in sgs.list(use.to)do
-		table.insert(dummy_use.current_targets,p:objectName())
-	end
+	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = use.to}
 	if use.card:isKindOf("Peach")
 	then
 		for _,friend in sgs.list(tos)do

@@ -516,7 +516,7 @@ sgs.ai_skill_use_func.NosRendeCard = function(card,use,self)
 		if card:isAvailable(self.player)
 		and (card:isKindOf("Slash") and not canJijiang or card:isKindOf("Duel") or card:isKindOf("Snatch") or card:isKindOf("Dismantlement"))
 		then
-			local dummy_use = selfaiUseCard(card)
+			local dummy_use = self:aiUseCard(card)
 			if dummy_use.card and dummy_use.to:length()>0
 			then
 				if card:isKindOf("Slash") or card:isKindOf("Duel")
@@ -540,7 +540,7 @@ sgs.ai_skill_use_func.NosRendeCard = function(card,use,self)
 		elseif card:isAvailable(self.player)
 		and self:getEnemyNumBySeat(self.player,friend)>0
 		and (card:isKindOf("Indulgence") or card:isKindOf("SupplyShortage"))
-		and selfaiUseCard(card).card then continue end
+		and self:aiUseCard(card).card then continue end
 		if friend:hasSkill("enyuan") and #cards>=1
 		and not (self.room:getMode()=="04_1v3" and self.player:getMark("nosrende")==1)
 		then use.card = sgs.Card_Parse("@NosRendeCard="..card:getId().."+"..cards[1]:getId())
@@ -676,7 +676,7 @@ function sgs.ai_slash_prohibit.nosleiji(self,from,to,card)
 	if from:getRole()=="rebel" and to:isLord() then
 		local other_rebel
 		for _,player in sgs.qlist(self.room:getOtherPlayers(from))do
-			if sgs.ai_role[player:objectName()]=="rebel" or sgs.compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
+			if sgs.ai_role[player:objectName()]=="rebel" or self:compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
 				other_rebel = player
 				break
 			end
@@ -1042,7 +1042,7 @@ sgs.ai_playerchosen_intention.nosmieji = -50
 
 sgs.ai_skill_use["@@nosmieji"] = function(self,prompt) -- extra target for Collateral
 	local collateral = dummyCard("collateral")
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
+	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = {}}
 	dummy_use.current_targets = self.player:property("extra_collateral_current_targets"):toString():split("+")
 	self:useCardCollateral(collateral,dummy_use)
 	if dummy_use.card and dummy_use.to:length()==2 then

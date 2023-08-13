@@ -23,7 +23,7 @@ zfduanhecard = sgs.CreateSkillCard {
 			room:askForDiscard(source, "zfduanhe", 1, 1, false, true, "zfduanhe", ".")
 		elseif judge:isGood() then
 			for _, tg in ipairs(targets) do
-				room:setPlayerMark(tg, "&zfduanhe+to+#" .. source:objectName().."-Clear", 1)
+				room:setPlayerMark(tg, "&zfduanhe+to+#" .. source:objectName() .. "-Clear", 1)
 				room:setPlayerMark(tg, "@zfduanhe-Clear", 1)
 				--room:setPlayerCardLimitation(tg, "use,response", "BasicCard", false)
 			end
@@ -47,8 +47,8 @@ zfduanhe = sgs.CreateTriggerSkill {
 	name = "zfduanhe",
 	view_as_skill = zfduanhevs,
 	events = { sgs.Damaged, sgs.EventPhaseStart },
-	can_trigger = function()
-		return true
+	can_trigger = function(self, target)
+		return target ~= nil
 	end,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
@@ -56,46 +56,42 @@ zfduanhe = sgs.CreateTriggerSkill {
 			local damage = data:toDamage()
 			if not damage.to or damage.to:isDead() then return false end
 			for _, zhangfei in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-				for _, mark in sgs.list(damage.to:getMarkNames()) do
-					if string.find(mark, "&" .. self:objectName() .. "+to+#" .. zhangfei:objectName().."-Clear") and damage.to:getMark(mark) > 0 then
-						room:setPlayerMark(damage.to, "&zfduanhe+to+#" .. zhangfei:objectName().."-Clear", 0)
-						room:setPlayerMark(damage.to, "@zfduanhe-Clear", 0)
-						--room:removePlayerCardLimitation(damage.to, "use,response", "BasicCard")
-					end
+				if damage.to:getMark("&" .. self:objectName() .. "+to+#" .. zhangfei:objectName() .. "-Clear") > 0 then
+					room:setPlayerMark(damage.to, "&zfduanhe+to+#" .. zhangfei:objectName() .. "-Clear", 0)
+					room:setPlayerMark(damage.to, "@zfduanhe-Clear", 0)
+					--room:removePlayerCardLimitation(damage.to, "use,response", "BasicCard")
 				end
 			end
 		elseif event == sgs.EventPhaseStart and player:hasSkill(self:objectName()) and player:getPhase() == sgs.Player_NotActive then
 			for _, to in sgs.qlist(room:getAlivePlayers()) do
-				for _, mark in sgs.list(to:getMarkNames()) do
-					if string.find(mark, "&" .. self:objectName() .. "+to+#" .. player:objectName().."-Clear") and to:getMark(mark) > 0 then
-						room:setPlayerMark(to, "&zfduanhe+to+#" .. player:objectName().."-Clear", 0)
-						room:setPlayerMark(to, "@zfduanhe-Clear", 0)
-						--room:removePlayerCardLimitation(to, "use,response", "BasicCard")
-					end
+				if to:getMark("&" .. self:objectName() .. "+to+#" .. player:objectName() .. "-Clear") > 0 then
+					room:setPlayerMark(to, "&zfduanhe+to+#" .. player:objectName() .. "-Clear", 0)
+					room:setPlayerMark(to, "@zfduanhe-Clear", 0)
+					--room:removePlayerCardLimitation(to, "use,response", "BasicCard")
 				end
 			end
 		end
 	end,
 }
-zfduanhe_CardLimit = sgs.CreateCardLimitSkill{
-	name = "#zfduanhe_CardLimit" ,
-	limit_list = function(self,player)
-		if player then 
+zfduanhe_CardLimit = sgs.CreateCardLimitSkill {
+	name = "#zfduanhe_CardLimit",
+	limit_list = function(self, player)
+		if player then
 			for _, mark in sgs.list(player:getMarkNames()) do
-				if string.find(mark, "&zfduanhe+to+#") and player:getMark(mark) > 0 then
-					return "use,response" end
+				if string.find(mark, "&zfduanhe") and player:getMark(mark) > 0 then
+					return "use,response"
 				end
 			end
-		
-			
+		end
 	end,
-	limit_pattern = function(self,player)
-		if player then 
+	limit_pattern = function(self, player)
+		if player then
 			for _, mark in sgs.list(player:getMarkNames()) do
-				if string.find(mark, "&zfduanhe+to+#") and player:getMark(mark) > 0 then
-					return "BasicCard" end
+				if string.find(mark, "&zfduanhe") and player:getMark(mark) > 0 then
+					return "BasicCard"
 				end
 			end
+		end
 	end
 }
 

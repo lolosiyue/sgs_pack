@@ -158,7 +158,7 @@ end
 
 sgs.ai_skill_discard.jinxiongshu = function(self,x,n)
 	local cards = self.player:getCards("he")
-	cards = self:sortByKeepValue(cards,nil,true)
+	cards = self:sortByKeepValue(cards,nil,"j")
    	local target = self.room:getCurrent()
 	if n>#cards/2 or self:isFriend(target)
 	then return {} end

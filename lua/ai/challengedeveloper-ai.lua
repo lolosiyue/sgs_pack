@@ -958,7 +958,7 @@ sgs.ai_skill_use["@@dev_jiaohua"] = function(self,prompt)
 	local slash = dummyCard()
 	slash:setSkillName("dev_jiaohua")
 	slash:addSubcard(cards[1])
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
+	local dummy_use = {isDummy = true,to = sgs.SPlayerList()}
 	self:useCardSlash(slash,dummy_use)
 	if dummy_use.card and dummy_use.to:length()>0 then
 		for _,p in sgs.qlist(dummy_use.to)do

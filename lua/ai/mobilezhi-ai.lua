@@ -461,14 +461,13 @@ addAiSkills("secondmobilezhiduoji").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["SecondMobileZhiDuojiCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.enemies,"handcard",true)
 	for _,ep in sgs.list(self.enemies)do
 		use.card = card
 		if use.to then use.to:append(ep) end
 		return
 	end
-	local tos = self.room:getOtherPlayers(player)
+	local tos = self.room:getOtherPlayers(self.player)
 	tos = self:sort(tos,"handcard",true)
 	for _,ep in sgs.list(tos)do
 		if ep:isKongcheng() then continue end
@@ -533,7 +532,6 @@ sgs.ai_use_priority.MobileZhiJianzhanCard = sgs.ai_use_priority.Slash+0.05
 sgs.ai_skill_choice.mobilezhijianzhan = function(self,choices,data)
 	local from = data:toPlayer()
 	if not self:isFriend(from) then return "draw" end
-	
 	local slash = dummyCard()
 	slash:setSkillName("_mobilezhijianzhan")
 	for _,enemy in ipairs(self.enemies)do
@@ -556,17 +554,15 @@ local mobilezhimiewu = {}
 mobilezhimiewu.name = "mobilezhimiewu"
 table.insert(sgs.ai_skills,mobilezhimiewu)
 mobilezhimiewu.getTurnUseCard = function(self)
-    local player = self.player
     local cards = self:addHandPile("he")
     cards = self:sortByKeepValue(cards,nil,true) -- 按保留值排序
 	if #cards<1 then return end
     for _,name in sgs.list(patterns)do
-        local card = sgs.Sanguosha:cloneCard(name)
-        if card and card:isAvailable(player)
+        local card = dummyCard(name)
+        if card and card:isAvailable(self.player)
        	and card:isDamageCard()
 		then
-            local num = self:getCardsNum(card:getClassName())
-			if num>1 and #cards>1 then continue end
+			if self:getCardsNum(card:getClassName())>1 and #cards>1 then continue end
             card:addSubcard(cards[1])
             card:setSkillName("mobilezhimiewu")
          	local dummy = self:aiUseCard(card)
@@ -576,27 +572,22 @@ mobilezhimiewu.getTurnUseCard = function(self)
 				return sgs.Card_Parse("@MobileZhiMiewuCard="..cards[1]:getEffectiveId()..":"..name)
 			end
 		end
-		if card then card:deleteLater() end
 	end
     for _,name in sgs.list(patterns)do
-        local card = sgs.Sanguosha:cloneCard(name)
-        if card and card:isAvailable(player)
+        local card = dummyCard(name)
+        if card and card:isAvailable(self.player)
 		then
-            local num = self:getCardsNum(card:getClassName())
-			if num>1 and #cards>1 then continue end
+			if self:getCardsNum(card:getClassName())>1 and #cards>1 then continue end
             card:addSubcard(cards[1])
             card:setSkillName("mobilezhimiewu")
          	local dummy = self:aiUseCard(card)
 			self.Miewudummy = dummy
 			if dummy.card and dummy.to
 			then
-	           	if card:canRecast()
-				and dummy.to:length()<1
-				then continue end
+	           	if card:canRecast() and dummy.to:length()<1 then continue end
 				return sgs.Card_Parse("@MobileZhiMiewuCard="..cards[1]:getEffectiveId()..":"..name)
 			end
 		end
-		if card then card:deleteLater() end
 	end
 end
 
@@ -609,21 +600,16 @@ sgs.ai_skill_use_func.MobileZhiMiewuCard = function(card,use,self)
 end
 
 sgs.ai_guhuo_card.mobilezhimiewu = function(self,toname,class_name)
-	local player = self.player
     local cards = self:addHandPile("he")
     cards = self:sortByKeepValue(cards,nil,true) -- 按保留值排序
-    local num = self:getCardsNum(class_name)
-	if player:getMark("&mobilezhiwuku")<1
-	or player:getMark("mobilezhimiewu-Clear")>0
-	or #cards<1 or num>0 and #cards>1 then return end
+	if #cards<1 or self:getCardsNum(class_name)>0 and #cards>1 then return end
    	return "@MobileZhiMiewuCard="..cards[1]:getEffectiveId()..":"..toname
 end
 
 sgs.ai_use_revises.mobilezhimiewu = function(self,card,use)
-	local player = self.player
 	if card:isKindOf("EquipCard")
-	and player:getMark("&mobilezhiwuku")>2
-	and player:getMark("mobilezhimiewu-Clear")<1
+	and self.player:getMark("&mobilezhiwuku")>2
+	and self.player:getMark("mobilezhimiewu-Clear")<1
 	then return false end
 end
 

@@ -267,29 +267,28 @@ function SmartAI:findLeijiTarget(player,leiji_value,slasher,latest_version)
 	if not latest_version then
 		return self:findLeijiTarget(player,leiji_value,slasher,1) or self:findLeijiTarget(player,leiji_value,slasher,-1)
 	end
-	if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji") then return nil end
+	if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji") then return end
 	if slasher then
-		if not self:slashIsEffective(sgs.Sanguosha:cloneCard("slash"),player,slasher,slasher:hasWeapon("qinggang_sword")) then return nil end
+		if not self:slashIsEffective(dummyCard(),player,slasher,slasher:hasWeapon("qinggang_sword")) then return end
 		if slasher:hasSkill("liegong") and slasher:getPhase()==sgs.Player_Play and self:isEnemy(player,slasher)
-			and (player:getHandcardNum()>=slasher:getHp() or player:getHandcardNum()<=slasher:getAttackRange()) then
-			return nil
-		end
+		and (player:getHandcardNum()>=slasher:getHp() or player:getHandcardNum()<=slasher:getAttackRange())
+		then return end
 		if slasher:hasSkill("kofliegong") and slasher:getPhase()==sgs.Player_Play
-			and self:isEnemy(player,slasher) and player:getHandcardNum()>=slasher:getHp() then
-			return nil
-		end
+		and self:isEnemy(player,slasher) and player:getHandcardNum()>=slasher:getHp()
+		then return end
 		if not latest_version then
-			if not self:hasSuit("spade",true,player) and player:getHandcardNum()<3 then return nil end
+			if not self:hasSuit("spade",true,player) and player:getHandcardNum()<3 then return end
 		else
-			if not self:hasSuit("black",true,player) and player:getHandcardNum()<2 then return nil end
+			if not self:hasSuit("black",true,player) and player:getHandcardNum()<2 then return end
 		end
 		if not (getKnownCard(player,self.player,"Jink",true)>0
-				or (getCardsNum("Jink",player,self.player)>=1 and sgs.card_lack[player:objectName()]["Jink"]~=1 and player:getHandcardNum()>=4)
-				or (not self:isWeak(player) and self:hasEightDiagramEffect(player) and not slasher:hasWeapon("qinggang_sword") and sgs.card_lack[player:objectName()]["Jink"]~=1)) then
-			return nil
-		end
+		or (getCardsNum("Jink",player,self.player)>=1 and sgs.card_lack[player:objectName()]["Jink"]~=1 and player:getHandcardNum()>=4)
+		or (not self:isWeak(player) and self:hasEightDiagramEffect(player) and not slasher:hasWeapon("qinggang_sword")
+		and sgs.card_lack[player:objectName()]["Jink"]~=1))
+		then return end
 	end
 	local getCmpValue = function(enemy)
+		if type(enemy)~="userdata" then return 0 end
 		local value = 0
 		if not self:damageIsEffective(enemy,sgs.DamageStruct_Thunder,player) then return 99 end
 		if enemy:hasSkills("hongyan|olhongyan")
@@ -312,17 +311,14 @@ function SmartAI:findLeijiTarget(player,leiji_value,slasher,latest_version)
 		if latest_version and player:isWounded() and not self:needToLoseHp(player) then value = value+15 end
 		return value
 	end
-
 	local cmp = function(a,b)
 		return getCmpValue(a)<getCmpValue(b)
 	end
-
 	local enemies = self:getEnemies(player)
 	table.sort(enemies,cmp)
 	for _,enemy in ipairs(enemies)do
 		if getCmpValue(enemy)<leiji_value then return enemy end
 	end
-	return nil
 end
 
 sgs.ai_skill_playerchosen.leiji = function(self,targets)
@@ -354,7 +350,7 @@ function sgs.ai_slash_prohibit.leiji(self,from,to,card) -- @todo: Qianxi flag na
 	if from:getRole()=="rebel" and to:isLord() then
 		local other_rebel
 		for _,player in sgs.qlist(self.room:getOtherPlayers(from))do
-			if sgs.ai_role[player:objectName()]=="rebel" or sgs.compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
+			if sgs.ai_role[player:objectName()]=="rebel" or self:compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
 				other_rebel = player
 				break
 			end
@@ -601,7 +597,7 @@ sgs.tianxiang_suit_value = {
 
 function sgs.ai_cardneed.tianxiang(to,card,self)
 	return (card:getSuit()==sgs.Card_Heart or (to:hasSkill("hongyan") and card:getSuit()==sgs.Card_Spade))
-		and (getKnownCard(to,self.player,"heart",false)+getKnownCard(to,self.player,"spade",false))<2
+	and (getKnownCard(to,self.player,"heart",false)+getKnownCard(to,self.player,"spade",false))<2
 end
 
 
@@ -658,8 +654,9 @@ guhuo_skill.getTurnUseCard = function(self)
 		for i=1,5 do
 			local guhuo_str = Guhuo_str[math.random(1,#Guhuo_str)]
 			local user = dummyCard(guhuo_str:split(":")[2])
-			guhuo_str = sgs.Card_Parse(guhuo_str)
+			if not user then continue end
 			user:setSkillName("guhuo")
+			guhuo_str = sgs.Card_Parse(guhuo_str)
 			user:addSubcards(guhuo_str:getSubcards())
 			if user:isAvailable(self.player)
 			then

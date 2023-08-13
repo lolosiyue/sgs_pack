@@ -221,11 +221,9 @@ function hasCard(player,name,he)
 	return cs:length()>0 and cs
 end
 function getKingdoms(player)
-	local kingdoms = {}
-	table.insert(kingdoms,player:getKingdom())
+	local kingdoms = {player:getKingdom()}
 	for _,p in sgs.list(player:getAliveSiblings())do
-		if table.contains(kingdoms,p:getKingdom())
-		then continue end
+		if table.contains(kingdoms,p:getKingdom()) then continue end
 		table.insert(kingdoms,p:getKingdom())
 	end
 	return #kingdoms
@@ -248,12 +246,10 @@ function UseCardRecast(player,card,reason,n)
   	log.card_str = table.concat(sgs.QList2Table(card:getSubcards()),"+")
 	if r=="_"
 	or r=="@"
+	or r=="#"
 	then
 		log.type = "$UseCardRecast"..r
 		reason = string.sub(reason,2,-1)
-	elseif r=="#"
-	then
-    	reason = string.sub(reason,2,-1)
 	end
 	log.arg = reason
 	local room = player:getRoom()
@@ -312,9 +308,6 @@ function BeMan(room,self,dead)
 	for _,p in sgs.list(room:getAllPlayers(dead))do
 		if p:objectName()==self then return p end
 	end
-	for _,p in sgs.list(room:getPlayers())do
-		if p:objectName()==self then return p end
-	end
 end
 function dummyCard(name,suit,number)
 	name = name or "slash"
@@ -330,8 +323,7 @@ end
 function ToData(self)
 	local data = sgs.QVariant()
 	if type(self)=="string" or type(self)=="boolean" or type(self)=="number"
-	then data = sgs.QVariant(self)
-	elseif self~=nil then data:setValue(self) end
+	then data = sgs.QVariant(self) elseif self~=nil then data:setValue(self) end
 	return data
 end
 function ToSkillInvoke(self,player,to,data,n)
@@ -353,14 +345,14 @@ function ToSkillInvoke(self,player,to,data,n)
 		room:sendLog(msg)
 		return true
 	elseif data==true
-	and to and to~=true
+	and to
 	then
 		Invoke()
 		if player:hasSkill(self) then room:notifySkillInvoked(player,self)
 		elseif to:hasSkill(self) then room:notifySkillInvoked(to,self) end
+		room:doAnimate(1,player:objectName(),to:objectName())
 		msg.type = "$ToSkillInvoke3"
 		msg.to:append(to)
-		room:doAnimate(1,player:objectName(),to:objectName())
 		room:sendLog(msg)
 		return true
 	elseif to
@@ -370,24 +362,16 @@ function ToSkillInvoke(self,player,to,data,n)
 			Invoke()
 			if player:hasSkill(self) then room:notifySkillInvoked(player,self)
 			elseif to:hasSkill(self) then room:notifySkillInvoked(to,self) end
+			room:doAnimate(1,player:objectName(),to:objectName())
 			msg.type = "$ToSkillInvoke3"
 			msg.to:append(to)
-			room:doAnimate(1,player:objectName(),to:objectName())
 			room:sendLog(msg)
-			return true
-		end
-	elseif player:hasSkill(self)
-	then
-		if player:askForSkillInvoke(self,data)
-		then
-			Invoke()
-			room:notifySkillInvoked(player,self)
 			return true
 		end
 	elseif player:askForSkillInvoke(self,data)
 	then
 		Invoke()
-		room:sendLog(msg)
+--		room:sendLog(msg)
 		return true
 	end
 end
@@ -526,7 +510,7 @@ sgs.LoadTranslationTable{
 	["$shifa"] = "%from 选择了“%arg3”的 %arg 回合为 %arg2 ，“%arg3”的效果将于第 %arg2 个回合结束后生效",
 	["shifa"] = "施法",
 	["$shifa0"] = "%from“%arg”的 %arg2 效果生效",
-	["$bf_huangtian0"] = "%from 发动了 %arg 的“%arg2”",
+	["$bf_huangtian0"] = "%to 发动了 %from 的“%arg”",
 	["@Equip0lose"] = "武器栏",
 	["@Equip1lose"] = "防具栏",
 	["@Equip2lose"] = "+马 ",
@@ -538,7 +522,6 @@ sgs.LoadTranslationTable{
 	["Player_Play"] = "出牌阶段",
 	["Player_Discard"] = "弃牌阶段",
 	["Player_Finish"] = "结束阶段",
-	["$bf_huangtian0"] = "%from 发动了 %arg 的“%arg2”",
 	["$NotifySkillInvoked_1"] = "%from 发动了“%arg”，目标是 %to",
 	["$NotifySkillInvoked_2"] = "%from 发动了“%arg”",
 	["basic_char"] = "基",
@@ -548,8 +531,8 @@ sgs.LoadTranslationTable{
 	["zhengsu1"] = "擂进",
 	["zhengsu2"] = "变阵",
 	["zhengsu3"] = "鸣止",
-	["zhengsu4"] = "成功",
-	["zhengsu5"] = "失败",
+	["zhengsu_successful"] = "成功",
+	["zhengsu_fail"] = "失败",
 	[":zhengsu1"] = "出牌阶段内，使用的牌点数递增且至少使用三张牌。",
 	[":zhengsu2"] = "出牌阶段内，使用的牌花色均相同且至少使用两张牌。",
 	[":zhengsu3"] = "弃牌阶段内，弃置的牌花色各不同且至少弃置两张牌。",
@@ -591,6 +574,7 @@ sgs.LoadTranslationTable{
 	["MoveField1"] = "%src：请选择一名角色成为此【%dest】转移的目标",
 	["#InstallEquip"] = "%from 装备了 %card",
 	["robot"] = "     电脑",
+	["Hello, I'm a robot"] = "",
 	["rebelish"] = "叛逆",
 	["loyalish"] = "忠诚",
 	["dilemma"] = "两难",
@@ -712,24 +696,23 @@ function Log_message(msg_type,from,to,cid,arg,arg2,arg3,arg4,arg5)
 	room:sendLog(msg)
 end
 function BreakCard(player,card)
-	local room = player:getRoom()
 	card = type(card)=="number" and sgs.Sanguosha:getCard(card) or card
 	if card:getEffectiveId()<0 then return end
+	local toids = sgs.IntList()
+	for _,id in sgs.list(card:getSubcards())do
+		toids:append(id)
+	end
+	local room = player:getRoom()
 	local msg = sgs.LogMessage()
 	msg.type = "$BreakCard"
 	msg.from = player
-	msg.card_str = card:isVirtualCard() and table.concat(sgs.QList2Table(card:getSubcards()),"+") or card:toString()
+	msg.card_str = table.concat(sgs.QList2Table(toids,"+"))
 	room:sendLog(msg)
-   	local bc = room:getTag("BreakCard"):toString():split("+")
-	local toids = {}
-	for _,id in sgs.list(bc)do
+	for _,id in sgs.list(room:getTag("BreakCard"):toIntList())do
 		if room:getCardPlace(id)==sgs.Player_PlaceTable
-		then table.insert(toids,id) end
+		then toids:append(id) end
 	end
-	for _,id in sgs.list(card:getSubcards())do
-		table.insert(toids,id)
-	end
-	room:setTag("BreakCard",ToData(table.concat(toids,"+")))
+	room:setTag("BreakCard",ToData(toids))
 	msg = sgs.CardMoveReason(sgs.CardMoveReason_S_MASK_BASIC_REASON,player:objectName(),"BreakCard","")
    	room:moveCardTo(card,nil,sgs.Player_PlaceTable,msg,true)
 end
@@ -975,7 +958,7 @@ function CanToCard(card,from,to,tos)
 	end
 	if from:isProhibited(to,card,plist)
 	or plist:contains(to) then return end
-  	return card and card:targetFilter(plist,to,from)
+  	return card:targetFilter(plist,to,from)
 end
 function CardVisible(player,id,special)
 	id = type(id)=="number" and id or id:getEffectiveId()
@@ -1058,45 +1041,43 @@ function GetStringLength(inputstr)
     end
     return n
 end
+function string:stringLength()
+	return GetStringLength(self)
+end
 function addRenPile(card,player,self)
 	local room = player:getRoom()
 	card = type(card)=="number" and sgs.Sanguosha:getCard(card) or card
 	self = type(self)=="string" and self or self and self:objectName() or ""
 	if card:getEffectiveId()<0 then return end
-	local RenPile = room:getTag("RenPile"):toString():split("+")
 	local log = sgs.LogMessage()
 	log.type = "$addRenPile"
 	log.from = player
 	log.arg = "RenPile"
 	local toids = {}
-	local c = dummyCard()
+	local RenPile = room:getTag("RenPile"):toIntList()
 	for _,id in sgs.list(card:getSubcards())do
-		table.insert(RenPile,id)
 		table.insert(toids,id)
-		c:addSubcard(id)
+		RenPile:append(id)
 	end
+	room:setTag("RenPile",ToData(RenPile))
    	log.card_str = table.concat(toids,"+")
    	room:sendLog(log)
-	room:setTag("RenPile",sgs.QVariant(table.concat(RenPile,"+")))
+	local data = "RenPile:enter:"..log.card_str
+	room:getThread():trigger(sgs.EventForDiy,room,player,ToData(data))
    	log = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_RECYCLE,player:objectName(),"",self,"addRenPile")
-   	room:moveCardTo(c,nil,sgs.Player_PlaceTable,log,true)
-	RenPile = room:getTag("RenPile"):toString():split("+")
+   	room:moveCardTo(card,nil,sgs.Player_PlaceTable,log,true)
+	RenPile = room:getTag("RenPile"):toIntList()
    	for _,p in sgs.list(room:getAlivePlayers())do
-    	if p:getMark("&RenPile")>0
+    	if p:getMark("@RenPile")>0
 		then
-	    	room:setPlayerMark(p,"&RenPile",#RenPile)
+	    	room:setPlayerMark(p,"@RenPile",RenPile:length())
 			return
 		end
 	end
-	room:setPlayerMark(player,"&RenPile",#RenPile)
+	room:setPlayerMark(player,"@RenPile",RenPile:length())
 end
-function getRenPile(player)
-	local RenPile = player:getRoom():getTag("RenPile"):toString():split("+")
-	local toid = sgs.IntList()
-   	for _,id in sgs.list(RenPile)do
-		toid:append(id)
-	end
-	return toid
+function getRenPile(room)
+	return room:getTag("RenPile"):toIntList()
 end
 function ZhengsuChoice(player)
 	local choices = {}
@@ -1110,7 +1091,7 @@ function ZhengsuChoice(player)
 	Log_message("$zhengsu",player,nil,nil,"zhengsu",choices)
 	player:setTag(choices,ToData(true))
 	room:setPlayerMark(player,"&zhengsu+-+"..choices,1)
-	return string.sub(choices,8,8)-0
+	return tonumber(string.sub(choices,8,8))
 end
 function SetShifa(self,player,x)
 	local room = player:getRoom()
@@ -1480,24 +1461,28 @@ end
 
 
 
-sgs.aiHandCardVisible = io.open("aiHandCardVisible.txt")~=nil
+
+
+
+
+
+
 
 sgs.patterns = {}
-
 equip_patterns = {}
 function AllCardPatterns()
-	local tocs,ban = {},sgs.Sanguosha:getBanPackages()
-  	for c=1,sgs.Sanguosha:getCardCount()do
-		c = sgs.Sanguosha:getEngineCard(c-1)
+	local tocs = {}
+  	for c,id in sgs.list(sgs.Sanguosha:getRandomCards())do
+		c = sgs.Sanguosha:getEngineCard(id)
 		sgs.patterns[c:getClassName()] = c:objectName()
-		if table.contains(ban,c:getPackage())
-		or table.contains(tocs,c:objectName()) then continue end
+		if table.contains(tocs,c:objectName()) then continue end
 		if c:getTypeId()<3 then table.insert(tocs,c:objectName())
 		else table.insert(equip_patterns,c:objectName()) end
 	end
 	return tocs
 end
 patterns = AllCardPatterns()
+sgs.aiHandCardVisible = io.open("aiHandCardVisible.txt")~=nil
 OnSkillTrigger = sgs.CreateTriggerSkill{
     name = "OnSkillTrigger",
 	frequency = sgs.Skill_Compulsory,
@@ -1584,55 +1569,59 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 				move.to_place = sgs.Player_DiscardPile
 				room:moveCardsAtomic(move,true)
 			end
-			if room:getCurrent():objectName()~=player:objectName() then return end
-			local flag = bit32.band(move.reason.m_reason,sgs.CardMoveReason_S_MASK_BASIC_REASON)
-			if player:getTag("zhengsu3"):toBool()
-			and player:getPhase()==sgs.Player_Discard
-			and move.to_place==sgs.Player_DiscardPile
-			and flag==sgs.CardMoveReason_S_REASON_DISCARD
+			if room:getCurrent()~=player then return end
+			if player:getTag("zhengsu3"):toBool() and player:getPhase()==sgs.Player_Discard and move.to_place==sgs.Player_DiscardPile
+			and bit32.band(move.reason.m_reason,sgs.CardMoveReason_S_MASK_BASIC_REASON)==sgs.CardMoveReason_S_REASON_DISCARD
 			then
-				local cards = player:getTag("zhengsu-3"):toString():split("+")
+				local cards = player:getTag("zhengsu-3"):toIntList()
 				for _,id in sgs.list(move.card_ids)do
-					table.insert(cards,sgs.Sanguosha:getCard(id):getSuit())
+					cards:append(sgs.Sanguosha:getCard(id):getSuit())
 				end
-				player:setTag("zhengsu-3",ToData(table.concat(cards,"+")))
+				player:setTag("zhengsu-3",ToData(cards))
 			end
-           	local RenPile = room:getTag("RenPile"):toString():split("+")
+           	local RenPile = room:getTag("RenPile"):toIntList()
 			if move.to_place==sgs.Player_PlaceTable
-			and #RenPile>6
+			and RenPile:length()>6
 			then
              	local c = dummyCard()
-				while #RenPile>6 do
-					c:addSubcard(RenPile[1])
-    	    		table.removeOne(RenPile,RenPile[1])
+				while RenPile:length()>6 do
+					c:addSubcard(RenPile:first())
+    	    		RenPile:removeOne(RenPile:first())
 				end
- 		   		room:setTag("RenPile",sgs.QVariant(table.concat(RenPile,"+")))
+ 		   		room:setTag("RenPile",ToData(RenPile))
+				local data = "RenPile:throw:"..table.concat(sgs.QList2Table(c:getSubcards()),"+")
+				room:getThread():trigger(sgs.EventForDiy,room,player,ToData(data))
 				room:throwCard(c,nil)
                	for _,p in sgs.list(room:getAlivePlayers())do
-					if p:getMark("&RenPile")>0
+					if p:getMark("@RenPile")>0
 					then
-						room:setPlayerMark(p,"&RenPile",#RenPile)
+						room:setPlayerMark(p,"@RenPile",RenPile:length())
+						c = false
+						break
 					end
 				end
+				if c
+				then
+					room:setPlayerMark(player,"@RenPile",RenPile:length())
+				end
 			end
-			RenPile = room:getTag("RenPile"):toString():split("+")
-			if #RenPile>0
+			RenPile = room:getTag("RenPile"):toIntList()
+			if RenPile:length()>0
+			and move.from_places:contains(sgs.Player_PlaceTable)
 			then
 				local ids,toids = {},{}
             	for _,id in sgs.list(RenPile)do
 			   		table.insert(ids,id)
 				end
             	for _,id in sgs.list(ids)do
-			    	if move.card_ids:contains(id)
-					and room:getCardPlace(id)~=sgs.Player_PlaceTable
-					then
-			    		table.insert(toids,id)
-			    		table.removeOne(RenPile,id)
-						continue
-					end
 			    	if room:getCardPlace(id)~=sgs.Player_PlaceTable
-					then table.removeOne(RenPile,id) end
+					then
+						if move.card_ids:contains(id)
+						then table.insert(toids,id) end
+						RenPile:removeOne(id)
+					end
 				end
+ 		    	room:setTag("RenPile",ToData(RenPile))
 				if #toids>0
 				then
                   	local log = sgs.LogMessage()
@@ -1640,12 +1629,17 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
                  	log.arg = "RenPile"
                 	log.card_str = table.concat(toids,"+")
                 	room:sendLog(log)
- 		    		room:setTag("RenPile",sgs.QVariant(table.concat(RenPile,"+")))
                  	for _,p in sgs.list(room:getAlivePlayers())do
-						if p:getMark("&RenPile")>0
+						if p:getMark("@RenPile")>0
 						then
-							room:setPlayerMark(p,"&RenPile",#RenPile)
+							room:setPlayerMark(p,"@RenPile",RenPile:length())
+							log = false
+							break
 						end
+					end
+					if log
+					then
+						room:setPlayerMark(player,"@RenPile",RenPile:length())
 					end
 				end
 			end
@@ -1668,9 +1662,10 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 			end
 		elseif event==sgs.DrawInitialCards
 		then
-		   	sgs.screenIds = sgs.screenIds or sgs.IntList()
 			if player:getState()=="robot"
+			and sgs.aiHandCardVisible
 			then
+				sgs.screenIds = sgs.screenIds or sgs.IntList()
 				local x = 33
 				while sgs.screenIds do
 					x = math.random(10,99)
@@ -1691,7 +1686,7 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 	    	local card = sgs.Sanguosha:cloneCard(judge.card)
 			if card
 			then
-	         	card:setSkillName("judge")
+	         	card:setSkillName("JudgeCard")
 		     	player:setTag("JudgeCard_"..judge.reason,ToData(card))
              	card:deleteLater()
 			end
@@ -1739,26 +1734,26 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 			end
         elseif event==sgs.PreCardUsed
 		then
-	       	local use = data:toCardUse()
+	       	local use = data:toCardUse()--[[
 			if use.card:isVirtualCard()
 			and use.card:getTypeId()>0
 			then
 				use.card = SetCloneCard(use.card)
 				data:setValue(use)
 				use = data:toCardUse()
-			end
+			end--]]
 			room:removeTag("damage_caused_"..use.card:toString())
 			use.card:setProperty("damage_caused",ToData())
-			for i = 1,2 do
-				if use.from:objectName()==player:objectName()
+			for i=1,2 do
+				if use.from==player
 				and player:getTag("zhengsu"..i):toBool()
 				and player:getPhase()==sgs.Player_Play
 				and use.card:getTypeId()~=0
 				then
-					local zhengsu = player:getTag("zhengsu-"..i):toString():split("+")
-					if i<2 then table.insert(zhengsu,use.card:getNumber())
-					else table.insert(zhengsu,use.card:getSuit()) end
-					player:setTag("zhengsu-"..i,ToData(table.concat(zhengsu,"+")))
+					local zhengsu = player:getTag("zhengsu-"..i):toIntList()
+					if i<2 then zhengsu:append(use.card:getNumber())
+					else zhengsu:append(use.card:getSuit()) end
+					player:setTag("zhengsu-"..i,ToData(zhengsu))
 				end
 			end
         elseif event==sgs.EventPhaseChanging
@@ -1799,56 +1794,54 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 				end
 			elseif change.from==sgs.Player_Discard
 			then
-				for i = 1,3 do
+				for i=1,3 do
 					if player:getTag("zhengsu"..i):toBool()
 					then
-						player:setTag("zhengsu_carry",ToData(i))
-						local cards = player:getTag("zhengsu-"..i):toString():split("+")
+						local ids = player:getTag("zhengsu-"..i):toIntList()
 						local can,n = true,0
-						if i<2
+						if i==1
 						then
-							n = "0"
-							for _,c in sgs.list(cards)do
+							for _,c in sgs.list(ids)do
 								if c<=n then can = false end
 								n = c
 							end
-							can = can and #cards>2
-						elseif i<3
+							can = can and ids:length()>2
+						elseif i==2
 						then
-							n = cards[1]
-							for _,c in sgs.list(cards)do
+							n = ids:first()
+							for _,c in sgs.list(ids)do
 								if c~=n then can = false end
 								n = c
 							end
-							can = can and #cards>1
-						elseif i>2
+							can = can and ids:length()>1
+						elseif i==3
 						then
 							n = {}
-							for _,c in sgs.list(cards)do
+							for _,c in sgs.list(ids)do
 								if table.contains(n,c) then can = false end
 								table.insert(n,c)
 							end
-							can = can and #cards>1
+							can = can and ids:length()>1
 						end
 						local msg = sgs.LogMessage()
 						msg.type = "$zhengsu0"
 						msg.from = player
 						msg.arg = "zhengsu"
-						msg.arg2 = "zhengsu5"
+						msg.arg2 = "zhengsu_fail"
+						local data = "zhengsu:"..i..":zhengsu_fail"
 						if can
 						then
-							msg.arg2 = "zhengsu4"
+							msg.arg2 = "zhengsu_successful"
 							room:sendLog(msg)
-							player:setFlags("zhengsu_successful")
+							data = "zhengsu:"..i..":zhengsu_successful"
 							if room:askForChoice(player,"zhengsu","drawCards_2+recover_1")~="drawCards_2"
 							then room:recover(player,sgs.RecoverStruct(player))
 							else player:drawCards(2,"zhengsu") end
 						else room:sendLog(msg) end
 						player:removeTag("zhengsu"..i)
 						player:removeTag("zhengsu-"..i)
+						room:getThread():trigger(sgs.EventForDiy,room,player,ToData(data))
 						room:setPlayerMark(player,"&zhengsu+-+zhengsu"..i,0)
-						player:setFlags("-zhengsu_successful")
-						player:removeTag("zhengsu_carry")
 					end
 				end
 			end
@@ -1890,3 +1883,11 @@ IsProhibited = sgs.CreateProhibitSkill{
 	end
 }
 addToSkills(IsProhibited)
+
+--[[
+extensioncard = sgs.Package("cloneCard",sgs.Package_CardPack)
+for i=1,99 do
+	local c = sgs.Sanguosha:cloneCard("slash",math.random(0,3),math.random(1,13))
+	c:setParent(extensioncard)
+end
+return {extensioncard}--]]

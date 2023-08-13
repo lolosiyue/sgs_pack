@@ -36,8 +36,7 @@ sgs.ai_skill_choice.qingshi = function(self,choices,data)
 	local items = choices:split("+")
 	if table.contains(items,"draw")
 	and #self.friends_noself>self.player:getHp()
-	and self.toUse and #self.toUse>3
-	then return "draw" end
+	and #self.toUse>3 then return "draw" end
 	for _,c in sgs.list(items)do
 		if c:startsWith("selfdraw")
 		then return c end

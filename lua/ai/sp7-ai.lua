@@ -414,8 +414,7 @@ sgs.ai_use_priority.CaizhuangCard = 5.8
 sgs.ai_fill_skill.jijiao = function(self)
 	local ids = self.player:getTag("JijiaoRecord"):toIntList()
 	if ids:length()<2 then return end
-	return self.toUse and #self.toUse<1
-	and sgs.Card_Parse("@JijiaoCard=.")
+	return #self.toUse<1 and sgs.Card_Parse("@JijiaoCard=.")
 end
 
 sgs.ai_skill_use_func["JijiaoCard"] = function(card,use,self)
@@ -1056,7 +1055,7 @@ sgs.ai_skill_playerchosen.anzhi = function(self,players)
 end
 
 sgs.ai_fill_skill.anzhi = function(self)
-	return (self.player:getMark("&xialei_watch-Clear")>1 or self.toUse and #self.toUse<1)
+	return (self.player:getMark("&xialei_watch-Clear")>1 or #self.toUse<1)
 	and sgs.Card_Parse("@AnzhiCard=.")
 end
 
@@ -1068,7 +1067,7 @@ sgs.ai_use_value.AnzhiCard = 3.4
 sgs.ai_use_priority.AnzhiCard = 9.8
 
 sgs.ai_skill_invoke.anzhi = function(self,data)
-    return self.player:getMark("&xialei_watch-Clear")>1 or self.toUse and #self.toUse<1
+    return self.player:getMark("&xialei_watch-Clear")>1 or #self.toUse<1
 end
 
 sgs.ai_skill_invoke.xialei = function(self,data)
@@ -1254,7 +1253,6 @@ sgs.ai_skill_playerchosen.lianzhi = function(self,players)
 end
 
 sgs.ai_skill_choice.zuojian = function(self,choices,data)
-	local player = self.player
 	local items = choices:split("+")
 	local maxE,minE = 0,0
 	for i,p in sgs.list(self.room:getAlivePlayers())do

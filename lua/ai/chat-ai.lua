@@ -3,8 +3,7 @@ sgs.ai_chat = {}
 function speak(to,type)
 	if not sgs.GetConfig("AIChat",false)
 	or sgs.GetConfig("OriginAIDelay",0)==0
-	or to:getState()~="robot"
-	then return end
+	or to:getState()~="robot" then return end
 	if table.contains(sgs.ai_chat,type)
 	then
 		to:speak(sgs.ai_chat[type][math.random(1,#sgs.ai_chat[type])])
@@ -63,17 +62,33 @@ end
 
 sgs.ai_chat_func[sgs.Dying].fuck_renegade=function(self,player,data)
 	local dying = data:toDying()
+	if dying.who~=player or math.random()>0.5 then return end
 	local chat ={
-		"小内你还不跳，要崩盘吧",
-		"9啊，不9就输了",
 		"999...999...",
 		"来捞一下啊....",
-		"小内，我死了你也赢不了",
-		"没戏了，小内不出我们全部托管啊"
 	}
-	if (self.role=="rebel" or self.role=="loyalist") and sgs.playerRoles["renegade"]>0
-	and dying.who:objectName()==player:objectName() and math.random()<0.5
-	then player:speak(chat[1+(os.time()%#chat)]) end
+	if self.role~="renegade" and sgs.playerRoles["renegade"]>0
+	then
+		table.insert(chat,"9啊，不9就输了")
+		table.insert(chat,"小内你还不救，要崩盘了")
+		table.insert(chat,"没戏了小内不出手全部托管吧")
+		table.insert(chat,"小内，我死了你也赢不了")
+	end
+	if self:getAllPeachNum()+player:getHp()<1
+	and #self.friends_noself>0
+	then
+		table.insert(chat,"寄")
+		table.insert(chat,"要寄.....")
+		table.insert(chat,"还有救吗.....")
+	end
+	if #self.enemies<player:aliveCount()-1
+	then
+		table.insert(chat,"不要见死不救啊.....")
+		table.insert(chat,"我还不能死.....")
+		table.insert(chat,"6了6了")
+		table.insert(chat,"6")
+	end
+	player:speak(chat[1+(os.time()%#chat)])
 end
 
 sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self,player,data)
@@ -88,20 +103,48 @@ sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self,player,data)
 	if player:getPhase()==sgs.Player_Finish and not player:isKongcheng()
 	and player:hasSkills("leiji|nosleiji|olleiji") and os.time()%10<4
 	then player:speak(chat[1+(os.time()%#chat)]) end
-	chat ={
-		"大家一起围观主公",
-		"不要一下弄死了，慢慢来",
-		"速度，一人一下弄死",
-		"包养主公了",
-		"怎么成光杆司令了啊",
-		"投降给全尸",
-		"主公投降吧，免受皮肉之苦",
-		"哈哈哈主公阿"
-	}
-	if player:getPhase()==sgs.Player_Start and self.role=="rebel"
+	if player:getPhase()==sgs.Player_Start and math.random()<0.4
 	and sgs.playerRoles["renegade"]+sgs.playerRoles["loyalist"]<1
-	and sgs.playerRoles["rebel"]>=2 and os.time()%10<4
-	then player:speak(chat[1+(os.time()%#chat)]) end
+	and sgs.playerRoles["rebel"]>=2
+	then
+		if self.role=="rebel"
+		then
+			chat ={
+				"大家一起围观主公",
+				"不要一下弄死了，慢慢来",
+				"主公投降吧，免受皮肉之苦",
+				"速度，一人一下弄死",
+				"怎么成光杆司令了啊",
+				"哈哈哈主公阿",
+				"包养主公了",
+				"投降给全尸"
+			}
+		else
+			if sgs.turncount>4
+			then
+				chat ={
+					"看我一人包围你们全部......",
+					"这就是所谓一人包围全场",
+					"我要杀出重围",
+					"纵死，我亦无惧",
+					"我就不屈服",
+					"（苦笑）",
+					"哈哈哈，这是我最后的荣光了"
+				}
+			else
+				chat ={
+					"啊这",
+					"怎么全都死了",
+					"我竟进入如此境地",
+					"看我一人包围你们全部......",
+					"不好，被包围了",
+					"不要轮我",
+					"（苦笑）"
+				}
+			end
+		end
+		player:speak(chat[math.random(1,#chat)])
+	end
 	if player:getPhase()==sgs.Player_RoundStart
 	and self.room:getMode()=="08_defense"
 	and math.random()<0.3
@@ -132,8 +175,7 @@ sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self,player,data)
 			table.insert(chat1,"一切反动派都是纸老虎")
 			table.insert(chat2,"蓝色！")
 		end
-		if string.find(self.player:getGeneral():objectName(),"baihu")
-		then table.insert(chat2,"喵~！") end
+		if string.find(self.player:getGeneral():objectName(),"baihu") then table.insert(chat2,"喵~！") end
 		if string.find(self.player:getGeneral():objectName(),"jiangwei")
 		then  --姜维
 			table.insert(chat1,"白水地狭路多，非征战之所，不如且退，去救剑阁")
@@ -161,8 +203,8 @@ sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self,player,data)
 		then p:speak(chat2[math.random(1,#chat2)])
 		else p:speak(chat1[math.random(1,#chat1)]) end
 	end
-	if sgs.GetConfig("EnableHegemony",false)
-	or sgs.isRolePredictable() then
+	if isRolePredictable()
+	or sgs.GetConfig("EnableHegemony",false) then
 	elseif player:getPhase()==sgs.Player_RoundStart
 	and math.random()<0.2
 	then
@@ -225,9 +267,11 @@ sgs.ai_chat_func[sgs.EventPhaseStart].comeon=function(self,player,data)
 			table.insert(chat,chat1[math.random(1,#chat1)])
 		end
 		if player:isLord() then table.insert(chat,role1[math.random(1,#role1)])
-		elseif player:getRole()=="loyalist" or player:getRole()=="renegade" and math.random()<0.2
+		elseif sgs.ai_role[player:objectName()]=="loyalist"
+		or sgs.ai_role[player:objectName()]=="renegade" and math.random()<0.2
 		then table.insert(chat,role2[math.random(1,#role2)])
-		elseif player:getRole()=="rebel" or player:getRole()=="renegade" and math.random()<0.2
+		elseif sgs.ai_role[player:objectName()]=="rebel"
+		or sgs.ai_role[player:objectName()]=="renegade" and math.random()<0.2
 		then table.insert(chat,role3[math.random(1,#role3)]) end
 		if #chat>0 and sgs.turncount>=2
 		then
@@ -302,16 +346,6 @@ sgs.ai_chat_func[sgs.TargetConfirmed].UnlimitedBladeWorks = function(self,player
 		end
 		player:speak(sgs.ai_yuanshao_ArcheryAttack[1])
 		table.remove(sgs.ai_yuanshao_ArcheryAttack,1)
-	elseif use.card:isKindOf("Peach")
-	then
-		local to = use.to:first()
-		if use.from:isFemale() and to:isMale()
-		and to:getState()==use.from:getState()
-		and math.random()<0.1
-		then
-			use.from:speak("复活吧，我的勇士")
-			to:speak("为你而战，我的女王")
-		end
 	end
 end
 
@@ -341,7 +375,6 @@ sgs.ai_event_callback[sgs.CardFinished].analeptic = function(self,player,data)
 	and use.card:getSkillName()~="zhendu"
 	then
 		local to = use.to:first()
-		if to:getMark("drank")<1 then return end
 		local chat = {
 			"!",
 			"不要吓我...",
@@ -441,7 +474,14 @@ sgs.ai_event_callback[sgs.CardFinished].analeptic = function(self,player,data)
 	elseif use.card:isKindOf("Peach")
 	then
 		for chat,p in sgs.qlist(use.to)do
-			if p:getState()=="robot" and math.random()<0.5
+			if use.from:isFemale() and math.random()<0.2
+			and p:getGender()~=use.from:getGender()
+			and p:getState()==use.from:getState()
+			and p:getHp()>0
+			then
+				use.from:speak("复活吧，我的勇士")
+				p:speak("为你而战，我的女王")
+			elseif p:getState()=="robot" and math.random()<0.5
 			and p:objectName()~=use.from:objectName()
 			and p:getHp()>0
 			then
@@ -512,24 +552,25 @@ sgs.ai_event_callback[sgs.PreCardUsed].CardUse = function(self,player,data)
 			"泥玛杀我，你等着阿",
 			"再杀！老子和你拼命了"
 		}
-		if self:hasCrossbowEffect(use.from)
-		then
-			table.insert(chat,"杀得我也是醉了。。。")
-			table.insert(chat,"果然是连弩降智商....")
-			table.insert(chat,"杀死我也没牌拿，真2")
-		end
-		if use.from:usedTimes("Analeptic")>0
-		then
-			table.insert(chat,"喝醉了吧，乱砍人？")
-		end
 		for _,p in sgs.qlist(use.to)do
 			if math.random()>0.3 or p:getState()~="robot" then continue end
 			if sgs.ai_role[p:objectName()]=="neutral"
 			then
 				table.insert(chat,"盲狙一时爽啊,我泪奔")
 				table.insert(chat,"我次奥，盲狙能不能轻点？")
+				if use.from:usedTimes("Analeptic")>0
+				then
+					table.insert(chat,"喝醉了吧，乱砍人？")
+				end
 			end
-			if use.from:isLord()
+			if p:getRole()~="lord"
+			and self:hasCrossbowEffect(use.from)
+			then
+				table.insert(chat,"杀得我也是醉了。。。")
+				table.insert(chat,"果然是连弩降智商....")
+				table.insert(chat,"杀死我也没牌拿，真2")
+			end
+			if use.from:getRole()=="lord"
 			and sgs.playerRoles.loyalist>0
 			and sgs.ai_role[p:objectName()]~="rebel"
 			then
@@ -569,6 +610,32 @@ sgs.ai_event_callback[sgs.EventPhaseStart].luanwu = function(self,player,data)
 	end
 end
 
+sgs.ai_event_callback[sgs.ChoiceMade].state = function(self,player,data)
+	for _,p in sgs.list(self.room:getAlivePlayers())do
+		if math.random()>0.95 and p:getState()=="robot"
+		then p:speak("<#"..math.random(1,56).."#>") end
+	end
+end
+
+sgs.ai_event_callback[sgs.CardFinished].state = sgs.ai_event_callback[sgs.ChoiceMade].state
+
+sgs.ai_event_callback[sgs.DrawInitialCards].screen = function(self,player,data)
+	if player:getState()=="robot" and player:screenName():match("QsgsAI")
+	then
+		local sn = player:screenName()
+		sn = sn:split(":")
+		sn[1] = sgs.Sanguosha:translate(sn[1])
+		local speaks = {
+			sn[1]..sn[2].."号准备就绪",
+			sn[1]..sn[2].."号随时可以开始",
+			sn[2].."号程序加载完成",
+			sn[2].."号准备好了",
+			sn[1]..sn[2].."号进入游戏成功"
+		}
+		player:speak(speaks[math.random(1,#speaks)])
+	end
+end
+
 function SmartAI:speak(cardtype,isFemale)
 	if self.player:getState()~="robot"
 	or sgs.GetConfig("OriginAIDelay",0)==0
@@ -580,8 +647,9 @@ function SmartAI:speak(cardtype,isFemale)
 	then
 		if isFemale then ac = sgs.ai_chat[cardtype.."_female"] or ac end
 		self.player:speak(ac[math.random(1,#ac)])
-		if self.player:getHp()<1 then self.room:getThread():delay(math.random(777,2222))
-		elseif self.player:getPhase()<=sgs.Player_Play then self.room:getThread():delay(math.random(666,1111)) end
+		if self.player:hasFlag("Global_Dying") then self.room:getThread():delay(math.random(sgs.delay,sgs.delay*2))
+		elseif self.player:getPhase()<=sgs.Player_Play then self.room:getThread():delay(math.random(sgs.delay*0.5,sgs.delay*1.5)) end
+		return true
 	end
 end
 
@@ -593,7 +661,7 @@ sgs.ai_chat.blade={
 sgs.ai_chat.no_peach_female = {
 	"妾身不玩了！",
 	"哇啊欺负我，不玩了" ,
-	"放下俗物，飞升化仙女去喽" ,
+	"放下俗物，飘飘升仙" ,
 	"你们好意思欺负我一个女孩子吗....",
 	"哼，本姑娘不伺候了"
 }
@@ -613,6 +681,20 @@ sgs.ai_chat.yiji={
 	"再用力一点",
 	"再来再来",
 	"要死了啊!"
+}
+
+sgs.ai_chat.null_card={
+	"想卖血？",
+	"我不想让你受伤！",
+	"我不喜欢你扣血.....",
+	"没事掉什么血啊",
+	"我来保护你！！",
+	"你这血我扣下了",
+	"你不能受到1点伤害",
+	"只有我可怜你哦~~~",
+	"精血很贵的，还是留着吧",
+	"看，只有我在意你，不让你受伤",
+	"哼哼!"
 }
 
 sgs.ai_chat.snatch_female = {
@@ -693,7 +775,7 @@ sgs.ai_chat.amazing_grace_female={
 	"让我看看，有什么好东西呢",
 	"人人有份哟",
 	"风调雨顺，五谷丰登",
-	"今年也是丰收呢"
+	"丰收喽~~~~"
 }
 
 sgs.ai_chat.amazing_grace={
@@ -704,10 +786,17 @@ sgs.ai_chat.amazing_grace={
 }
 
 sgs.ai_chat.supply_shortage={
-	"嘻嘻，不给你吃的",
+	"嘻嘻，不给你摸",
 	"你最好不是摸牌白",
 	"看我断你口粮",
 	"做个饿死鬼去吧！"
+}
+
+sgs.ai_chat.supply_shortageIsGood={
+	"嚯~~~~",
+	"天可怜见",
+	"哈哈哈哈哈哈哈哈哈",
+	"废兵也就这样了"
 }
 
 sgs.ai_chat.collateralNoslash_female={
@@ -733,6 +822,30 @@ sgs.ai_chat.jijiang_female={
 sgs.ai_chat.jijiang={
 	"主公，我来啦",
 	"我为主公出个力！"
+}
+
+sgs.ai_chat.eight_diagramIsGood={
+	"哈哈，打不中",
+	"八卦闪~！",
+	"判红",
+	"红色！！！"
+}
+
+sgs.ai_chat.judgeIsGood={
+	"献祭GK木琴换来的",
+	"这就是天意",
+	"天助我，宵小不足为惧",
+	"好判定",
+	"判得好",
+	"此天命不可违，哈哈哈哈",
+	"好耶!"
+}
+
+sgs.ai_chat.noJink={
+	"有桃么!有桃么？",
+	".......！",
+	"我大意了",
+	"要死"
 }
 
 --huanggai
@@ -761,6 +874,16 @@ sgs.ai_chat.indulgence_female={
 	"不要拒接妾身哦",
 	"自娱自乐去吧",
 	"休息一下吧"
+}
+
+sgs.ai_chat.indulgenceIsGood={
+	"哈哈哈，乐不中",
+	"哟，天过",
+	"我，天眷者",
+	"呀~~居然是假乐",
+	"虚惊一场",
+	"果然！",
+	"此天助我也！"
 }
 
 --leiji
@@ -820,15 +943,15 @@ sgs.ai_chat.luoyi={
 sgs.ai_chat.bianshi = {
 	"据我观察现在可以鞭尸",
 	"鞭他，最后一下留给我",
-	"这个可以鞭尸",
 	"我要刷战功，这个人头是我的",
+	"这个可以鞭尸",
 	"啊笑死"
 }
 
 sgs.ai_chat.bianshi_female = {
 	"对面是个美女你们慢点",
-	"美人，来香一个",
-	"人人有份，永不落空"
+	"人人有份，永不落空",
+	"美人，来香一个"
 }
 
 sgs.ai_chat.usepeach = {

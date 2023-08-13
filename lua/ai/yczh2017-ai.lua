@@ -29,7 +29,7 @@ sgs.ai_skill_cardask["jianzheng-put"] = function(self,data)
 end
 
 --专对
-sgs.ai_skill_invoke.zhuandui = function(self,data)
+sgs.ai_skill_invoke.zhuandui=function(self,data)
 	local target = data:toPlayer()
 	if target then
 		return not self:isFriend(target)
@@ -213,7 +213,7 @@ sgs.ai_skill_use["@@fumian"] = function(self,prompt,method)
 		end]]
 		if t[#t]==card_name then
 			--extra_table = t
-			for i = 1,#t-1 do  --为了不把card_name一起存进去
+			for i=1,#t-1 do  --为了不把card_name一起存进去
 				if not t[i]:hasFlag("fumian_canchoose") then continue end
 				table.insert(extra_table,t[i])
 			end
@@ -233,7 +233,7 @@ sgs.ai_skill_use["@@fumian"] = function(self,prompt,method)
 		else
 			self:sort(extra_table,"defense")
 		end
-		for i = 1,math.min(maxnum,#extra_table)do
+		for i=1,math.min(maxnum,#extra_table)do
 			table.insert(extra_players,extra_table[i]:objectName())
 		end
 		if #extra_players>0 then
@@ -242,7 +242,7 @@ sgs.ai_skill_use["@@fumian"] = function(self,prompt,method)
 	end
 	if self:isEnemy(extra_table[1]) then
 		self:sort(extra_table,"defense")
-		for i = 1,math.min(maxnum,#extra_table)do
+		for i=1,math.min(maxnum,#extra_table)do
 			table.insert(extra_players,extra_table[i]:objectName())
 		end
 		if #extra_players>0 then
@@ -311,7 +311,7 @@ sgs.ai_use_priority.ZhongjianCard = 7
 sgs.ai_use_value.ZhongjianCard = 7
 
 --才识
-sgs.ai_skill_invoke.caishi = function(self,data)
+sgs.ai_skill_invoke.caishi=function(self,data)
 	self.caishi_choice = nil
 	if self.player:isWounded() and (self:getCardsNum("Peach")==0 or self.player:isSkipped(sgs.Player_Play)) then
 		self.caishi_choice = "recover" 
@@ -336,7 +336,7 @@ sgs.ai_skill_invoke.caishi = function(self,data)
 	return self.caishi_choice~=nil
 end
 
-sgs.ai_skill_choice.caishi = function(self,choices,data)
+sgs.ai_skill_choice.caishi=function(self,choices,data)
 	if not self.caishi_choice then return "max" end
 	return self.caishi_choice
 end
@@ -379,9 +379,9 @@ sgs.ai_use_priority.OLZhongjianCard = sgs.ai_use_priority.ZhongjianCard
 sgs.ai_use_value.OLZhongjianCard = sgs.ai_use_value.ZhongjianCard
 
 --OL才识
-sgs.ai_skill_invoke.olcaishi = true
+sgs.ai_skill_invoke.olcaishi=true
 
-sgs.ai_skill_choice.olcaishi = function(self,choices,data)
+sgs.ai_skill_choice.olcaishi=function(self,choices,data)
 	if self.player:isWounded() and (self:getCardsNum("Peach")==0 or self.player:isSkipped(sgs.Player_Play)) then
 		return "recover"
 	end
@@ -662,7 +662,7 @@ sgs.ai_skill_use_func.MobileQingxianCard = function(card,use,self)
 	
 	use.card = sgs.Card_Parse("@MobileQingxianCard="..table.concat(discard,"+"))
 	if use.to then
-		for i = 1,#targets,1 do
+		for i=1,#targets,1 do
 			use.to:append(targets[i])
 		end
 		return
@@ -778,7 +778,7 @@ sgs.ai_skill_use_func.MobileCanyunCard = function(card,use,self)
 	
 	use.card = sgs.Card_Parse("@MobileCanyunCard="..table.concat(discard,"+"))
 	if use.to then
-		for i = 1,#targets,1 do
+		for i=1,#targets,1 do
 			use.to:append(targets[i])
 		end
 		return
@@ -858,10 +858,10 @@ wenguagive_skill.getTurnUseCard = function(self,inclusive)
 end
 
 sgs.ai_skill_use_func.WenguagiveCard = function(card,use,self)
-	local xushi = nil
+	local xushi=nil
 	for _,p in ipairs(self.friends_noself)do
 		if p:getMark("wengua-PlayClear")<=0 and p:hasSkill("wengua") and not self:needKongcheng(p,true) then
-			xushi = p
+			xushi=p
 			break
 		end
 	end
@@ -1032,7 +1032,7 @@ sgs.ai_skill_playerchosen.jiexun = function(self,targets)
 end
 
 --守玺
-sgs.ai_skill_invoke.shouxi = function(self,data)
+sgs.ai_skill_invoke.shouxi=function(self,data)
 	local use = data:toCardUse()
 	local player = use.from
 	local slash = use.card
@@ -1043,7 +1043,7 @@ sgs.ai_skill_invoke.shouxi = function(self,data)
 	return true
 end
 
-sgs.ai_skill_askforag.shouxi = function(self,card_ids)
+sgs.ai_skill_askforag.shouxi=function(self,card_ids)
 	local cards,basic = {},{}
 	for _,card_id in ipairs(card_ids)do
 		local card = sgs.Sanguosha:getEngineCard(card_id)
@@ -1121,7 +1121,7 @@ sgs.ai_skill_use["@@huimin!"] = function(self,prompt)
 	end
 	length = math.min(#hand,length)
 	self:sortByKeepValue(hand)
-	for i = 1,length do
+	for i=1,length do
 		table.insert(show,hand[i]:getEffectiveId())
 	end
 	
@@ -1156,59 +1156,29 @@ end
 --通博
 sgs.ai_skill_use["@@tongbo"] = function(self,prompt,method)
 	local pile = self.player:getPile("book")
-	local piles = {}
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
-	local max_num = math.max(pile:length(),#cards)
-	if pile:isEmpty() or #cards==0 then return "." end
-	for _,card_id in sgs.qlist(pile)do
-		table.insert(piles,sgs.Sanguosha:getCard(card_id))
+	if pile:isEmpty() or #cards<1 then return "." end
+	local piles = {}
+	for _,id in sgs.qlist(pile)do
+		table.insert(piles,sgs.Sanguosha:getCard(id))
 	end
-	local exchange_to_pile = {}
-	local exchange_to_handcard = {}
+	local exchange = {}
 	self:sortByCardNeed(cards)
 	self:sortByCardNeed(piles)
-	for i = 1 ,max_num,1 do
-		if self:cardNeed(piles[#piles])>self:cardNeed(cards[1]) then
-			table.insert(exchange_to_handcard,piles[#piles])
-			table.insert(exchange_to_pile,cards[1])
+	local max_num = math.max(pile:length(),#cards)
+	for i=1,max_num do
+		if #piles>0 and #cards>0
+		and self:cardNeed(piles[#piles])>self:cardNeed(cards[1])
+		then
+			table.insert(exchange,piles[#piles]:getId())
+			table.insert(exchange,cards[1]:getId())
 			table.removeOne(piles,piles[#piles])
 			table.removeOne(cards,cards[1])
-		else
-			break
-		end
+		else break end
 	end
-	if #exchange_to_handcard==0 then return "." end
-	local exchange = {}
-
-	for _,c in ipairs(exchange_to_handcard)do
-		table.insert(exchange,c:getId())
-	end
-
-	for _,c in ipairs(exchange_to_pile)do
-		table.insert(exchange,c:getId())
-	end
-	
-	local new_piles,suits = {},{}
-	for _,c in ipairs(piles)do
-		if not table.contains(exchange_to_handcard,c) then
-			table.insert(new_piles,c)
-		end
-	end
-	for _,c in ipairs(exchange_to_pile)do
-		table.insert(new_piles,c)
-	end
-	for _,c in ipairs(new_piles)do
-		if not table.contains(suits,c:getSuit()) then
-			table.insert(suits,c:getSuit())
-		end
-	end
-	if (#suits>=4 and self:findFriendsByType(sgs.Friend_Draw)) or #suits<4 then
-		return "@TongboCard="..table.concat(exchange,"+")
-	else
-		return "."  --待补充
-	end
-	return "."
+	if #exchange<2 then return "." end
+	return "@TongboCard="..table.concat(exchange,"+")
 end
 
 sgs.ai_skill_askforyiji.tongbo = function(self,card_ids)

@@ -1594,7 +1594,7 @@ xiemu_skill.getTurnUseCard = function(self)
 		if p:hasSkill("zaoxian") and self:isEnemy(p) and p:getPile("field"):length()>1 then kingdomDistribute[k] = kingdomDistribute[k]+2 end
 	end
 	local maxK,x = nil,-99
-	for k,n in ipairs(kingdomDistribute)do
+	for k,n in pairs(kingdomDistribute)do
 		maxK = maxK or k
 		if n>x
 		then
@@ -2950,9 +2950,173 @@ sgs.ai_skill_discard.lianzhu = function(self,discard_num,min_num,optional,includ
 	if not from or from:isDead() or self:isFriend(from) then return {} end
 	local num = 0
 	for _,c in sgs.qlist(self.player:getCards("he"))do
-		if self.player:canDiscard(self.player,c:getEffectiveId()) then
-			num = num+1
+		if self.player:isJilei(c)
+		then else num = num+1 end
+	end
+	if num<2 then return {} end
+	return self:askForDiscard("dummyreason",2,2,false,true)
+end
+
+local tenyearlianzhu = {}
+tenyearlianzhu.name = "tenyearlianzhu"
+table.insert(sgs.ai_skills,lianzhu_skill)
+tenyearlianzhu.getTurnUseCard = function(self,inclusive)
+	if not self.player:isNude() then
+		return sgs.Card_Parse("@TenyearLianzhuCard=.")
+	end
+end
+
+sgs.ai_skill_use_func.TenyearLianzhuCard = function(card,use,self)
+	self:sort(self.friends_noself)
+	self:sort(self.enemies,"handcard")
+	if self:needToThrowArmor() then
+		if not self.player:getArmor():isBlack() or not self.player:hasSkill("xiahui") then
+			for _,p in ipairs(self.friends_noself)do
+				if self:needKongcheng(p,true) or hasManjuanEffect(p) then continue end
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..self.player:getArmor():getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+			for _,p in ipairs(self.friends_noself)do
+				if self:needKongcheng(p,true) then continue end
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..self.player:getArmor():getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+			for _,p in ipairs(self.enemies)do
+				if self:needKongcheng(p,true) or hasManjuanEffect(p) then
+					use.card = sgs.Card_Parse("@TenyearLianzhuCard="..self.player:getArmor():getEffectiveId())
+					if use.to then use.to:append(p) end return
+				end
+			end
+		else
+			for _,p in ipairs(self.enemies)do
+				if self:needKongcheng(p,true) or hasManjuanEffect(p) then
+					use.card = sgs.Card_Parse("@TenyearLianzhuCard="..self.player:getArmor():getEffectiveId())
+					if use.to then use.to:append(p) end return
+				end
+			end
+			for _,p in ipairs(self.friends_noself)do
+				if self:needKongcheng(p,true) or hasManjuanEffect(p,true) then continue end
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..self.player:getArmor():getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
 		end
+	end
+	local black,notblack = {},{}
+	local cards = sgs.QList2Table(self.player:getCards("he"))
+	self:sortByUseValue(cards,true)
+	for _,c in ipairs(cards)do
+		if c:isBlack() then
+			if not c:isKindOf("Analeptic") and not (c:isKindOf("TrickCard") and not c:isKindOf("Lightning")) then
+				table.insert(black,c)
+			end
+		else
+			table.insert(notblack,c)
+		end
+	end
+	if self.player:hasSkill("xiahui") then
+		if #black>0 then
+			for _,p in ipairs(self.enemies)do
+				if self:needKongcheng(p,true) and not hasManjuanEffect(p,true) then
+					use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+					if use.to then use.to:append(p) end return
+				end
+			end
+			for _,p in ipairs(self.enemies)do
+				if not hasManjuanEffect(p,true) then
+					use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+					if use.to then use.to:append(p) end return
+				end
+			end
+		end
+		if #notblack>0 and self:getOverflow()>0 then
+			for _,p in ipairs(self.friends_noself)do
+				if self:needKongcheng(p,true) or hasManjuanEffect(p) then continue end
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..notblack[1]:getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+			for _,p in ipairs(self.friends_noself)do
+				if self:needKongcheng(p,true) then continue end
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..notblack[1]:getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+		end
+	end
+	if #black>0 then
+		for _,p in ipairs(self.friends_noself)do
+			if self:needKongcheng(p,true) or hasManjuanEffect(p) then continue end
+			use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+			if use.to then use.to:append(p) end return
+		end
+		for _,p in ipairs(self.friends_noself)do
+			if self:needKongcheng(p,true) then continue end
+			use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+			if use.to then use.to:append(p) end return
+		end
+		for _,p in ipairs(self.enemies)do
+			if self:needKongcheng(p,true) and not hasManjuanEffect(p,true) then
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+		end
+		for _,p in ipairs(self.enemies)do
+			if self:needKongcheng(p,true) or hasManjuanEffect(p,true) then
+				use.card = sgs.Card_Parse("@TenyearLianzhuCard="..black[1]:getEffectiveId())
+				if use.to then use.to:append(p) end return
+			end
+		end
+	end
+	if self:getOverflow()>0 then
+		sgs.ai_use_priority.TenyearLianzhuCard = 0
+		for _,p in ipairs(self.friends_noself)do
+			if self:needKongcheng(p,true) or hasManjuanEffect(p) then continue end
+			use.card = sgs.Card_Parse("@TenyearLianzhuCard="..cards[1]:getEffectiveId())
+			if use.to then use.to:append(p) end return
+		end
+		for _,p in ipairs(self.friends_noself)do
+			if self:needKongcheng(p,true) then continue end
+			use.card = sgs.Card_Parse("@TenyearLianzhuCard="..cards[1]:getEffectiveId())
+			if use.to then use.to:append(p) end return
+		end
+	end
+end
+
+sgs.ai_use_priority.TenyearLianzhuCard = 7
+sgs.ai_use_value.TenyearLianzhuCard = 7
+
+sgs.ai_card_intention.TenyearLianzhuCard = function(self,card,from,tos)
+	if from:hasSkill("xiahui") then
+		if card:isBlack() then
+			for _,to in ipairs(tos)do
+				if hasManjuanEffect(to,true) then continue end
+				sgs.updateIntention(from,to,80)
+			end
+		else
+			for _,to in ipairs(tos)do
+				if self:needKongcheng(to,true) then
+					sgs.updateIntention(from,to,80)
+				else
+					sgs.updateIntention(from,to,-80)
+				end
+			end
+		end
+	else
+		for _,to in ipairs(tos)do
+			if self:needKongcheng(to,true) then
+				sgs.updateIntention(from,to,80)
+			else
+				sgs.updateIntention(from,to,-80)
+			end
+		end
+	end
+end
+
+sgs.ai_skill_discard.tenyearlianzhu = function(self,discard_num,min_num,optional,include_equip)
+	local from = self.player:getTag("LianzhuFrom"):toPlayer()
+	if not from or from:isDead() or self:isFriend(from) then return {} end
+	local num = 0
+	for _,c in sgs.qlist(self.player:getCards("he"))do
+		if self.player:isJilei(c)
+		then else num = num+1 end
 	end
 	if num<2 then return {} end
 	return self:askForDiscard("dummyreason",2,2,false,true)
@@ -3014,7 +3178,7 @@ sgs.ai_skill_use["@@spcanshi"] = function(self,prompt,method)
 	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
 	for _,p in sgs.qlist(self.room:getAlivePlayers())do
 		if p:getMark("&kui")<=0 or use.to:contains(p) then
-			table.insert(dummy_use.current_targets,p:objectName())
+			table.insert(dummy_use.current_targets,p)
 		end
 	end
 	self:useCardByClassName(use.card,dummy_use)
@@ -3438,7 +3602,6 @@ sgs.ai_skill_invoke.olxushen = function(self,data)
 end
 
 sgs.ai_skill_playerchosen.olxushen = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card",true)
     for _,target in sgs.list(destlist)do
@@ -3576,13 +3739,13 @@ sgs.ai_skill_playerchosen.xianfu = function(self,targets)
 			new_targets:append(p)
 		end
 		if not new_targets:isEmpty() then
-			local target = getXianfuTarget(self,new_targets,sgs.isRolePredictable())
+			local target = getXianfuTarget(self,new_targets,isRolePredictable())
 			if target then return target end
 			return new_targets:at(math.random(0,new_targets:length() -1 ))
 		end
 	end
 	
-	local target = getXianfuTarget(self,targets,sgs.isRolePredictable())
+	local target = getXianfuTarget(self,targets,isRolePredictable())
 	if target then return target end
 	
 	return targets:at(math.random(0,targets:length() -1 ))

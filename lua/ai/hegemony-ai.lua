@@ -52,30 +52,26 @@ end
 
 sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self,data)
 	local yuejin = self.room:findPlayerBySkillName("xiaoguo")
-	local player = self.player
-
 	if self:needToThrowArmor() then
-		return "$"..player:getArmor():getEffectiveId()
+		return "$"..self.player:getArmor():getEffectiveId()
 	end
-
-	if not self:damageIsEffective(player,sgs.DamageStruct_Normal,yuejin) then
+	if not self:damageIsEffective(self.player,sgs.DamageStruct_Normal,yuejin) then
 		return "."
 	end
-	if self:needToLoseHp(player,yuejin) then
+	if self:needToLoseHp(self.player,yuejin) then
 		return "."
 	end
-
 	local card_id
-	if self:hasSkills(sgs.lose_equip_skill,player) then
-		if player:getWeapon() then card_id = player:getWeapon():getId()
-		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
-		elseif player:getArmor() then card_id = player:getArmor():getId()
-		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
+	if self:hasSkills(sgs.lose_equip_skill,self.player) then
+		if self.player:getWeapon() then card_id = self.player:getWeapon():getId()
+		elseif self.player:getOffensiveHorse() then card_id = self.player:getOffensiveHorse():getId()
+		elseif self.player:getArmor() then card_id = self.player:getArmor():getId()
+		elseif self.player:getDefensiveHorse() then card_id = self.player:getDefensiveHorse():getId()
 		end
 	end
 
 	if not card_id then
-		for _,card in sgs.qlist(player:getCards("h"))do
+		for _,card in sgs.qlist(self.player:getCards("h"))do
 			if card:isKindOf("EquipCard") then
 				card_id = card:getEffectiveId()
 				break
@@ -84,10 +80,10 @@ sgs.ai_skill_cardask["@xiaoguo-discard"] = function(self,data)
 	end
 
 	if not card_id then
-		if player:getWeapon() then card_id = player:getWeapon():getId()
-		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
-		elseif self:isWeak(player) and player:getArmor() then card_id = player:getArmor():getId()
-		elseif self:isWeak(player) and player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
+		if self.player:getWeapon() then card_id = self.player:getWeapon():getId()
+		elseif self.player:getOffensiveHorse() then card_id = self.player:getOffensiveHorse():getId()
+		elseif self:isWeak(self.player) and self.player:getArmor() then card_id = self.player:getArmor():getId()
+		elseif self:isWeak(self.player) and self.player:getDefensiveHorse() then card_id = self.player:getDefensiveHorse():getId()
 		end
 	end
 

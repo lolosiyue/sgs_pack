@@ -3,9 +3,8 @@ sgs.ai_skill_invoke.aocai = function(self,data)
 end
 
 sgs.ai_guhuo_card.aocai = function(self,toname,class_name)
-	local player = self.player
-    if player:hasFlag("Global_AocaiFailed")
-	or player:getPhase()~=sgs.Player_NotActive
+    if self.player:hasFlag("Global_AocaiFailed")
+	or self.player:getPhase()~=sgs.Player_NotActive
 	or toname=="" then return end
     local d = dummyCard(toname)
 	if d:isKindOf("BasicCard")
@@ -51,7 +50,6 @@ addAiSkills("duwu").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["DuwuCard"] = function(card,use,self)
-	local player = self.player
 	use.card = card
 	if use.to then use.to:append(self.duwu_to) end
 end
@@ -59,7 +57,6 @@ end
 sgs.ai_use_value.DuwuCard = 4.4
 sgs.ai_use_priority.DuwuCard = -0.8
 sgs.ai_skill_invoke.olpojun = function(self,data)
-	local player = self.player
 	local target = data:toPlayer()
 	if target
 	then
@@ -88,12 +85,10 @@ sgs.ai_skill_invoke.olmiji = function(self,data)
 end
 
 sgs.ai_skill_askforyiji.olmiji = function(self,card_ids)
-    
     local available_friends = {}
     for _,friend in ipairs(self.friends)do
         if not friend:hasSkill("manjuan") and not self:isLihunTarget(friend) then table.insert(available_friends,friend) end
     end
-
     local toGive,allcards = {},{}
     local keep
     for _,id in ipairs(card_ids)do
@@ -105,13 +100,9 @@ sgs.ai_skill_askforyiji.olmiji = function(self,card_ids)
         end
         table.insert(allcards,card)
     end
-
-    
-    
     local cards = #toGive>0 and toGive or allcards
     self:sortByKeepValue(cards,true)
     local id = cards[1]:getId()
-
     local card,friend = self:getCardNeedPlayer(cards,true)
     if card and friend and table.contains(available_friends,friend) then 
         if friend:objectName()==self.player:objectName() then 
@@ -120,8 +111,6 @@ sgs.ai_skill_askforyiji.olmiji = function(self,card_ids)
             return friend,card:getId() 
         end
     end
-
-    
     if #available_friends>0 then
         self:sort(available_friends,"handcard")
         for _,afriend in ipairs(available_friends)do
@@ -159,17 +148,22 @@ end
 sgs.ai_skill_use["@@midao"] = function(self,prompt,method)
     local judge = self.player:getTag("judgeData"):toJudge()
     local ids = self.player:getPile("rice")
-    if self.room:getMode():find("_mini_46") and not judge:isGood() then return "@MidaoCard="..ids:first() end
-    if self:needRetrial(judge) then
-        local cards = {}
-        for _,id in sgs.list(ids)do
-            table.insert(cards,sgs.Sanguosha:getCard(id))
-        end
-        local card_id = self:getRetrialCardId(cards,judge)
-        if card_id~=-1 then
-            return "@MidaoCard="..card_id
-        end
+    if sgs.getMode:find("_mini_46") and not judge:isGood() then return "@MidaoCard="..ids:first() end
+    local cards = {}
+    for _,id in sgs.list(ids)do
+        table.insert(cards,sgs.Sanguosha:getCard(id))
     end
+    if self:needRetrial(judge) then
+        local id = self:getRetrialCardId(cards,judge)
+        if id~=-1 then return "@MidaoCard="..id end
+    end
+	if self:isWeak()
+	and self:getLostHp()>0
+	and #cards<2
+	then
+        local id = self:getRetrialCardId(cards,judge,nil,true)
+        if id~=-1 then return "@MidaoCard="..id end
+	end
     return "."    
 end
 
@@ -922,3 +916,40 @@ sgs.ai_skill_choice.fengpo = function(self,choices,data)
 	if getCardsNum("Jink",to,self.player)==0 and not self:cantDamageMore(self.player,to) then return "addDamage" end
 	return "drawCards"
 end
+
+sgs.ai_skill_discard["olqingjian"] = function(self,discard_num,min_num,optional,include_equip)
+    if #self.friends_noself>0
+	then
+		return self:askForDiscard("dummy",discard_num,min_num,optional,include_equip)
+	end
+end
+
+sgs.ai_skill_use["@@olqingjian!"] = function(self,prompt,method)
+    local qj = self.player:getPile("olqingjian")
+	local to,id = sgs.ai_skill_askforyiji.nosyiji(self,sgs.QList2Table(qj))
+	if to and id
+	then
+		return "@OlQingjianCard="..id.."->"..to:objectName()
+	end
+    local cards = {}
+    for _,id in sgs.list(qj)do
+        table.insert(cards,sgs.Sanguosha:getCard(id))
+    end
+    self:sortByUseValue(cards,true)
+	for _,p in sgs.list(self.friends_noself)do
+		if self:canDraw(p)
+		and not hasManjuanEffect(p)
+		then
+			return "@OlQingjianCard="..cards[1]:getEffectiveId().."->"..p:objectName()
+		end
+	end
+	for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
+		if not self:isEnemy(p) and not hasManjuanEffect(p)
+		then
+			return "@OlQingjianCard="..cards[1]:getEffectiveId().."->"..p:objectName()
+		end
+	end
+	for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
+		return "@OlQingjianCard="..cards[1]:getEffectiveId().."->"..p:objectName()
+	end
+end    

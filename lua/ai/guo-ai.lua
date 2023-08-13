@@ -184,7 +184,7 @@ jinpozhu_skill.name = "jinpozhu"
 table.insert(sgs.ai_skills,jinpozhu_skill)
 jinpozhu_skill.getTurnUseCard = function(self)
 	local cards = self:addHandPile()
-	self:sortByUseValue(cards,true)
+	self:sortByUseValue(cards,true,"l")
 	if #cards<1 then return end
 	if self:getUseValue(cards[1])>sgs.ai_use_value.Chuqibuyi then return end
 	local suit = cards[1]:getSuitString()
@@ -197,10 +197,9 @@ jinpozhu_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_cardask["@jinshenpin-card"] = function(self,data)
-    local player = self.player
 	local judge = data:toJudge()
-	local all_cards = player:getCards("he")
-	for _,id in sgs.list(player:getPile("wooden_ox"))do
+	local all_cards = self.player:getCards("he")
+	for _,id in sgs.list(self.player:getPile("wooden_ox"))do
 		all_cards:prepend(sgs.Sanguosha:getCard(id))
 	end
 	if all_cards:isEmpty() then return "." end
@@ -220,7 +219,6 @@ sgs.ai_skill_cardask["@jinshenpin-card"] = function(self,data)
 end
 
 sgs.ai_skill_choice.jinzhongyun = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	if table.contains(items,"discard")
 	then
@@ -234,7 +232,6 @@ sgs.ai_skill_choice.jinzhongyun = function(self,choices)
 end
 
 sgs.ai_skill_playerchosen.jinzhongyun = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card")
     for _,target in sgs.list(destlist)do
@@ -251,7 +248,6 @@ end
 
 
 sgs.ai_skill_cardask["@jinshenpin-card"] = function(self,data)
-    local player = self.player
 	local judge = data:toJudge()
 	local all_cards = self:addHandPile("he")
 	if #all_cards<1 then return "." end
@@ -271,7 +267,6 @@ sgs.ai_skill_cardask["@jinshenpin-card"] = function(self,data)
 end
 
 sgs.ai_skill_choice.jinzhongyun = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	if table.contains(items,"discard")
 	then
@@ -285,7 +280,6 @@ sgs.ai_skill_choice.jinzhongyun = function(self,choices)
 end
 
 sgs.ai_skill_playerchosen.jinzhongyun = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card")
     for _,target in sgs.list(destlist)do
@@ -301,7 +295,6 @@ sgs.ai_skill_playerchosen.jinzhongyun = function(self,players)
 end
 
 sgs.ai_skill_playerchosen.jingaoling = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do
@@ -325,7 +318,6 @@ sgs.ai_can_damagehp.jingaoling = function(self,from,card,to)
 end
 
 sgs.ai_skill_playerchosen.jinqimei = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"hp",true)
     for _,target in sgs.list(destlist)do
@@ -346,10 +338,9 @@ sgs.ai_skill_invoke.jinzhuiji = function(self,data)
 end
 
 sgs.ai_skill_choice.jinzhuiji = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	if table.contains(items,"draw")
-	and player:getHandcardNum()<4 and not self:isWeak()
+	and self.player:getHandcardNum()<4 and not self:isWeak()
 	then return "draw" end
 	if table.contains(items,"recover")
 	and self:isWeak()

@@ -783,8 +783,7 @@ tongpaoSlashvs = sgs.CreateViewAsSkill {
 			not player:hasFlag("Global_tongpaoFailed")
 	end,
 	enabled_at_response = function(self, player, pattern)
-		return pattern == "slash" and sgs.Sanguosha:getCurrentCardUseReason() ==
-			sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE and not player:hasFlag("Global_tongpaoFailed")
+		return pattern == "slash" and not player:hasFlag("Global_tongpaoFailed")
 	end,
 	view_as = function(self, cards)
 		return tongpaoSlashCard:clone()
@@ -800,7 +799,7 @@ tongpao = sgs.CreateTriggerSkill {
 		local players = room:getAlivePlayers()
 		for _, p in sgs.qlist(players) do
 			if p:getKingdom() == "wu" then
-				room:attachSkillToPlayer(p, "tongpaoSlash")
+				room:attachSkillToPlayer(p, "tongpaoSlash&")
 			end
 		end
 		return false
@@ -954,8 +953,10 @@ sgs.LoadTranslationTable {
 	[":duXiaoguo"] = "当你对一名其他角色造成伤害时，你可以与其拼点，若你赢，则伤害+1。",
 	["tongpao"] = "同袍",
 	[":tongpao"] = "当吴势力角色需要使用或打出【杀】或【闪】时，其他吴势力角色可以代为使用或打出【杀】或【闪】",
-	["tongpao_jink"] = "【同胞】技能被触发，请吴势力角色代 %src 出“闪”",
-	["tongpao_slash"] = "【同胞】技能被触发，请吴势力角色代 %src 出“杀”",
+	["tongpao_jink"] = "【同胞】，请吴势力角色代你出【闪】",
+	["tongpao_slash"] = "【同胞】，请吴势力角色代你出【杀】",
+	["@tongpao-jink"] = "【同胞】技能被触发，请吴势力角色代 %src 出【闪】",
+	["@tongpao-slash"] = "【同胞】技能被触发，请吴势力角色代 %src 出【杀】",
 	["#tongpao"] = "%from 请吴国势力代为打出【杀】或【闪】",
 
 	["du_zhouxuan"] = "周旋",

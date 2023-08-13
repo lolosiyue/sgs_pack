@@ -4,7 +4,7 @@ function SmartAI:useCardDrowning(card,use)
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,enemy in sgs.list(self.enemies)do
-		if use.current_targets and table.contains(use.current_targets,enemy:objectName()) then continue end
+		if isCurrent(use.current_targets,enemy) then continue end
 		if self:isGoodTarget(enemy,self.enemies,card)
 		then
 			if enemy:isChained()
@@ -38,7 +38,7 @@ function SmartAI:useCardDrowning(card,use)
 		end
 	end
 	for _,friend in sgs.list(self.friends_noself)do
-		if use.current_targets and table.contains(use.current_targets,friend:objectName()) then continue end
+		if isCurrent(use.current_targets,friend) then continue end
 		local n = 0
 		for _,e in sgs.list(friend:getEquips())do
 			if self:canDisCard(friend,e:getEffectiveId())

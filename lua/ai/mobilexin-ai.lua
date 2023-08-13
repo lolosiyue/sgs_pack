@@ -125,7 +125,6 @@ mobilexinmouli.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileXinMouliCard"] = function(card,use,self)
-	local player = self.player
 	for _,ep in sgs.list(self.friends_noself)do
 		if self:isWeak(ep) then continue end
 		use.card = card
@@ -161,8 +160,7 @@ function sgs.ai_cardsview.mobilexinmouli_effect(self,class_name,player)
 end
 
 sgs.ai_skill_invoke.secondmobilexinxingqi = function(self,data)
-	local player = self.player
-	local bei = player:property("second_mobilexin_wangling_bei"):toString():split("+")
+	local bei = self.player:property("second_mobilexin_wangling_bei"):toString():split("+")
 	local cards = {}
 	for cs,name in sgs.list(bei)do
 		cs = PatternsCard(name,true)
@@ -180,7 +178,6 @@ addAiSkills("secondmobilexinmouli").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["SecondMobileXinMouliCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.friends_noself,"hp")
 	for _,ep in sgs.list(self.friends_noself)do
 		use.card = card
@@ -193,7 +190,6 @@ sgs.ai_use_value.SecondMobileXinMouliCard = 3.4
 sgs.ai_use_priority.SecondMobileXinMouliCard = 6.2
 
 sgs.ai_skill_choice.secondmobilexinmouli = function(self,choices,data)
-	local player = self.player
 	local cards = {}
 	local bei = choices:split("+")
 	for cs,name in sgs.list(bei)do
@@ -211,7 +207,6 @@ addAiSkills("mobilexinchuhai").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileXinChuhaiCard"] = function(card,use,self)
-	local player = self.player
 	use.card = card
 end
 
@@ -219,7 +214,6 @@ sgs.ai_use_value.MobileXinChuhaiCard = 3.4
 sgs.ai_use_priority.MobileXinChuhaiCard = 5.2
 
 sgs.ai_skill_playerchosen.mobilexinchuhai = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card")
     for _,target in sgs.list(destlist)do
@@ -256,8 +250,7 @@ sgs.ai_skill_askforyiji.mobilexinlirang = function(self,card_ids)
 end
 
 sgs.ai_skill_cardask["@mobilexinmingfa-show"] = function(self,data,pattern)
-	local player = self.player
-	local cards = player:getCards("he")
+	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
     self:sortByKeepValue(cards) -- 按保留值排序
    	for _,c in sgs.list(cards)do
@@ -268,7 +261,6 @@ sgs.ai_skill_cardask["@mobilexinmingfa-show"] = function(self,data,pattern)
 end
 
 sgs.ai_skill_playerchosen.mobilexinmingfa = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"card")
     for _,target in sgs.list(destlist)do

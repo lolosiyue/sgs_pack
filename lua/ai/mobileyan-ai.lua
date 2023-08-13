@@ -1,25 +1,24 @@
 
 sgs.ai_skill_use["@@mobileyanyajun1"] = function(self,prompt)
 	local valid = nil
-	local player = self.player
-	local destlist = self.room:getOtherPlayers(player)
+	local destlist = self.room:getOtherPlayers(self.player)
     destlist = self:sort(destlist,"hp")
 	for _,friend in sgs.list(destlist)do
 		if valid then break end
 		if self:isEnemy(friend)
-		and player:canPindian(friend)
+		and self.player:canPindian(friend)
 		then valid = friend:objectName() end
 	end
 	for _,friend in sgs.list(destlist)do
 		if valid then break end
 		if not self:isFriend(friend)
-		and player:canPindian(friend)
+		and self.player:canPindian(friend)
 		then valid = friend:objectName() end
 	end
     local cards = player:getCards("he")
     cards = sgs.QList2Table(cards) -- 将列表转换为表
     self:sortByKeepValue(cards) -- 按保留值排序
-	local strs = player:property("MobileYanYajunIds"):toString():split("+")
+	local strs = self.player:property("MobileYanYajunIds"):toString():split("+")
 	for _,h in sgs.list(cards)do
 		if table.contains(strs,""..h:getEffectiveId()) and h:getNumber()>9 and valid
 		then return ("@MobileYanYajunCard="..h:getEffectiveId().."->"..valid) end
@@ -27,7 +26,6 @@ sgs.ai_skill_use["@@mobileyanyajun1"] = function(self,prompt)
 end
 
 sgs.ai_skill_use["@@mobileyanyajun2"] = function(self,prompt)
-	local player = self.player
 	local pdlist = self.player:getTag("mobileyanyajun_forAI"):toString():split("+")
 	for c,id in sgs.list(pdlist)do
 		c = sgs.Sanguosha:getCard(id)
@@ -47,7 +45,6 @@ addAiSkills("mobileyanzundi").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileYanZundiCard"] = function(card,use,self)
-	local player = self.player
 	if #self.friends<1 then return end
 	use.card = card
 	self:sort(self.friends,"hp")
@@ -59,8 +56,7 @@ sgs.ai_use_priority.MobileYanZundiCard = 4.8
 
 sgs.ai_skill_discard.mobileyandifei = function(self)
 	local cards = {}
-    local player = self.player
-    local handcards = sgs.QList2Table(player:getCards("h"))
+    local handcards = sgs.QList2Table(self.player:getCards("h"))
     self:sortByKeepValue(handcards) -- 按保留值排序
    	for _,h in sgs.list(handcards)do
 --		table.insert(cards,h:getEffectiveId())
@@ -75,7 +71,6 @@ addAiSkills("mobileyanyanjiao").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileYanYanjiaoCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.friends_noself,"hp",true)
 	for _,ep in sgs.list(self.friends_noself)do
 		if ep:getHp()<2 then continue end
@@ -89,7 +84,6 @@ sgs.ai_use_value.MobileYanYanjiaoCard = 3.4
 sgs.ai_use_priority.MobileYanYanjiaoCard = 1.8
 
 sgs.ai_skill_choice.mobileyanyanjiao = function(self,choices)
-	local player = self.player
 	local items = choices:split("+")
 	if table.contains(items,"club")
 	then return "club" end
@@ -98,7 +92,6 @@ sgs.ai_skill_choice.mobileyanyanjiao = function(self,choices)
 end
 
 sgs.ai_skill_invoke.mobileyanzhenting = function(self,data)
-	local player = self.player
 	local items = data:toString():split(":")
     local target = self.room:findPlayerByObjectName(items[2])
 	if self:isFriend(target)
@@ -107,7 +100,7 @@ sgs.ai_skill_invoke.mobileyanzhenting = function(self,data)
 		then
 	    	return self:isWeak(target)
 			or self:getCardsNum("Jink","h")>0
-			or player:getArmor()
+			or self.player:getArmor()
 		elseif string.find(items[4],"indulgence")
 		then return target:getHandcardNum()>3
 		elseif string.find(items[4],"supply_shortage")
@@ -155,10 +148,9 @@ addAiSkills("mobileyanshangyi").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["MobileYanShangyiCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.enemies,"handcard",true)
 	for _,ep in sgs.list(self.enemies)do
-		if ep:getHandcardNum()>player:getHandcardNum()
+		if ep:getHandcardNum()>self.player:getHandcardNum()
 		or ep:getHandcardNum()>1
 		then
 			use.card = card

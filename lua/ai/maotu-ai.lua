@@ -26,7 +26,7 @@ sgs.ai_guhuo_card.mtzhihe = function(self,cname,class_name)
 	end
 	suits = 4-#suits
 	if suits<1 then suits = 1 end
-	for d,h in sgs.list(self:sortByKeepValue(self.player:getCards("h"),nil,true))do
+	for d,h in sgs.list(self:sortByKeepValue(self.player:getCards("h"),nil,"l"))do
 		if cs:length()<1 or h:getSuit()==sgs.Sanguosha:getCard(cs:at(0)):getSuit()
 		then cs:append(h:getEffectiveId()) end
 		if cs:length()>=suits
@@ -53,7 +53,7 @@ sgs.ai_fill_skill.mtzhihe = function(self)
 	if #cards<1 then return end
 	suits = 4-#suits
 	if suits<1 then suits = 1 end
-	for d,h in sgs.list(self:sortByKeepValue(self.player:getCards("h"),nil,true))do
+	for d,h in sgs.list(self:sortByKeepValue(self.player:getCards("h"),nil,"l"))do
 		if cs:length()<1 or h:getSuit()==sgs.Sanguosha:getCard(cs:at(0)):getSuit()
 		then cs:append(h:getEffectiveId()) end
 		if cs:length()>=suits then break end
@@ -486,7 +486,7 @@ end
 sgs.ai_fill_skill.mtjieli = function(self)
     local cards = self.player:getCards("h")
 	local cs = {}
-	for _,h in sgs.list(self:sortByUseValue(cards,nil,true))do
+	for _,h in sgs.list(self:sortByUseValue(cards,nil,"l"))do
 		if #cs<1
 		or h:getColor()==sgs.Sanguosha:getCard(cs[1]):getColor()
 		then table.insert(cs,h:getEffectiveId()) end
@@ -560,7 +560,7 @@ end
 
 sgs.ai_skill_use["@@mtxianzheng"] = function(self,prompt)
 	local cards = self:addHandPile("he")
-	cards = self:sortByKeepValue(cards,nil,true)
+	cards = self:sortByKeepValue(cards,nil,"l")
     local c = dummyCard()
 	c:setSkillName("mtxianzheng")
 	c:addSubcard(cards[1])

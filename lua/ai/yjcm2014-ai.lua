@@ -86,14 +86,13 @@ sgs.ai_skill_use["@@sidi"] = function(self)
 end
 
 sgs.ai_skill_cardask["@newsidi-discard"] = function(self,data,pattern)
-	local player = self.player
 	local target = self.room:getCurrent()
-    local cards = player:getCards("he")
+    local cards = self.player:getCards("he")
     cards = sgs.QList2Table(cards) -- 将列表转换为表
     self:sortByKeepValue(cards) -- 按保留值排序
 	for _,h in sgs.list(cards)do
 		if self:isEnemy(target) and #cards>1
-		and sgs.Sanguosha:matchExpPattern(pattern,player,h)
+		and sgs.Sanguosha:matchExpPattern(pattern,self.player,h)
     	then return h:getEffectiveId() end
 	end
     return "."
@@ -458,10 +457,9 @@ end
 sgs.ai_skill_playerchosen.zenhui = function(self,targetlist)
 	self.zenhui_collateral = nil
 	local use = self.player:getTag("zenhui"):toCardUse()
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {},extra_target = 99 }
 	local target = use.to:first()
 	if not target then return end
-	table.insert(dummy_use.current_targets,target:objectName())
+	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {target},extra_target = 99 }
 	self:useCardByClassName(use.card,dummy_use)
 	if dummy_use.card and use.card:getClassName()==dummy_use.card:getClassName() and not dummy_use.to:isEmpty() then
 		if use.card:isKindOf("Collateral") then

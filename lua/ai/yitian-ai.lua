@@ -679,7 +679,7 @@ end
 ]]--
 function sgs.ai_skill_choice.shenjun(self,choices)
 	local gender
-	if sgs.isRolePredictable() then
+	if isRolePredictable() then
 		local male = 0
 		self:updatePlayers()
 		for _,enemy in ipairs(self.enemies)do

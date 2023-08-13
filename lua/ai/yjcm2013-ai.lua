@@ -546,11 +546,8 @@ sgs.ai_card_intention.QiaoshuiCard = 0
 
 sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
 	local use = data:toCardUse()
+	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = use.to}
 	if use.card:isKindOf("Collateral") then
-		local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-		for _,p in sgs.qlist(use.to)do
-			table.insert(dummy_use.current_targets,p:objectName())
-		end
 		self:useCardCollateral(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()==2 then
 			local first = dummy_use.to:at(0):objectName()
@@ -560,7 +557,8 @@ sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
 		else
 			self.qiaoshui_collateral = nil
 		end
-	elseif use.card:isKindOf("Analeptic") then
+	elseif use.card:isKindOf("Analeptic")
+	then
 	elseif use.card:isKindOf("Peach") then
 		self:sort(self.friends_noself,"hp")
 		for _,friend in ipairs(self.friends_noself)do
@@ -569,7 +567,8 @@ sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
 				return "add"
 			end
 		end
-	elseif use.card:isKindOf("ExNihilo") or use.card:isKindOf("Dongzhuxianji") then
+	elseif use.card:isKindOf("ExNihilo") or use.card:isKindOf("Dongzhuxianji")
+	then
 		local friends = self:findPlayerToDraw(false,2,#self.friends_noself)
 		if #friends>0 then
 			for _,p in ipairs(friends)do
@@ -609,34 +608,18 @@ sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
 			end
 		end
 	elseif use.card:isKindOf("Snatch") or use.card:isKindOf("Dismantlement") then
-		local trick = sgs.Sanguosha:cloneCard(use.card:objectName(),use.card:getSuit(),use.card:getNumber())
-		trick:setSkillName("qiaoshui")
-		local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-		for _,p in sgs.qlist(use.to)do
-			table.insert(dummy_use.current_targets,p:objectName())
-		end
-		self:useCardSnatchOrDismantlement(trick,dummy_use)
+		self:useCardSnatchOrDismantlement(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()>0 then
 			self.qiaoshui_extra_target = dummy_use.to:first()
 			return "add"
 		end
 	elseif use.card:isKindOf("Slash") then
-		local slash = sgs.Sanguosha:cloneCard(use.card:objectName(),use.card:getSuit(),use.card:getNumber())
-		slash:setSkillName("qiaoshui")
-		local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-		for _,p in sgs.qlist(use.to)do
-			table.insert(dummy_use.current_targets,p:objectName())
-		end
-		self:useCardSlash(slash,dummy_use)
+		self:useCardSlash(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()>0 then
 			self.qiaoshui_extra_target = dummy_use.to:first()
 			return "add"
 		end
 	else
-		local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-		for _,p in sgs.qlist(use.to)do
-			table.insert(dummy_use.current_targets,p:objectName())
-		end
 		self:useCardByClassName(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()>0 then
 			self.qiaoshui_extra_target = dummy_use.to:first()

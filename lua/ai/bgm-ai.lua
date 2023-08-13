@@ -614,7 +614,7 @@ sgs.ai_need_damaged.shichou = function(self,attacker,player)
 		end
 		if victim~=nil then
 			local role
-			if sgs.isRolePredictable() and sgs.ai_role[player:objectName()]=="rebel" or sgs.compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
+			if isRolePredictable() and sgs.ai_role[player:objectName()]=="rebel" or self:compareRoleEvaluation(player,"rebel","loyalist")=="rebel" then
 				role = "rebel"
 			end
 			local need_damage = false

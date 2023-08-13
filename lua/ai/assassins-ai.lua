@@ -258,8 +258,8 @@ sgs.ai_skill_invoke.fenxin = function(self,data)
 	local self_role = self.player:getRole()
 	if target_role=="renegade" or target_role=="neutral" then return false end
 	local process = sgs.gameProcess()
-	return (target_role=="rebel" and self.role~="rebel" and process:match("rebel"))
-			or (target_role=="loyalist" and self.role~="loyalist" and process:match("loyal"))
+	return target_role=="rebel" and self.role~="rebel" and process:match("rebel")
+	or target_role=="loyalist" and self.role~="loyalist" and process:match("loyal")
 end
 
 local mixin_skill = {}

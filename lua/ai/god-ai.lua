@@ -2103,7 +2103,7 @@ addAiSkills("shouli").getTurnUseCard = function(self)
 			then table.insert(cards,c) end
 		end
 	end
-	self:sortByKeepValue(cards,nil,true)
+	self:sortByKeepValue(cards,nil,"l")
   	for d,c in sgs.list(cards)do
 		local dc = dummyCard()
 		dc:setSkillName("shouli")
@@ -2139,7 +2139,7 @@ sgs.ai_guhuo_card.shouli = function(self,toname,class_name)
 			then table.insert(cards,c) end
 		end
 	end
-	self:sortByKeepValue(cards,nil,true)
+	self:sortByKeepValue(cards,nil,"l")
   	for d,c in sgs.list(cards)do
 		if self:getCardsNum(class_name)>0 then break end
 		return "@ShouliCard="..c:getEffectiveId()..":"..toname

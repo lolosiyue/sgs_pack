@@ -323,32 +323,29 @@ sgs.ai_use_priority.JinRuilveGiveCard = 0
 
 --慧容
 sgs.ai_skill_playerchosen.jinhuirong = function(self,targets)
-	targets = sgs.QList2Table(targets)
+	local targets = sgs.QList2Table(targets)
 	self:sort(targets,"handcard")
 	for _,p in sgs.list(targets)do
-		if self:canDraw(p) and self:isWeak(p) then
-			return p
-		end
+		if self:canDraw(p) and self:isWeak(p)
+		and self:isFriend(p)
+		and p:getHandcardNum()<p:getHp()
+		then return p end
 	end
-	
 	local new_targets = {}
 	for _,p in sgs.list(targets)do
 		if self:isFriend(p) or self:isEnemy(p) then
 			table.insert(new_targets,p)
 		end
 	end
-	if #new_targets>0 then
+	if #new_targets>0
+	then
 		local numsort = function(a,b)
-			local c1,c2
+			local c1,c2 = a:getHandcardNum()-a:getHp(),b:getHandcardNum()-b:getHp()
 			if a:getHp()>a:getHandcardNum() then
 				c1 = math.min(a:getHp(),5)-a:getHandcardNum()
-			else
-				c1 = a:getHandcardNum()-a:getHp()
 			end
 			if b:getHp()>b:getHandcardNum() then
 				c2 = math.min(b:getHp(),5)-b:getHandcardNum()
-			else
-				c2 = b:getHandcardNum()-b:getHp()
 			end
 			c1 = math.abs(c1)
 			c2 = math.abs(c2)
@@ -356,13 +353,11 @@ sgs.ai_skill_playerchosen.jinhuirong = function(self,targets)
 		end
 		self:sort(targets)
 		table.sort(targets,numsort)
-		
 		if self:isFriend(targets[1]) and targets[1]:getHandcardNum()<=targets[1]:getHp() then return targets[1] end
 		if self:isEnemy(targets[1]) and targets[1]:getHandcardNum()>=targets[1]:getHp() then return targets[1] end
 	end
-	if self.player:getHp()>=self.player:getHandcardNum() then
-		return self.player
-	end
+	if self.player:getHp()>=self.player:getHandcardNum()
+	then return self.player end
 	for _,p in sgs.list(targets)do
 		if self:isFriend(p) or self:isEnemy(p) then continue end
 		return p

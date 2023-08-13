@@ -945,10 +945,10 @@ sgs.ai_skill_choice.sheyan = function(self,choices,data)
 		if table.contains(choices,"add")
 		then
 			self.sheyan_collateral = nil
-			local dummy_use = { isDummy = true,from = use.from,to = sgs.SPlayerList(),current_targets = {} }
-			table.insert(dummy_use.current_targets,use.from:objectName())  --ai还是可以把use.from选择为额外目标，所以这么处理
+			local dummy_use = {isDummy = true,from = use.from,to = sgs.SPlayerList(),current_targets = {}}
+			table.insert(dummy_use.current_targets,use.from)  --ai还是可以把use.from选择为额外目标，所以这么处理
 			for _,p in sgs.qlist(use.to)do
-				table.insert(dummy_use.current_targets,p:objectName())
+				table.insert(dummy_use.current_targets,p)
 			end
 			self:useCardCollateral(use.card,dummy_use)
 			if dummy_use.card and dummy_use.to:length()==2
@@ -1410,7 +1410,7 @@ sgs.ai_skill_playerchosen.dianhu = function(self,targets)
 	if self.player:getRole()=="rebel" and self.room:getLord() then
 		return self.room:getLord()
 	end
-	local target = getDianhuTarget(self,targets,sgs.isRolePredictable())
+	local target = getDianhuTarget(self,targets,isRolePredictable())
 	if target then return target end
 	for _,p in sgs.qlist(targets)do
 		if self:isEnemy(p) then
@@ -2465,13 +2465,9 @@ end
 
 --佚典
 sgs.ai_skill_use["@@yidian"] = function(self,prompt) -- extra target for Collateral
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-	local tos = self.player:property("extra_collateral_current_targets"):toString():split("+")
-	local card_str = self.player:property("extra_collateral"):toString()
-	local card = sgs.Card_Parse(card_str)
-	for _,name in ipairs(tos)do
-		table.insert(dummy_use.current_targets,name)
-	end
+	local dummy_use = { isDummy = true,to = sgs.SPlayerList()}
+	dummy_use.current_targets = self.player:property("extra_collateral_current_targets"):toString():split("+")
+	local card = sgs.Card_Parse(self.player:property("extra_collateral"):toString())
 	self:useCardCollateral(card,dummy_use)
 	if dummy_use.card and dummy_use.to:length()==2 then
 		return "@ExtraCollateralCard=.->"..dummy_use.to:first():objectName().."+"..dummy_use.to:last():objectName()
@@ -2481,10 +2477,7 @@ end
 
 sgs.ai_skill_playerchosen.yidian = function(self,targets)
 	local use = self.player:getTag("YidianData"):toCardUse()
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
-	for _,p in sgs.qlist(use.to)do
-		table.insert(dummy_use.current_targets,p:objectName())
-	end
+	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = use.to}
 	self:useCardByClassName(use.card,dummy_use)
 	if dummy_use.card and dummy_use.to:length()>0 then
 		return dummy_use.to:first()
@@ -2610,7 +2603,7 @@ sgs.ai_use_value.DuanfaCard = 2.61
 sgs.ai_skill_use["@@qinguo"] = function(self,prompt,method)
 	local slash = dummyCard()
     slash:setSkillName("qinguo")
-	local dummy_use = { isDummy = true,to = sgs.SPlayerList(),current_targets = {} }
+	local dummy_use = {isDummy = true,to = sgs.SPlayerList()}
 	self:useCardSlash(slash,dummy_use)
 	if dummy_use.card and dummy_use.to:length()>0 then
 		local tos = {}
@@ -2715,15 +2708,13 @@ sgs.ai_skill_invoke.sibian = true
 sgs.ai_skill_playerchosen.sibian = function(self,targets)
 	local friends = {}
 	for _,p in sgs.qlist(targets)do
-		if self:isFriend(p) and self:canDraw(p) then
-			table.insert(players,p)
-		end
+		if self:isFriend(p) and self:canDraw(p)
+		then table.insert(friends,p) end
 	end
 	if #friends>0 then
 		self:sort(friends,"defense")
 		return friends[1]
 	end
-	return nil
 end
 
 --表召

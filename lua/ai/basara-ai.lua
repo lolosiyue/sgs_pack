@@ -84,7 +84,7 @@ if sgs.GetConfig("EnableHegemony",false) then
 		end
 	end
 
-	sgs.isRolePredictable = function()
+	isRolePredictable = function()
 		return false
 	end
 

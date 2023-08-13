@@ -1017,7 +1017,6 @@ sgs.ai_skill_use_func.TenyearTaoluanCard = function(card,use,self)
 end
 
 sgs.ai_skill_playerchosen.tenyeartaoluan = function(self,players)
-	local player = self.player
 	local destlist = players
     destlist = sgs.QList2Table(destlist) -- 将列表转换为表
 	self:sort(destlist,"card",true)
@@ -1035,18 +1034,17 @@ sgs.ai_skill_playerchosen.tenyeartaoluan = function(self,players)
 end
 
 sgs.ai_guhuo_card.tenyeartaoluan = function(self,toname,class_name)
-	local player = self.player
     local cards = self:addHandPile("he")
     self:sortByKeepValue(cards) -- 按保留值排序
 	local cid
 	for _,c in sgs.list(cards)do
-		if player:getMark("tenyeartaoluan_"..c:getSuitString().."-Clear")<1
+		if self.player:getMark("tenyeartaoluan_"..c:getSuitString().."-Clear")<1
 		then cid = c:getEffectiveId() break end
 	end
 	if cid
-	and player:getMark("tenyeartaoluan_"..toname)<1
+	and self.player:getMark("tenyeartaoluan_"..toname)<1
 	and (#self.friends_noself>0 or not self:isWeak())
-	and player:getMark("TenyearTaoluanInvalid-Clear")<1
+	and self.player:getMark("TenyearTaoluanInvalid-Clear")<1
 	and sgs.Sanguosha:getCurrentCardUseReason()==sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE
 	then
         local num = self:getCardsNum(class_name,"he")

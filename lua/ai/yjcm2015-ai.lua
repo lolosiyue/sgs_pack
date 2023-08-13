@@ -627,17 +627,16 @@ sgs.ai_use_value.QinwangCard = 4
 sgs.ai_use_priority.QinwangCard = 2.2
 
 sgs.ai_guhuo_card.qinwang = function(self,toname,class_name)
-	local player = self.player
-    if player:hasFlag("qinwangjijiang")
+    if self.player:hasFlag("qinwangjijiang")
 	or class_name~="Slash" then return end
 	local can
-    for _,target in sgs.list(self.room:getLieges("shu",player))do
+    for _,target in sgs.list(self.room:getLieges("shu",self.player))do
 		if self:isFriend(target)
-		then can = getCardsNum(class_name,target,player)>0 end
+		then can = getCardsNum(class_name,target,self.player)>0 end
 	end
-    local cards = player:getCards("he")
+    local cards = self.player:getCards("he")
     cards = self:sortByKeepValue(cards,nil,true) -- 按保留值排序
-	if can and #cards>0 and self:getCardsNum(class_name)<1 and player:hasLordSkill("qinwang")
+	if can and #cards>0 and self:getCardsNum(class_name)<1 and self.player:hasLordSkill("qinwang")
 	then return "@QinwangCard="..cards[1]:getEffectiveId()..":"..toname end
 end
 
@@ -668,7 +667,6 @@ sgs.ai_use_revises.olzhanjue = function(self,card,use)
 end
 
 sgs.ai_skill_playerchosen.zhenshan = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do
@@ -684,19 +682,18 @@ sgs.ai_skill_playerchosen.zhenshan = function(self,players)
 end
 
 sgs.ai_guhuo_card.zhenshan = function(self,toname,class_name)
-	local player = self.player
 	local can
    	local poi = sgs.Sanguosha:cloneCard(toname)
 	if not poi then return end
 	poi:deleteLater()
-  	for _,p in sgs.list(self.room:getOtherPlayers(player))do
+  	for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
 		if not self:isEnemy(p)
-		and p:getHandcardNum()<player:getHandcardNum()
+		and p:getHandcardNum()<self.player:getHandcardNum()
 		then can = true break end
 	end
     if can and poi:isKindOf("BasicCard")
 	and self:getCardsNum(class_name)<1
-	and not player:hasFlag("ZhenshanUsed")
+	and not self.player:hasFlag("ZhenshanUsed")
     then
         return "@ZhenshanCard=.:"..toname
 	end

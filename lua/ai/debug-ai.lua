@@ -52,10 +52,10 @@ function debugFunc(self,player,data)
 			debugmsg(" ")
 			debugmsg("============%s(%.1f)",sgs.gameProcess(),sgs.gameProcess(1))
 			debugmsg("查看关系; 当前AI是: %s[%s]",sgs.Sanguosha:translate(player:getGeneralName()),sgs.Sanguosha:translate(player:getRole()) )
-			for _,p in sgs.list(players)do
-				local level=self:objectiveLevel(p)
-				local rel = level>0 and "敌对" or level<0 and "友好" or "中立"
-				rel = rel.." "..level
+			for l,p in sgs.list(players)do
+				l=self:objectiveLevel(p)
+				local rel = l>0 and "敌对" or l<0 and "友好" or "中立"
+				rel = rel.." "..l
 				debugmsg("%s[%s]: %d:%d:%d %s",
 					sgs.Sanguosha:translate(p:getGeneralName()),
 					sgs.Sanguosha:translate(sgs.ai_role[p:objectName()]),
@@ -141,9 +141,8 @@ function outputPlayersEvaluation()
 	if not global_room:getLord() then return end
 	global_room:writeToConsole("===========MISJUDGE START===========" )
 	for _,player in sgs.list(global_room:getOtherPlayers(global_room:getLord()))do
-		local evaluate_role = sgs.ai_role[player:objectName()]
 		global_room:writeToConsole("<------- "..player:getGeneralName().." ------->")
-		global_room:writeToConsole("Role: "..player:getRole().."      Evaluate role: "..evaluate_role)
+		global_room:writeToConsole("Role: "..player:getRole().."      Evaluate role: "..sgs.ai_role[player:objectName()])
 		global_room:writeToConsole("Rebel:"..sgs.roleValue[player:objectName()]["rebel"].." Loyalist:"
 									..sgs.roleValue[player:objectName()]["loyalist"].." Renegade:"
 									..sgs.roleValue[player:objectName()]["renegade"])
@@ -152,8 +151,8 @@ function outputPlayersEvaluation()
 end
 
 function sgs.checkMisjudge(player)
-	if not global_room:getLord() then return end
-
+	local lord = global_room:getLord()
+	if not lord then return end
 	local mode = global_room:getMode()
 	if player then
 		if sgs.playerRoles[player:getRole()]>sgs.mode_player[mode][player:getRole()] or sgs.playerRoles[player:getRole()]<0 then
@@ -163,20 +162,20 @@ function sgs.checkMisjudge(player)
 	else
 		local rebel_num,loyalist_num,renegade_num = 0,0,0
 		local evaluate_rebel,evaluate_loyalist,evaluate_renegade = 0,0,0
-		for _,p in sgs.list(global_room:getOtherPlayers(global_room:getLord()))do
+		for _,p in sgs.list(global_room:getOtherPlayers(lord))do
 			local role = p:getRole()
 			if role=="rebel" then rebel_num = rebel_num+1
 			elseif role=="loyalist" then loyalist_num = loyalist_num+1
 			elseif role=="renegade" then renegade_num = renegade_num+1
 			end
 		end
-		for _,p in sgs.list(global_room:getOtherPlayers(global_room:getLord()))do
+		for _,p in sgs.list(global_room:getOtherPlayers(lord))do
 			if sgs.ai_role[p:objectName()]=="rebel" and rebel_num>0 then evaluate_rebel = evaluate_rebel+1
-			elseif sgs.ai_role[p:objectName()]=="loyalist" and loyalist_num>0 then evaluate_loyalist = evaluate_loyalist+1
-			elseif sgs.ai_role[p:objectName()]=="renegade" and renegade_num>0 then evaluate_renegade = evaluate_renegade+1
-			end
+			elseif sgs.ai_role[p:objectName()]=="loyalist" and loyalist_num>0
+			then evaluate_loyalist = evaluate_loyalist+1
+			elseif sgs.ai_role[p:objectName()]=="renegade" and renegade_num>0
+			then evaluate_renegade = evaluate_renegade+1 end
 		end
-
 		if evaluate_renegade<1 then
 			if (evaluate_rebel>=rebel_num+renegade_num and evaluate_rebel>rebel_num)
 			or (evaluate_loyalist>=loyalist_num+renegade_num and evaluate_loyalist>loyalist_num)
@@ -215,7 +214,7 @@ function sgs.broadcastRole(role_type)
 		if p:getRole()==role_type then global_room:broadcastProperty(p,"role")
 		elseif not role_type then global_room:broadcastProperty(p,"role") end
 	end
-	sgs.evaluateAlivePlayersRole()
+	evaluateAlivePlayersRole()
 end
 
 function sgs.printFEList(player)

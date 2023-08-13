@@ -46,6 +46,15 @@ listIndexOf = function(theqlist, theitem)
     end
 end
 
+player2serverplayer = function(room, player) --啦啦SLG (OTZ--ORZ--Orz) --作用：将currentplayer转换成serverplayer
+    local players = room:getPlayers()
+    for _, p in sgs.qlist(players) do
+        if p:objectName() == player:objectName() then
+            return p
+        end
+    end
+end
+
 -- common prompt
 sgs.LoadTranslationTable {
     ["#skill_add_damage"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%from对%to造成的伤害增加至%arg2点。", -- add
@@ -2582,7 +2591,7 @@ s4_acg_paoxiao = sgs.CreateTriggerSkill {
                 local thunder_slash = sgs.Sanguosha:cloneCard("ThunderSlash", use.card:getSuit(), use.card:getNumber())
                 if (not use.card:isVirtualCard() or use.card:subcardsLength() > 0) then
                     thunder_slash:addSubcard(use.card)
-                    
+
                 end
                 thunder_slash:setSkillName("s4_acg_paoxiao")
             local can_use = true
@@ -2592,7 +2601,7 @@ s4_acg_paoxiao = sgs.CreateTriggerSkill {
                     break
                 end
             end
-                
+
             if can_use then
                 use.card = thunder_slash
                 data:setValue(use)

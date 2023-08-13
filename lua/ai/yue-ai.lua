@@ -4,7 +4,6 @@ addAiSkills("jinxuanbei").getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
-	local player = self.player
 	self:sort(self.enemies,"hp")
 	local can = self:getCardsNum("Jink")>0 or not self:isWeak()
 	for _,ep in sgs.list(self.enemies)do
@@ -34,7 +33,7 @@ sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
 			return
 		end
 	end
-	for _,ep in sgs.list(self.room:getOtherPlayers(player))do
+	for _,ep in sgs.list(self.room:getOtherPlayers(self.player))do
 		if self:canDisCard(ep,"he")
 		and not self:isFriend(ep)
 		and can
@@ -50,11 +49,10 @@ sgs.ai_use_value.bf_zhenliangCard = 4.4
 sgs.ai_use_priority.bf_zhenliangCard = 3.8
 
 addAiSkills("jinxianwan").getTurnUseCard = function(self)
-	local player = self.player
 	local tc = dummyCard()
 	tc:setSkillName("jinxianwan")
-	if player:isChained()
-	and tc:isAvailable(player)
+	if self.player:isChained()
+	and tc:isAvailable(self.player)
 	then
 		local d = self:aiUseCard(tc)
 		sgs.ai_use_priority.jinxianwan = sgs.ai_use_priority[tc:getClassName()]
@@ -76,14 +74,10 @@ sgs.ai_use_value.JinXianwanCard = 9.4
 sgs.ai_use_priority.JinXianwanCard = 7.8
 
 sgs.ai_guhuo_card.JinXianwanCard = function(self,toname,class_name)
-	local player = self.player
-    if (class_name=="Slash" and player:isChained() or class_name=="Jink" and not player:isChained())
-	and sgs.Sanguosha:getCurrentCardUseReason()==sgs.CardUseStruct_hc_REASON_RESPONSE_USE
-	then return "@JinXianwanCard=.:"..toname end
+	return "@JinXianwanCard=.:"..toname
 end
 
 sgs.ai_skill_invoke.jinwanyi = function(self,data)
-	local player = self.player
 	local target = data:toPlayer()
 	if target
 	then
@@ -93,7 +87,6 @@ sgs.ai_skill_invoke.jinwanyi = function(self,data)
 end
 
 sgs.ai_skill_playerchosen.jinwanyi = function(self,players)
-	local player = self.player
 	local destlist = sgs.QList2Table(players) -- 将列表转换为表
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do

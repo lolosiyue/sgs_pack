@@ -9,7 +9,7 @@ end
 
 addAiSkills("mobilemoukeji").getTurnUseCard = function(self)
 	local cards = self.player:getCards("h")
-	cards = self:sortByKeepValue(cards,nil,true)
+	cards = self:sortByKeepValue(cards,nil,"j")
 	if #cards<2 and self:isWeak() then return end
 	local m = self.player:getMark("mobilemoukeji-PlayClear")
 	local toids = self:isWeak() or #cards>2 and cards[1]:getEffectiveId() or "."
@@ -28,8 +28,7 @@ sgs.ai_use_priority.MobileMouKejiCard = 2.8
 
 sgs.ai_skill_invoke.mobilemouduojing = function(self,data)
 	local target = data:toPlayer()
-	if target
-	and self.player:getHujia()>1
+	if target and self.player:getHujia()>1
 	and self:isEnemy(target)
 	then
 		return target:getHandcardNum()>0 or target:getArmor()
@@ -37,16 +36,14 @@ sgs.ai_skill_invoke.mobilemouduojing = function(self,data)
 end
 
 sgs.ai_use_revises.mobilemouduojing = function(self,card,use)
-	local player = self.player
-	if card:isKindOf("Slash") and player:getHujia()>1
+	if card:isKindOf("Slash") and self.player:getHujia()>1
 	then card:setFlags("Qinggang") end
 end
 
 
 sgs.ai_skill_discard.mobilemouxiayuan = function(self)
-    local player = self.player
 	local cards = {}
-    local handcards = sgs.QList2Table(player:getCards("h"))
+    local handcards = sgs.QList2Table(self.player:getCards("h"))
     self:sortByKeepValue(handcards) -- 按保留值排序
    	local target = self.room:getCurrent()
    	for _,h in sgs.list(handcards)do
@@ -57,7 +54,6 @@ sgs.ai_skill_discard.mobilemouxiayuan = function(self)
 end
 
 sgs.ai_skill_playerchosen.mobilemoujieyue = function(self,players)
-	local player = self.player
 	players = self:sort(players,"card")
     for _,target in sgs.list(players)do
 		if self:isFriend(target)

@@ -35,7 +35,7 @@ sgs.ai_skill_use_func["#blood_hj"] = function(card, use, self)
 	self:sort(self.enemies, "defense")
 	local target
 	if dummy_use.card and dummy_use.to then
-		for _, enemy in ipairs(dummy_use.to) do
+		for _, enemy in sgs.list(dummy_use.to) do
 			if not enemy:isKongcheng() and not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) then
 				local enemy_max_card = self:getMaxCard(enemy)
 				local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
