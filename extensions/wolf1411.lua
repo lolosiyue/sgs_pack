@@ -257,7 +257,7 @@ duanqiao = sgs.CreateTriggerSkill {
 		local from = damage.from
 		if card and (card:isKindOf("Slash") or card:isKindOf("Duel")) and from:isAlive() then
 			for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-				if p and from:objectName() ~= p:objectName() and from:isAlive() and p:inMyAttackRange(from) and p:canDisCard(from, "he") then
+				if p and from:objectName() ~= p:objectName() and from:isAlive() and p:inMyAttackRange(from) and p:canDiscard(from, "he") then
 					if room:askForSkillInvoke(p, self:objectName(), data) then
 						room:broadcastSkillInvoke(self:objectName())
 						room:notifySkillInvoked(p, self:objectName())
@@ -340,7 +340,7 @@ shejiVS = sgs.CreateZeroCardViewAsSkill {
 	name = "sheji",
 	view_as = function(self, cards)
 		local card = shejiCard:clone()
-		card:addSubcard(sgs.Self:getHandcards())
+		card:addSubcards(sgs.Self:getHandcards())
 		return card
 	end,
 	enabled_at_play = function(self, player)
@@ -438,7 +438,7 @@ sgs.LoadTranslationTable {
 	["chenmu"] = "瞋目",
 	["$chenmu"] = "受死吧！",
 	[":chenmu"] = "出牌阶段开始时，你可以进行一次判定并获得对应锁定技，直到回合结束：若点数小于7，你使用【杀】无数量限制；若点数大于7，你使用【杀】无距离限制；若点数等于7，你使用【杀】无距离数量限制。",
-	["chenmu_dis"] = "无距离数量限制",
+	["chenmu_dis"] = "无距离限制",
 	["chenmu_res"] = "无数量限制",
 	["duanqiao"] = "断桥",
 	["$duanqiao"] = "燕人张飞在此！",
