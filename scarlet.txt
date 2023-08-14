@@ -10,3 +10,8 @@ woft
 audio:
 du
 lubu
+
+code:
+self:isGoodTarget
+--hasHeavySlashDamage
+hasHeavyDamage(from, card, to, nature)
