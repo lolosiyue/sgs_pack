@@ -431,7 +431,7 @@ luajiejiangcard = sgs.CreateSkillCard
 		
 		if(to_select == self) then return false end
 		
-		return not to_select:isNude()
+		return not to_select:isAllNude()
 	end,
 		
 	on_effect = function(self, effect)

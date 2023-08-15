@@ -81,8 +81,8 @@ LuaJianxiong = sgs.CreateTriggerSkill{
 	local room = player:getRoom()
 	if event == sgs.Damaged then
 		local damage = data:toDamage()
-		local choices = {"draw+cancel"}
 		local x = player:getLostHp()
+		local choices = {"LuaJianxiongdraw=".. x .."+cancel"}
 		local card = damage.card
 		if card then
 			local ids = sgs.IntList()
@@ -100,7 +100,8 @@ LuaJianxiong = sgs.CreateTriggerSkill{
 					end
 				end
 				if all_place_table then
-					table.insert(choices, "obtain")
+					local card_str = table.concat(sgs.QList2Table(ids,"+"))
+					table.insert(choices, "LuaJianxiongobtain="..card_str)
 				end
 			end
 		end
@@ -108,7 +109,7 @@ LuaJianxiong = sgs.CreateTriggerSkill{
 		if choice ~= "cancel" then
 			room:notifySkillInvoked(player, self:objectName())
             room:broadcastSkillInvoke("LuaJianxiong")
-			if choice == "obtain" then
+			if string.startsWith(choice, "LuaJianxiongobtain") then
 				player:obtainCard(card)
 			else
 				player:drawCards(x, self:objectName())
@@ -209,7 +210,6 @@ LuaJuececard = sgs.CreateSkillCard{
 	handling_method = sgs.Card_MethodNone,
 	on_use = function(self, room, source, targets)
 	local damage = source:getTag("LuaJueceDamage"):toDamage()
-	local card = damage.card
                 local victim = damage.to
 		local dest = damage.from
 		local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_REMOVE_FROM_PILE, "", "LuaJuece",
@@ -284,6 +284,7 @@ LuaJuece = sgs.CreateTriggerSkill{
 					  if guojia:getPile("ji"):length() > 0 and guojia:getMark("&LuaJuece-Clear") == 0 then 
 					  room:askForUseCard(guojia, "@@LuaJuece", "@LuaJuece-card", -1, sgs.Card_MethodDiscard)
 					  end
+					  guojia:removeTag("LuaJueceDamage")
                     end
 				
 		end		
@@ -414,8 +415,6 @@ LuaNixing = sgs.CreateTriggerSkill{
 			if player:askForSkillInvoke(self:objectName()) then
 				local room = player:getRoom()
 					room:broadcastSkillInvoke("LuaNixing")	
-					local count1 = room:alivePlayerCount()
-					local count2 = player:getHandcardNum()
 					local count3 = player:getHp()
 					local x=8
 					if count3>0 then
@@ -481,7 +480,6 @@ LuaNixingEx = sgs.CreateTriggerSkill{
 	events = {sgs.DrawNCards},
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-			local x = player:getHandcardNum()
 			local y = player:getHp()
 			local count = data:toInt();
 			if (8-y)>=7 then
@@ -988,6 +986,7 @@ LuaLongwei = sgs.CreateTriggerSkill{
 					room:clearAG(player)
 				end
 				end
+				local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 				if not card_ids:isEmpty() then
 					for _, id in sgs.qlist(card_ids) do
 						if move.card_ids:contains(id) then
@@ -995,10 +994,13 @@ LuaLongwei = sgs.CreateTriggerSkill{
 							move.card_ids:removeOne(id)
 							data:setValue(move)
 						end
-						room:moveCardTo(sgs.Sanguosha:getCard(id), player, sgs.Player_PlaceHand, move.reason, true)
+						dummy:addSubcard(id)
+						--room:moveCardTo(sgs.Sanguosha:getCard(id), player, sgs.Player_PlaceHand, move.reason, true)
 						if not player:isAlive() then break end
 					end
 				end
+				room:obtainCard(player, dummy)
+				dummy:deleteLater()
 			end
 		end
 		return false
@@ -1055,7 +1057,6 @@ LuaJuejing = sgs.CreateTriggerSkill{
 			room:handleAcquireDetachSkills(player, "LuaLongwei|-LuaJuejing|-LuaShenyong")
             room:addMaxCards(player, 1, false)
             room:addPlayerMark(player, "&LuaJuejing")
-			--room:handleAcquireDetachSkills(player, "-#LuaXDuojian")
 			player:drawCards(4)
 			end
 			end
@@ -1083,34 +1084,6 @@ extension:insertRelatedSkills("LuaShenyong","#LuaXDuojian")
 mubanXlubu = sgs.General(extension, "mubanXlubu", "qun",4, true,true,true)
 
 
-
-exshenyong = sgs.CreateTriggerSkill{
-	name = "exshenyong",
-	frequency = sgs.Skill_Frequent,
-	events = {sgs.DrawNCards},
-	on_trigger = function(self, event, player, data)
-		local room = player:getRoom()
-		if room:askForSkillInvoke(player, "exshenyong", data) then
-			local count = data:toInt() + 1
-			data:setValue(count)
-		end
-	end
-}
-exyingzi = sgs.CreateTriggerSkill{
-	name = "exyingzi",
-	frequency = sgs.Skill_Frequent,
-	events = {sgs.DrawNCards},
-	on_trigger = function(self, event, player, data)
-		local room = player:getRoom()
-		if room:askForSkillInvoke(player, "exyingzi", data) then
-			local count = data:toInt() + 1
-			data:setValue(count)
-		end
-	end
-}
-
-
-
 exshenji = sgs.CreateTriggerSkill{
 	name = "exshenji",
 	frequency = sgs.Skill_Frequent,
@@ -1125,10 +1098,31 @@ exshenji = sgs.CreateTriggerSkill{
 		end
 	end
 }
+shenji = sgs.CreateTriggerSkill{
+	name = "shenji",  
+	frequency = sgs.Skill_Wake, 
+	events = {sgs.EventPhaseStart}, 
+	on_trigger = function(self, event, player, data, room) 
+		if event == sgs.EventPhaseStart then
+			if player:hasSkill(self:objectName()) then
+                Exchange1(player)
+                room:addPlayerMark(player, self:objectName())
+                end
+			end
+	end,
+    can_wake = function(self, event, player, data, room)
+    if player:getMark(self:objectName()) > 0 then return false end
+    if player:getPhase() == sgs.Player_Start or player:getPhase() == sgs.Player_Finish then
+        	if player:canWake(self:objectName()) then return true end
+            if player:getPile("wrath"):length() > 2 then return true end
+    end
 
-mubanXlubu:addSkill(exyingzi)
+
+	return false
+    end,
+}
 mubanXlubu:addSkill(exshenji)
-mubanXlubu:addSkill(exshenyong)
+mubanXlubu:addSkill(shenji)
 
 xinglvbu_o = sgs.General(extension, "xinglvbu_o", "qun",4)
 
@@ -1263,7 +1257,7 @@ LuaBaonu = sgs.CreateTriggerSkill{
 			end
 	end,
     can_wake = function(self, event, player, data, room)
-    if player:getMark(self:objectName()) > 1 then return false end
+    if player:getMark(self:objectName()) > 0 then return false end
     if player:getPhase() == sgs.Player_Start or player:getPhase() == sgs.Player_Finish then
         	if player:canWake(self:objectName()) then return true end
             if player:getPile("wrath"):length() > 2 then return true end
@@ -1295,6 +1289,8 @@ sgs.LoadTranslationTable{
 	["$LuaNengchen2"] = "再来啊",
 	["LuaJianxiong"] = "奸雄",
 	[":LuaJianxiong"] = "每当你受到一次伤害后，你可以选择获得对你造成伤害的牌，否则摸x张牌。(X为你已损失的体力值)",
+	["LuaJianxiongdraw"] = "摸 %src 张牌",
+	["LuaJianxiongobtain"] = "获得 %src",
 	["$LuaJianxiong1"] = "我好梦中杀人",
 	["$LuaJianxiong2"] = "宁教我负天下人，休教天下人负我",
 	["~xingcaocao"] = "世人皆看错我曹操",
@@ -1399,7 +1395,7 @@ sgs.LoadTranslationTable{
 	["&xingzhaoyun_o"] = "星赵云",
 	["#xingzhaoyun_o"] = "浑身是胆",
 	["LuaLongzhen_o"] = "龙阵",
-	[":LuaLongzhen_o"] = "你可以将一张【杀】当【闪】，一张【闪】当【杀】使用或打出。每当你发动“龙阵”使用或打出一张手牌时，你可以立即获得对方的一张手牌。",
+	[":LuaLongzhen_o"] = "你可以将一张【杀】当【闪】，一张【闪】当【杀】使用或打出。每当你发动“龙阵”使用或打出一张手牌时，你可以获得对方的一张手牌。",
 	["LuaChongzhen_o"] = "龙阵",
 	["$LuaLongzhen_o1"] = "能进能退，乃真正法器",
 	["$LuaLongzhen_o2"] = "吾乃常山赵子龙也",
@@ -1407,7 +1403,7 @@ sgs.LoadTranslationTable{
 	["#LuaXDuojian"] = "神勇",
 	[":LuaShenyong"] = "当你使用的【杀】被目标角色的【闪】抵消时，你可以令其对你使用一张【杀】，否则弃置其一张牌。回合开始阶段开始时，若其他角色的装备区内有【青釭剑】，你可以获得之。",
 	["$LuaShenyong_o1"] = "贼将休走，可敢与我一战",
-	["$LuaShenyong2_o"] = "陷阵杀敌，一马当先",
+	["$LuaShenyong_o2"] = "陷阵杀敌，一马当先",
 	["LuaJuejing"] = "绝境",
 	[":LuaJuejing"] = "当你失去最后的手牌时，你可以减1点体力上限，失去技能“神勇”、“绝境”，手牌上限+1，然后摸四张牌，获得技能“神威”。（当其他角色的方片牌和红桃牌因弃置或判定而置入弃牌堆时，你可以获得之。） ",
 	["$LuaJuejing_o"] = "龙战于野，其血玄黄",
@@ -1433,12 +1429,12 @@ sgs.LoadTranslationTable{
 	[":LuaHuaji"] = "当你受到或造成1点伤害后，你可以摸一张牌，然后将一张手牌置于你的武将牌上，称为“戟”。◆戟是移出游戏的牌，至多为三。",
 	["$LuaHuaji1"] = "神挡杀神，佛挡杀佛！",
 	["$LuaHuaji2"] = "谁能当我！",
+	["shenji"] = "神戟",
+	[":shenji"] = "<font color=\"purple\"><b>觉醒技，</b></font>准备阶段或结束阶段开始时，若“戟”等于三张，若你已有技能“神戟”，将“戟”置入弃牌堆，你失去1点体力上限，失去技能“暴怒”、“画戟”，手牌上限+1，获得“神迹”。",
 	["wrath"] = "戟",
 	["HuajiCard"] = "暴怒",
-	["exshenyong"] = "神迹",
-	[":exshenyong"] = "摸牌阶段，你额外摸一张牌。",
 	["exshenji"] = "神迹",
-	[":exshenji"] = "结束阶段开始时，你可以额外摸两张牌。",
+	[":exshenji"] = "结束阶段开始时，你可以摸两张牌。",
 	["~xinglvbu_o"] = "不可能~~",
 	
 	
