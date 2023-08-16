@@ -1,0 +1,6 @@
+{
+    "Lua.diagnostics.disable": [
+        "unexpect-symbol"
+    ],
+    "Lua.diagnostics.enable": false
+}

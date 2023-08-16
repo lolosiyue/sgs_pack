@@ -275,7 +275,6 @@ LuaJuece = sgs.CreateTriggerSkill{
 		 local room = player:getRoom()
 		if event == sgs.Damaged then 
 		local damage = data:toDamage()
-                local card = damage.card
                 local victim = damage.to
                 if not victim:isDead() then
                     local splayers  = room:findPlayersBySkillName(self:objectName())
@@ -644,11 +643,7 @@ LuaFanjianCard = sgs.CreateSkillCard{
 				target:throwAllEquips()
 			end	
 		else
-			local damage = sgs.DamageStruct()
-			damage.card = nil
-			damage.from = source
-			damage.to = target
-			room:loseHp(damage.to, damage.damage)
+			room:loseHp(target, 1)
 		end
 	end
 }
@@ -734,7 +729,7 @@ LuaShenji = sgs.CreateTargetModSkill{
                 end
         end,
 	distance_limit_func = function(self, from, card)
-                if from:hasSkill(self:objectName()) and (card:getSuit():isBlack()) then
+                if from:hasSkill("LuaGuishen") and (card:getSuit():isBlack()) then
                         return 1000
                 else
                         return 0
@@ -748,7 +743,6 @@ LuaGuishen = sgs.CreateViewAsSkill{
 		response_or_use = true,
         view_filter = function(self, selected, to_select)
                 if to_select:isEquipped() then return false end
-                local weapon = sgs.Self:getWeapon()
                 if (sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_PLAY) and sgs.Self:getWeapon()
                                 and (to_select:getEffectiveId() == sgs.Self:getWeapon():getId()) and to_select:isKindOf("Crossbow") then
                         return sgs.Self:canSlashWithoutCrossbow()

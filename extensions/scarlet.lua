@@ -12,7 +12,9 @@ function RIGHT(self, player)
     end
 end
 
--- 輪次數
+
+---@param room room
+---@return int輪次數
 function getRoundCount(room)
     local n = 15
     for _, p in sgs.qlist(room:getAlivePlayers()) do
@@ -26,6 +28,8 @@ function getRoundCount(room)
     end
 end
 
+---@param self string_boolean_number
+---@return sgs.QVariant
 function ToQVData(self)
     local data = sgs.QVariant()
     if type(self) == "string" or type(self) == "boolean" or type(self) == "number" then
@@ -46,7 +50,11 @@ listIndexOf = function(theqlist, theitem)
     end
 end
 
-player2serverplayer = function(room, player) --啦啦SLG (OTZ--ORZ--Orz) --作用：将currentplayer转换成serverplayer
+--作用：将currentplayer转换成serverplayer
+---@param room room
+---@param player player
+---@return serverplayer
+player2serverplayer = function(room, player)
     local players = room:getPlayers()
     for _, p in sgs.qlist(players) do
         if p:objectName() == player:objectName() then

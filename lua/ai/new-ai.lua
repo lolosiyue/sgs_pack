@@ -165,6 +165,7 @@ lualveji_skill.getTurnUseCard = function(self, inclusive)
 	end
 
 	local slash = sgs.Sanguosha:cloneCard("slash")
+	slash:deleteLater()
 	if (self.player:hasWeapon("crossbow") or self:getCardsNum("Crossbow") > 0) or self:getCardsNum("Slash") > 1 then
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:canSlash(enemy) and self:slashIsEffective(slash, enemy)

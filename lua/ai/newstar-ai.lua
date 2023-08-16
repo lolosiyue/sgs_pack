@@ -1,74 +1,24 @@
 --星曹操
-sgs.ai_skill_invoke.LuaJianxiong = function(self, data)
-	local x = self.player:getHp()
-	if self.player:getMark("@Use")==0 or x==1 then
-		return false
-	end
-	return true
-end
 sgs.ai_skill_choice["LuaJianxiong"] = function(self, choices, data)
-	if self.player:getLostHp() > 1 then
-		local damage = data:toDamage()
-		if damage.card and damage.card:isKindOf("AOE") then
-			return "obtain"
-		end
-		return "draw"
-	else
-		return "obtain"
+    local obtain = getChoice(choices, "LuaJianxiongobtain")
+    local draw = getChoice(choices, "LuaJianxiongdraw")
+	local damage = data:toDamage()
+	if not damage.card then return draw end
+	if damage.card:isKindOf("Slash") and not self:hasCrossbowEffect() and self:getCardsNum("Slash")>0 then return draw end
+	if self:isWeak() and (self:getCardsNum("Slash")>0 or not damage.card:isKindOf("Slash") or self.player:getHandcardNum()<=self.player:getHp()) then return draw end
+	if damage.card and damage.card:isKindOf("AOE") and obtain then
+		return obtain
 	end
-	return "draw"
+	if self.player:getLostHp() > 1 then
+		return draw
+	end
+	if obtain then
+		return obtain
+	end
+	return "cancel"
 end
 
 
-
---[[
-local LuaNengchen_skill = {}
-LuaNengchen_skill.name = "LuaNengchen"
-table.insert(sgs.ai_skills, LuaNengchen_skill)
-LuaNengchen_skill.getTurnUseCard = function(self)
-	if self.player:isNude() then return nil end
-	if not self.player:hasFlag("jx") or self.player:hasFlag("luanengchenskill") then return nil end 
-	local cards = self.player:getCards("he")
-	cards = sgs.QList2Table(cards)
-	self:sortByKeepValue(cards)
-	local card = cards[1]
-	
-	
-	if card then
-		local suit = card:getSuitString()
-		local number = card:getNumberString()
-		local card_id = card:getEffectiveId()
-		local card_str = nil
-		if self.player:hasFlag("D") then 
-			card_str = ("duel:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("GS") then
-			card_str = ("god_salvation:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("FA") then
-			card_str = ("fire_attack:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("AG") then
-			card_str = ("amazing_grace:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("SA") then
-			card_str = ("savage_assault:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("AA") then
-			card_str = ("archery_attack:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("C") then
-			card_str = ("collateral:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("Dl") then
-			card_str = ("dismantlement:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("EN") then
-			card_str = ("ex_nihilo:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		elseif self.player:hasFlag("S") then
-			card_str = ("snatch:LuaNengchen[%s:%s]=%d"):format(suit, number, card_id)
-		end
-	
-		local new_card = sgs.Card_Parse(card_str)
-		
-		assert(new_card) 
-		return new_card
-	end
-end	
-
-]]
 local LuaNengchen_skill = {}
 LuaNengchen_skill.name = "LuaNengchen"
 table.insert(sgs.ai_skills, LuaNengchen_skill)
@@ -84,6 +34,7 @@ LuaNengchen_skill.getTurnUseCard = function(self, inclusive)
 	local cards = {}
 	for _,c in ipairs(usable_cards) do
 		local cardex = sgs.Sanguosha:cloneCard(sgs.Sanguosha:getCard(self.player:getMark("luanengchenskill")):objectName(), c:getSuit(), c:getNumber())
+		cardex:deleteLater()
 		if not self.player:isCardLimited(cardex, sgs.Card_MethodUse, true) and cardex:isAvailable(self.player) and not c:isKindOf("Peach") and not (c:isKindOf("Jink") and self:getCardsNum("Jink") < 3) and not cardex:isKindOf("IronChain") then
 		local name = sgs.Sanguosha:getCard(self.player:getMark("luanengchenskill")):objectName()
 		local new_card = sgs.Card_Parse((name..":LuaNengchen[%s:%s]=%d"):format(c:getSuitString(), c:getNumberString(), c:getEffectiveId()))
@@ -111,27 +62,15 @@ sgs.ai_skill_use["@@LuaXinyiji"] = function(self, prompt)
 	local cards = self.player:getHandcards()
 	cards = sgs.QList2Table(cards)
 	self:sortByUseValue(cards, true)
-	local diamond,heart,club,spade  = {},{},{},{}
-			for _, card_id in sgs.qlist(self.player:getPile("ji")) do
-				local card = sgs.Sanguosha:getCard(card_id)
-				if  card:getSuitString() == "diamond" then
-				table.insert(diamond,card)
-				elseif card:getSuitString() == "heart" then
-				table.insert(heart,card)
-				elseif card:getSuitString() == "club" then
-				table.insert(club,card)
-				elseif card:getSuitString() == "spade" then
-				table.insert(spade,card)
-				end
-			end
+	local suit = {}
+	for _, card_id in sgs.qlist(self.player:getPile("ji")) do
+		local card = sgs.Sanguosha:getCard(card_id)
+		if not table.contains(suit,card:getSuitString() ) then
+			table.insert(suit,card:getSuitString())
+		end
+	end
 	for _,c in ipairs(cards) do
-		if c:getSuit() == sgs.Card_Heart and #heart == 0 then
-			return ("#LuaXinyiji:%d:"):format(c:getEffectiveId())
-		elseif c:getSuit() == sgs.Card_Club and #club == 0 then
-			return ("#LuaXinyiji:%d:"):format(c:getEffectiveId())
-		elseif c:getSuit() == sgs.Card_Spade and #spade == 0 then
-			return ("#LuaXinyiji:%d:"):format(c:getEffectiveId())
-		elseif c:getSuit() == sgs.Card_Diamond and #diamond == 0 then
+		if not table.contains(suit,c:getSuitString() ) then
 			return ("#LuaXinyiji:%d:"):format(c:getEffectiveId())
 		end
 	end
@@ -186,159 +125,6 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sgs.ai_skill_invoke.LuaJuece = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece3 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece4 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece1 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece2 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-
-
-
-sgs.ai_skill_invoke.LuaJuece12 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece13 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece14 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece23 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece24 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece34 = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece1f = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece2f = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece3f = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJuece4f = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-sgs.ai_skill_invoke.LuaJueceQ = function(self, data)
-	local damage = data:toDamage()
-	if not self:isFriend(damage.to) or self:isFriend(damage.from)  then
-		return false
-	end	
-	return true
-end
-
-
 --星司马懿
 sgs.ai_skill_cardask["@guicai-card"]=function(self, data)
 	local judge = data:toJudge()
@@ -369,7 +155,7 @@ sgs.ai_skill_cardask["@guicai-card"]=function(self, data)
 	return "."
 end
 
-function sgs.ai_cardneed.guicai(to, card, self)
+function sgs.ai_cardneed.LuaGuizha(to, card, self)
 	for _, player in sgs.qlist(self.room:getAllPlayers()) do
 		if self:getFinalRetrial(to) == 1 then 
 			if player:containsTrick("lightning") and not player:containsTrick("YanxiaoCard") then
@@ -385,7 +171,7 @@ function sgs.ai_cardneed.guicai(to, card, self)
 	end
 end
 
-sgs.guicai_suit_value = {
+sgs.LuaGuizha_suit_value = {
 	heart = 3.9,
 	club = 3.9,
 	spade = 3.5
@@ -428,9 +214,16 @@ sgs.ai_skill_cardchosen.LuaQuanbian = function(self, who, flags)
 	return nil
 end
 
+sgs.ai_can_damagehp.LuaQuanbian = function(self,from,card,to)
+	if from and to:getHp()+self:getAllPeachNum()-self:ajustDamage(from,to,1,card)>0
+	and self:canLoseHp(from,card,to)
+	then
+		return self:isEnemy(from) and self:isWeak(from) and from:getCardCount()>0
+	end
+end
 
 sgs.ai_need_damaged.LuaQuanbian = function (self, attacker)
-	if not self.player:hasSkill("LuaLuaGuicai") then return false end
+	if not self.player:hasSkill("LuaGuizha") then return false end
 	local need_retrial=function(player)
 		local alive_num=self.room:alivePlayerCount()
 		return alive_num + player:getSeat() % alive_num > self.room:getCurrent():getSeat() 
@@ -515,10 +308,6 @@ end
 
 
 --星赵云
-sgs.ai_skill_invoke["#LuaChongzhen"] = function(self, data)
-	return true
-end
-
 local LuaLongzhen_skill={}
 LuaLongzhen_skill.name="LuaLongzhen"
 table.insert(sgs.ai_skills,LuaLongzhen_skill)

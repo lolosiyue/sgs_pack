@@ -1,7 +1,7 @@
 sgs.ai_skill_use["@PlusJianxiong"] = function(self, prompt)
 	local damage = self.room:getTag("CurrentDamageStruct"):toDamage()
 	local dest = damage.to
-	if not self:isEnemy(dest) then return "." end
+	if not dest or not self:isEnemy(dest) then return "." end
 	local target
 
 	if dest:getHp() <= 1 then
@@ -50,17 +50,17 @@ end
 
 sgs.ai_skill_choice.PlusWulve = function(self, choices, data)
 	local damage = data:toDamage()
-	if not damage.card then return "PlusWulve_choice2" end
+	local choice1 = getChoice(choices, "PlusWulve_choice1")
+	local choice2 = getChoice(choices, "PlusWulve_choice2")
+	if not damage.card then return choice2 end
 	if damage.card:isKindOf("Slash") and not self:hasCrossbowEffect() and self.player:getLostHp() > 1 and self:getCardsNum("Slash") > 0 then
-		return
-		"PlusWulve_choice2"
+		return choice2
 	end
 	if self:isWeak() and (self:getCardsNum("Slash") > 0 or not damage.card:isKindOf("Slash") or self.player:getHandcardNum() <= self.player:getHp()) then
-		return
-		"PlusWulve_choice2"
+		return choice2
 	end
 	local items = choices:split("+")
-	if table.contains(items, "PlusWulve_choice1") then return "PlusWulve_choice1" end
+	if choice1 then return choice1 end
 	return items[1]
 end
 
@@ -181,7 +181,11 @@ sgs.ai_skill_use["@PlusGuicai2"] = function(self, prompt)
 	return "."
 end
 
-
+sgs.ai_target_revises.PlusTaohui = function(to,card,self,use)
+	if card:isNDTrick() and to:getHandcardNum() <= to:getMaxHp()
+	and self:getCardsNum("BasicCard")-self:getCardsNum("Peach")<2
+	then return true end
+end
 
 sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 	local use = data:toCardUse()

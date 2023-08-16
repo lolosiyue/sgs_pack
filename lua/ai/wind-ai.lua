@@ -267,7 +267,8 @@ function SmartAI:findLeijiTarget(player,leiji_value,slasher,latest_version)
 	if not latest_version then
 		return self:findLeijiTarget(player,leiji_value,slasher,1) or self:findLeijiTarget(player,leiji_value,slasher,-1)
 	end
-	if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji") then return end
+	--if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji") then return end
+	if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji|luafan") then return end --add
 	if slasher then
 		if not self:slashIsEffective(dummyCard(),player,slasher,slasher:hasWeapon("qinggang_sword")) then return end
 		if slasher:hasSkill("liegong") and slasher:getPhase()==sgs.Player_Play and self:isEnemy(player,slasher)

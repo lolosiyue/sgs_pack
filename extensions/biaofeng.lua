@@ -26,8 +26,8 @@ sgs.LoadTranslationTable {
 
 	["PlusWulve"] = "武略",
 	[":PlusWulve"] = "每当你受到一次伤害后，你可以选择一项：1.获得对你造成伤害的牌。2.弃置一张牌（无牌则不弃），然后摸X张牌（X为你已损失的体力值）。",
-	["PlusWulve_choice1"] = "获得对你造成伤害的牌",
-	["PlusWulve_choice2"] = "弃置一张牌，然后摸X张牌（X为你已损失的体力值）",
+	["PlusWulve_choice1"] = "获得 %src",
+	["PlusWulve_choice2"] = "弃置一张牌，然后摸 %src 张牌",
 	["PlusWulve_cancel"] = "不发动",
 	["#PlusWulve1"] = "%from 发动了技能“%arg①”",
 	["#PlusWulve2"] = "%from 发动了技能“%arg②”",
@@ -1812,28 +1812,29 @@ PlusWulve = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local damage = data:toDamage()
 		local card = damage.card
-		local prompt = "PlusWulve_choice2+PlusWulve_cancel"
+		local lostHp = player:getLostHp()
+		local prompt = "PlusWulve_choice2=".. lostHp .."+PlusWulve_cancel"
 		if card then
 			local id = card:getEffectiveId()
 			if room:getCardPlace(id) == sgs.Player_PlaceTable then
-				prompt = "PlusWulve_choice1+" .. prompt
+				prompt = "PlusWulve_choice1=".. sgs.Sanguosha:getCard(id):objectName() .. "+ " .. prompt
 			end
 		end
 		local choice = room:askForChoice(player, self:objectName(), prompt, data)
 		local msg = sgs.LogMessage()
-		if choice == "PlusWulve_choice1" then --获得造成伤害的牌
+		if string.startsWith(choice, "PlusWulve_choice1") then --获得造成伤害的牌
 			msg.type = "#PlusWulve1"
 			msg.from = player
 			msg.arg = self:objectName()
 			room:sendLog(msg)
 			player:obtainCard(card)
-		elseif choice == "PlusWulve_choice2" then --弃1张牌然后摸X张牌
+		elseif string.startsWith(choice, "PlusWulve_choice2") then --弃1张牌然后摸X张牌
 			msg.type = "#PlusWulve2"
 			msg.from = player
 			msg.arg = self:objectName()
 			room:sendLog(msg)
 			room:askForDiscard(player, self:objectName(), 1, 1, false, true)
-			local lostHp = player:getLostHp()
+			
 			room:drawCards(player, lostHp, self:objectName())
 		end
 	end,
@@ -3289,7 +3290,7 @@ PlusJushou = sgs.CreateTriggerSkill {
 PlusJushou_Dist = sgs.CreateDistanceSkill {
 	name = "#PlusJushou_Dist",
 	correct_func = function(self, from, to)
-		if to:hasSkill(self:objectName()) and from:objectName() ~= to:objectName() then
+		if to:hasSkill("PlusJushou") and from:objectName() ~= to:objectName() then
 			local defense = to:getPile("defense")
 			local count = defense:length()
 			if count > 0 then

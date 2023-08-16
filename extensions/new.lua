@@ -29,6 +29,7 @@ lualilian=sgs.CreateTriggerSkill{--新神杀已实现
                                 end
                         return false
 					end
+					
 
 end
 }
@@ -63,7 +64,7 @@ on_use=function(self,room,source,targets)
 		room:loseHp(p,1)
 			end 
 		end		
-
+		room:askForSkillInvoke()
 end,
 }
 
@@ -357,10 +358,6 @@ luaxumou=sgs.CreateTriggerSkill{--蓄谋 实现
 		
         return false
     end,
-	
-	--[[can_trigger=function(self,player)
-        return player:hasSkill(self:objectName()) and (player:getMark("luaxumou")==0)  and (player:getPhase() == sgs.Player_Start)
-    end]]
     can_wake = function(self, event, player, data, room)
         if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then return false end
         if player:canWake(self:objectName()) then return true end
@@ -792,7 +789,6 @@ luazhenshe=sgs.CreateTriggerSkill{--震慑
             local damage = data:toDamage()
             local y=player:getLostHp()
 			if damage.card and damage.card:isKindOf("Slash") and not damage.card:hasFlag("luazhenshe_double") then 
-                --if not damage.to:isKongcheng() then
                 if damage.to and damage.to:isAlive() then
                 if player:canPindian(damage.to) or damage.to:isKongcheng() then
                 else
@@ -821,19 +817,8 @@ luazhenshe=sgs.CreateTriggerSkill{--震慑
                 
                 log1.type="$luazhenshe2"
                 room:sendLog(log1)
-                --[[local damagex=sgs.DamageStruct()
-                damagex.damage=x
-                damagex.from=player
-                damagex.to=damage.to
-                room:damage(damagex)]]
-                --[[local useEX = sgs.CardUseStruct()
-                    useEX.from = player
-                    useEX.to:append(damage.to)
-                    useEX.card = damage.card
-                    room:useCard(useEX, true) ]]
                 room:setPlayerFlag(damage.to, "luazhenshe")
                 room:setCardFlag(damage.card, "luazhenshe_double")
-                --player:drawCards(1)
                 end
             end
         end
@@ -1090,6 +1075,7 @@ on_trigger=function(self,event,player,data)
             end
             if #card_to_throw > 0 then
                 local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+				dummy:deleteLater()
                 for _, id in ipairs(card_to_throw) do
                     dummy:addSubcard(id)
                 end 
@@ -1097,6 +1083,7 @@ on_trigger=function(self,event,player,data)
             end
             if #card_to_gotback > 0 then
                 local dummy2 = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+				dummy2:deleteLater()
                 for _, id in ipairs(card_to_gotback) do
                     dummy2:addSubcard(id)
                 end

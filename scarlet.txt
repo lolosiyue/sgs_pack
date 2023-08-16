@@ -13,7 +13,41 @@ audio:
 du
 lubu
 
+ai:
+wolf
+
 code:
 self:isGoodTarget
 --hasHeavySlashDamage
 hasHeavyDamage(from, card, to, nature)
+
+
+
+card target
+use.from
+ai_target_revises
+
+use.to
+ai_useto_revises
+
+card priority
+ai_card_priority
+
+consider of using card (benefit debuff) wuqian jilve
+ai_playerchosen_intention
+
+
+damage struct
+ai_ajustdamage_from
+ai_ajustdamage_to
+ai_damage_effect -- not use
+
+
+ai_can_damagehp
+ai_need_damaged
+
+ai_slash_prohibit
+
+ai_playerchosen_intention
+
+
