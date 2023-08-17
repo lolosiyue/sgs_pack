@@ -2243,6 +2243,7 @@ function SmartAI:useCardCollateral(card,use)
 	table.sort(fromList,cmp)
 	self:sort(toList,"defense")
 	local needCrossbow = false
+	self.player:speak("Collateral testing1")
 	for _,enemy in sgs.list(self.enemies)do
 		if self.player:canSlash(enemy) and self:objectiveLevel(enemy)>2
 		and self:isGoodTarget(enemy,self.enemies)
@@ -2260,6 +2261,7 @@ function SmartAI:useCardCollateral(card,use)
 	if needCrossbow and self:getCardsNum("Slash")>2
 	and not self:hasCrossbowEffect()
 	then
+		self.player:speak("Collateral testing2")
 		for i = #fromList,1,-1 do
 			if useToCard(fromList[i])
 			and fromList[i]:hasWeapon("crossbow")
@@ -2283,6 +2285,7 @@ function SmartAI:useCardCollateral(card,use)
 			end
 		end
 	end
+	self.player:speak("Collateral testing3")
 	for _,enemy in sgs.list(fromList)do
 		if useToCard(enemy) and self:objectiveLevel(enemy)>=0
 		and not(self:hasSkills(sgs.lose_equip_skill,enemy) or enemy:hasSkill("tuntian+zaoxian"))
@@ -2331,6 +2334,7 @@ function SmartAI:useCardCollateral(card,use)
 			end
 		end
 	end
+	self.player:speak("Collateral testing4")
 	for _,friend in sgs.list(fromList)do
 		if useToCard(friend) and self:objectiveLevel(friend)<0
 		and getCardsNum("Slash",friend,self.player)>0
@@ -2356,6 +2360,7 @@ function SmartAI:useCardCollateral(card,use)
 		end
 	end
 	self:sortEnemies(toList)
+	self.player:speak("Collateral testing5")
 	for _,friend in sgs.list(fromList)do
 		if useToCard(friend) and self:objectiveLevel(friend)<0
 		and not (friend:hasWeapon("crossbow") and getCardsNum("Slash",friend)>1)

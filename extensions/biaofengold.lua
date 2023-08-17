@@ -366,6 +366,7 @@ FiveYingzhan_Count = sgs.CreateTriggerSkill{
 				if source:objectName() == room:getCurrent():objectName() then
 					if source:getMark("FiveYingzhan") == 0 then
 						room:setPlayerFlag(source, "FiveYingzhan_Damage")
+						room:setPlayerMark(source, "&FiveYingzhan-Clear", 1)
 					end
 				end
 			end
@@ -395,15 +396,15 @@ FiveYingzhan = sgs.CreateTriggerSkill{
         end
 		return false
 	end, 
-	can_trigger = function(self, target)
-		if target then
-			if target:isAlive() and target:hasSkill(self:objectName()) then
-				if target:getPhase() == sgs.Player_Finish then
-					if target:getMark("FiveYingzhan") == 0 then
-						return target:hasFlag("FiveYingzhan_Damage")
-					end
-				end
-			end
+	can_wake = function(self, event, player, data, room)
+		if player:getPhase() ~= sgs.Player_Finish or player:getMark(self:objectName()) > 0 then
+			return false
+		end
+		if player:canWake(self:objectName()) then
+			return true
+		end
+		if player:hasFlag("FiveYingzhan_Damage") then
+			return true
 		end
 		return false
 	end
@@ -437,7 +438,7 @@ FiveFanjian_Card = sgs.CreateSkillCard{
 		local targets = sgs.SPlayerList()
 		local others = room:getOtherPlayers(target)
 		for _,p in sgs.qlist(others) do
-			if not p:isKongcheng() then
+			if target:canPindian(p) then
 				targets:append(p)
 			end
 		end
@@ -458,6 +459,7 @@ FiveFanjian_Card = sgs.CreateSkillCard{
 				end
 				if winner:canSlash(loser, nil, false) then
 					local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+					slash:deleteLater()
 					slash:setSkillName("FiveFanjian")
 					local card_use = sgs.CardUseStruct()
 					card_use.from = winner
@@ -1660,6 +1662,7 @@ FourHuoji_Card = sgs.CreateSkillCard{
 		local card_id = effect.card:getEffectiveId()
 		room:showCard(source, card_id)
 		local fireattack = sgs.Sanguosha:cloneCard("FireAttack", sgs.Card_NoSuit, 0)
+		fireattack:deleteLater()
 		fireattack:setSkillName("FourHuoji")
 		local use = sgs.CardUseStruct()
 		use.card = fireattack
@@ -2808,16 +2811,16 @@ FourDedao = sgs.CreateTriggerSkill{
         end
 		return false
 	end, 
-	can_trigger = function(self, target)
-		if target then
-			if target:isAlive() and target:hasSkill(self:objectName()) then
-				if target:getPhase() == sgs.Player_Start then
-					if target:getMark("FourDedao") == 0 then
-						local symbol = target:getPile("symbol")
-						return symbol:length() >= 3
-					end
-				end
-			end
+	can_wake = function(self, event, player, data, room)
+		if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then
+			return false
+		end
+		if player:canWake(self:objectName()) then
+			return true
+		end
+		local symbol = target:getPile("symbol")
+		if symbol:length() >= 3 then
+			return true
 		end
 		return false
 	end
@@ -3183,18 +3186,20 @@ DiyBaobian = sgs.CreateTriggerSkill{
 			
 			return false
 		end
-	end, 
-	can_trigger = function(self, target)
-		if target then
-			if target:isAlive() and target:hasSkill(self:objectName()) then
-				if target:getMark("DiyBaobian") == 0 then
-					local turn = target:getPile("turn")
-					return turn:length() >= 3
-				end
-			end
+	end,
+	can_wake = function(self, event, player, data, room)
+		if player:getMark(self:objectName()) > 0 then
+			return false
+		end
+		if player:canWake(self:objectName()) then
+			return true
+		end
+		local turn = target:getPile("turn")
+		if turn:length() >= 3 then
+			return true
 		end
 		return false
-	end
+	end 
 }
 DiyBaobian_Clear = sgs.CreateTriggerSkill{
 	name = "#DiyBaobian_Clear",

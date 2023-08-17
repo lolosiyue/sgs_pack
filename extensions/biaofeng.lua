@@ -5740,6 +5740,7 @@ PlusTanbing = sgs.CreateTriggerSkill {
 					room:judge(judge)
 					if judge:isGood() then
 						room:setPlayerFlag(player, "PlusTanbing")
+						room:addPlayerMark(player, "&PlusTanbing-Clear")
 					end
 				end
 			end
@@ -8298,6 +8299,7 @@ PlusLiangjie = sgs.CreateTriggerSkill {
 		if event == sgs.EventPhaseStart then
 			if phase == sgs.Player_Play then
 				if player:askForSkillInvoke(self:objectName()) then
+					room:addPlayerMark(player, "&PlusLiangjie-Clear")
 					room:setPlayerFlag(player, "PlusLiangjie")
 					room:setPlayerFlag(player, "dongchaee")
 					local tag = sgs.QVariant()
@@ -8727,26 +8729,18 @@ LvBu_Plus:addSkill("wushuang")
 --
 PlusShejiVS = sgs.CreateViewAsSkill {
 	name = "PlusSheji",
-	n = 999,
-	view_filter = function(self, selected, to_select)
-		return not to_select:isEquipped()
-	end,
+	n = 0,
 	view_as = function(self, cards)
-		local count = sgs.Self:getHandcardNum()
-		if #cards == count then
-			local card = sgs.Sanguosha:cloneCard("slash", sgs.Card_SuitToBeDecided, 0)
-			for _, cd in pairs(cards) do
-				card:addSubcard(cd)
-			end
-			card:setSkillName(self:objectName())
-			return card
-		end
+		local card = sgs.Sanguosha:cloneCard("slash", sgs.Card_SuitToBeDecided, 0)
+		card:addSubcards(sgs.Self:getHandcards())
+		card:setSkillName(self:objectName())
+		return card
 	end,
 	enabled_at_play = function(self, player)
 		return not player:isKongcheng()
 	end,
 	enabled_at_response = function(self, player, pattern)
-		return pattern == "slash"
+		return pattern == "slash" and not player:isKongcheng()
 	end
 }
 PlusSheji = sgs.CreateTriggerSkill {
@@ -8917,6 +8911,7 @@ PlusMafei = sgs.CreateTriggerSkill {
 								msg.arg = self:objectName()
 								room:sendLog(msg)
 								room:setPlayerFlag(target, "PlusMafei")
+								room:setPlayerMark(target, "&PlusMafei+to+#"..player:objectName().."-Clear", 1)
 							end
 						else
 							break
@@ -9657,12 +9652,12 @@ PlusYicong = sgs.CreateDistanceSkill {
 		local room = sgs.Sanguosha:currentRoom()
 		if from:hasSkill(self:objectName()) then
 			if from:getHp() > 2 then
-				return -(from:getMark("PlusYicong") + 1)
+				return -(from:getMark("&PlusYicong"))
 			end
 		end
 		if to:hasSkill(self:objectName()) then
 			if to:getHp() <= 2 then
-				return to:getMark("PlusYicong") + 1
+				return to:getMark("&PlusYicong") 
 			end
 		end
 		return 0
@@ -9686,7 +9681,7 @@ PlusYicong_Count = sgs.CreateTriggerSkill {
 					count = count + 1
 				end
 			end
-			if count ~= player:getMark("PlusYicong") then
+			if count ~= player:getMark("&PlusYicong") then
 				local index
 				if player:getHp() > 2 then
 					index = 1
@@ -9695,7 +9690,7 @@ PlusYicong_Count = sgs.CreateTriggerSkill {
 				end
 				room:broadcastSkillInvoke("PlusYicong", index)
 			end
-			room:setPlayerMark(player, "PlusYicong", math.min(count, 3)) --本来想用全局变量。。又失败了
+			room:setPlayerMark(player, "&PlusYicong", math.min(count, 3) + 1) --本来想用全局变量。。又失败了
 		end
 	end
 }

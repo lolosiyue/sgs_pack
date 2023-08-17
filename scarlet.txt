@@ -21,7 +21,9 @@ self:isGoodTarget
 --hasHeavySlashDamage
 hasHeavyDamage(from, card, to, nature)
 
+canwake 
 
+Audio skill?
 
 card target
 use.from
@@ -34,7 +36,7 @@ card priority
 ai_card_priority
 
 consider of using card (benefit debuff) wuqian jilve
-ai_playerchosen_intention
+ai_used_revises
 
 
 damage struct
