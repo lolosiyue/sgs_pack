@@ -34,7 +34,7 @@ LuaNengchen = sgs.CreateViewAsSkill {
 		return new_card
 	end,
 	enabled_at_play = function(self, player)
-		return sgs.Self:hasFlag("jx")
+		return player:hasFlag("jx")
 	end,
 }
 
@@ -81,14 +81,17 @@ LuaJianxiong = sgs.CreateTriggerSkill {
 		if event == sgs.Damaged then
 			local damage = data:toDamage()
 			local x = player:getLostHp()
-			local choices = { "LuaJianxiongdraw=" .. x .. "+cancel" }
+			local choices = { "LuaJianxiongdraw=" .. x }
 			local card = damage.card
+			local card_str = ""
 			if card then
 				local ids = sgs.IntList()
 				if card:isVirtualCard() then
+					card_str = card:objectName()
 					ids = card:getSubcards()
 				else
 					ids:append(card:getEffectiveId())
+					card_str = card:objectName()
 				end
 				if ids:length() > 0 then
 					local all_place_table = true
@@ -99,11 +102,11 @@ LuaJianxiong = sgs.CreateTriggerSkill {
 						end
 					end
 					if all_place_table then
-						local card_str = table.concat(sgs.QList2Table(ids, "+"))
 						table.insert(choices, "LuaJianxiongobtain=" .. card_str)
 					end
 				end
 			end
+			table.insert(choices, "cancel")
 			local choice = room:askForChoice(player, self:objectName(), table.concat(choices, "+"), data)
 			if choice ~= "cancel" then
 				room:notifySkillInvoked(player, self:objectName())
@@ -1085,8 +1088,8 @@ exshenji = sgs.CreateTriggerSkill {
 		end
 	end
 }
-shenji = sgs.CreateTriggerSkill {
-	name = "shenji",
+xingLuashenji = sgs.CreateTriggerSkill {
+	name = "xingLuashenji",
 	frequency = sgs.Skill_Wake,
 	events = { sgs.EventPhaseStart },
 	on_trigger = function(self, event, player, data, room)
@@ -1109,7 +1112,7 @@ shenji = sgs.CreateTriggerSkill {
 	end,
 }
 mubanXlubu:addSkill(exshenji)
-mubanXlubu:addSkill(shenji)
+mubanXlubu:addSkill(xingLuashenji)
 
 xinglvbu_o = sgs.General(extension, "xinglvbu_o", "qun", 4)
 
@@ -1214,7 +1217,7 @@ Exchange1 = function(xinglvbu)
 		dummy:deleteLater()
 
 		room:broadcastSkillInvoke("LuaBaonu")
-		if xinglvbu:hasSkill("shenji") then
+		if xinglvbu:hasSkill("xingLuashenji") then
 			if room:changeMaxHpForAwakenSkill(xinglvbu) then
 				room:addMaxCards(xinglvbu, 1, false)
 				room:handleAcquireDetachSkills(xinglvbu, "exshenji")
@@ -1224,7 +1227,7 @@ Exchange1 = function(xinglvbu)
 		else
 			if room:changeMaxHpForAwakenSkill(xinglvbu) then
 				room:addMaxCards(xinglvbu, 1, false)
-				room:handleAcquireDetachSkills(xinglvbu, "shenji")
+				room:handleAcquireDetachSkills(xinglvbu, "xingLuashenji")
 			end
 		end
 	end
@@ -1261,7 +1264,7 @@ xinglvbu_o:addSkill(os_chitu)
 extension:insertRelatedSkills("os_chitu", "#LuaMashu")
 xinglvbu_o:addSkill(LuaHuaji)
 xinglvbu_o:addSkill(LuaBaonu)
-xinglvbu_o:addRelateSkill("shenji")
+xinglvbu_o:addRelateSkill("xingLuashenji")
 xinglvbu_o:addRelateSkill("exshenji")
 
 
@@ -1276,7 +1279,7 @@ sgs.LoadTranslationTable {
 	["LuaJianxiong"] = "奸雄",
 	[":LuaJianxiong"] = "每当你受到一次伤害后，你可以选择获得对你造成伤害的牌，否则摸x张牌。(X为你已损失的体力值)",
 	["LuaJianxiongdraw"] = "摸 %src 张牌",
-	["LuaJianxiongobtain"] = "获得 %src",
+	["LuaJianxiongobtain"] = "获得 %src ",
 	["$LuaJianxiong1"] = "我好梦中杀人",
 	["$LuaJianxiong2"] = "宁教我负天下人，休教天下人负我",
 	["~xingcaocao"] = "世人皆看错我曹操",
@@ -1415,8 +1418,8 @@ sgs.LoadTranslationTable {
 	[":LuaHuaji"] = "当你受到或造成1点伤害后，你可以摸一张牌，然后将一张手牌置于你的武将牌上，称为“戟”。◆戟是移出游戏的牌，至多为三。",
 	["$LuaHuaji1"] = "神挡杀神，佛挡杀佛！",
 	["$LuaHuaji2"] = "谁能当我！",
-	["Luashenji"] = "神戟",
-	[":Luashenji"] = "<font color=\"purple\"><b>觉醒技，</b></font>准备阶段或结束阶段开始时，若“戟”等于三张，若你已有技能“神戟”，将“戟”置入弃牌堆，你失去1点体力上限，失去技能“暴怒”、“画戟”，手牌上限+1，获得“神迹”。",
+	["xingLuashenji"] = "神戟",
+	[":xingLuashenji"] = "<font color=\"purple\"><b>觉醒技，</b></font>准备阶段或结束阶段开始时，若“戟”等于三张，若你已有技能“神戟”，将“戟”置入弃牌堆，你失去1点体力上限，失去技能“暴怒”、“画戟”，手牌上限+1，获得“神迹”。",
 	["wrath"] = "戟",
 	["HuajiCard"] = "暴怒",
 	["exshenji"] = "神迹",

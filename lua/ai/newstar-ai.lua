@@ -5,8 +5,10 @@ sgs.ai_skill_choice["LuaJianxiong"] = function(self, choices, data)
 	local damage = data:toDamage()
 	if not damage.card then return draw end
 	if damage.card:isKindOf("Slash") and not self:hasCrossbowEffect() and self:getCardsNum("Slash") > 0 then return draw end
-	if self:isWeak() and (self:getCardsNum("Slash") > 0 or not damage.card:isKindOf("Slash") or self.player:getHandcardNum() <= self.player:getHp()) then return
-		draw end
+	if self:isWeak() and (self:getCardsNum("Slash") > 0 or not damage.card:isKindOf("Slash") or self.player:getHandcardNum() <= self.player:getHp()) then
+		return
+			draw
+	end
 	if damage.card and damage.card:isKindOf("AOE") and obtain then
 		return obtain
 	end
@@ -35,7 +37,7 @@ LuaNengchen_skill.getTurnUseCard = function(self, inclusive)
 	local cards = {}
 	for _, c in ipairs(usable_cards) do
 		local cardex = sgs.Sanguosha:cloneCard(
-		sgs.Sanguosha:getCard(self.player:getMark("luanengchenskill")):objectName(), c:getSuit(), c:getNumber())
+			sgs.Sanguosha:getCard(self.player:getMark("luanengchenskill")):objectName(), c:getSuit(), c:getNumber())
 		cardex:deleteLater()
 		if not self.player:isCardLimited(cardex, sgs.Card_MethodUse, true) and cardex:isAvailable(self.player) and not c:isKindOf("Peach") and not (c:isKindOf("Jink") and self:getCardsNum("Jink") < 3) and not cardex:isKindOf("IronChain") then
 			local name = sgs.Sanguosha:getCard(self.player:getMark("luanengchenskill")):objectName()
@@ -46,13 +48,6 @@ LuaNengchen_skill.getTurnUseCard = function(self, inclusive)
 		end
 	end
 end
-
-
-
-
-
-
-
 
 --星郭嘉
 sgs.ai_skill_invoke.LuaXinyiji = function(self, data)
@@ -163,7 +158,7 @@ function sgs.ai_cardneed.LuaGuizha(to, card, self)
 		if self:getFinalRetrial(to) == 1 then
 			if player:containsTrick("lightning") and not player:containsTrick("YanxiaoCard") then
 				return card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 and
-				not self:hasSkills("hongyan|wuyan")
+					not self:hasSkills("hongyan|wuyan")
 			end
 			if self:isFriend(player) and self:willSkipDrawPhase(player) then
 				return card:getSuit() == sgs.Card_Club
@@ -189,7 +184,7 @@ sgs.ai_skill_invoke.LuaQuanbian = function(self, data)
 	if self:isFriend(target) then
 		if self:getOverflow(target) > 2 then return true end
 		return (target:hasSkill("xiaoji") and not target:getEquips():isEmpty()) or
-		(target:hasArmorEffect("SilverLion") and target:isWounded())
+			(target:hasArmorEffect("SilverLion") and target:isWounded())
 	end
 	if self:isEnemy(target) then ---LuaQuanbian without zhugeliang and luxun
 		if target:hasSkill("tuntian") and target:getPhase() == sgs.Player_NotActive then return false end

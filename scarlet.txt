@@ -53,3 +53,7 @@ ai_slash_prohibit
 ai_playerchosen_intention
 
 
+enabled_at_play = function(self, player)
+		return sgs.Self:hasFlag("jx") ->player
+	end,
+
