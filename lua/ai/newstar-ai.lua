@@ -97,6 +97,29 @@ sgs.ai_skill_use["@@LuaXinyiji"] = function(self, prompt)
 	return "."
 end
 
+sgs.ai_need_damaged.LuaXinyiji = function (self,attacker,player)
+	if not player:hasSkill("LuaXinyiji") then return end
+
+	local friends = {}
+	for _,ap in sgs.list(self.room:getAlivePlayers())do
+		if self:isFriend(ap,player) then
+			table.insert(friends,ap)
+		end
+	end
+	self:sort(friends,"hp")
+
+	if #friends>0 and friends[1]:objectName()==player:objectName() and self:isWeak(player) and getCardsNum("Peach",player,(attacker or self.player))==0 then return false end
+
+	return player:getHp()>2 and sgs.turncount>2 and not self:isWeak(player) and player:getHandcardNum()>=2
+end
+
+sgs.ai_can_damagehp.LuaXinyiji = function(self,from,card,to)
+	return to:getHp()+self:getAllPeachNum()-self:ajustDamage(from,to,1,card)>0
+	and self:canLoseHp(from,card,to)
+end
+
+
+
 sgs.ai_skill_use["@@LuaJuece"] = function(self, prompt)
 	local damage = self.player:getTag("LuaJueceDamage"):toDamage()
 	self:updatePlayers()
