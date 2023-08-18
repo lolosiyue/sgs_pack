@@ -21,6 +21,27 @@ sgs.ai_skill_choice["LuaJianxiong"] = function(self, choices, data)
 	return "cancel"
 end
 
+sgs.ai_target_revises.LuaJianxiong = function(to, card, self)
+	if card:isDamageCard()
+		and not self:isFriend(to)
+		and card:subcardsLength() > 0
+	then
+		for _, id in sgs.list(card:getSubcards()) do
+			if isCard("Peach,Analeptic", sgs.Sanguosha:getCard(id), to)
+			then
+				return true
+			end
+		end
+	end
+end
+
+sgs.ai_can_damagehp.LuaJianxiong = function(self,from,card,to)
+	if from and to:getHp()+self:getAllPeachNum()-self:ajustDamage(from,to,1,card)>0
+	and self:canLoseHp(from,card,to)
+	then
+		return card:isKindOf("Duel") or card:isKindOf("AOE") or to:getLostHp() > 2
+	end
+end
 
 local LuaNengchen_skill = {}
 LuaNengchen_skill.name = "LuaNengchen"
