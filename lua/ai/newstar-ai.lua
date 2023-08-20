@@ -35,9 +35,9 @@ sgs.ai_target_revises.LuaJianxiong = function(to, card, self)
 	end
 end
 
-sgs.ai_can_damagehp.LuaJianxiong = function(self,from,card,to)
-	if from and to:getHp()+self:getAllPeachNum()-self:ajustDamage(from,to,1,card)>0
-	and self:canLoseHp(from,card,to)
+sgs.ai_can_damagehp.LuaJianxiong = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
 	then
 		return card:isKindOf("Duel") or card:isKindOf("AOE") or to:getLostHp() > 2
 	end
@@ -97,25 +97,25 @@ sgs.ai_skill_use["@@LuaXinyiji"] = function(self, prompt)
 	return "."
 end
 
-sgs.ai_need_damaged.LuaXinyiji = function (self,attacker,player)
+sgs.ai_need_damaged.LuaXinyiji = function(self, attacker, player)
 	if not player:hasSkill("LuaXinyiji") then return end
 
 	local friends = {}
-	for _,ap in sgs.list(self.room:getAlivePlayers())do
-		if self:isFriend(ap,player) then
-			table.insert(friends,ap)
+	for _, ap in sgs.list(self.room:getAlivePlayers()) do
+		if self:isFriend(ap, player) then
+			table.insert(friends, ap)
 		end
 	end
-	self:sort(friends,"hp")
+	self:sort(friends, "hp")
 
-	if #friends>0 and friends[1]:objectName()==player:objectName() and self:isWeak(player) and getCardsNum("Peach",player,(attacker or self.player))==0 then return false end
+	if #friends > 0 and friends[1]:objectName() == player:objectName() and self:isWeak(player) and getCardsNum("Peach", player, (attacker or self.player)) == 0 then return false end
 
-	return player:getHp()>2 and sgs.turncount>2 and not self:isWeak(player) and player:getHandcardNum()>=2
+	return player:getHp() > 2 and sgs.turncount > 2 and not self:isWeak(player) and player:getHandcardNum() >= 2
 end
 
-sgs.ai_can_damagehp.LuaXinyiji = function(self,from,card,to)
-	return to:getHp()+self:getAllPeachNum()-self:ajustDamage(from,to,1,card)>0
-	and self:canLoseHp(from,card,to)
+sgs.ai_can_damagehp.LuaXinyiji = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
 end
 
 
@@ -158,14 +158,6 @@ sgs.ai_skill_use["@@LuaJuece"] = function(self, prompt)
 
 	return "."
 end
-
-
-
-
-
-
-
-
 
 --星司马懿
 sgs.ai_skill_cardask["@guicai-card"] = function(self, data)
@@ -578,6 +570,18 @@ sgs.ai_skill_invoke.LuaJuejing = function(self, data)
 end
 
 
+sgs.ai_card_priority.LuaLongzhen_o = function(self, card)
+	if card:getSkillName() == "LuaLongzhen_o"
+	then
+		self.room:writeToConsole("lualongzhen_star")
+		if self.useValue
+		then
+			return 2
+		end
+		return 0.08
+	end
+end
+
 sgs.ai_skill_invoke.LuaLongzhen_o = function(self, data)
 	local target = data:toPlayer()
 	if self:isFriend(target) then
@@ -588,6 +592,7 @@ sgs.ai_skill_invoke.LuaLongzhen_o = function(self, data)
 	else
 		return not (self:needKongcheng(target) and target:getHandcardNum() == 1)
 	end
+	return true
 end
 
 

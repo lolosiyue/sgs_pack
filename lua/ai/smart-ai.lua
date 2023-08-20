@@ -116,10 +116,10 @@ function setInitialTables()
 	sgs.masochism_skill = "guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|" ..
 		"fangzhu|nosenyuan|langgu|quanji|zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 
-	sgs.wizard_skill = "nosguicai|guicai|guidao|olguidao|jilve|tiandu|luoying|noszhenlie|huanshi|jinshenpin"
-
-	sgs.wizard_harm_skill = "nosguicai|guicai|guidao|olguidao|jilve|jinshenpin|midao|zhenyi"
-
+	sgs.wizard_skill = "nosguicai|guicai|guidao|olguidao|jilve|tiandu|luoying|noszhenlie|huanshi|jinshenpin" ..
+		"|LuaGuizha" --add
+	sgs.wizard_harm_skill = "nosguicai|guicai|guidao|olguidao|jilve|jinshenpin|midao|zhenyi" ..
+		"|LuaGuizha" --add
 	sgs.priority_skill = "dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|" ..
 		"neofanjian|lijian|noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|" ..
 		"mingce|wansha|gongxin|jilve|anxu|qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|" ..
@@ -4127,6 +4127,9 @@ function SmartAI:needKongcheng(player, keep)
 	if player:hasSkill("mobilezhiji") and player:getMark("mobilezhiji") < 1 then return true end
 	if player:hasSkill("olzhiji") and player:getMark("olzhiji") < 1 then return true end
 	if player:hasSkill("shude") and player:getPhase() == sgs.Player_Play then return true end
+
+	--add
+	if player:hasSkill("LuaJuejing") and player:getMark("LuaJuejing") < 1 then return true end
 	return player:hasSkills(sgs.need_kongcheng)
 end
 
@@ -8735,7 +8738,7 @@ end
 
 function SmartAI:useEquipCard(card, use)
 	ea = self:evaluateArmor(card)
-	if self.player:getHandcardNum() <= 1 and ea > -5 and self:needKongcheng()
+	if self.player:getHandcardNum() <= 2 and ea > -5 and self:needKongcheng()
 		or ea > -5 and #self.enemies > 1 and self.player:hasSkills(sgs.lose_equip_skill)
 	then
 		use.card = card

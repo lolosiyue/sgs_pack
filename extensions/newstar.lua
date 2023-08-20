@@ -730,7 +730,7 @@ LuaShenji = sgs.CreateTargetModSkill {
 		end
 	end,
 	distance_limit_func = function(self, from, card)
-		if from:hasSkill("LuaGuishen") and (card:getSuit():isBlack()) then
+		if from:hasSkill("LuaGuishen") and (card:isBlack()) then
 			return 1000
 		else
 			return 0
@@ -1391,11 +1391,11 @@ sgs.LoadTranslationTable {
 	["LuaShenyong"] = "神勇",
 	["#LuaXDuojian"] = "神勇",
 	[":LuaShenyong"] = "当你使用的【杀】被目标角色的【闪】抵消时，你可以令其对你使用一张【杀】，否则弃置其一张牌。回合开始阶段开始时，若其他角色的装备区内有【青釭剑】，你可以获得之。",
-	["$LuaShenyong_o1"] = "贼将休走，可敢与我一战",
-	["$LuaShenyong_o2"] = "陷阵杀敌，一马当先",
+	["$LuaShenyong1"] = "贼将休走，可敢与我一战",
+	["$LuaShenyong2"] = "陷阵杀敌，一马当先",
 	["LuaJuejing"] = "绝境",
 	[":LuaJuejing"] = "当你失去最后的手牌时，你可以减1点体力上限，失去技能“神勇”、“绝境”，手牌上限+1，然后摸四张牌，获得技能“神威”。（当其他角色的方片牌和红桃牌因弃置或判定而置入弃牌堆时，你可以获得之。） ",
-	["$LuaJuejing_o"] = "龙战于野，其血玄黄",
+	["$LuaJuejing"] = "龙战于野，其血玄黄",
 	["LuaLongwei"] = "龙威",
 	[":LuaLongwei"] = "当其他角色的方片牌和红桃牌因弃置或判定而置入弃牌堆时，你可以获得之。",
 	["~xingzhaoyun_o"] = "这就是失败的滋味吗",
