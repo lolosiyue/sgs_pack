@@ -3,6 +3,10 @@ sgs.ai_skill_choice.luajuemou = function(self, choice)
 	return "luajuemouCd"
 end
 
+sgs.ai_can_damagehp.luajuemou = function(self, from, card, to)
+	return not (to:isWounded() or to:getMark("luajuemou") > 0)
+		and self:ajustDamage(from, to, 1, card) > 0
+end
 
 sgs.ai_skill_playerchosen.lualilian = function(self, targets)
 	self:updatePlayers()
@@ -181,7 +185,7 @@ lualveji_skill.getTurnUseCard = function(self, inclusive)
 	if (self.player:hasWeapon("crossbow") or self:getCardsNum("Crossbow") > 0) or self:getCardsNum("Slash") > 1 then
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:canSlash(enemy) and self:slashIsEffective(slash, enemy)
-				and sgs.isGoodTarget(enemy, self.enemies, self, true) and not self:slashProhibit(slash, enemy) and can_kurou_with_cb(self) then
+				and self:isGoodTarget(enemy, self.enemies) and not self:slashProhibit(slash, enemy) and can_kurou_with_cb(self) then
 				return sgs.Card_Parse("#lualveji:.:")
 			end
 		end
@@ -476,7 +480,7 @@ function sgs.ai_cardneed.luaguidao(to, card, self)
 		if self:getFinalRetrial(to) == 1 then
 			if player:containsTrick("lightning") and not player:containsTrick("YanxiaoCard") then
 				return card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 and
-				not self:hasSkills("hongyan|wuyan")
+					not self:hasSkills("hongyan|wuyan")
 			end
 			if self:isFriend(player) and self:willSkipDrawPhase(player) then
 				return card:getSuit() == sgs.Card_Club and self:hasSuit("club", true, to)
@@ -583,8 +587,10 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 
 	local add_player = function(player, isfriend)
 		if player:getHandcardNum() == 0 or player:objectName() == self.player:objectName() then return #targets end
-		if self:objectiveLevel(player) == 0 and player:isLord() and sgs.current_mode_players["rebel"] > 1 then return #
-			targets end
+		if self:objectiveLevel(player) == 0 and player:isLord() and sgs.current_mode_players["rebel"] > 1 then
+			return #
+				targets
+		end
 
 		local f = false
 		for _, c in ipairs(targets) do

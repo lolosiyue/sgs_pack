@@ -1,7 +1,7 @@
 xianfu:3,1,1,2,2,0,1,0,1,3,0,0,0,0,0,3,2,0,0,2,1,1,0,2,1,1
 jl_bingyuegong:6,0,0,1,0,2,0
 jl_yanlinmao:1,0,0,0,2,0,0,0,0,0,0,1,
-ov_zhuidu:1,0,1,1,0,0,0
+ov_zhuidu:1,0,1,1,0,0,0,1,1,1
 xiaoguo:1,0,0,0,0,0,0,1,1
 ov_daoji:1,1,0,1,1,1,0
 ov_mouzhu:3,2
@@ -20,7 +20,7 @@ pingcai:1,1,0
 zhaolie:1,0,2,0,0
 tenyearquanjian:1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1
 jl_xingtuo:2,1,1,1,0
-mizhao:1,0,0,1,1,0,1,0,0,1,0,1,2,1,1,0,0,1,1,1
+mizhao:1,0,0,1,1,0,1,0,0,1,0,1,2,1,1,0,0,1,1,1,1,0,0,0
 mobileyanyanjiao:1,1,1,0,1,1,1,0,1
 ov_liexi:1,2
 yhguidu:1,1,1
@@ -57,7 +57,7 @@ ov_zhengjian:2,0,0,1,0,1,1,1,0,0,0
 zhendu:1,0,1
 paiyi:1,0,0,0
 tenyearzhuhai:1,0,0,0,0
-pingxiang:11,0,9
+pingxiang:11,0,9,6,0
 ov_lingfa:1,2,0,2
 zhanmeng:1,2
 bawang:2,1,0
@@ -65,7 +65,7 @@ lijian:1,1
 ov_zhian:1
 ov_qingkou:1,3,1,1,1,1,1,1
 spear:1,2,2,2,0,2,1,1,1,0,0,1
-tenyearxuanfeng:1,1,0,2,0,0
+tenyearxuanfeng:1,1,0,2,0,0,1
 xianshuai:1,0,0,0,1
 xunshi:1,0,3,0,0,0,0
 mobileyongjungong:1,1,1,1,1,1,1
@@ -143,3 +143,8 @@ ov_xiongzheng:4,2
 zhaoxin:1,0,1,0
 xiangshuzk:1,4,1
 zhenge:1
+tianze:1
+tenyearkuangfu:1,0,1
+olzhixi:2
+oswushen:4,4,0,0
+xuewei:2,0,0

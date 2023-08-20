@@ -18,6 +18,7 @@ wolf
 
 code:
 self:isGoodTarget
+function SmartAI:isGoodTarget(to, targets, card)
 --hasHeavySlashDamage
 hasHeavyDamage(from, card, to, nature)
 
