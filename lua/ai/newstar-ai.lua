@@ -677,3 +677,32 @@ end
 sgs.ai_skill_askforag.LuaLongwei = function(self, card_ids)
 	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
 end
+
+
+sgs.ai_skill_invoke.LuaHuaji = function(self, data)
+	local current = self.room:getCurrent()
+	local juece_effect = (current and current:isAlive() and current:getPhase() ~= sgs.Player_NotActive and self:isEnemy(current) and current:hasSkill("juece"))
+	local manjuan_effect = hasManjuanEffect(self.player)
+	if self.player:isKongcheng() then
+		if manjuan_effect or juece_effect then return false end
+	elseif self.player:getHandcardNum() == 1 then
+		if manjuan_effect and juece_effect then return false end
+	end
+	return true
+end
+
+sgs.ai_skill_discard.LuaHuaji = function(self)
+	local to_discard = {}
+	local cards = self.player:getHandcards()
+	cards = sgs.QList2Table(cards)
+	self:sortByKeepValue(cards)
+
+	table.insert(to_discard, cards[1]:getEffectiveId())
+
+	return to_discard
+end
+
+sgs.ai_can_damagehp.LuaHuaji = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 1
+		and self:canLoseHp(from, card, to)
+end
