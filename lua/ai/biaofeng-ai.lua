@@ -534,7 +534,7 @@ sgs.ai_skill_invoke.PlusLuoyi = function(self, data)
 	for _, card in ipairs(cards) do
 		if card:isKindOf("Slash") or card:isKindOf("EquipCard") then
 			for _, enemy in ipairs(self.enemies) do
-				if self.player:canSlash(enemy, card, true) and self:slashIsEffective(card, enemy) and self:objectiveLevel(enemy) > 3 and sgs.isGoodTarget(enemy, self.enemies, self) then
+				if self.player:canSlash(enemy, card, true) and self:slashIsEffective(card, enemy) and self:objectiveLevel(enemy) > 3 and self:isGoodTarget(enemy, self.enemies) then
 					if getCardsNum("Jink", enemy) < 1 or (self.player:hasWeapon("axe") and self.player:getCards("he"):length() > 4) then
 						slashtarget = slashtarget + 1
 					end
@@ -543,7 +543,7 @@ sgs.ai_skill_invoke.PlusLuoyi = function(self, data)
 		end
 		if card:isKindOf("Duel") or card:isKindOf("EquipCard") then
 			for _, enemy in ipairs(self.enemies) do
-				if self:getCardsNum("Slash") >= getCardsNum("Slash", enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+				if self:getCardsNum("Slash") >= getCardsNum("Slash", enemy) and self:isGoodTarget(enemy, self.enemies)
 					and self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy, self.player, 2)
 					and self:damageIsEffective(enemy) and enemy:getMark("@late") < 1 then
 					dueltarget = dueltarget + 1
@@ -567,6 +567,7 @@ PlusLuoyi_skill.getTurnUseCard = function(self, inclusive)
 	local choices = {}
 	for _, name in ipairs(patterns) do
 		local poi = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+		poi:deleteLater()
 		if poi:isAvailable(self.player) then
 			table.insert(choices, name)
 		end
@@ -602,6 +603,7 @@ sgs.ai_skill_choice["PlusLuoyi"] = function(self, choices, data)
 	for _, card_name in ipairs(items) do
 		if card_name ~= "cancel" then
 			local use_card = sgs.Sanguosha:cloneCard(card_name, suit, number)
+			use_card:deleteLater()
 			table.insert(taoluan_vs_card, use_card)
 		end
 	end
@@ -858,7 +860,7 @@ sgs.ai_skill_use["@PlusShensu1"] = function(self, prompt, method)
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
-		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif throw_weapon and enemy:hasArmorEffect("vine") and not self.player:hasSkill("zonghuo") then
@@ -913,7 +915,7 @@ sgs.ai_skill_use["@PlusShensu2"] = function(self, prompt, method)
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
-		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
@@ -1502,6 +1504,7 @@ sgs.ai_skill_choice.PlusRende = function(self, choices, data)
 
 	if table.contains(items, "PlusRende_choice3") then
 		local god_salvation = sgs.Sanguosha:cloneCard("god_salvation", sgs.Card_NoSuit, 0)
+		god_salvation:deleteLater()
 		local good = 0
 		for _, who in ipairs(sgs.QList2Table(self.room:getAllPlayers())) do
 			if self:hasTrickEffective(god_salvation, who, self.player) then
@@ -2055,7 +2058,8 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefenseSlash(enemy, self)
 		local slash = sgs.Sanguosha:cloneCard("slash")
-		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		slash:deleteLater()
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
@@ -2068,7 +2072,7 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
-		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
@@ -2086,6 +2090,7 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 		else
 			continue
 		end
+		x:deleteLater()
 
 		local du = { isDummy = true }
 		self:useTrickCard(x, du)
@@ -2180,6 +2185,7 @@ sgs.ai_skill_use["@PlusZhongyong"] = function(self, prompt)
 	local max_card = self:getMaxCard()
 	local max_point = max_card:getNumber()
 	local slash = sgs.Sanguosha:cloneCard("slash")
+	slash:deleteLater()
 	local dummy_use = { isDummy = true }
 	self.player:setFlags("slashNoDistanceLimit")
 	self:useBasicCard(slash, dummy_use)
@@ -2562,6 +2568,7 @@ local PlusFanjian_skill = {
 		local can_use = false
 		self:sort(self.enemies, "chaofeng")
 		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()
 		for _, enemy in ipairs(self.enemies) do
 			if not self:slashIsEffective(slash, enemy) then continue end
 			can_use = true
@@ -2576,6 +2583,7 @@ table.insert(sgs.ai_skills, PlusFanjian_skill) --加入AI可用技能表
 sgs.ai_skill_use_func["#PlusFanjian_Card"] = function(card, use, self)
 	local handcards = sgs.QList2Table(self.player:getHandcards())
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	if #handcards == 0 then return end
 	self:sortByUseValue(handcards, true) --对可用手牌按使用价值从小到大排序
 	local togive = nil
@@ -2584,7 +2592,7 @@ sgs.ai_skill_use_func["#PlusFanjian_Card"] = function(card, use, self)
 	for _, enemy_a in ipairs(self.enemies) do
 		for _, enemy_b in ipairs(self.enemies) do
 			if enemy_b:canSlash(enemy_a) and not self:slashProhibit(slash, enemy_a) and sgs.getDefenseSlash(enemy_a, self) <= 2
-				and self:slashIsEffective(slash, enemy_a) and sgs.isGoodTarget(enemy_a, self.enemies, self) and enemy_b:getHandcardNum() > enemy_a:getHandcardNum() and enemy_a:objectName() ~= self.player:objectName() then
+				and self:slashIsEffective(slash, enemy_a) and self:isGoodTarget(enemy_a, self.enemies) and enemy_b:getHandcardNum() > enemy_a:getHandcardNum() and enemy_a:objectName() ~= self.player:objectName() then
 				slasher = enemy_b
 				target = enemy_a
 				break
@@ -2595,7 +2603,7 @@ sgs.ai_skill_use_func["#PlusFanjian_Card"] = function(card, use, self)
 		for _, enemy in ipairs(self.enemies) do
 			for _, p in ipairs(sgs.QList2Table(self.room:getOtherPlayers(enemy))) do
 				if p:canSlash(enemy) and not self:slashProhibit(slash, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
-					and self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self) and p:getHandcardNum() > enemy:getHandcardNum() and enemy:objectName() ~= self.player:objectName() then
+					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies) and p:getHandcardNum() > enemy:getHandcardNum() and enemy:objectName() ~= self.player:objectName() then
 					slasher = p
 					target = enemy
 					break
@@ -2837,13 +2845,14 @@ PlusKurou_skill.getTurnUseCard = function(self, inclusive)
 		return sgs.Card_Parse("#PlusKurou_Card:.:")
 	end
 	local slash = sgs.Sanguosha:cloneCard("slash")
+	slash:deleteLater()
 	if (self.player:getWeapon() and self.player:getWeapon():isKindOf("Crossbow")) or self.player:hasSkill("paoxiao") then
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:canSlash(enemy, nil, true) and self:slashIsEffective(slash, enemy)
 				and not (enemy:hasSkill("kongcheng") and enemy:isKongcheng())
 				and not (enemy:hasSkills("fankui|guixin") and not self.player:hasSkill("paoxiao"))
 				and not enemy:hasSkills("fenyong|jilei|zhichi")
-				and sgs.isGoodTarget(enemy, self.enemies, self) and not self:slashProhibit(slash, enemy) and self.player:getHp() > 1 then
+				and self:isGoodTarget(enemy, self.enemies) and not self:slashProhibit(slash, enemy) and self.player:getHp() > 1 then
 				return sgs.Card_Parse("#PlusKurou_Card:.:")
 			end
 		end
@@ -4098,7 +4107,8 @@ sgs.ai_skill_choice["PlusMizhao_Card"] = function(self, choices, data)
 		local target = data:toPlayer()
 		if self.player:canSlash(target) and self:isEnemy(target) then
 			local slash = sgs.Sanguosha:cloneCard("slash")
-			if not self:slashProhibit(slash, target) and self.player:canSlash(target, slash, false) and sgs.isGoodTarget(target, self.enemies, self, true) then
+			slash:deleteLater()
+			if not self:slashProhibit(slash, target) and self.player:canSlash(target, slash, false) and self:isGoodTarget(target, self.enemies, slash) then
 				return "PlusMizhao_Use"
 			end
 		end
@@ -4167,6 +4177,7 @@ sgs.ai_skill_use_func["#PlusMizhao_Card"] = function(card, use, self)
 	local target
 	local friends = self.friends_noself
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	self.PlusMizhaoTarget = nil
 
 	local canMingceTo = function(player)
@@ -4179,7 +4190,7 @@ sgs.ai_skill_use_func["#PlusMizhao_Card"] = function(card, use, self)
 		if canMingceTo(friend) then
 			for _, enemy in ipairs(self.enemies) do
 				if friend:canSlash(enemy) and not self:slashProhibit(slash, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
-					and self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 					and enemy:objectName() ~= self.player:objectName() then
 					target = friend
 					self.PlusMizhaoTarget = enemy
@@ -4744,35 +4755,43 @@ function sgs.ai_skill_suit.SixGuicai(self)
 			end
 		elseif self:isFriend(who) and not (self:getFinalRetrial() == 2) then
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Diamond, 0)
+			newcard:deleteLater()
 			if judge:isGood(newcard) then
 				return sgs.Card_Diamond
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Heart, 0)
+			newcard:deleteLater()
 			if judge:isGood(newcard) then
 				return sgs.Card_Heart
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Spade, 0)
+			newcard:deleteLater()
 			if judge:isGood(newcard) then
 				return sgs.Card_Spade
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Club, 0)
+			newcard:deleteLater()
 			if judge:isGood(newcard) then
 				return sgs.Card_Club
 			end
 		elseif self:isEnemy(who) and not (self:getFinalRetrial() == 2) then
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Diamond, 0)
+			newcard:deleteLater()
 			if not judge:isGood(newcard) then
 				return sgs.Card_Diamond
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Heart, 0)
+			newcard:deleteLater()
 			if not judge:isGood(newcard) then
 				return sgs.Card_Heart
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Spade, 0)
+			newcard:deleteLater()
 			if not judge:isGood(newcard) then
 				return sgs.Card_Spade
 			end
 			local newcard = sgs.Sanguosha:cloneCard(judge.card:objectName(), sgs.Card_Club, 0)
+			newcard:deleteLater()
 			if not judge:isGood(newcard) then
 				return sgs.Card_Club
 			end
@@ -4934,6 +4953,8 @@ sgs.ai_skill_use["@@SixMingduan"] = function(self, prompt)
 	local can_invoke = false
 	local target = self.room:getCurrent()
 	local slash2 = sgs.Sanguosha:cloneCard("slash")
+	slash2:deleteLater()
+	
 	if self:isEnemy(target) then
 		if target:isJilei(slash2) then can_invoke = true end
 
@@ -5364,9 +5385,10 @@ sgs.ai_skill_use_func["#SixPaoxiaoCard"] = function(card, use, self)
 	self:sort(self.enemies, "defense")
 	self.MingceTarget = nil
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:canSlash(enemy, slash) and not self:slashProhibit(slash, enemy)
-			and self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+			and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 			and enemy:objectName() ~= self.player:objectName() then
 			self.MingceTarget = enemy
 			break
@@ -5604,9 +5626,11 @@ sgs.ai_skill_cardask["@SixWujun"] = function(self, data, pattern, target, target
 
 		self:sortByKeepValue(cards)
 		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()
 		for _, card in ipairs(cards) do
 			if self:getKeepValue(card, cards) <= self:getKeepValue(slash, cards) then
 				local black_slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_SuitToBeDecided, -1)
+				black_slash:deleteLater()
 				black_slash:addSubcard(card)
 				if self:slashIsEffective(black_slash, target) then
 					use_card = card
@@ -5952,6 +5976,7 @@ function sgs.ai_cardsview_valuable.SixChunlao(self, class_name, player)
 		local dying = player:getRoom():getCurrentDyingPlayer()
 		if dying then
 			local analeptic = sgs.Sanguosha:cloneCard("analeptic")
+			analeptic:deleteLater()
 			if dying:isLocked(analeptic) then return nil end
 
 			local give_card = {}
@@ -6085,13 +6110,14 @@ sgs.ai_skill_use_func["#SixMiBian"] = function(card, use, self)
 	self:sort(self.enemies, "handcard")
 	local max = 0
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	for _, enemy in ipairs(self.enemies) do
 		local x = 0
 		if self.player:inMyAttackRange(enemy) then
 			for _, friend in ipairs(self.friends) do
 				if friend:inMyAttackRange(enemy) then
 					if not friend:isKongcheng() and not self:slashProhibit(slash, enemy, friend)
-						and self:slashIsEffective(slash, enemy, friend) and sgs.isGoodTarget(enemy, self.enemies, self) then
+						and self:slashIsEffective(slash, enemy, friend) and self:isGoodTarget(enemy, self.enemies, slash) then
 						x = x + 1
 					end
 				end
@@ -6144,7 +6170,8 @@ end
 sgs.ai_skill_cardask["@SixMiBian"] = function(self, data, pattern, target)
 	local dest = data:toPlayer()
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-	if dest and not self:slashProhibit(slash, dest, self.player) and self:isEnemy(dest) and self:slashIsEffective(slash, dest, self.player) and sgs.isGoodTarget(dest, self.enemies, self) then
+	slash:deleteLater()
+	if dest and not self:slashProhibit(slash, dest, self.player) and self:isEnemy(dest) and self:slashIsEffective(slash, dest, self.player) and self:isGoodTarget(dest, self.enemies, slash) then
 		local cards = sgs.QList2Table(self.player:getCards("h"))
 		self:sortByKeepValue(cards)
 		for _, card in ipairs(cards) do
@@ -6373,6 +6400,7 @@ sgs.ai_skill_use["@@SevenKanLuan"] = function(self, prompt, method)
 
 
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	local dummyuse = { isDummy = true, to = sgs.SPlayerList() }
 	self:useBasicCard(slash, dummyuse)
 	local targets = {}
@@ -6760,7 +6788,8 @@ sgs.ai_skill_use["@@SevenYingYong"] = function(self, prompt)
 
 	for _, enemy in ipairs(self.enemies) do
 		local duel = sgs.Sanguosha:cloneCard("duel")
-		local eff = self:hasTrickEffective(duel, enemy, self.player) and sgs.isGoodTarget(enemy, self.enemies, self)
+		duel:deleteLater()
+		local eff = self:hasTrickEffective(duel, enemy, self.player) and self:isGoodTarget(enemy, self.enemies, duel)
 
 		if self.player:isProhibited(enemy, duel) then
 		elseif eff then
@@ -6773,7 +6802,8 @@ sgs.ai_skill_use["@@SevenYingYong"] = function(self, prompt)
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
 		local duel = sgs.Sanguosha:cloneCard("duel")
-		local eff = self:hasTrickEffective(duel, enemy, self.player) and sgs.isGoodTarget(enemy, self.enemies, self)
+		duel:deleteLater()
+		local eff = self:hasTrickEffective(duel, enemy, self.player) and self:isGoodTarget(enemy, self.enemies, duel)
 
 		if self.player:isProhibited(enemy, duel) then
 		elseif eff and def < 8 then

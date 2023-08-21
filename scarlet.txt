@@ -6,7 +6,6 @@ Retrial
 
 
 test:
-newstar
 new
 
 audio:
@@ -14,7 +13,7 @@ du
 lubu
 
 ai:
-wolf
+new
 
 code:
 self:isGoodTarget

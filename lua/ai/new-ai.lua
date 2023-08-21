@@ -904,8 +904,9 @@ sgs.ai_skill_invoke["luazhenshe"] = function(self, data)
 	return false
 end
 
+sgs.ai_need_damaged.luajilue = sgs.ai_need_damaged.fangzhu 
 
-
+sgs.ai_can_damagehp.luajilue = sgs.ai_can_damagehp.jieming
 
 sgs.ai_skill_choice.luajilue = function(self, choice)
 	local data = self.room:getTag("CurrentDamageStruct")
