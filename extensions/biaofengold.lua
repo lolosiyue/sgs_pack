@@ -364,9 +364,9 @@ FiveYingzhan_Count = sgs.CreateTriggerSkill{
 		if damage.nature == sgs.DamageStruct_Fire then
 			if source and source:isAlive() then
 				if source:objectName() == room:getCurrent():objectName() then
-					if source:getMark("FiveYingzhan") == 0 then
+					if source:getMark("FiveYingzhan") == 0 and source:hasSkill("FiveYingzhan") then
 						room:setPlayerFlag(source, "FiveYingzhan_Damage")
-						room:setPlayerMark(source, "&FiveYingzhan-Clear", 1)
+						room:setPlayerMark(source, "&FiveYingzhan", 1)
 					end
 				end
 			end
@@ -1150,6 +1150,7 @@ FourJiaozhao_Card = sgs.CreateSkillCard{
 		local choice = room:askForChoice(source, self:objectName(), table.concat(LordSkills, "+"))
 		local skill = sgs.Sanguosha:getSkill(choice)
 		room:handleAcquireDetachSkills(source, choice)
+		room:setPlayerMark(source, "&FourJiaozhao+"..choice:objectName(), 1)
 		local jiemingEX = sgs.Sanguosha:getTriggerSkill(choice)
 		if choice ~= "songwei" and choice ~= "ruoyu" then
 			--jiemingEX:trigger(sgs.GameStart, room, source, sgs.QVariant())
@@ -1348,6 +1349,7 @@ FourXuehen = sgs.CreateTriggerSkill{
 						room:drawCards(xiahou, 1, self:objectName())
 						if xiahou:canSlash(player, nil, false) then
 							local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+							slash:deleteLater()
 							slash:setSkillName(self:objectName())
 							local card_use = sgs.CardUseStruct()
 							card_use.from = xiahou
