@@ -548,7 +548,7 @@ sgs.ai_need_damaged.FourFenyong = function (self, attacker, player)
     if self:isEnemy(enemy) then
 		local def = sgs.getDefenseSlash(enemy, self)
 		local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-		local eff = self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 
 		if self.player:canSlash(enemy, nil, false) and not self:slashProhibit(nil, enemy) and eff and def < 6 then
 			return true
@@ -574,7 +574,7 @@ sgs.ai_skill_invoke.FourXuehen = function(self, data)
     if self:isEnemy(current) then
         local def = sgs.getDefenseSlash(current, self)
         local slash = sgs.Sanguosha:cloneCard("slash")
-        local eff = self:slashIsEffective(slash, current) and sgs.isGoodTarget(current, self.enemies, self)
+        local eff = self:slashIsEffective(slash, current) and self:isGoodTarget(current, self.enemies, slash)
 
         if self.player:canSlash(current, nil, false) and not self:slashProhibit(nil, current) and eff and def < 6 then
             return true

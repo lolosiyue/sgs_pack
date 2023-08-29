@@ -671,7 +671,8 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 		for _, enemy in ipairs(self.enemies) do
 			local def = sgs.getDefenseSlash(enemy)
 			local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-			local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and sgs.isGoodTarget(enemy, self.enemies, self)
+			slash:deleteLater()
+			local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and self:isGoodTarget(enemy, self.enemies, slash)
 			if zhijiangwei:canSlash(enemy, slash) and not self:slashProhibit(slash, enemy, zhijiangwei) and eff and def < 4 then
 				isGood = true
 			end
@@ -862,7 +863,9 @@ sgs.ai_skill_playerchosen["ask_2"] = function(self, targets)
 	return targetlist[1]
 end
 
-
+function sgs.ai_armor_value.luaqinglong(card)
+	if  card and card:isKindOf("Blade") then return 4 end
+end
 
 
 

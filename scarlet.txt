@@ -32,6 +32,8 @@ ai_target_revises
 use.to
 ai_useto_revises
 
+ai_use_revises
+
 card priority
 ai_card_priority
 
@@ -56,4 +58,11 @@ ai_playerchosen_intention
 enabled_at_play = function(self, player)
 		return sgs.Self:hasFlag("jx") ->player
 	end,
+
+function sgs.ai_armor_value 用咩裝
+
+hasBuquEffect
+hasJueqingEffect
+hasManjuanEffect
+canNiepan
 

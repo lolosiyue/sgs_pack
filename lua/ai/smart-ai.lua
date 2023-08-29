@@ -7428,6 +7428,7 @@ end
 function hasBuquEffect(player)
 	return player:hasSkill("buqu") and player:getPile("buqu"):length() <= 4
 		or player:hasSkill("nosbuqu") and player:getPile("nosbuqu"):length() <= 4
+		or player:hasSkill("PlusBuqu") and player:getPile("Plushurt"):length() <= 4 --add
 end
 
 function canNiepan(player)

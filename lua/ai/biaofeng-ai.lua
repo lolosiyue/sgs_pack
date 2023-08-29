@@ -6,9 +6,12 @@ sgs.ai_skill_use["@PlusJianxiong"] = function(self, prompt)
 
 	if dest:getHp() <= 1 then
 		if dest:getRole() == "rebel" and self:getOverflow() then
+
 			for _, friend in ipairs(self.friends_noself) do
 				if friend then
-					if not friend:hasSkill("jueqing") then
+					if not hasJueqingEffect(friend, dest) then
+
+					//if not friend:hasSkill("jueqing") then
 						target = friend
 					end
 				end
@@ -62,6 +65,15 @@ sgs.ai_skill_choice.PlusWulve = function(self, choices, data)
 	local items = choices:split("+")
 	if choice1 then return choice1 end
 	return items[1]
+end
+sgs.ai_target_revises.PlusWulve = sgs.ai_target_revises.jianxiong
+
+sgs.ai_can_damagehp.PlusWulve = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return card:isKindOf("Duel") or card:isKindOf("AOE") or to:getLostHp() > 2
+	end
 end
 
 sgs.ai_skill_invoke.PlusLangmou = sgs.ai_skill_invoke.fankui
@@ -398,7 +410,7 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 		if self:isEnemy(use.from) or (self:isFriend(use.from) and self.role == "loyalist" and not use.from:hasSkill("jueqing") and use.from:isLord() and self.player:getHp() == 1) then
 			if use.card:isKindOf("Slash") then
 				if not self:slashIsEffective(use.card, self.player, use.from) then return "PlusGanglie_cancel" end
-				if self:hasHeavySlashDamage(use.from, use.card, self.player) then return "PlusGanglie_choice1" end
+				if self:hasHeavyDamage(use.from, use.card, self.player) then return "PlusGanglie_choice1" end
 
 				local jink_num = self:getExpectedJinkNum(use)
 				local hasHeart = false
@@ -503,7 +515,7 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 			end
 			if use.card:isKindOf("Slash") then
 				if not self:slashIsEffective(use.card, use.from, use.from) then return "PlusGanglie_cancel" end
-				if self:hasHeavySlashDamage(use.from, use.card, use.from) then return "PlusGanglie_choice2" end
+				if self:hasHeavyDamage(use.from, use.card, use.from) then return "PlusGanglie_choice2" end
 
 				--local jink_num = self:getExpectedJinkNum(use)
 
@@ -744,7 +756,15 @@ sgs.PlusLuoyi_keep_value = {
 	DefensiveHorse = 4
 }
 
+sgs.ai_ajustdamage_from.PlusLuoyi = function(self, from, to, card, nature)
+	if (card:isKindOf("Slash") or card:isKindOf("Duel")) and from:hasFlag("PlusLuoyi") and not from:hasEquip()
+	then
+		return 1
+	end
+end
+
 sgs.ai_skill_invoke.PlusHuwei = function(self, data)
+	if self.player:getHp() == 1 then return false end
 	local dying = 0
 	local handang = self.room:findPlayerBySkillName("nosjiefan")
 	for _, aplayer in sgs.qlist(self.room:getAlivePlayers()) do
@@ -1040,7 +1060,7 @@ sgs.ai_skill_use["@PlusYizhong"] = function(self, prompt, method)
 			local slash = sgs.Sanguosha:cloneCard("slash")
 			slash:deleteLater()
 			local eff = self:slashIsEffective(slash, friend)
-			if use.card and self:hasHeavySlashDamage(use.from, use.card, friend) then
+			if use.card and self:hasHeavyDamage(use.from, use.card, friend) then
 				best_target = friend
 				break
 			end
@@ -1263,7 +1283,7 @@ sgs.ai_card_intention["#PlusYuanmou_Card"] = -60
 sgs.ai_skill_invoke.PlusDanji = function(self, data)
 	local damage = data:toDamage()
 	if damage.card and damage.card:isKindOf("Slash") then
-		if self:hasHeavySlashDamage(damage.from, damage.card, self.player) then
+		if self:hasHeavyDamage(damage.from, damage.card, self.player) then
 			return true
 		end
 	end
@@ -1310,7 +1330,13 @@ sgs.ai_card_intention["#PlusFuzheng_Card"] = function(self, card, from, tos)
 		sgs.updateIntention(from, current, intention)
 	end
 end
-
+sgs.ai_target_revises.PlusPingluan = function(to, card)
+	if card:isKindOf("SavageAssault")
+		or card:isKindOf("ArcheryAttack")
+	then
+		return true
+	end
+end
 
 local PlusZhiguo_skill = {}
 PlusZhiguo_skill.name = "PlusZhiguo"
@@ -1645,6 +1671,13 @@ sgs.ai_view_as.PlusWusheng = function(card, player, card_place)
 	end
 end
 
+sgs.ai_target_revises.PlusKongcheng = function(to, card)
+	if card:isKindOf("Slash")
+	then
+		return true
+	end
+end
+
 local PlusWusheng_skill = {}
 PlusWusheng_skill.name = "PlusWusheng"
 table.insert(sgs.ai_skills, PlusWusheng_skill)
@@ -1774,14 +1807,17 @@ sgs.ai_use_priority["PlusPaoxiao_Card"] = sgs.ai_use_priority.Slash + 0.2
 
 
 sgs.ai_skill_choice.PlusPaoxiao_Card = function(self, choices, data)
+	local extra = getChoice(choices, "PlusPaoxiao1")
+    local num = getChoice(choices, "PlusPaoxiao2")
+
 	local slashcount = self:getCardsNum("Slash")
 	if slashcount > 1 then
-		return "PlusPaoxiao2"
+		return num
 	end
 	if #self.enemies == 1 then
-		return "PlusPaoxiao2"
+		return num
 	end
-	return "PlusPaoxiao1"
+	return extra
 end
 
 
@@ -2042,7 +2078,9 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 	local target
 
 	local slashcount = self:getCardsNum("Slash")
-	for _, friend in ipairs(self.friends) do
+
+	self:sort(self.friends_noself, "handcard", true)
+		for _, friend in ipairs(self.friends_noself) do
 		if friend and not friend:isKongcheng() then
 			if self:needKongcheng(friend) then
 				target = friend
@@ -2107,9 +2145,10 @@ sgs.ai_use_priority["PlusQimou_Card"] = sgs.ai_use_priority.Slash + 0.1
 
 sgs.ai_skill_choice.PlusQimou = function(self, choices, data)
 	local target = data:toPlayer()
+	local give = getChoice(choices, "PlusQimou_Give")
 
 	if target and self:isFriend(target) then
-		return "PlusQimou_Give"
+		return give
 	end
 	return "PlusQimou_Refuse"
 end
@@ -2560,6 +2599,16 @@ sgs.ai_playerchosen_intention["#PlusZhiheng_to"] = function(self, from, to)
 	sgs.updateIntention(from, to, -30)
 end
 
+sgs.ai_use_revises.PlusZhiheng = function(self, card, use)
+	if card:isKindOf("Weapon")
+		and not card:isKindOf("Crossbow")
+		and self:getSameEquip(card)
+		and not self.player:hasUsed("#PlusZhiheng_Card")
+	then
+		return false
+	end
+end
+
 local PlusFanjian_skill = {
 	name = "PlusFanjian",
 	getTurnUseCard = function(self, inclusive)
@@ -2628,6 +2677,14 @@ sgs.ai_use_priority["PlusFanjian_Card"] = 0
 sgs.ai_use_value["PlusFanjian_Card"] = 0
 sgs.ai_card_intention["PlusFanjian_Card"] = 80
 
+sgs.ai_use_revises.PlusKeji = function(self, card, use)
+	if card:isKindOf("Slash") and not self:hasCrossbowEffect()
+		and (#self.enemies > 1 or #self.friends > 1) and self:getOverflow() > 1 and self.player:getMark("PlusDujiang") == 0 and self.player:hasSkill("PlusDujiang")
+	then
+		return false
+	end
+end
+
 local PlusDuocheng_skill = {}
 PlusDuocheng_skill.name = "PlusDuocheng"
 table.insert(sgs.ai_skills, PlusDuocheng_skill)
@@ -2691,9 +2748,6 @@ sgs.ai_skill_invoke["#PlusKeji_Jink"] = function(self, data)
 		if self.player:getHp() > enemy_num and enemy_num <= 1 then return false end
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
-	if self.player:hasFlag("dahe") then return false end
-	if sgs.hujiasource and (not self:isFriend(sgs.hujiasource) or sgs.hujiasource:hasFlag("dahe")) then return false end
-	if sgs.lianlisource and (not self:isFriend(sgs.lianlisource) or sgs.lianlisource:hasFlag("dahe")) then return false end
 	if self:getDamagedEffects(self.player, nil, true) or self:needToLoseHp(self.player, nil, true, true) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 
@@ -2830,6 +2884,17 @@ sgs.ai_skill_cardask["@PlusQixi_prompt"] = function(self, data, pattern, target)
 	return "."
 end
 
+sgs.ai_use_revises.PlusQixi = function(self, card, use)
+	if card:isKindOf("EquipCard")
+		and card:isBlack()
+	then
+		same = self:getSameEquip(card)
+		if same and same:isBlack()
+		then
+			return false
+		end
+	end
+end
 
 local PlusKurou_skill = {}
 PlusKurou_skill.name = "PlusKurou"
@@ -3054,7 +3119,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 		end
 	end
 
-	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
+	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
 		and not self:getCardId("Peach") and not self:getCardId("Analeptic") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) then
@@ -3066,7 +3131,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 		end
 	end
 
-	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and not self:getCardId("Jink") then
+	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and not self:getCardId("Jink") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) or (self:hasEightDiagramEffect(friend) and getCardsNum("Jink", friend) >= 1) then
 				if not (source and source:objectName() == friend:objectName()) then
@@ -3432,7 +3497,7 @@ sgs.ai_skill_use["@PlusJiahuo"] = function(self, prompt, method)
 		end
 	end
 
-	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
+	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
 		and not self:getCardId("Peach") and not self:getCardId("Analeptic") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) then
@@ -3444,7 +3509,7 @@ sgs.ai_skill_use["@PlusJiahuo"] = function(self, prompt, method)
 		end
 	end
 
-	if (self:isWeak() or self:hasHeavySlashDamage(source, slash)) and not self:getCardId("Jink") then
+	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and not self:getCardId("Jink") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) or (self:hasEightDiagramEffect(friend) and getCardsNum("Jink", friend) >= 1) then
 				if not (source and source:objectName() == friend:objectName()) then
@@ -3664,9 +3729,34 @@ PlusSheji_skill.getTurnUseCard = function(self)
 end
 sgs.ai_use_priority.PlusSheji_skill = sgs.ai_use_priority.Slash - 0.1
 
+sgs.ai_use_revises.PlusMafei = function(self, card, use)
+	if card:isKindOf("EquipCard")
+		and card:isRed()
+	then
+		same = self:getSameEquip(card)
+		if same and same:isRed()
+		then
+			return false
+		end
+	end
+end
 
+sgs.ai_target_revises.PlusMafei = function(to, card)
+	if (card:isKindOf("Slash")
+		or card:isNDTrick()) and to:hasFlag("PlusMafei")
+	then
+		return true
+	end
+end
 
+sgs.PlusMafei_suit_value = {
+	heart = 6,
+	diamond = 6
+}
 
+sgs.ai_cardneed.PlusMafei = function(to, card)
+	return card:isRed()
+end
 
 sgs.ai_skill_cardask["@PlusMafei_Prompt"] = function(self, data, pattern, target, target2)
 	local dying = data:toDying()
@@ -3685,6 +3775,14 @@ sgs.ai_skill_cardask["@PlusMafei_Prompt"] = function(self, data, pattern, target
 		end
 	end
 	return "."
+end
+
+sgs.ai_use_revises.PlusXuanhu = function(self, card, use)
+	if card:isKindOf("Slash") and self:isWeak()
+		and self:getOverflow() <= 0
+	then
+		return false
+	end
 end
 
 local PlusXuanhu_skill = {}
@@ -4143,7 +4241,7 @@ PlusMizhao_skill.getTurnUseCard = function(self)
 						local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
 						self:useBasicCard(hcard, dummy_use)
 						if dummy_use and dummy_use.to and (dummy_use.to:length() == 0
-								or dummy_use.to:length() == 1 and not self:hasHeavySlashDamage(self.player, hcard, dummy_use.to:first())) then
+								or dummy_use.to:length() == 1 and not self:hasHeavyDamage(self.player, hcard, dummy_use.to:first())) then
 							table.insert(use_cards, hcard:getEffectiveId())
 						end
 					end
@@ -5456,7 +5554,7 @@ sgs.ai_skill_use["@@SixLongdan1"] = function(self, data, method)
 		local def = sgs.getDefense(target)
 		local slash = use.card
 		local eff = self:slashIsEffective(slash, target)
-		if use.card and self:hasHeavySlashDamage(use.from, use.card, target) then
+		if use.card and self:hasHeavyDamage(use.from, use.card, target) then
 			shouldUse = true
 		end
 		if not use.from:canSlash(target, slash, false) then
