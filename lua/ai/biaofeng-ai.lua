@@ -3,15 +3,12 @@ sgs.ai_skill_use["@PlusJianxiong"] = function(self, prompt)
 	local dest = damage.to
 	if not dest or not self:isEnemy(dest) then return "." end
 	local target
-
 	if dest:getHp() <= 1 then
 		if dest:getRole() == "rebel" and self:getOverflow() then
-
 			for _, friend in ipairs(self.friends_noself) do
 				if friend then
 					if not hasJueqingEffect(friend, dest) then
-
-					//if not friend:hasSkill("jueqing") then
+						--if not friend:hasSkill("jueqing") then
 						target = friend
 					end
 				end
@@ -193,10 +190,12 @@ sgs.ai_skill_use["@PlusGuicai2"] = function(self, prompt)
 	return "."
 end
 
-sgs.ai_target_revises.PlusTaohui = function(to,card,self,use)
+sgs.ai_target_revises.PlusTaohui = function(to, card, self, use)
 	if card:isNDTrick() and to:getHandcardNum() <= to:getMaxHp()
-	and self:getCardsNum("BasicCard")-self:getCardsNum("Peach")<2
-	then return true end
+		and self:getCardsNum("BasicCard") - self:getCardsNum("Peach") < 2
+	then
+		return true
+	end
 end
 
 sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
@@ -1808,7 +1807,7 @@ sgs.ai_use_priority["PlusPaoxiao_Card"] = sgs.ai_use_priority.Slash + 0.2
 
 sgs.ai_skill_choice.PlusPaoxiao_Card = function(self, choices, data)
 	local extra = getChoice(choices, "PlusPaoxiao1")
-    local num = getChoice(choices, "PlusPaoxiao2")
+	local num = getChoice(choices, "PlusPaoxiao2")
 
 	local slashcount = self:getCardsNum("Slash")
 	if slashcount > 1 then
@@ -2080,7 +2079,7 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 	local slashcount = self:getCardsNum("Slash")
 
 	self:sort(self.friends_noself, "handcard", true)
-		for _, friend in ipairs(self.friends_noself) do
+	for _, friend in ipairs(self.friends_noself) do
 		if friend and not friend:isKongcheng() then
 			if self:needKongcheng(friend) then
 				target = friend
@@ -3743,7 +3742,7 @@ end
 
 sgs.ai_target_revises.PlusMafei = function(to, card)
 	if (card:isKindOf("Slash")
-		or card:isNDTrick()) and to:hasFlag("PlusMafei")
+			or card:isNDTrick()) and to:hasFlag("PlusMafei")
 	then
 		return true
 	end
@@ -5054,7 +5053,7 @@ sgs.ai_skill_use["@@SixMingduan"] = function(self, prompt)
 	local target = self.room:getCurrent()
 	local slash2 = sgs.Sanguosha:cloneCard("slash")
 	slash2:deleteLater()
-	
+
 	if self:isEnemy(target) then
 		if target:isJilei(slash2) then can_invoke = true end
 

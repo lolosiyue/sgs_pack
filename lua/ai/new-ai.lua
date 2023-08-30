@@ -512,14 +512,11 @@ sgs.ai_skill_invoke.luajiejiang = function(self, data)
 	end
 	local targets = self.room:getOtherPlayers(self.player)
 	local cardstr = sgs.ai_skill_use["@@luajiejiang"](self, "@luajiejiang")
-	if (sgs.ai_skill_playerchosen.luajiejiang(self, targets) ~= nil) and (cardstr:match("->")) then
+	if (sgs.ai_skill_playerchosen.luajiejiang(self, targets) ~= nil) or (cardstr:match("->")) then
 		return true
 	end
 	return false
 end
-
-
-
 
 sgs.ai_skill_playerchosen.luajiejiang = function(self, targets)
 	local targetlist = sgs.QList2Table(targets)
@@ -672,7 +669,8 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 			local def = sgs.getDefenseSlash(enemy)
 			local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 			slash:deleteLater()
-			local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and self:isGoodTarget(enemy, self.enemies, slash)
+			local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and
+				self:isGoodTarget(enemy, self.enemies, slash)
 			if zhijiangwei:canSlash(enemy, slash) and not self:slashProhibit(slash, enemy, zhijiangwei) and eff and def < 4 then
 				isGood = true
 			end
@@ -864,12 +862,8 @@ sgs.ai_skill_playerchosen["ask_2"] = function(self, targets)
 end
 
 function sgs.ai_armor_value.luaqinglong(card)
-	if  card and card:isKindOf("Blade") then return 4 end
+	if card and card:isKindOf("Blade") then return 4 end
 end
-
-
-
-
 
 sgs.ai_skill_invoke["@luaqibing"] = function(self, data)
 	local use = data:toCardUse()
@@ -907,7 +901,7 @@ sgs.ai_skill_invoke["luazhenshe"] = function(self, data)
 	return false
 end
 
-sgs.ai_need_damaged.luajilue = sgs.ai_need_damaged.fangzhu 
+sgs.ai_need_damaged.luajilue = sgs.ai_need_damaged.fangzhu
 
 sgs.ai_can_damagehp.luajilue = sgs.ai_can_damagehp.jieming
 

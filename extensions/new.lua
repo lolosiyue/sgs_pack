@@ -414,33 +414,32 @@ sgs.LoadTranslationTable {
 	["designer:luazhangjiao"] = "程春阳",
 }
 luaqiqi = sgs.General(extension, "luaqiqi", "wei", 4, true) --实现
-luajiejiangcard = sgs.CreateSkillCard
-	{
-		name = "luajiejiang",
-		target_fixed = false,
-		will_throw = false,
+luajiejiangcard = sgs.CreateSkillCard {
+	name = "luajiejiang",
+	target_fixed = false,
+	will_throw = false,
 
-		filter = function(self, targets, to_select)
-			if (#targets > 1) then return false end
+	filter = function(self, targets, to_select)
+		if (#targets > 1) then return false end
 
-			if (to_select == self) then return false end
+		if (to_select == self) then return false end
 
-			return not to_select:isAllNude()
-		end,
+		return not to_select:isAllNude()
+	end,
 
-		on_effect = function(self, effect)
-			local from = effect.from
-			local to = effect.to
-			local room = to:getRoom()
+	on_effect = function(self, effect)
+		local from = effect.from
+		local to = effect.to
+		local room = to:getRoom()
 
-			room:broadcastSkillInvoke("tuxi") --音效  ok
+		room:broadcastSkillInvoke("tuxi") --音效  ok
 
-			local card_id = room:askForCardChosen(from, to, "hej", "luajiejiang2_main")
-			--local card = sgs.Sanguosha:getCard(card_id)
-			--room:moveCardTo(card, from, sgs.Player_PlaceHand, false)
-			room:obtainCard(from, card_id)
-		end,
-	}
+		local card_id = room:askForCardChosen(from, to, "hej", "luajiejiang2_main")
+		--local card = sgs.Sanguosha:getCard(card_id)
+		--room:moveCardTo(card, from, sgs.Player_PlaceHand, false)
+		room:obtainCard(from, card_id)
+	end,
+}
 
 luajiejiangVS = sgs.CreateViewAsSkill
 	{

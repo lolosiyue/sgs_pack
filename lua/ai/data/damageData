@@ -87,7 +87,7 @@ olluanji:4,5,0
 mobilelianji:1,1,0,5
 xianzhou:1,0,0,0,0,0,0,0,0,0
 jinxuanbei:1,0,0,0
-langmie:2,2,1,2,1,0,0,1
+langmie:2,2,1,2,1,0,0,1,1,1
 yingjian:1,0
 tieti:1,0,1,0,0,0,1,1,0,0
 mtfuzhan:1,0,0
@@ -136,7 +136,7 @@ tenyearrende:1
 LuaLongzhen:1,7,0,0,0,0,1,1,0,0,0,0,1,0
 olfuman:1,0,0,0,0,1,2,0,1,0,0,0
 xingwu:2,0,0,0,0,0,0,0,2,0
-LuaLongzhen_o:1,1,1,1,1,0,4,2
+LuaLongzhen_o:1,1,1,1,1,0,4,2,1
 newzhendu:1
 mobilezhimiewu:1
 ov_xiongzheng:4,2
