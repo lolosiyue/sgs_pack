@@ -4969,7 +4969,9 @@ sgs.ai_skill_cardask["@SixHuwei"] = function(self, data)
 	end
 end
 
-
+function sgs.ai_armor_value.SixHuwei(card)
+	if not card then return 4 end
+end
 
 sgs.ai_skill_invoke.SixJushou = function(self, data)
 	if sgs.ai_skill_playerchosen.SixJushou(self, sgs.QList2Table(self.room:getOtherPlayers(self.player))) ~= nil then

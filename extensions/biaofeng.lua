@@ -1536,7 +1536,7 @@ sgs.LoadTranslationTable {
 	["SevenFengPing"] = "风评",
 	[":SevenFengPing"] = "出牌阶段限一次，你可以选择一名其他角色，令除其之外的角色各选择是否弃置一张红色/黑色手牌，然后其摸/弃置X张牌（X为这些角色以此法弃置的手牌数）。",
 	["SevenYueDan"] = "月旦",
-	[":SevenYueDan"] = "每当“风评”结算结束后，你可以获得因此技能而弃置的基本牌，然后将你的武将牌翻面，最后结束当前回合。",
+	[":SevenYueDan"] = "每当“风评”结算结束后，你可以获得因此技能而弃置的基本牌，然后将你的武将牌翻面，结束当前回合。",
 	["@SevenFengPing"] = "<b>风评</b>角色为 %dest <br>  选择是否弃置一张 %src 手牌",
 	["@SevenFengPing_Throw"] = "<b>风评</b><br>弃置 %src 张牌",
 
@@ -12671,6 +12671,7 @@ SixWujun = sgs.CreateTriggerSkill {
 							local prompt = string.format("@SixWujun:%s", liyan:objectName())
 							if room:askForCard(player, ".", prompt, data, self:objectName()) then
 								local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+								slash:deleteLater()
 								slash:setSkillName("SixWujun")
 								room:useCard(sgs.CardUseStruct(slash, player, liyan), false)
 							end
@@ -12740,6 +12741,7 @@ SixWuzhiCard = sgs.CreateSkillCard {
 		elseif choice == "SixWuzhiDiscard" then
 			room:setPlayerFlag(source, "SixWuzhi_InTempMoving")
 			local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+			dummy:deleteLater()
 			local card_ids = sgs.IntList()
 			local original_places = sgs.IntList()
 			for i = 0, 1, 1 do
@@ -13713,6 +13715,7 @@ SixMiBianCard = sgs.CreateSkillCard {
 						room:showCard(p, card:getEffectiveId())
 						local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 						slash:setSkillName(self:objectName())
+						slash:deleteLater()
 						local use = sgs.CardUseStruct()
 						use.from = p
 						use.to:append(targets[1])
@@ -15071,9 +15074,7 @@ SevenJieMing = sgs.CreateTriggerSkill {
 		else
 			damage.damage = damage.damage - 1
 		end
-		if damage.damage == 0 then
-			return true
-		end
+        damage.prevented = damage.damage < 1
 		data:setValue(damage)
 		return false
 	end
