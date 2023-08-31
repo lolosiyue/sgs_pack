@@ -79,9 +79,21 @@ sgs.card_value.s4_cloud_liegong = {
 }
 
 sgs.ai_ajustdamage_from.s4_cloud_liegong = function(self, from, to, card, nature)
-    if card and card:isKindOf("Slash") and to and (to:getHp() >= from:getHp() or to:getHp() <= from:getAttackRange())
+    if card and card:isKindOf("Slash") and to and (to:getHp() >= from:getHp() or to:getHp() <= from:getAttackRange()) and beFriend(to, from)
     then
         return 1
+    end
+end
+
+sgs.ai_use_revises.s4_cloud_yongyi = function(self,card,use)
+    local record = self.player:property("s4_cloud_yongyiRecords"):toString()
+    local suit = card:getSuitString()
+    local records
+    if (record) then
+        records = record:split(",")
+    end
+    if records and (not table.contains(records, suit) or not card:hasSuit()) then
+        sgs.ai_use_priority[card:getClassName()] = sgs.ai_use_priority[card:getClassName()]+5 end
     end
 end
 

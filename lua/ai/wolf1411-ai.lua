@@ -331,6 +331,25 @@ function SmartAI:useCardDrowning(card, use)
 	end
 end]]
 
+sgs.ai_ajustdamage_from.suzhan = function(self, from, to, card, nature)
+	if card and card:isKindOf("Slash") and to:getEquips():isEmpty()
+	then
+		return 1
+	end
+end
+
+sgs.ai_use_revises.shuiyan = function(self, card, use)
+	if card:isKindOf("EquipCard")
+	then
+		same = self:getSameEquip(card)
+		if same and same:getSuit() == card:getSuit()
+		then
+			return false
+		end
+	end
+end
+
+
 local shuiyan_skill = {}
 shuiyan_skill.name = "shuiyan"
 table.insert(sgs.ai_skills, shuiyan_skill)

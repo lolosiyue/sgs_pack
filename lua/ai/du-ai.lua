@@ -311,6 +311,13 @@ function sgs.ai_skill_pindian.duXiaoguo(minusecard, self, requestor)
     return self:getMaxCard()
 end
 
+sgs.ai_ajustdamage_from.duXiaoguo = function(self, from, to, card, nature)
+	if from:getMaxCard():getNumber() >= 10 and from:canPindian(to) and not beFriend(to, from)
+	then
+		return 1
+	end
+end
+
 local du_zhouxuan_skill = {}
 du_zhouxuan_skill.name = "du_zhouxuan"
 table.insert(sgs.ai_skills, du_zhouxuan_skill)

@@ -291,8 +291,6 @@ sgs.dynamic_value.damage_card["#luawu"] = true
 sgs.ai_use_priority["luawu"] = 6.8
 
 
-
-
 sgs.ai_skill_playerchosen.luafan = function(self, targets)
 	local mode = self.room:getMode()
 	if mode:find("_mini_17") or mode:find("_mini_19") or mode:find("_mini_20") or mode:find("_mini_26") then
@@ -368,6 +366,18 @@ end
 
 sgs.ai_cardneed.luafan = sgs.ai_cardneed.leiji
 
+sgs.ai_use_revises.luafan = function(self, card, use)
+	if card:isKindOf("EquipCard")
+		and card:getSuit() == sgs.Card_Spade and card:getNumber() <= 9 and card:getNumber() >= 2 and self:hasSkills(sgs.wizard_skill,self.player)
+	then
+		same = self:getSameEquip(card)
+		if same and same:getSuit() == sgs.Card_Spade and same:getNumber() <= 9 and same:getNumber() >= 2
+		then
+			return false
+		end
+	end
+end
+
 sgs.ai_need_damaged.luaxumou = function(self, attacker, player)
 	if not player:hasSkill("chanyuan") and player:hasSkill("luaxumou") and player:getMark("luaxumou") == 0 and self:getEnemyNumBySeat(self.room:getCurrent(), player, player, true) < player:getHp()
 		and (player:getHp() > 2 or player:getHp() == 2 and (player:faceUp() or player:hasSkill("guixin") or player:hasSkill("toudu") and not player:isKongcheng())) then
@@ -408,9 +418,6 @@ sgs.ai_view_as.luaqiyi = function(card, player, card_place)
 		return ("jink:luaqiyi[%s:%s]=%d+%d"):format("to_be_decided", 0, two_cards[1], two_cards[2])
 	end
 end
-
-
-
 
 
 
@@ -506,6 +513,17 @@ function sgs.ai_cardneed.luaguidao(to, card, self)
 	end
 end
 
+
+sgs.ai_useto_revises.luaguidao = function(self,card,use,p)
+	if card:isKindOf("Indulgence") or card:isKindOf("SupplyShortage")
+	then
+		if self:isFriend(p) and p:getCardCount()>2
+		then use.card = card return end
+		return false
+	end
+end
+
+
 sgs.ai_skill_invoke.luajiejiang = function(self, data)
 	if #self.enemies == 0 then
 		return false
@@ -567,9 +585,6 @@ sgs.ai_skill_playerchosen.luajiejiang = function(self, targets)
 
 	return nil
 end
-
-
-
 
 sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 	self:sort(self.enemies, "handcard_defense")
@@ -730,7 +745,6 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 	return parseTuxiCard()
 end
 
-
 sgs.ai_skill_cardchosen["luajiejiang2_main"] = function(self, who, flags)
 	local equipments = sgs.QList2Table(who:getEquips())
 	equipments = sgs.reverse(equipments)
@@ -865,6 +879,18 @@ function sgs.ai_armor_value.luaqinglong(card)
 	if card and card:isKindOf("Blade") then return 4 end
 end
 
+sgs.ai_use_revises.luaqinglong = function(self, card, use)
+	if card and card:isKindOf("Weapon")
+	then
+		same = self:getSameEquip(card)
+		if same and same:isKindOf("Blade")
+		then
+			return false
+		end
+	end
+end
+
+
 sgs.ai_skill_invoke["@luaqibing"] = function(self, data)
 	local use = data:toCardUse()
 	local card = use.card
@@ -882,6 +908,13 @@ sgs.ai_skill_invoke["luaqibing"] = function(self, data)
 
 
 	return true
+end
+
+sgs.ai_ajustdamage_from.luaqibing = function(self, from, to, card, nature)
+	if from:getPile("luaqibingcards"):length() > 0 and not beFriend(to, from)
+	then
+		return 1
+	end
 end
 
 
@@ -944,6 +977,9 @@ sgs.ai_skill_use_func["#luahuntian"] = function(card, use, self)
 	for _, acard in ipairs(cards) do
 		if acard:getSuit() == sgs.Card_Spade and #needed < 5 then
 			table.insert(needed, acard:getEffectiveId())
+			if #needed == 5 then
+				break
+			end
 		end
 	end
 	if targets and needed and #needed == 5 then
@@ -958,12 +994,9 @@ sgs.ai_use_priority["luahuntian"]    = 9
 sgs.ai_card_intention["luahuntian"]  = 60
 
 
-
-sgs.ai_skill_invoke["lualianji"] = function(self, data)
+sgs.ai_skill_invoke["luajiaodi"] = function(self, data)
 	return true
 end
-
-
 
 luafentian_skill = {}
 luafentian_skill.name = "luafentian"
@@ -987,6 +1020,9 @@ sgs.ai_skill_use_func["#luafentian"] = function(card, use, self)
 	for _, acard in ipairs(cards) do
 		if acard:getSuit() == sgs.Card_Spade and #needed < 1 then
 			table.insert(needed, acard:getEffectiveId())
+			if #needed == 1 then 
+				break 
+			end
 		end
 	end
 	if targets and needed and #needed == 1 then
@@ -1033,3 +1069,7 @@ end
 sgs.ai_use_priority["luajice"] = 7
 sgs.ai_use_value["luajice"] = 7
 sgs.ai_card_intention["luajice"] = 80
+
+sgs.ai_skill_invoke["lualianji"] = function(self, data)
+	return true
+end

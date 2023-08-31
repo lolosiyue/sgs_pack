@@ -629,7 +629,7 @@ sgs.LoadTranslationTable {
 	["luaxiuyang"] = "无隙",
 	["@distance"] = "遗托to",
 	["@distance_from"] = "遗托from",
-	["ask_1"] = "这名角色可以摸3张牌,然后由你指定另一名角色,则你指定的第一名角色和第二名角色的距离始终视为1。",
+	["ask_1"] = "这名角色可以摸2张牌,然后由你指定另一名角色,则你指定的第一名角色和第二名角色的距离始终视为1。",
 	["ask_2"] = "请指定另一名角色",
 	["luaJC_target"] = "遗托目标",
 	["luaJC"] = "遗托",
@@ -639,7 +639,7 @@ sgs.LoadTranslationTable {
 	["$luaxiuyang"] = "我，永不背弃!",
 	["$luaJC"] = "知天易,逆天难。",
 	[":luaxiuyang"] = "<font color=\"blue\"><b>锁定技，</b></font>当你的武将正面朝上时你拥有“空城”“看破”，背面朝上时你拥有“无言”“八阵”。",
-	[":luaJC"] = "<font color=\"red\"><b>限定技，</b></font>当你处于濒死状态时，你可以放弃求桃，然后指定两名角色则:第一名角色摸两张牌，同时第一名角色和第二名角色的距离始终为1。",
+	[":luaJC"] = "<font color=\"red\"><b>限定技，</b></font>当你处于濒死状态时，你可以放弃求桃，然后指定两名角色则:第一名角色摸两张牌，第一名角色和第二名角色的距离始终为1。",
 	["~luazg"] = "天命有旋转，地星而应之。",
 	["#luazg"] = "迟暮的丞相",
 	["designer:luazg"] = "程春阳",
@@ -1075,10 +1075,6 @@ luajiaodi = sgs.CreateTriggerSkill {
 				room:obtainCard(player, dummy2)
 			end
 
-
-
-
-
 			if player:getPile("luamou"):length() >= 8 then
 				room:loseMaxHp(player, player:getMaxHp() - 1)
 				room:handleAcquireDetachSkills(player, "-luajiaodi")
@@ -1287,13 +1283,11 @@ lualianji = sgs.CreateTriggerSkill {
 	events = { sgs.CardsMoveOneTime },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		local erzhang = room:findPlayerBySkillName(self:objectName())
 		local current = room:getCurrent()
 		local move = data:toMoveOneTime()
 		local source = move.from
 		if source then
 			if player:objectName() == source:objectName() then
-				if erzhang and erzhang:objectName() ~= current:objectName() then
 					if current:getPhase() == sgs.Player_Discard then
 						local tag = room:getTag("lualianjiToGet")
 						local guzhengToGet = tag:toString()
@@ -1332,8 +1326,6 @@ lualianjiGet = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		if not player:isDead() then
 			local room = player:getRoom()
-			local erzhang = room:findPlayerBySkillName(self:objectName())
-			if erzhang then
 				local tag = room:getTag("lualianjiToGet")
 				local guzheng_cardsToGet
 				if tag then
@@ -1356,6 +1348,7 @@ lualianjiGet = sgs.CreateTriggerSkill {
 						end
 					end
 				end
+				for _,erzhang in sgs.qlist(room:findPlayerBySkillName(self:objectName())) do
 				if cardsToGet:length() > 0 and erzhang:getPile("Plianji"):length() < 9 then
 					local ai_data = sgs.QVariant()
 					ai_data:setValue(cards:length())
@@ -1371,6 +1364,8 @@ lualianjiGet = sgs.CreateTriggerSkill {
 						log.card_str = sgs.Sanguosha:getCard(to_back):toString()
 						room:sendLog(log)
 						erzhang:addToPile("Plianji", sgs.Sanguosha:getCard(to_back))
+						cardsToGet:removeOne(to_back)
+
 						--erzhang:gainMark("@MAXH_mark", 1)
 					end
 				end

@@ -117,13 +117,14 @@ function setInitialTables()
 		"fangzhu|nosenyuan|langgu|quanji|zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 
 	sgs.wizard_skill = "nosguicai|guicai|guidao|olguidao|jilve|tiandu|luoying|noszhenlie|huanshi|jinshenpin" ..
-		"|LuaGuizha" --add
+		"|LuaGuizha|luaguidao" --add
 	sgs.wizard_harm_skill = "nosguicai|guicai|guidao|olguidao|jilve|jinshenpin|midao|zhenyi" ..
-		"|LuaGuizha" --add
+		"|LuaGuizha|luaguidao" --add
 	sgs.priority_skill = "dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|" ..
 		"neofanjian|lijian|noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|" ..
 		"mingce|wansha|gongxin|jilve|anxu|qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|" ..
-		"xiansi|junxing|bifa|yanyu|shenxian|jgtianyun"
+		"xiansi|junxing|bifa|yanyu|shenxian|jgtianyun" ..
+		"|luamouce" --add
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
@@ -133,7 +134,7 @@ function setInitialTables()
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
 		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
-		"|s4_cloud_tuxi" --add
+		"|s4_cloud_tuxi|luafan" --add
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
@@ -141,12 +142,13 @@ function setInitialTables()
 		"|luaxiongfeng" --add
 
 	sgs.notActive_cardneed_skill = "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|leiji|nosleiji" ..
-		"qingjian|zhuhai|qinxue|jspdanqi|" .. sgs.dont_kongcheng_skill
+		"qingjian|zhuhai|qinxue|jspdanqi|" .. sgs.dont_kongcheng_skill ..
+		"|LuaGuizha|luaguidao" --add
 
 	sgs.cardneed_skill = sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill
 
 	sgs.drawpeach_skill = "tuxi|qiaobian" ..
-		"|duYinling" --add
+		"|duYinling|luajiejiang" --add
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong"
@@ -155,7 +157,9 @@ function setInitialTables()
 		"buqu|miji|" .. sgs.recover_hp_skill
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
-		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong"
+		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
+		"|LuaGuizha|luaguidao" --add
+		
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
 		"neoluoyi|longhun|newlonghun|shuijian|yinbing"
@@ -168,7 +172,7 @@ function setInitialTables()
 	sgs.double_slash_skill =
 		"paoxiao|tenyearpaoxiao|olpaoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|" ..
 		"qiangwu|luanji" ..
-		"|luajuao|s4_xianfeng" --add
+		"|luajuao|s4_xianfeng|luazhenshe|blood_hj" --add
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe"

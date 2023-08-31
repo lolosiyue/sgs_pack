@@ -343,6 +343,18 @@ sgs.ai_skill_invoke.LuaNixing = function(self, data)
 	return true
 end
 
+sgs.ai_use_revises.LuaDongcha = function(self, card, use)
+	if card:isKindOf("EquipCard")
+		and card:getSuit() == sgs.Card_Spade
+	then
+		same = self:getSameEquip(card)
+		if same and same:getSuit() == sgs.Card_Spade
+		then
+			return false
+		end
+	end
+end
+
 
 --星赵云
 local LuaLongzhen_skill = {}
