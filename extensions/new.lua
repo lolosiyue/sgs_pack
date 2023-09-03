@@ -973,7 +973,7 @@ luahuntian_card = sgs.CreateSkillCard
 				damage.to = effect.to
 				damage.nature = sgs.DamageStruct_Fire
 				room:damage(damage)
-				if from:canSlash(to, "he") then
+				if from:canDiscard(to, "he") then
 					local to_throw = room:askForCardChosen(from, to, "he", self:objectName())
 					local card = sgs.Sanguosha:getCard(to_throw)
 					room:throwCard(card, to, from);
@@ -1286,29 +1286,28 @@ lualianji = sgs.CreateTriggerSkill {
 		local current = room:getCurrent()
 		local move = data:toMoveOneTime()
 		local source = move.from
-		if source then
+		if source and current then
 			if player:objectName() == source:objectName() then
-					if current:getPhase() == sgs.Player_Discard then
-						local tag = room:getTag("lualianjiToGet")
-						local guzhengToGet = tag:toString()
-						if guzhengToGet == nil then
-							guzhengToGet = ""
-						end
-						for _, card_id in sgs.qlist(move.card_ids) do
-							local flag = bit32.band(move.reason.m_reason, sgs.CardMoveReason_S_MASK_BASIC_REASON)
-							if flag == sgs.CardMoveReason_S_REASON_DISCARD then
-								if source:objectName() == current:objectName() then
-									if guzhengToGet == "" then
-										guzhengToGet = tostring(card_id)
-									else
-										guzhengToGet = guzhengToGet .. "+" .. tostring(card_id)
-									end
+				if current:getPhase() == sgs.Player_Discard then
+					local tag = room:getTag("lualianjiToGet")
+					local guzhengToGet = tag:toString()
+					if guzhengToGet == nil then
+						guzhengToGet = ""
+					end
+					for _, card_id in sgs.qlist(move.card_ids) do
+						local flag = bit32.band(move.reason.m_reason, sgs.CardMoveReason_S_MASK_BASIC_REASON)
+						if flag == sgs.CardMoveReason_S_REASON_DISCARD then
+							if source:objectName() == current:objectName() then
+								if guzhengToGet == "" then
+									guzhengToGet = tostring(card_id)
+								else
+									guzhengToGet = guzhengToGet .. "+" .. tostring(card_id)
 								end
 							end
 						end
-						if guzhengToGet then
-							room:setTag("lualianjiToGet", sgs.QVariant(guzhengToGet))
-						end
+					end
+					if guzhengToGet then
+						room:setTag("lualianjiToGet", sgs.QVariant(guzhengToGet))
 					end
 				end
 			end
@@ -1326,30 +1325,30 @@ lualianjiGet = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		if not player:isDead() then
 			local room = player:getRoom()
-				local tag = room:getTag("lualianjiToGet")
-				local guzheng_cardsToGet
-				if tag then
-					guzheng_cardsToGet = tag:toString():split("+")
-				else
-					return false
-				end
+			local tag = room:getTag("lualianjiToGet")
+			local guzheng_cardsToGet
+			if tag then
+				guzheng_cardsToGet = tag:toString():split("+")
+			else
+				return false
+			end
 
-				room:removeTag("lualianjiToGet")
-				local cardsToGet = sgs.IntList()
-				local cards = sgs.IntList()
-				for i = 1, #guzheng_cardsToGet, 1 do
-					local card_data = guzheng_cardsToGet[i]
-					if card_data == nil then return false end
-					if card_data ~= "" then --弃牌阶段没弃牌则字符串为""
-						local card_id = tonumber(card_data)
-						if room:getCardPlace(card_id) == sgs.Player_DiscardPile then
-							cardsToGet:append(card_id)
-							cards:append(card_id)
-						end
+			room:removeTag("lualianjiToGet")
+			local cardsToGet = sgs.IntList()
+			local cards = sgs.IntList()
+			for i = 1, #guzheng_cardsToGet, 1 do
+				local card_data = guzheng_cardsToGet[i]
+				if card_data == nil then return false end
+				if card_data ~= "" then --弃牌阶段没弃牌则字符串为""
+					local card_id = tonumber(card_data)
+					if room:getCardPlace(card_id) == sgs.Player_DiscardPile then
+						cardsToGet:append(card_id)
+						cards:append(card_id)
 					end
 				end
-				for _,erzhang in sgs.qlist(room:findPlayerBySkillName(self:objectName())) do
-				if cardsToGet:length() > 0 and erzhang:getPile("Plianji"):length() < 9 then
+			end
+			for _, erzhang in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if erzhang:getPhase() ~= sgs.Player_Discard and cardsToGet:length() > 0 and erzhang:getPile("Plianji"):length() < 9 then
 					local ai_data = sgs.QVariant()
 					ai_data:setValue(cards:length())
 					if erzhang:askForSkillInvoke("lualianji", ai_data) then

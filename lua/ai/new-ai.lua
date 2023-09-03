@@ -368,7 +368,7 @@ sgs.ai_cardneed.luafan = sgs.ai_cardneed.leiji
 
 sgs.ai_use_revises.luafan = function(self, card, use)
 	if card:isKindOf("EquipCard")
-		and card:getSuit() == sgs.Card_Spade and card:getNumber() <= 9 and card:getNumber() >= 2 and self:hasSkills(sgs.wizard_skill,self.player)
+		and card:getSuit() == sgs.Card_Spade and card:getNumber() <= 9 and card:getNumber() >= 2 and self:hasSkills(sgs.wizard_skill, self.player)
 	then
 		same = self:getSameEquip(card)
 		if same and same:getSuit() == sgs.Card_Spade and same:getNumber() <= 9 and same:getNumber() >= 2
@@ -513,12 +513,14 @@ function sgs.ai_cardneed.luaguidao(to, card, self)
 	end
 end
 
-
-sgs.ai_useto_revises.luaguidao = function(self,card,use,p)
+sgs.ai_useto_revises.luaguidao = function(self, card, use, p)
 	if card:isKindOf("Indulgence") or card:isKindOf("SupplyShortage")
 	then
-		if self:isFriend(p) and p:getCardCount()>2
-		then use.card = card return end
+		if self:isFriend(p) and p:getCardCount() > 2
+		then
+			use.card = card
+			return
+		end
 		return false
 	end
 end
@@ -948,7 +950,7 @@ sgs.ai_skill_choice.luajilue = function(self, choice)
 		return "c2"
 	end
 
-	if (sgs.ai_skill_invoke.fankui(self, data:toDamage().from)) then
+	if (sgs.ai_skill_invoke.fankui(self, sgs.QVariant(data:toDamage().from))) then
 		return "c1"
 	end
 	return "c4"
@@ -1020,8 +1022,8 @@ sgs.ai_skill_use_func["#luafentian"] = function(card, use, self)
 	for _, acard in ipairs(cards) do
 		if acard:getSuit() == sgs.Card_Spade and #needed < 1 then
 			table.insert(needed, acard:getEffectiveId())
-			if #needed == 1 then 
-				break 
+			if #needed == 1 then
+				break
 			end
 		end
 	end

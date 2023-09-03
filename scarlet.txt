@@ -6,7 +6,6 @@ Retrial
 
 
 test:
-new
 SixJushou
 
 audio:
@@ -14,7 +13,6 @@ du
 lubu
 
 ai:
-new
 SixJushou
 
 code:

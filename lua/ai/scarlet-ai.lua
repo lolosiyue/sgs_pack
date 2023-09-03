@@ -85,7 +85,7 @@ sgs.ai_ajustdamage_from.s4_cloud_liegong = function(self, from, to, card, nature
     end
 end
 
-sgs.ai_use_revises.s4_cloud_yongyi = function(self,card,use)
+sgs.ai_use_revises.s4_cloud_yongyi = function(self, card, use)
     local record = self.player:property("s4_cloud_yongyiRecords"):toString()
     local suit = card:getSuitString()
     local records
@@ -93,7 +93,7 @@ sgs.ai_use_revises.s4_cloud_yongyi = function(self,card,use)
         records = record:split(",")
     end
     if records and (not table.contains(records, suit) or not card:hasSuit()) then
-        sgs.ai_use_priority[card:getClassName()] = sgs.ai_use_priority[card:getClassName()]+5 end
+        sgs.ai_use_priority[card:getClassName()] = sgs.ai_use_priority[card:getClassName()] + 5
     end
 end
 
