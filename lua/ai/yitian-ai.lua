@@ -698,7 +698,7 @@ function sgs.ai_skill_choice.shenjun(self,choices)
 end
 
 function sgs.ai_slash_prohibit.shenjun(self,from,to,card)
-	if from:hasSkill("jueqing") then return false end --绝情返回false
+	if hasJueqingEffect(from, to, getCardDamageNature(from, to, card)) then return false end --绝情返回false
 	if from:hasSkill("nosqianxi") and from:distanceTo(to)==1 then return false end --潜袭返回false
 	if from:getGender()==to:getGender() then return true end --性别相同返回true
 	if not card:isKindOf("ThunderSlash") then return true end --不是雷杀的返回true
@@ -915,7 +915,7 @@ end
 	描述：杀死你的角色获得崩坏技能直到游戏结束
 ]]--
 function sgs.ai_slash_prohibit.dushi(self,from,to,card)
-	if from:hasSkill("jueqing") then return false end
+	if hasJueqingEffect(from, to) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	return from:isLord() and #self.enemies>1
 end
@@ -1169,7 +1169,7 @@ sgs.ai_skill_use_func.TaichenCard = function(card,use,self)
 				target = enemy
 				break
 			end
-			if not enemy:hasSkill("tuntian+zaoxian") then
+			if not hasTuntianEffect(enemy, true) then
 				target = enemy
 				break
 			end

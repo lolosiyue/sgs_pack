@@ -140,7 +140,7 @@ sgs.ai_skill_use["@@luaxiongfeng"] = function(self, prompt)
 		end
 		if not self.yinghun then
 			for _, friend in ipairs(self.friends_noself) do
-				if friend:hasSkills("tuntian+zaoxian") and not hasManjuanEffect(friend) then
+				if hasTuntianEffect(friend, true) and not hasManjuanEffect(friend) then
 					self.yinghun = friend
 					break
 				end
@@ -266,7 +266,7 @@ sgs.ai_skill_use["@@luaxiongfeng"] = function(self, prompt)
 			end
 			if #selectset < x then
 				for _, friend in ipairs(self.friends_noself) do
-					if friend:hasSkills("tuntian+zaoxian") and not hasManjuanEffect(friend) and not table.contains(selectset, friend:objectName()) then
+					if hasTuntianEffect(friend, true) and not hasManjuanEffect(friend) and not table.contains(selectset, friend:objectName()) then
 						table.insert(selectset, friend:objectName())
 						if #selectset == x then return ("#luaxiongfeng:.:->%s"):format(table.concat(selectset, "+")) end
 					end
@@ -316,7 +316,7 @@ sgs.ai_skill_use["@@luaxiongfeng"] = function(self, prompt)
 					and not (self:hasSkills(sgs.lose_equip_skill, enemy) and enemy:getCards("e"):length() > 0)
 					and not self:needToThrowArmor(enemy)
 					and not table.contains(selectset, enemy:objectName())
-					and not enemy:hasSkills("tuntian+zaoxian") then
+					and not hasTuntianEffect(enemy, true) then
 					self.luaxiongfengchoice = "d1tx"
 					table.insert(selectset, enemy:objectName())
 					if #selectset == x then return ("#luaxiongfeng:.:->%s"):format(table.concat(selectset, "+")) end
@@ -327,7 +327,7 @@ sgs.ai_skill_use["@@luaxiongfeng"] = function(self, prompt)
 					and not (self:hasSkills(sgs.lose_equip_skill, enemy) and enemy:getCards("e"):length() > 0)
 					and not self:needToThrowArmor(enemy)
 					and not table.contains(selectset, enemy:objectName())
-					and not (enemy:hasSkills("tuntian+zaoxian") and x < 3 and enemy:getCards("he"):length() < 2) then
+					and not (hasTuntianEffect(enemy, true) and x < 3 and enemy:getCards("he"):length() < 2) then
 					self.luaxiongfengchoice = "d1tx"
 					table.insert(selectset, enemy:objectName())
 					if #selectset == x then return ("#luaxiongfeng:.:->%s"):format(table.concat(selectset, "+")) end

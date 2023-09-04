@@ -128,7 +128,8 @@ function setInitialTables()
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
-	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi"
+	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi"..
+	"|meizlrangma" --add
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
@@ -151,7 +152,8 @@ function setInitialTables()
 		"|duYinling|luajiejiang" --add
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
-		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong"
+		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong"..
+		"|meizlchongyuan" --add
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill
@@ -178,7 +180,7 @@ function setInitialTables()
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe"
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
-		"du_jiyu" --add
+		"du_jiyu|meizlhunshidistance" --add
 
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
@@ -4145,6 +4147,8 @@ function SmartAI:needToThrowLastHandcard(player, handnum)
 		or player:hasSkill("zhiji") and player:getMark("zhiji") < 1
 		or player:hasSkill("mobilezhiji") and player:getMark("mobilezhiji") < 1
 		or player:hasSkill("olzhiji") and player:getMark("olzhiji") < 1
+		--add
+		or player:hasSkill("LuaJuejing") and player:getMark("LuaJuejing") < 1
 	then
 		return true
 	end
@@ -4161,6 +4165,13 @@ function SmartAI:getLeastHandcardNum(player)
 			player:getLostHp())
 	end
 	if player:hasSkill("nosshangshi") and least < player:getLostHp() then least = player:getLostHp() end
+	
+	--add
+	if player:hasSkill("LuaXiongcai") and player:getPhase() ~= sgs.Player_Discard and least < 3
+	then
+		least = 3
+	end
+
 	return least
 end
 
@@ -4477,9 +4488,9 @@ function SmartAI:getCardNeedPlayer(cards, include_self, tos)
 		if shit:isKindOf("Shit") then
 			for _, friend in sgs.list(friends) do
 				if self:isWeak(friend) then
-				elseif shit:getSuit() == sgs.Card_Spade or friend:hasSkill("jueqing")
+				elseif shit:getSuit() == sgs.Card_Spade or hasJueqingEffect(friend, friend)
 				then
-					if friend:hasSkill("zhaxiang")
+					if hasZhaxiangEffect(friend)
 					then
 						return shit, friend
 					end
@@ -6741,7 +6752,8 @@ function SmartAI:doNotDiscard(to, flags, conservative, n, cant_choose)
 	conservative = conservative or (sgs.turncount <= 2 and self.room:alivePlayerCount() > 2)
 	local enemies = self:getEnemies(to)
 	if #enemies == 1 and self:hasSkills("noswuyan|qianxun|weimu", enemies[1]) and self.room:alivePlayerCount() == 2 then conservative = false end
-	if to:hasSkill("tuntian") and to:hasSkill("zaoxian") and to:getPhase() == sgs.Player_NotActive and (conservative or #self.enemies > 1) then return true end
+	--if to:hasSkill("tuntian") and to:hasSkill("zaoxian") and to:getPhase() == sgs.Player_NotActive and (conservative or #self.enemies > 1) then return true end
+	if hasTuntianEffect(to) and (conservative or #self.enemies > 1) then return true end
 	if cant_choose
 	then
 		if to:hasSkill("lirang") and #self.enemies > 1 then return true end
@@ -6915,7 +6927,7 @@ function SmartAI:findPlayerToDiscard(flags, include_self, no_dis, players, retur
 		for _, enemy in sgs.list(enemies) do
 			IsDis(self.player, enemy)
 			if enemy:getHandcardNum() <= 2 and enemy:getHandcardNum() > 0
-				and not (enemy:hasSkills("tuntian+zaoxian") and enemy:getPhase() == sgs.Player_NotActive)
+				and not (hasTuntianEffect(enemy, true))
 			then
 				flag = string.format("%s_%s_%s", "visible", self.player:objectName(), enemy:objectName())
 				for _, h in sgs.list(enemy:getHandcards()) do
@@ -7482,6 +7494,12 @@ function hasTuntianEffect(to, need_zaoxian)
 		end
 		return true
 	end
+	--add
+	if to:hasSkill("meizljinlian") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	return false
 end
 
 function SmartAI:isValueSkill(skill_name, player, HighValue)
@@ -7970,10 +7988,17 @@ function hasYinshiEffect(to, hasArmor)
 		not to:getArmor()
 end
 
-function hasJueqingEffect(from, to)
+function hasJueqingEffect(from, to, nature)
 	if from and from:hasSkills("jueqing|gangzhi") then return true end
 	if from and from:hasSkill("tenyearjueqing") and from:getMark("tenyearjueqing") > 0 then return true end
 	if to and to:hasSkill("gangzhi") then return true end
+
+	--add
+	nature = nature or sgs.DamageStruct_Normal
+	if from and from:hasSkills("meizlwuqing") and from:isWounded() and nature == sgs.DamageStruct_Normal then 
+		return true 
+	end
+
 	return false
 end
 
@@ -8754,6 +8779,7 @@ function SmartAI:useEquipCard(card, use)
 		or self:useCardByClassName(card, use) then
 		return
 	end
+
 	gof = self:getOverflow()
 	if card:isKindOf("Weapon")
 	then
@@ -8804,6 +8830,16 @@ function SmartAI:useEquipCard(card, use)
 	elseif gof < 1 then
 		return
 	end
+
+	--add
+	if ea > -5 and gof > 1 and self:hasSkills("meizlshuyi", self.enemies)
+	then
+		use.card = card
+		return
+	elseif gof < 1 then
+		return
+	end
+
 	same = same and self:evaluateArmor(same)
 	if type(same) ~= "number" then same = card:isKindOf("Armor") and self:evaluateArmor() or -1 end
 	if ea > same and self.lua_ai:useCard(card) then use.card = card end
@@ -9356,7 +9392,7 @@ do
 
 	sgs.ai_card_priority.danshou = function(self, card, v)
 		if (card:isDamageCard() or sgs.dynamic_value.damage_card[card:getClassName()])
-			and not self.player:hasSkill("jueqing")
+			and not hasJueqingEffect(self.player)
 		then
 			v = 0
 		end
@@ -9892,7 +9928,7 @@ do
 				return false
 			end
 		elseif card:isNDTrick() and card:isDamageCard()
-			and not self.player:hasSkill("jueqing")
+			and not hasJueqingEffect(self.player)
 		then
 			return false
 		end

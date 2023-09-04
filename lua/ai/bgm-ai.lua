@@ -395,7 +395,7 @@ sgs.ai_skill_use_func.TanhuCard = function(card,use,self)
 			return
 		end
 		for _,enemy in sgs.list(self.enemies)do
-			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum()==1) and self.player:canPindian(enemy) and not enemy:hasSkills("tuntian+zaoxian") then
+			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum()==1) and self.player:canPindian(enemy) and not hasTuntianEffect(enemy, true)  then
 				self.tanhu_card = cards[1]:getId()
 				use.card = sgs.Card_Parse("@TanhuCard=.")
 				if use.to then use.to:append(enemy) end
@@ -469,7 +469,7 @@ local function will_discard_zhaolie(self,nobasic)
 	if not spliubei or not spliubei:isAlive() then return true end
 	if not self:damageIsEffective(self.player,sgs.DamageStruct_Normal,spliubei) then return false end
 	local damage_num = nobasic
-	if nobasic>0 and not spliubei:hasSkill("jueqing") then
+	if nobasic>0 and not hasJueqingEffect(spliubei, self.player) then
 		if self.player:hasSkill("tianxiang") then
 			local dmgStr = { damage = damage_num,nature = sgs.DamageStruct_Normal }
 			local willTianxiang = sgs.ai_skill_use["@@tianxiang"](self,dmgStr,sgs.Card_MethodDiscard)
@@ -480,7 +480,7 @@ local function will_discard_zhaolie(self,nobasic)
 		end
 		if self.player:hasArmorEffect("silver_lion") and damage_num>1 then damage_num = 1 end
 	end
-	if not spliubei:hasSkill("jueqing") and self.player:hasSkill("wuhun") and self.role=="rebel" then
+	if not hasJueqingEffect(spliubei, self.player) and self.player:hasSkill("wuhun") and self.role=="rebel" then
 		local mark = 0
                 local spmark = spliubei:isLord() and spliubei:getMark("&nightmare") or 0
 		for _,ap in sgs.qlist(self.room:getOtherPlayers(spliubei))do
@@ -923,7 +923,7 @@ sgs.ai_skill_invoke.fenyong = function(self,data)
 end
 
 function sgs.ai_slash_prohibit.fenyong(self,from,to)
-	if from:hasSkill("jueqing") or (from:hasSkill("nosqianxi") and from:distanceTo(to)==1) then return false end
+	if hasJueqingEffect(from, to) or (from:hasSkill("nosqianxi") and from:distanceTo(to)==1) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	return to:getMark("@fenyong")>0 and to:hasSkill("fenyong")
 end

@@ -243,7 +243,7 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 		end
 		if not self.yinghun then
 			for _,friend in ipairs(self.friends_noself)do
-				if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") then
+				if hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") then
 					self.yinghun = friend
 					break
 				end
@@ -297,7 +297,7 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 		end
 		if not self.yinghun then
 			for _,friend in ipairs(self.friends_noself)do
-				if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") then
+				if hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") then
 					self.yinghun = friend
 					break
 				end
@@ -378,7 +378,7 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 			if not enemy:isNude()
 				and not (self:hasSkills(sgs.lose_equip_skill,enemy) and enemy:getCards("e"):length()>0)
 				and not self:needToThrowArmor(enemy)
-				and not enemy:hasSkills("tuntian+zaoxian") then
+				and not hasTuntianEffect(enemy, true) then
 				self.yinghunchoice = "d1tx"
 				return enemy
 			end
@@ -387,7 +387,7 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 			if not enemy:isNude()
 				and not (self:hasSkills(sgs.lose_equip_skill,enemy) and enemy:getCards("e"):length()>0)
 				and not self:needToThrowArmor(enemy)
-				and not (enemy:hasSkills("tuntian+zaoxian") and x<3 and enemy:getCards("he"):length()<2) then
+				and not (hasTuntianEffect(enemy, true) and x<3 and enemy:getCards("he"):length()<2) then
 				self.yinghunchoice = "d1tx"
 				return enemy
 			end
@@ -512,7 +512,7 @@ function DimengIsWorth(self,friend,enemy,mycards,myequips)
 	elseif e_peach<f_peach and e_peach<1 then
 		return false
 	elseif e_hand1==f_hand1 and e_hand1>0 then
-		return friend:hasSkills("tuntian+zaoxian")
+		return hasTuntianEffect(friend, true)
 	end
 	local cardNum = #mycards
 	local delt = e_hand1-f_hand1 --assert: delt>0

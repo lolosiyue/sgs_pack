@@ -904,7 +904,7 @@ sgs.ai_skill_use["@@tenyeartuxi"] = function(self,prompt)
 		local x = p:getHandcardNum()
 		local good_target = true
 		if x==1 and self:needKongcheng(p) then good_target = false end
-		if x>=2 and p:hasSkill("tuntian") and p:hasSkill("zaoxian") then good_target = false end
+		if x>=2 and hasTuntianEffect(p, true) then good_target = false end
 		if good_target and add_player(p)==tuxi_mark then return parseTenyearTuxiCard() end
 	end
 
@@ -919,13 +919,13 @@ sgs.ai_skill_use["@@tenyeartuxi"] = function(self,prompt)
 
 	local others = self.room:getOtherPlayers(self.player)
 	for _,other in sgs.qlist(others)do
-		if self:objectiveLevel(other)>=0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and add_player(other)==tuxi_mark then
+		if self:objectiveLevel(other)>=0 and not (hasTuntianEffect(other, true)) and add_player(other)==tuxi_mark then
 			return parseTenyearTuxiCard()
 		end
 	end
 
 	for _,other in sgs.qlist(others)do
-		if self:objectiveLevel(other)>=0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and math.random(0,5)<=1 and not self:hasSkills("qiaobian") then
+		if self:objectiveLevel(other)>=0 and not (hasTuntianEffect(other, true)) and math.random(0,5)<=1 and not self:hasSkills("qiaobian") then
 			add_player(other)
 		end
 	end
@@ -939,14 +939,14 @@ sgs.ai_card_intention.TenyearTuxiCard = function(self,card,from,tos)
 	if sgs.ai_role[from:objectName()]=="neutral" and sgs.ai_role[tos[1]:objectName()]=="neutral" and
 		(not tos[2] or sgs.ai_role[tos[2]:objectName()]=="neutral") and lord and not lord:isKongcheng() and
 		not (self:needKongcheng(lord) and lord:getHandcardNum()==1 ) and
-		self:hasLoseHandcardEffective(lord) and not (lord:hasSkill("tuntian") and lord:hasSkill("zaoxian")) and from:aliveCount()>=4 then
+		self:hasLoseHandcardEffective(lord) and not (hasTuntianEffect(lord, true)) and from:aliveCount()>=4 then
 			sgs.updateIntention(from,lord,-80)
 		return
 	end
 	if from:getState()=="online" then
 		for _,to in ipairs(tos)do
 			if to:hasSkill("kongcheng") or to:hasSkill("lianying") or to:hasSkill("zhiji")
-				or (to:hasSkill("tuntian") and to:hasSkill("zaoxian")) then
+				or (hasTuntianEffect(to, true)) then
 			else
 				sgs.updateIntention(from,to,80)
 			end
@@ -1274,20 +1274,20 @@ sgs.ai_skill_use["@@tenyeartianxiang"] = function(self,prompt)
 	self:sort(self.friends_noself)
 	
 	for _,friend in ipairs(self.friends_noself)do
-		if not friend:hasSkill("zhaxiang") or self:willSkipPlayPhase(friend) or self:isWeak(friend) then continue end
+		if not hasZhaxiangEffect(friend) or self:willSkipPlayPhase(friend) or self:isWeak(friend) then continue end
 		sgs.ai_skill_choice[reason] = "losehp"
 		return str..card_id.."->"..friend:objectName()
 	end
 
 	for _,enemy in ipairs(self.enemies)do
-		if enemy:getHp()<=1 and enemy:isAlive() and not enemy:hasSkill("zhaxiang") then
+		if enemy:getHp()<=1 and enemy:isAlive() and not hasZhaxiangEffect(enemy) then
 			sgs.ai_skill_choice[reason] = "losehp"
 			return str..card_id.."->"..enemy:objectName()
 		end
 	end
 	
 	for _,enemy in ipairs(self.enemies)do
-		if enemy:isAlive() and not enemy:hasSkill("zhaxiang") then
+		if enemy:isAlive() and not hasZhaxiangEffect(enemy) then
 			sgs.ai_skill_choice[reason] = "losehp"
 			return str..card_id.."->"..enemy:objectName()
 		end
@@ -2717,7 +2717,7 @@ sgs.ai_skill_use_func.TenyearXianzhenCard = function(card,use,self)
 	self:sortByUseValue(cards,true)
 	if (self:getUseValue(cards[1])<6 and self:getKeepValue(cards[1])<6) or self:getOverflow()>0 then
 		for _,enemy in ipairs(self.enemies)do
-			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum()==1) and self.player:canPindian(enemy) and not enemy:hasSkills("tuntian+zaoxian") then
+			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum()==1) and self.player:canPindian(enemy) and not hasTuntianEffect(enemy, true) then
 				self.tenyearxianzhen_card = cards[1]:getId()
 				use.card = sgs.Card_Parse("@TenyearXianzhenCard=.")
 				if use.to then use.to:append(enemy) end
@@ -2908,7 +2908,7 @@ sgs.ai_choicemade_filter.skillInvoke.tenyearenyuan = function(self,player,prompt
 end
 
 sgs.ai_skill_discard.tenyearenyuan = function(self,discard_num,min_num,optional,include_equip)
-	if self.player:hasSkill("zhaxiang") and (self.player:getHp()>1 or hasBuquEffect(self.player) or self:getSaveNum(true)>=1) then return {} end
+	if hasZhaxiangEffect(self.player) and (self.player:getHp()>1 or hasBuquEffect(self.player) or self:getSaveNum(true)>=1) then return {} end
 
 	local damage = self.player:getTag("tenyearenyuan_data"):toDamage()
 	if not damage then return {} end

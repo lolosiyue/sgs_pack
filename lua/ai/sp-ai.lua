@@ -441,7 +441,7 @@ sgs.ai_card_intention.XuejiCard = function(self,card,from,tos)
 	local huatuo = room:findPlayerBySkillName("jijiu")
 	for _,to in ipairs(tos)do
 		local intention = 60
-		if to:hasSkill("yiji") and not from:hasSkill("jueqing") then
+		if to:hasSkill("yiji") and not hasJueqingEffect(from, to) then
 			if (huatuo and self:isFriend(huatuo) and huatuo:getHandcardNum()>=3 and huatuo:objectName()~=from:objectName()) then
 				intention = -30
 			end

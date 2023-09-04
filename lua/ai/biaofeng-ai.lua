@@ -7,8 +7,7 @@ sgs.ai_skill_use["@PlusJianxiong"] = function(self, prompt)
 		if dest:getRole() == "rebel" and self:getOverflow() then
 			for _, friend in ipairs(self.friends_noself) do
 				if friend then
-					if not hasJueqingEffect(friend, dest) then
-						--if not friend:hasSkill("jueqing") then
+					if not hasJueqingEffect(friend, dest, damage.nature) then
 						target = friend
 					end
 				end
@@ -212,7 +211,7 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 					return self:askForDiscard("dummyreason", 1, 1, false, false)
 				end
 			end
-			if self:isEnemy(p) or (self:isFriend(p) and p:getRole() == "loyalist" and not self.player:hasSkill("jueqing") and self.player:isLord() and p:getHp() == 1) then
+			if self:isEnemy(p) or (self:isFriend(p) and p:getRole() == "loyalist" and not hasJueqingEffect(self.player, p, getCardDamageNature(self.player, p, use.card)) and self.player:isLord() and p:getHp() == 1) then
 				if use.card:isKindOf("AOE") then
 					local from = use.from
 					if use.card:isKindOf("SavageAssault") then
@@ -231,15 +230,15 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 					if self:hasTrickEffective(use.card, p, from) then
 						if self:damageIsEffective(p, sgs.DamageStruct_Normal, from) then
 							if sj_num == 0 and friend_null <= 0 then
-								if self:isEnemy(from) and from:hasSkill("jueqing") then
+								if self:isEnemy(from) and hasJueqingEffect(from, p, getCardDamageNature(from, p, use.card)) then
 									return self:askForDiscard(
 										"dummyreason", 1, 1, false, false)
 								end
-								if self:isFriend(from) and p:getRole() == "loyalist" and from:isLord() and p:getHp() == 1 and not from:hasSkill("jueqing") then
+								if self:isFriend(from) and p:getRole() == "loyalist" and from:isLord() and p:getHp() == 1 and not hasJueqingEffect(from, p, getCardDamageNature(from, p, use.card)) then
 									return
 									"."
 								end
-								if (not (self:hasSkills(sgs.masochism_skill, p) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or use.from:hasSkill("jueqing")) then
+								if (not (self:hasSkills(sgs.masochism_skill, p) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or hasJueqingEffect(use.from, p, getCardDamageNature(from, p, use.card))) then
 									return "."
 								end
 							end
@@ -401,12 +400,12 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 	local items = choices:split("+")
 	if table.contains(items, "PlusGanglie_choice1") then
 		if not use.from or use.from:isDead() then return "PlusGanglie_cancel" end
-		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not use.from:hasSkill("jueqing")
+		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))
 			and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 			return "PlusGanglie_cancel"
 		end
 
-		if self:isEnemy(use.from) or (self:isFriend(use.from) and self.role == "loyalist" and not use.from:hasSkill("jueqing") and use.from:isLord() and self.player:getHp() == 1) then
+		if self:isEnemy(use.from) or (self:isFriend(use.from) and self.role == "loyalist" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card)) and use.from:isLord() and self.player:getHp() == 1) then
 			if use.card:isKindOf("Slash") then
 				if not self:slashIsEffective(use.card, self.player, use.from) then return "PlusGanglie_cancel" end
 				if self:hasHeavyDamage(use.from, use.card, self.player) then return "PlusGanglie_choice1" end
@@ -431,11 +430,11 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 						return
 						"PlusGanglie_choice1"
 					end
-					if self:isFriend(use.from) and self.role == "loyalist" and not use.from:hasSkill("jueqing") and use.from:isLord() and self.player:getHp() == 1 then
+					if self:isFriend(use.from) and self.role == "loyalist" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card)) and use.from:isLord() and self.player:getHp() == 1 then
 						return
 						"PlusGanglie_choice1"
 					end
-					if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or use.from:hasSkill("jueqing")) then
+					if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))) then
 						return "PlusGanglie_choice1"
 					end
 				end
@@ -464,12 +463,12 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 					"PlusGanglie_choice1"
 				end
 				if sj_num == 0 and friend_null <= 0 then
-					if self:isEnemy(from) and from:hasSkill("jueqing") then return "PlusGanglie_choice1" end
-					if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not from:hasSkill("jueqing") then
+					if self:isEnemy(from) and hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card)) then return "PlusGanglie_choice1" end
+					if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card)) then
 						return
 						"PlusGanglie_choice1"
 					end
-					if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or use.from:hasSkill("jueqing")) then
+					if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card))) then
 						return "PlusGanglie_choice1"
 					end
 				end
@@ -794,7 +793,7 @@ sgs.ai_skill_invoke.PlusHuwei = function(self, data)
 	if self.player:hasFlag("dahe") then return false end
 	if sgs.hujiasource and (not self:isFriend(sgs.hujiasource) or sgs.hujiasource:hasFlag("dahe")) then return false end
 	if sgs.lianlisource and (not self:isFriend(sgs.lianlisource) or sgs.lianlisource:hasFlag("dahe")) then return false end
-	if self:getDamagedEffects(self.player, nil, true) or self:needToLoseHp(self.player, nil, true, true) then return false end
+	if self:needToLoseHp(self.player, nil, true, true) then return false end
 	if self:getCardsNum("Jink") == 0 then
 		return true
 	else
@@ -1286,7 +1285,6 @@ sgs.ai_skill_invoke.PlusDanji = function(self, data)
 			return true
 		end
 	end
-	if self:getDamagedEffects(self.player, damage.from) and damage.damage <= 1 then return false end
 	if self:needToLoseHp(self.player, damage.from) and damage.damage <= 1 then return false end
 	return true
 end
@@ -2559,7 +2557,7 @@ sgs.ai_skill_choice.PlusZhiheng = function(self, choices, data)
 	end
 	local enemy_can_invoke = false
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:getHandcardNum() == max and not enemy:hasSkills("tuntian+zaoxian") then
+		if enemy:getHandcardNum() == max and not hasTuntianEffect(enemy, true) then
 			enemy_can_invoke = true
 		end
 	end
@@ -2573,7 +2571,7 @@ end
 sgs.ai_skill_playerchosen["#PlusZhiheng_from"] = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) and not p:hasSkills("tuntian+zaoxian") then
+		if self:isEnemy(p) and not hasTuntianEffect(p, true) then
 			return p
 		end
 	end
@@ -2747,7 +2745,7 @@ sgs.ai_skill_invoke["#PlusKeji_Jink"] = function(self, data)
 		if self.player:getHp() > enemy_num and enemy_num <= 1 then return false end
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
-	if self:getDamagedEffects(self.player, nil, true) or self:needToLoseHp(self.player, nil, true, true) then return false end
+	if self:needToLoseHp(self.player, nil, true, true) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 
 	return true
@@ -3110,7 +3108,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 	end
 
 	for _, friend in ipairs(self.friends_noself) do
-		if self:needToLoseHp(friend, source, true) or self:getDamagedEffects(friend, source, true) then
+		if self:needToLoseHp(friend, source, true) then
 			if not (source and source:objectName() == friend:objectName()) then
 				local ret = doLiuli(friend)
 				if ret ~= "." then return ret end
@@ -3488,7 +3486,7 @@ sgs.ai_skill_use["@PlusJiahuo"] = function(self, prompt, method)
 	end
 
 	for _, friend in ipairs(self.friends_noself) do
-		if self:needToLoseHp(friend, source, true) or self:getDamagedEffects(friend, source, true) then
+		if self:needToLoseHp(friend, source, true) then
 			if not (source and source:objectName() == friend:objectName()) then
 				local ret = doLiuli(friend)
 				if ret ~= "." then return ret end
@@ -4146,7 +4144,7 @@ sgs.ai_skill_use_func["#PlusHuangtian_Card"] = function(card, use, self)
 			if enemy:hasLordSkill("PlusHuangtian") then
 				if not enemy:hasFlag("PlusHuangtianInvoked") then
 					if not hasManjuanEffect(enemy) then
-						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not enemy:hasSkills("tuntian+zaoxian") then --必须保证对方空城，以保证天义/陷阵的拼点成功
+						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not hasTuntianEffect(enemy, true) then --必须保证对方空城，以保证天义/陷阵的拼点成功
 							table.insert(targets, enemy)
 						end
 					end
@@ -5229,7 +5227,7 @@ sgs.ai_card_intention["#SixChouzuanCard"] = -80
 
 sgs.ai_skill_choice["SixChouzuan"] = function(self, choices, data)
 	local current = self.room:getCurrent()
-	if (self:getDamagedEffects(self.player, current) or self:needToLoseHp(self.player, nil, false)) and not self:isWeak() then
+	if (self:needToLoseHp(self.player, nil, false)) and not self:isWeak() then
 		return "SixChouzuanDamage"
 	end
 	return "SixChouzuanDraw"
@@ -5240,7 +5238,7 @@ end
 sgs.ai_skill_playerchosen.SixWeiyuan = function(self, targets)
 	local target, min_friend, max_enemy
 	for _, enemy in ipairs(self.enemies) do
-		if not self:hasSkills(sgs.lose_equip_skill, enemy) and not enemy:hasSkills("tuntian+zaoxian") and self.player:getPile("wooden_ox"):length() == 0 then
+		if not self:hasSkills(sgs.lose_equip_skill, enemy) and not hasTuntianEffect(enemy, true) and self.player:getPile("wooden_ox"):length() == 0 then
 			local ee = enemy:getEquips():length()
 			local fe = self.player:getEquips():length()
 			local value = self:evaluateArmor(enemy:getArmor(), self.player) -
@@ -5254,7 +5252,7 @@ sgs.ai_skill_playerchosen.SixWeiyuan = function(self, targets)
 
 	target = nil
 	if self:needToThrowArmor(self.player) or ((self:hasSkills(sgs.lose_equip_skill, self.player)
-				or (self.player:hasSkills("tuntian+zaoxian") and self.player:getPhase() == sgs.Player_NotActive))
+				or (hasTuntianEffect(self.player, true) ))
 			and not self.player:getEquips():isEmpty()) then
 		target = self.player
 	end
@@ -7121,7 +7119,7 @@ sgs.ai_skill_cardask["@SevenQuGao-discard"] = function(self, data)
 		end
 	elseif self:isFriend(use.to:first()) then
 		if not use.from or use.from:isDead() then return "cancel" end
-		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not use.from:hasSkill("jueqing")
+		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not hasJueqingEffect(use.from, use.to:first(), getCardDamageNature(use.from, use.to:first(), use.card))
 			and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 			return "."
 		end
@@ -7136,7 +7134,7 @@ sgs.ai_skill_cardask["@SevenQuGao-discard"] = function(self, data)
 			end
 		end
 		if card_id then
-			if self:isEnemy(use.from) or (self:isFriend(use.from) and self.role == "loyalist" and not use.from:hasSkill("jueqing") and use.from:isLord() and self.player:getHp() == 1) then
+			if self:isEnemy(use.from) or (self:isFriend(use.from) and self.role == "loyalist" and not hasJueqingEffect(use.from, use.to:first(), getCardDamageNature(use.from, use.to:first(), use.card) ) and use.from:isLord() and self.player:getHp() == 1) then
 				if use.card:isKindOf("AOE") then
 					local from = use.from
 					if use.card:isKindOf("SavageAssault") then
@@ -7159,12 +7157,12 @@ sgs.ai_skill_cardask["@SevenQuGao-discard"] = function(self, data)
 									"$" .. card_id
 							end
 							if sj_num == 0 and friend_null <= 0 then
-								if self:isEnemy(from) and from:hasSkill("jueqing") then return "$" .. card_id end
-								if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not from:hasSkill("jueqing") then
+								if self:isEnemy(from) and hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card) )  then return "$" .. card_id end
+								if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card) ) then
 									return
 										"$" .. card_id
 								end
-								if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or use.from:hasSkill("jueqing")) then
+								if (not (self:hasSkills(sgs.masochism_skill) or (self.player:hasSkills("tianxiang|ol_tianxiang") and getKnownCard(self.player, self.player, "heart") > 0)) or hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card) )) then
 									return "$" .. card_id
 								end
 							end

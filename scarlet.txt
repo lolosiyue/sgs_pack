@@ -3,7 +3,8 @@ setPlayerCardLimitation
 collateral
 Retrial
 
-
+not done:
+张春华 无情 lostmaxhp ai
 
 test:
 SixJushou
@@ -20,6 +21,10 @@ self:isGoodTarget
 function SmartAI:isGoodTarget(to, targets, card)
 --hasHeavySlashDamage
 hasHeavyDamage(from, card, to, nature)
+--getDamagedEffects --not use
+changeTranslation
+
+p:hasSkills(sgs.recover_skill)
 
 canwake 
 
@@ -61,8 +66,18 @@ enabled_at_play = function(self, player)
 
 function sgs.ai_armor_value 用咩裝
 
-hasBuquEffect
-hasJueqingEffect
-hasManjuanEffect
-canNiepan
+pindian
+sgs.ai_cardneed.bignumber
+
+hasBuquEffect(player)
+hasJueqingEffect(from, to, nature)
+hasManjuanEffect(player,manjuan_only)
+hasTuntianEffect(to, need_zaoxian)
+hasZhaxiangEffect(to)
+hasOrangeEffect(player) --dontHurt not yet use
+canNiepan(player) not yet use
+
+cantDamageMore 
+
+getCardDamageNature
 

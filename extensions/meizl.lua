@@ -21,11 +21,11 @@ meizlchunshencard = sgs.CreateSkillCard{
 	name = "meizlchunshencard", 
 	target_fixed = false, 
 	will_throw = true, 
-	filter = function(self, targets, to_select) 
+	filter = function(self, targets, to_select, player) 
 		if #targets > 0 then return false end
-			if to_select:objectName() ~= sgs.Self:objectName() then
-			if to_select:getHp() >= sgs.Self:getHp() then
-						return sgs.Self:distanceTo(to_select) <= sgs.Self:getAttackRange()
+			if to_select:objectName() ~= player:objectName() then
+			if to_select:getHp() >= player:getHp() then
+						return player:distanceTo(to_select) <= player:getAttackRange()
 					end
 				end
 	end,
@@ -137,7 +137,7 @@ meizlchongyuan=sgs.CreateTriggerSkill{
 		local room=player:getRoom()
 		local effect = data:toCardEffect()
 		if not effect.from:getGeneral():isMale() then return end
-		if effect.card:inherits("TrickCard") then 
+		if effect.card:isNDTrick() then 
 		local log= sgs.LogMessage()
 		log.type = "#Meizlchongyuan"
 		log.from = effect.to
@@ -404,8 +404,9 @@ meizlyuxiang = sgs.CreateTriggerSkill{
 		if event == sgs.CardUsed then
 			local use = data:toCardUse()
 				if use.card:isKindOf("SavageAssault") then
-				local splayer=room:findPlayerBySkillName(self:objectName())
+		for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 					splayer:drawCards(2)
+		end
 			end
 		end
 	end,
@@ -448,6 +449,7 @@ meizlfeiren = sgs.CreateTriggerSkill{
 					player:addToPile("meizlfeiren", cd, true)
 					if player:getPile("meizlfeiren"):length() == 3 then
 						local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+						dummy:deleteLater()
 						for _,id in sgs.qlist(player:getPile("meizlfeiren")) do
 							local cdq = sgs.Sanguosha:getCard(id)
 							dummy:addSubcard(cdq)
@@ -1060,14 +1062,13 @@ meizlcimin = sgs.CreateTriggerSkill
 	
 	on_trigger = function(self, event, player, data)
 	local room = player:getRoom()
-local splayer=room:findPlayerBySkillName(self:objectName())
-if splayer then
-if player:objectName() == splayer:objectName() then return end
-if splayer:isKongcheng() or not player:isAlive() then return false end
+	for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+if player:objectName() == splayer:objectName() then continue end
+if splayer:isKongcheng() or not player:isAlive() then continue end
 local qq = sgs.QVariant()
 qq:setValue(player)
 	room:setTag("CurrentDamageStruct" , data)
-	if not room:askForSkillInvoke(splayer, self:objectName(), qq) then room:removeTag("CurrentDamageStruct") return false end
+	if not room:askForSkillInvoke(splayer, self:objectName(), qq) then room:removeTag("CurrentDamageStruct") continue end
 	room:removeTag("CurrentDamageStruct")
 	player:obtainCard(splayer:wholeHandCards(), false)
 	local recover = sgs.RecoverStruct()

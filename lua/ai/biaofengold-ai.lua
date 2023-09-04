@@ -40,7 +40,7 @@ sgs.ai_skill_use_func["#FiveFanjian_Card"] = function(card, use, self)
 	if count >= 1 and #self.enemies > 1 then
 		self:sort(self.enemies, "handcard")
 		for _, enemy in ipairs(self.enemies) do
-			if not (hasManjuanEffect(enemy) ) and not enemy:hasSkills("tuntian+zaoxian") then
+			if not (hasManjuanEffect(enemy) ) and not hasTuntianEffect(enemy, true) then
 				target = enemy
 				break
 			end
@@ -51,7 +51,7 @@ sgs.ai_skill_use_func["#FiveFanjian_Card"] = function(card, use, self)
 		self.friends_noself = sgs.reverse(self.friends_noself)
 		if count < 1 then return end
 		for _, friend in ipairs(self.friends_noself) do
-			if friend:hasSkills("tuntian+zaoxian") and not hasManjuanEffect(friend) and not self:isWeak(friend) then
+			if hasTuntianEffect(friend, true) and not hasManjuanEffect(friend) and not self:isWeak(friend) then
 				target = friend
 				break
 			end
@@ -98,8 +98,7 @@ sgs.ai_skill_playerchosen.FiveFanjian = function(self, targets)
 	end
 	if from then
 		for _, to in ipairs(self.enemies) do
-			if targets:contains(to) and self:slashIsEffective(slash, to, from) and not self:getDamagedEffects(to, from, true)
-				and not self:needToLoseHp(to, from, true) and not self:findLeijiTarget(to, 50, from) then
+			if targets:contains(to) and self:slashIsEffective(slash, to, from) 	and not self:needToLoseHp(to, from, true) and not self:findLeijiTarget(to, 50, from) then
 				return to
 			end
 		end
@@ -199,7 +198,7 @@ sgs.ai_skill_use_func["#FiveHuangtianA_Card"] = function(card, use, self)
 			if enemy:hasLordSkill("FiveHuangtianA") then
 				if not enemy:hasFlag("FiveHuangtianAInvoked") then
 					if not hasManjuanEffect(enemy) then
-						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not enemy:hasSkills("tuntian+zaoxian") then --必须保证对方空城，以保证天义/陷阵的拼点成功
+						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not hasTuntianEffect(enemy, true) then --必须保证对方空城，以保证天义/陷阵的拼点成功
 							table.insert(targets, enemy)
 						end
 					end
@@ -401,7 +400,7 @@ sgs.ai_skill_use["@FourJianxiong"] = function(self, prompt)
         if dest:getRole() == "rebel" and self:getOverflow() then
             for _,friend in ipairs(self.friends_noself) do
                 if friend then
-                    if not friend:hasSkill("jueqing") then
+                    if not hasJueqingEffect(friend, dest, damage.nature) then
                         target = friend
                     end
                 end
@@ -536,7 +535,7 @@ sgs.ai_skill_invoke.FourFenyong = function(self, data)
 end
 
 function sgs.ai_slash_prohibit.FourFenyong(self, from, to)
-	if from:hasSkill("jueqing") or (from:hasSkill("nosqianxi") and from:distanceTo(to) == 1) then return false end
+	if hasJueqingEffect(from, to) or (from:hasSkill("nosqianxi") and from:distanceTo(to) == 1) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	return not to:faceUp() and to:hasSkill("FourFenyong")
 end
@@ -1417,7 +1416,7 @@ sgs.ai_skill_use_func["#FourTaiping_Card"] = function(card, use, self)
 			if enemy:hasSkill("FourTaiping") then
 				if not enemy:hasFlag("FourTaipingInvoked") then
 					if not hasManjuanEffect(enemy) then
-						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not enemy:hasSkills("tuntian+zaoxian") then --必须保证对方空城，以保证天义/陷阵的拼点成功
+						if enemy:isKongcheng() and not enemy:hasSkill("kongcheng") and not hasTuntianEffect(enemy, true) then --必须保证对方空城，以保证天义/陷阵的拼点成功
 							table.insert(targets, enemy)
 						end
 					end

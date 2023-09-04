@@ -198,7 +198,7 @@ sgs.ai_skill_use["@@duYinling"] = function(self, prompt)
         if x == 1 and self:needKongcheng(p) then
             good_target = false
         end
-        if x >= 2 and p:hasSkill("tuntian") and p:hasSkill("zaoxian") then
+        if x >= 2 and hasTuntianEffect(p) then
             good_target = false
         end
         if good_target and add_player(p) == 1 then
@@ -217,14 +217,14 @@ sgs.ai_skill_use["@@duYinling"] = function(self, prompt)
 
     local others = self.room:getOtherPlayers(self.player)
     for _, other in sgs.qlist(others) do
-        if self:objectiveLevel(other) >= 0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and
+        if self:objectiveLevel(other) >= 0 and not (hasTuntianEffect(other, true)) and
             add_player(other) == 1 then
             return ("#duYinlingCard:.:->%s"):format(targets[1])
         end
     end
 
     for _, other in sgs.qlist(others) do
-        if self:objectiveLevel(other) >= 0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and
+        if self:objectiveLevel(other) >= 0 and not (hasTuntianEffect(other, true)) and
             add_player(other) == 1 and math.random(0, 5) <= 1 and not self:hasSkills("qiaobian") then
             return ("#duYinlingCard:.:->%s"):format(targets[1])
         end
@@ -240,14 +240,14 @@ sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
     if sgs.evaluatePlayerRole(from) == "neutral" and sgs.evaluatePlayerRole(tos[1]) == "neutral" and
         (not tos[2] or sgs.evaluatePlayerRole(tos[2]) == "neutral") and lord and not lord:isKongcheng() and
         not (self:needKongcheng(lord) and lord:getHandcardNum() == 1) and self:hasLoseHandcardEffective(lord) and
-        not (lord:hasSkill("tuntian") and lord:hasSkill("zaoxian")) and from:aliveCount() >= 4 then
+        not (hasTuntianEffect(lord, true)) and from:aliveCount() >= 4 then
         sgs.updateIntention(from, lord, -80)
         return
     end
     if from:getState() == "online" then
         for _, to in ipairs(tos) do
             if to:hasSkill("kongcheng") or to:hasSkill("noslianying") or to:hasSkill("zhiji") or
-                (to:hasSkill("tuntian") and to:hasSkill("zaoxian")) then
+                (hasTuntianEffect(to, true)) then
             else
                 sgs.updateIntention(from, to, 80)
             end
@@ -266,6 +266,14 @@ sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
         end
     end
 end
+
+
+sgs.ai_can_damagehp.du_jieying = function(self, from, card, to)
+    return (to:getMark("du_jieying") == 0) and to:getLostHp() < 2
+        and self:ajustDamage(from, to, 1, card) > 0 and to:getPile("du_jin"):length() >= 3
+end
+
+
 
 sgs.ai_cardneed.duXiaoguo = function(to, card, self)
     return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0

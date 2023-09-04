@@ -10,7 +10,7 @@ local function useShit_LoseHp(self,card,use)
         amSafe = ( lose<hp+self:getCardsNum("Peach") )
     end
     if amSafe then
-        if self.player:hasSkill("zhaxiang") then
+        if hasZhaxiangEffect(self.player) then
             use.card = card
             return 
         elseif self.player:getHandcardNum()==1 and self.player:getLostHp()==0 and self:needKongcheng() then
@@ -201,7 +201,7 @@ local function useShit_NormalDamage(self,card,use)
     end
 end
 function SmartAI:useCardShit(card,use)
-    if self.player:hasSkill("jueqing") then
+    if hasJueqingEffect(self.player, self.player) then
         useShit_LoseHp(self,card,use)
         return 
     end
@@ -393,7 +393,7 @@ function SmartAI:useCardGaleShell(card,use)
                 if self:hasSkills(sgs.lose_equip_skill,target) then
                     value = value-1.5
                 end
-                if target:hasSkill("tuntian") then
+                if hasTuntianEffect(target) then
                     value = value-1
                 end
             else
@@ -503,7 +503,7 @@ function SmartAI:useCardEarthquake(card,use)
                 if enemy:getArmor() and self:needToThrowArmor(enemy) then
                     value = value-1.5
                 end
-                if enemy:hasSkill("tuntian") then
+                if hasTuntianEffect(enemy) then
                     value = value-1
                 end
             end
@@ -529,7 +529,7 @@ function SmartAI:useCardEarthquake(card,use)
                 if friend:getArmor() and self:needToThrowArmor(friend) then
                     value = value+1.5
                 end
-                if friend:hasSkill("tuntian") then
+                if hasTuntianEffect(friend) then
                     value = value+1
                 end
             end

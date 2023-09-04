@@ -17,7 +17,7 @@ sgs.ai_skill_playerchosen.tengxun = function(self, targets)
 	for _, enemy in ipairs(enemies) do
 		local cards = sgs.QList2Table(enemy:getHandcards())
 		local flag = string.format("%s_%s_%s", "visible", self.player:objectName(), enemy:objectName())
-		if #cards <= 2 and not enemy:isKongcheng() and not (enemy:hasSkills("tuntian+zaoxian") and enemy:getPhase() == sgs.Player_NotActive) then
+		if #cards <= 2 and not enemy:isKongcheng() and not self:doNotDiscard(enemy, "h") then
 			for _, cc in ipairs(cards) do
 				if (cc:hasFlag("visible") or cc:hasFlag(flag)) and (cc:isKindOf("Peach") or cc:isKindOf("Analeptic")) and (self.player:canDiscard(enemy, cc:getId())) then
 					table.insert(player_table, enemy)
@@ -98,7 +98,7 @@ sgs.ai_skill_playerchosen.xionglie = function(self, targets)
 	end
 	local friends = {}
 	for _, target in sgs.qlist(targets) do
-		if self:isFriend(target) and not target:isKongcheng() and (target:hasSkill("lianying") or target:hasSkill("tuntian")) then
+		if self:isFriend(target) and not target:isKongcheng() and self:doNotDiscard(enemy, "h") then
 			table.insert(friends, target)
 		end
 	end
@@ -140,7 +140,7 @@ end
 
 sgs.ai_playerchosen_intention.xionglie = function(self, from, to)
 	local intention = 80
-	if (to:hasSkill("lianying") or to:hasSkill("tuntian")) then
+	if self:doNotDiscard(to, "h") then
 		intention = 0
 	end
 	sgs.updateIntention(from, to, intention)
@@ -199,7 +199,7 @@ sgs.ai_skill_use_func["#tietiCard"] = function(card, use, self)
 		self:sort(self.enemies)
 		local target
 		for _, enemy in ipairs(self.enemies) do
-			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) then
+			if self:objectiveLevel(enemy) > 3 and not self:canAttack(enemy, self.player) and self:damageIsEffective(enemy) then
 				if self.player:distanceTo(enemy) == 1 then
 					target = enemy
 					break
@@ -259,7 +259,7 @@ sgs.ai_skill_invoke.duanqiao = function(self, data)
 				if self.player:canDiscard(target, "h") then
 					local cards = sgs.QList2Table(target:getHandcards())
 					local flag = string.format("%s_%s_%s", "visible", self.player:objectName(), target:objectName())
-					if #cards <= 2 and not target:isKongcheng() and not (target:hasSkills("tuntian+zaoxian") and target:getPhase() == sgs.Player_NotActive) then
+					if #cards <= 2 and not target:isKongcheng() and not (self:doNotDiscard(target, "he")) then
 						for _, cc in ipairs(cards) do
 							if (cc:hasFlag("visible") or cc:hasFlag(flag)) and (cc:isKindOf("Peach") or cc:isKindOf("Analeptic")) and (not isDiscard or self.player:canDiscard(target, cc:getId())) then
 								return true
@@ -280,56 +280,6 @@ sgs.ai_skill_invoke.duanqiao = function(self, data)
 	end
 	return false
 end
-
-
-
-
---[[
-function SmartAI:useCardDrowning(card, use)
-	if self.player:hasSkill("noswuyan") or (self.player:hasSkill("wuyan") and not self.player:hasSkill("jueqing")) then return end
-	self:sort(self.enemies)
-	local targets, equip_enemy = {}, {}
-	for _, enemy in ipairs(self.enemies) do
-		if (not use.current_targets or not table.contains(use.current_targets, enemy:objectName()))
-			and self:hasTrickEffective(card, enemy) and self:damageIsEffective(enemy) and self:canAttack(enemy)
-			and not self:getDamagedEffects(enemy, self.player) and not self:needToLoseHp(enemy, self.player) then
-			if enemy:hasEquip() then table.insert(equip_enemy, enemy)
-			else table.insert(targets, enemy)
-			end
-		end
-	end
-	if not (self.player:hasSkill("wumou") and self.player:getMark("@wrath") < 7) then
-		if #equip_enemy > 0 then
-			local function cmp(a, b)
-				return a:getEquips():length() >= b:getEquips():length()
-			end
-			table.sort(equip_enemy, cmp)
-			for _, enemy in ipairs(equip_enemy) do
-				if not self:needToThrowArmor(enemy) then table.insert(targets, enemy) end
-			end
-		end
-		for _, friend in ipairs(self.friends_noself) do
-			if not (not use.current_targets or not table.contains(use.current_targets, friend:objectName())) and self:needToThrowArmor(friend) then
-				table.insert(targets, friend)
-			end
-		end
-	end
-	if #targets > 0 then
-		local targets_num = 1 + sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget, self.player, card)
-		if use.isDummy and use.extra_target then targets_num = targets_num + use.extra_target end
-		local lx = self.room:findPlayerBySkillName("huangen")
-		use.card = card
-		if use.to then
-			for i = 1, targets_num, 1 do
-				if not (use.to:length() > 0 and targets[i]:hasSkill("danlao"))
-					and not (use.to:length() > 0 and lx and self:isFriend(lx, targets[i]) and self:isEnemy(lx) and lx:getHp() > targets_num / 2) then
-					use.to:append(targets[i])
-					if #targets == i then break end
-				end
-			end
-		end
-	end
-end]]
 
 sgs.ai_ajustdamage_from.suzhan = function(self, from, to, card, nature)
 	if card and card:isKindOf("Slash") and to:getEquips():isEmpty()
@@ -403,6 +353,9 @@ sgs.ai_skill_use_func["#shuiyanCard"] = function(card, use, self)
 					value = value + 5
 				end
 			end
+			if hasZhaxiangEffect(player) then
+				value = value + 3
+			end
 			if self:isEnemy(player) then
 				value_e = value_e + value
 			elseif self:isFriend(player) then
@@ -422,7 +375,11 @@ sgs.ai_card_intention.shuiyan = function(self, card, from, tos)
 	for _, to in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if self:needToThrowArmor(to) then
 		else
-			sgs.updateIntention(from, to, 80)
+			local intention = 40
+			if hasZhaxiangEffect(to) then
+				intention = -intention
+			end
+			sgs.updateIntention(from, to, intention)
 		end
 	end
 end
@@ -434,9 +391,7 @@ sgs.ai_use_priority.shuiyan = 7
 
 sgs.ai_skill_choice.shuiyan = function(self, choices, data)
 	local target = data:toPlayer()
-	if not self:damageIsEffective(self.player, sgs.DamageStruct_Normal, target)
-		or self:needToLoseHp(self.player, target)
-		or self:getDamagedEffects(self.player, target) then
+	if self:needToLoseHp(self.player, target) or hasZhaxiangEffect(self.player) and self:canDraw() and not self:willSkipPlayPhase() and (self.player:getHp()>0 or hasBuquEffect(self.player) or self:getSaveNum(true)>0) then
 		return "be_lost"
 	end
 	if self:isWeak() and not self:needDeath() then return "throw_equips" end
@@ -516,7 +471,7 @@ sgs.ai_skill_use_func["#lalongCard"] = function(card, use, self)
 		if canMingceTo(friend) then
 			for _, enemy in ipairs(self.enemies) do
 				if friend:canSlash(enemy) and not self:slashProhibit(slash, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
-					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
+					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 					and enemy:objectName() ~= self.player:objectName() then
 					target = friend
 					self.lalongTarget = enemy
@@ -609,7 +564,7 @@ sgs.ai_skill_use["@@sheji"] = function(self, prompt)
 		for _, enemy in ipairs(self.enemies) do
 			local slash = sgs.Sanguosha:cloneCard("slash")
 			if self.player:canSlash(enemy, slash, false) and not self:slashProhibit(nil, enemy) and self.player:inMyAttackRange(enemy)
-				and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies) then
+				and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) then
 				target = enemy
 			end
 			slash:deleteLater()

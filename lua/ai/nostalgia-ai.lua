@@ -143,7 +143,7 @@ sgs.ai_skill_cardask["@nosenyuan-heart"] = function(self,data)
 end
 
 function sgs.ai_slash_prohibit.nosenyuan(self,from,to,card)
-	if from:hasSkill("jueqing") then return false end
+	if hasJueqingEffect(from, to, getCardDamageNature(from, to, card)) then return false end
 	if from:hasSkill("nosqianxi") and from:distanceTo(to)==1 then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	if self:needToLoseHp(from) and not self:hasSkills(sgs.masochism_skill,from) then return false end
@@ -231,7 +231,7 @@ sgs.ai_skill_use_func.NosXuanhuoCard = function(card,use,self)
 
 			local cards = sgs.QList2Table(enemy:getHandcards())
 			local flag = string.format("%s_%s_%s","visible",self.player:objectName(),enemy:objectName())
-			if not enemy:isKongcheng() and not enemy:hasSkills("tuntian+zaoxian") then
+			if not enemy:isKongcheng() and not hasTuntianEffect(enemy, true) then
 				for _,cc in ipairs(cards)do
 					if (cc:hasFlag("visible") or cc:hasFlag(flag)) and (cc:isKindOf("Peach") or cc:isKindOf("Analeptic")) then
 						target = enemy
@@ -250,7 +250,7 @@ sgs.ai_skill_use_func.NosXuanhuoCard = function(card,use,self)
 	end
 	if not target then
 		for _,friend in ipairs(self.friends_noself)do
-			if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") then
+			if hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") then
 				target = friend
 				break
 			end
@@ -1152,7 +1152,7 @@ sgs.ai_skill_discard.nosfencheng = function(self,discard_num,min_num,optional,in
 				if self:isWeak() then table.insert(to_discard,def_id)
 				else return {} end
 			elseif self.player:getArmor() and not table.contains(to_discard,arm_id) then
-				if self:isWeak() or (not liru:hasSkill("jueqing") and self.player:hasArmorEffect("vine")) then table.insert(to_discard,arm_id)
+				if self:isWeak() or (not hasJueqingEffect(liru, self.player, sgs.DamageStruct_Fire) and self.player:hasArmorEffect("vine")) then table.insert(to_discard,arm_id)
 				else return {} end
 			end
 			if #to_discard==discard_num+1 then table.removeOne(to_discard,cards[1]:getEffectiveId()) end
@@ -1437,7 +1437,7 @@ end
 
 function sgs.ai_slash_prohibit.nosganglie(self,from,to)
 	if self:isFriend(from,to) then return false end
-	if from:hasSkill("jueqing") or (from:hasSkill("nosqianxi") and from:distanceTo(to)==1) then return false end
+	if hasJueqingEffect(from, to) or (from:hasSkill("nosqianxi") and from:distanceTo(to)==1) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	return from:getHandcardNum()+from:getHp()<4
 end
@@ -1557,7 +1557,7 @@ sgs.ai_skill_use["@@nostuxi"] = function(self,prompt)
 		local x = p:getHandcardNum()
 		local good_target = true
 		if x==1 and self:needKongcheng(p) then good_target = false end
-		if x>=2 and p:hasSkill("tuntian") and p:hasSkill("zaoxian") then good_target = false end
+		if x>=2 and hasTuntianEffect(p, true) then good_target = false end
 		if good_target and add_player(p)==2 then return ("@NosTuxiCard=.->%s+%s"):format(targets[1],targets[2]) end
 	end
 
@@ -1572,13 +1572,13 @@ sgs.ai_skill_use["@@nostuxi"] = function(self,prompt)
 
 	local others = self.room:getOtherPlayers(self.player)
 	for _,other in sgs.qlist(others)do
-		if self:objectiveLevel(other)>=0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and add_player(other)==2 then
+		if self:objectiveLevel(other)>=0 and not (hasTuntianEffect(other, true)) and add_player(other)==2 then
 			return ("@NosTuxiCard=.->%s+%s"):format(targets[1],targets[2])
 		end
 	end
 
 	for _,other in sgs.qlist(others)do
-		if self:objectiveLevel(other)>=0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and add_player(other)==1 and math.random(0,5)<=1 and not self:hasSkills("qiaobian") then
+		if self:objectiveLevel(other)>=0 and not (hasTuntianEffect(other, true)) and add_player(other)==1 and math.random(0,5)<=1 and not self:hasSkills("qiaobian") then
 			return ("@NosTuxiCard=.->%s"):format(targets[1])
 		end
 	end
@@ -1592,14 +1592,14 @@ sgs.ai_card_intention.NosTuxiCard = function(self,card,from,tos)
 	if sgs.ai_role[from:objectName()]=="neutral" and sgs.ai_role[tos[1]:objectName()]=="neutral" and
 		(not tos[2] or sgs.ai_role[tos[2]:objectName()]=="neutral") and lord and not lord:isKongcheng() and
 		not (self:needKongcheng(lord) and lord:getHandcardNum()==1 ) and
-		self:hasLoseHandcardEffective(lord) and not (lord:hasSkill("tuntian") and lord:hasSkill("zaoxian")) and from:aliveCount()>=4 then
+		self:hasLoseHandcardEffective(lord) and not (hasTuntianEffect(lord, true)) and from:aliveCount()>=4 then
 			sgs.updateIntention(from,lord,-80)
 		return
 	end
 	if from:getState()=="online" then
 		for _,to in ipairs(tos)do
 			if to:hasSkill("kongcheng") or to:hasSkill("noslianying") or to:hasSkill("zhiji")
-				or (to:hasSkill("tuntian") and to:hasSkill("zaoxian")) then
+				or (hasTuntianEffect(to, true)) then
 			else
 				sgs.updateIntention(from,to,80)
 			end

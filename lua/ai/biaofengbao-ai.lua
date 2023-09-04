@@ -12,7 +12,7 @@ sgs.ai_skill_choice.bf_quanxue = function(self,choices,data)
 	local player = self.player
 	local items = choices:split("+")
 	local to = data:toPlayer()
-   	if player:hasSkill("zhaxiang")
+   	if hasZhaxiangEffect(player)
 	then return "lost_hp" end
 	if not self:isEnemy(to)
 	then return "draw" end

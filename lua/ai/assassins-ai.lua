@@ -106,7 +106,7 @@ sgs.ai_skill_use_func.MizhaoCard = function(card,use,self)
 		self:sort(self.enemies,"handcard")
 		for _,enemy in sgs.list(self.enemies)do
 			if not (enemy:hasSkill("manjuan") and enemy:isKongcheng())
-			and not enemy:hasSkills("tuntian+zaoxian")
+			and not hasTuntianEffect(enemy, true)
 			then target = enemy break end
 		end
 	end
@@ -116,7 +116,7 @@ sgs.ai_skill_use_func.MizhaoCard = function(card,use,self)
 		self.friends_noself = sgs.reverse(self.friends_noself)
 		if count<1 then return end
 		for _,friend in sgs.list(self.friends_noself)do
-			if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") and not self:isWeak(friend)
+			if not hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") and not self:isWeak(friend)
 			then target = friend break end
 		end
 		if not target then
@@ -287,7 +287,7 @@ sgs.ai_skill_use_func.MixinCard = function(card,use,self)
 
 	if slash then
 		for _,friend in sgs.list(self.friends_noself)do
-			if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") then
+			if hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") then
 				use.card = sgs.Card_Parse("@MixinCard="..slash:getEffectiveId())
 				if use.to then use.to:append(friend) end
 				return
@@ -313,7 +313,7 @@ sgs.ai_skill_use_func.MixinCard = function(card,use,self)
 			end
 		end
 		for _,friend in sgs.list(self.friends_noself)do
-			if friend:hasSkills("tuntian+zaoxian") and not friend:hasSkill("manjuan") then
+			if hasTuntianEffect(friend, true) and not friend:hasSkill("manjuan") then
 				use.card = sgs.Card_Parse("@MixinCard="..cards[1]:getEffectiveId())
 				if use.to then use.to:append(friend) end
 				return

@@ -63,6 +63,29 @@ player2serverplayer = function(room, player)
     end
 end
 
+
+function getCardDamageNature(from, to, card)
+    local nature = sgs.DamageStruct_Normal
+    if card then
+    if card:isKindOf("FireAttack") or card:isKindOf("FireSlash") then
+        nature = sgs.DamageStruct_Fire
+    elseif card:isKindOf("drowning") or card:isKindOf("ThunderSlash") then
+        nature = sgs.DamageStruct_Thunder
+    elseif card:isKindOf("IceSlash") then
+        nature = sgs.DamageStruct_Ice
+    end
+end
+    if hasWulingEffect("@fire") then
+        nature = sgs.DamageStruct_Fire
+    end
+	return nature
+end
+
+
+
+
+
+
 -- common prompt
 sgs.LoadTranslationTable {
     ["#skill_add_damage"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%from对%to造成的伤害增加至%arg2点。", -- add

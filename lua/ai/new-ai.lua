@@ -718,7 +718,7 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 		local x = p:getHandcardNum()
 		local good_target = true
 		if x == 1 and self:needKongcheng(p) then good_target = false end
-		if x >= 2 and p:hasSkill("tuntian") and p:hasSkill("zaoxian") then good_target = false end
+		if x >= 2 and hasTuntianEffect(p, true) then good_target = false end
 		if good_target and add_player(p) == tuxi_mark then return parseTuxiCard() end
 	end
 
@@ -733,13 +733,13 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 
 	local others = self.room:getOtherPlayers(self.player)
 	for _, other in sgs.qlist(others) do
-		if self:objectiveLevel(other) >= 0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and add_player(other) == tuxi_mark then
+		if self:objectiveLevel(other) >= 0 and not (hasTuntianEffect(other, true)) and add_player(other) == tuxi_mark then
 			return parseTuxiCard()
 		end
 	end
 
 	for _, other in sgs.qlist(others) do
-		if self:objectiveLevel(other) >= 0 and not (other:hasSkill("tuntian") and other:hasSkill("zaoxian")) and math.random(0, 5) <= 1 and not self:hasSkills("qiaobian") then
+		if self:objectiveLevel(other) >= 0 and not (hasTuntianEffect(other, true)) and math.random(0, 5) <= 1 and not self:hasSkills("qiaobian") then
 			add_player(other)
 		end
 	end
@@ -822,8 +822,9 @@ sgs.ai_skill_use_func["#luamouce"] = function(card, use, self)
 	self.enemies = sgs.reverse(self.enemies)
 	local target = nil
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:isWounded() and self.player:canDiscard(enemy, "hej") then
+		if enemy:isWounded() and self.player:canDiscard(enemy, "hej") and not self:doNotDiscard(enemy, "hej") and not hasZhaxiangEffect(enemy) then
 			target = enemy
+			break
 		end
 	end
 	if target == nil then return end

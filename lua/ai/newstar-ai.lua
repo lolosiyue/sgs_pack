@@ -223,7 +223,7 @@ sgs.ai_skill_invoke.LuaQuanbian = function(self, data)
 			(target:hasArmorEffect("SilverLion") and target:isWounded())
 	end
 	if self:isEnemy(target) then ---LuaQuanbian without zhugeliang and luxun
-		if target:hasSkill("tuntian") and target:getPhase() == sgs.Player_NotActive then return false end
+		if hasTuntianEffect(target) then return false end
 		if (self:needKongcheng(target) or self:getLeastHandcardNum(target) == 1) and target:getHandcardNum() == 1 then
 			if not target:getEquips():isEmpty() then
 				return true

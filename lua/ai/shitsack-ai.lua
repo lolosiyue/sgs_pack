@@ -1,7 +1,7 @@
 function SmartAI:useCardshit(card,use)
 
     local a = false
-    local b = (card:getSuit()~=sgs.Card_Spade and not self.player:hasSkill("jueqing"))
+    local b = (card:getSuit()~=sgs.Card_Spade and not hasJueqingEffect(self.player, self.player))
 	
 	if not self.player:isWounded() then
 		if self.player:hasSkills(sgs.need_kongcheng) then 
@@ -32,15 +32,15 @@ function SmartAI:useCardshit(card,use)
 	
 	if self.player:getHandcardNum()-self.player:getHp()>0 then
 	
-	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Fire) and card:getSuit()==sgs.Card_Heart and not self.player:hasSkill("jueqing") then
+	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Fire) and card:getSuit()==sgs.Card_Heart and not hasJueqingEffect(self.player, self.player) then
 	        a = true
 	    end
 	
-	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Normal) and card:getSuit()==sgs.Card_Diamond and not self.player:hasSkill("jueqing") then
+	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Normal) and card:getSuit()==sgs.Card_Diamond and not hasJueqingEffect(self.player, self.player) then
 	        a = true
 	    end
 	
-	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Thunder) and card:getSuit()==sgs.Card_Club and not self.player:hasSkill("jueqing") then
+	    if not self:damageIsEffective(self.player,sgs.DamageStruct_Thunder) and card:getSuit()==sgs.Card_Club and not hasJueqingEffect(self.player, self.player) then
 	        a = true
 	    end
 	
@@ -91,7 +91,7 @@ function SmartAI:useCardshit(card,use)
 	end
 	
 	
-	if self.player:getHp()>2 and self.player:hasSkill("zhaxiang") and (card:getSuit()==sgs.Card_Spade or self.player:hasSkill("jueqing")) then
+	if self.player:getHp()>2 and hasZhaxiangEffect(self.player) and (card:getSuit()==sgs.Card_Spade or hasJueqingEffect(self.player, self.player) ) then
 	    if self.player:getHp()>2 then 
             a = true
 		end

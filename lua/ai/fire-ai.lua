@@ -47,7 +47,7 @@ sgs.ai_skill_use_func.QuhuCard = function(card,use,self)
 		end
 		if use_quhu then
 			for _,enemy in sgs.list(self.enemies)do
-				if self.player:canPindian(enemy) and self.player:getHp()<enemy:getHp() and not enemy:hasSkill("jueqing") then
+				if self.player:canPindian(enemy) and self.player:getHp()<enemy:getHp() and not hasJueqingEffect(enemy) then
 					local cards = self.player:getHandcards()
 					cards = sgs.QList2Table(cards)
 					self:sortByUseValue(cards,true)

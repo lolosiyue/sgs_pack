@@ -873,7 +873,7 @@ n_choiceValue["dis1cd"] = -1
 n_choiceValue["dis2cd"] = -2
 n_choiceValue["lose1hp"] = function(self)
     local value = -2
-    if self.player:hasSkill("zhaxiang") then value = value+3 end
+    if hasZhaxiangEffect(self.player) then value = value+3 end
     return value
 end
 n_choiceValue["dmg1hp"] = function(self)

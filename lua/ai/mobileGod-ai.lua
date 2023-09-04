@@ -269,7 +269,7 @@ end
 sgs.ai_skill_choice.olshenfu = function(self, choices, data)
 	local to = data:toPlayer()
 	if self:isFriend(to) then
-		if to:hasSkill("tuntian") and to:getHandcardNum() - to:getHp() == 1 then
+		if hasTuntianEffect(to) and to:getHandcardNum() - to:getHp() == 1 then
 			return "discard"
 		end
 		return "draw"
