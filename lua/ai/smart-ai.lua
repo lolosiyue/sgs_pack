@@ -128,8 +128,8 @@ function setInitialTables()
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
-	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi"..
-	"|meizlrangma" --add
+	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
+		"|meizlrangma" --add
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
@@ -152,7 +152,7 @@ function setInitialTables()
 		"|duYinling|luajiejiang" --add
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
-		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong"..
+		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong" ..
 		"|meizlchongyuan" --add
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
@@ -161,7 +161,7 @@ function setInitialTables()
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
 		"|LuaGuizha|luaguidao" --add
-		
+
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
 		"neoluoyi|longhun|newlonghun|shuijian|yinbing"
@@ -177,7 +177,8 @@ function setInitialTables()
 		"|luajuao|s4_xianfeng|luazhenshe|blood_hj" --add
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
-		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe"
+		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe" ..
+		"|eweicheng|echinei" --add
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
 		"du_jiyu|meizlhunshidistance" --add
@@ -4165,7 +4166,7 @@ function SmartAI:getLeastHandcardNum(player)
 			player:getLostHp())
 	end
 	if player:hasSkill("nosshangshi") and least < player:getLostHp() then least = player:getLostHp() end
-	
+
 	--add
 	if player:hasSkill("LuaXiongcai") and player:getPhase() ~= sgs.Player_Discard and least < 3
 	then
@@ -7995,8 +7996,8 @@ function hasJueqingEffect(from, to, nature)
 
 	--add
 	nature = nature or sgs.DamageStruct_Normal
-	if from and from:hasSkills("meizlwuqing") and from:isWounded() and nature == sgs.DamageStruct_Normal then 
-		return true 
+	if from and from:hasSkills("meizlwuqing") and from:isWounded() and nature == sgs.DamageStruct_Normal then
+		return true
 	end
 
 	return false

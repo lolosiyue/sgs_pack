@@ -37,7 +37,7 @@ jl_juehun:4,0,0
 olshanjia:1,2,0
 langxi:1,0,1,2,2
 yingrui:1,0,1,0,2,0,2,1,0,1,1,0,1,1
-suijiyingbian:3,2,4,1,1,0,1,1,1,1
+suijiyingbian:3,2,4,1,1,0,1,1,1,1,1,1
 zhiyi:2
 tenyearmingfa:1,0,6,0,0,0,0,2,0
 ov_beini:1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -71,8 +71,8 @@ xunshi:1,0,3,0,0,0,0
 mobileyongjungong:1,1,1,1,1,1,1
 juesheng:3,1,0
 jinxiongshu:1,0,0
-longdan:1,0,0,0,0,2,0,0,0,0,2,0
-tenyearxiansi:1,0,1
+longdan:1,0,0,0,0,2,0,0,0,0,2,0,3,0,0,0,0,0
+tenyearxiansi:1,0,1,1,0,2,0
 blood_hj:1,1,0,0,1
 ov_xingzhui:2,1,0,4
 zhanhuo:2,0
@@ -80,10 +80,10 @@ cuike:1,1,0,0,0
 jinzhongyun:1
 qiangxi:1,0,1
 jinzhi:2,1
-olwushen:1,0,6,1,1
+olwushen:1,0,6,1,1,2,2,1
 fuhei:2,1,0,4,0,0,1,0
 olchangbiao:1,0,0,1,0,1,1
-olluanji:4,5,0,4
+olluanji:4,5,0,4,2,0
 mobilelianji:1,1,0,5
 xianzhou:1,0,0,0,0,0,0,0,0,0
 jinxuanbei:1,0,0,0,1,0,0,0,0
@@ -107,9 +107,9 @@ sheji:1,1,0,0,0,0
 tenyearduwu:1,1,0,0
 jueman:1,1,0,0
 LuaNengchen:2,1,0,0,2,2,0,0,0,1,0,8,0
-olqiangxi:2,2,2,2,2,0
+olqiangxi:2,2,2,2,2,0,3,4,0,0
 tenyearxianzhou:1,0
-LuaJuece:1,1,1,0,0,1,0,0,1
+LuaJuece:1,1,1,0,0,1,0,0,1,1,0
 longnu:1
 f_poweii:2,0,0,0
 juesi:1,2,1,1,1,0,0,0,0,0,0
@@ -131,7 +131,7 @@ mouzhu:1,0,0,0,0,0,0,0,0,0,0
 chengzhao:1
 PlusWusheng:2
 xingzhilve:1,1
-newxuehen:2,0
+newxuehen:2,0,1,1,1
 tenyearrende:1
 LuaLongzhen:1,7,0,0,0,0,1,1,0,0,0,0,1,0,1,0,0
 olfuman:1,0,0,0,0,1,2,0,1,0,0,0
@@ -167,7 +167,11 @@ xionghuo:1
 LuaGuishen:1,0,1,0,0,0
 yuyun:1,0,0,0
 tyshoulii:1
-tenyearhuace:1,0
+tenyearhuace:1,0,3,2,2,1,1
 tenyearsanyao:1
 secondjinzhi:2,0,0,0,1,0
 bingqing:1,0,0,0,0,0
+efusha:1,1,0,0,0,1,1,1,1,1
+liyu:2,0,0,0,0
+SixWujun:1,0,1
+jinpozhu:2,0,0,1
