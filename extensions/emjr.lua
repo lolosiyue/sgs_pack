@@ -569,7 +569,7 @@ ejisiCard = sgs.CreateSkillCard {
 		local room = player:getRoom()
 		local target = room:getCurrent()
 		room:setPlayerFlag(player, "ejisiUsed")
-		if target and player:pindian(target, "ejisi", nil) then
+		if target and player:pindian(target) then
 			room:broadcastSkillInvoke("ejisi", math.random(2, 3))
 			local nullification = sgs.Sanguosha:cloneCard("nullification", sgs.Card_NoSuit, 0)
 			nullification:toTrick():setCancelable(false)
@@ -752,10 +752,11 @@ ezhuanquan = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		if player:getPhase() == sgs.Player_Discard then
 			local room = player:getRoom()
-			local x = player:getHandcardNum() - player:getMaxCards()
-			if x > 0 then
+			
 				local zhugekes = room:findPlayersBySkillName(self:objectName())
 				for _, zhugeke in sgs.qlist(zhugekes) do
+					local x = player:getHandcardNum() - player:getMaxCards()
+			if x > 0 then
 					if room:askForSkillInvoke(zhugeke, self:objectName()) then
 						room:broadcastSkillInvoke(self:objectName())
 						room:setPlayerFlag(player, "ezhuanquanTarget_InTempMoving")
@@ -781,6 +782,8 @@ ezhuanquan = sgs.CreateTriggerSkill {
 							room:throwCard(dummy, player, zhugeke)
 						end
 					end
+				else
+					break
 				end
 			end
 		end
@@ -972,6 +975,7 @@ etiaoboCard = sgs.CreateSkillCard {
 				if from:canSlash(to, nil, false) then
 					local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
 					slash:setSkillName("_etiaobo")
+					slash:deleteLater()
 					local card_use = sgs.CardUseStruct()
 					card_use.from = from
 					card_use.to:append(to)

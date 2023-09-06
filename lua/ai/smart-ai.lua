@@ -124,23 +124,23 @@ function setInitialTables()
 		"neofanjian|lijian|noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|" ..
 		"mingce|wansha|gongxin|jilve|anxu|qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|" ..
 		"xiansi|junxing|bifa|yanyu|shenxian|jgtianyun" ..
-		"|luamouce" --add
+		"|luamouce|eqiehu" --add
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma" --add
+		"|meizlrangma|meizlhunshi" --add
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
 		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
-		"|s4_cloud_tuxi|luafan" --add
+		"|s4_cloud_tuxi|luafan|meizlcimin" --add
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
 		"qiaobian|lirang|mingce|fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan" ..
-		"|luaxiongfeng" --add
+		"|luaxiongfeng|eqiehu" --add
 
 	sgs.notActive_cardneed_skill = "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|leiji|nosleiji" ..
 		"qingjian|zhuhai|qinxue|jspdanqi|" .. sgs.dont_kongcheng_skill ..
@@ -153,14 +153,14 @@ function setInitialTables()
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong" ..
-		"|meizlchongyuan" --add
+		"|meizlchongyuan|etushou" --add
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
-		"|LuaGuizha|luaguidao" --add
+		"|LuaGuizha|luaguidao|eqiehu" --add
 
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
@@ -181,7 +181,7 @@ function setInitialTables()
 		"|eweicheng|echinei" --add
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
-		"du_jiyu|meizlhunshidistance" --add
+		"du_jiyu|meizlhunshidistance|meizlkuijiu" --add
 
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
@@ -6602,6 +6602,14 @@ function getBestHp(owner)
 	end
 	if owner:hasSkills("renjie+baiyin") and owner:getMark("baiyin") == 0 then return owner:getMaxHp() - 1 end
 	if owner:hasSkills("quanji+zili") and owner:getMark("zili") == 0 then return owner:getMaxHp() - 1 end
+
+	--add
+	if owner:hasSkills("LuaHuaji+LuaBaonu") and owner:getMark("LuaBaonu") == 0 then return owner:getMaxHp() - 1 end
+	if owner:hasSkills("LuaHuaji+xingLuashenji") and owner:getMark("xingLuashenji") == 0 then return owner:getMaxHp() - 1 end
+	if owner:hasSkills("du_jieying+duYinling") and owner:getMark("du_jieying") == 0 and owner:getPile("du_jin"):length() >= 2 then return owner:getMaxHp() - 2 end
+	if owner:hasSkill("duWuhun") and owner:getMark("BladeUsed") == 0 and owner:getMark("ChiTuUsed") == 0 then return owner:getMaxHp() - 1 end
+
+
 	return owner:getMaxHp()
 end
 
@@ -6675,6 +6683,13 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 			or to:hasSkill("canshi") and count >= 3 then
 			bh = math.min(bh, to:getMaxHp() - 1)
 		end
+
+		--add
+		if to:hasSkills("echinei") and self:findFriendsByType(sgs.Friend_Draw, to) and not self:willSkipDrawPhase(to)
+		then
+			bh = math.min(bh, to:getMaxHp() - 1)
+		end
+
 	end
 	local xiangxiang = self.room:findPlayerBySkillName("jieyin")
 	if xiangxiang and xiangxiang:isWounded()
@@ -7370,6 +7385,21 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 		end
 		return true
 	end
+
+	--add
+	caifuren = self.room:findPlayerBySkillName("noszhuikong")
+	if caifuren  and caifuren:objectName() ~= player:objectName() and self:isEnemy(player, caifuren)
+		 and caifuren:canPindian(player) and not self:isWeak(caifuren)
+	then
+		local max_card = self:getMaxCard(caifuren)
+		local player_max_card = self:getMaxCard(player)
+		if max_card and player_max_card and max_card:getNumber() > player_max_card:getNumber()
+			or max_card and max_card:getNumber() >= 12 then
+			return true
+		end
+	end
+
+
 	return false
 end
 
@@ -7439,6 +7469,18 @@ function SmartAI:willSkipDiscardPhase(player)
 		end
 		if wounded >= 3 then return true end
 	end
+
+	--add
+	
+	if player:hasSkill("ekegou")	then
+		for _, p in sgs.list(self.room:getAlivePlayers()) do
+			if p:getHandcardNum() >= player:getHandcardNum() then
+				return true
+			end
+		end
+	end
+
+
 	return false
 end
 

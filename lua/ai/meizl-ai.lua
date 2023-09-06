@@ -187,7 +187,7 @@ sgs.ai_choicemade_filter.cardChosen.meizlguiyuan = sgs.ai_choicemade_filter.card
 sgs.ai_skill_invoke.meizlfeiren = function(self, data)
 	local effect = data:toSlashEffect()
 	if self:isEnemy(effect.to) then
-		if self:doNotDiscard(effect.to) then
+		if self:doNotDiscard(effect.to, "h") then
 			return false
 		end
 		if self.player:getPile("meizlfeiren"):length() >= 2 then
@@ -195,8 +195,13 @@ sgs.ai_skill_invoke.meizlfeiren = function(self, data)
 		end
 
 		return true
+	elseif self:isFriend(effect.to) then
+		if self.player:getPile("meizlfeiren"):length() >= 2 then
+			return self:isGoodTarget(effect.to, self.player)
+		end
+		return self:doNotDiscard(effect.to, "h")
 	end
-	return not self:isFriend(effect.to)
+	return false
 end
 
 sgs.ai_choicemade_filter.cardChosen.meizlfeiren = sgs.ai_choicemade_filter.cardChosen.snatch
@@ -445,6 +450,7 @@ local meizlzhaoxu_skill = {}
 meizlzhaoxu_skill.name = "meizlzhaoxu"
 table.insert(sgs.ai_skills, meizlzhaoxu_skill)
 meizlzhaoxu_skill.getTurnUseCard = function(self)
+	if #self.friends_noself ==  0 then return end
 	if not self.player:isKongcheng() and not self.player:hasUsed("#meizlzhaoxucard") then
 		return sgs.Card_Parse("#meizlzhaoxucard:.:")
 	end
@@ -785,6 +791,18 @@ sgs.ai_cardsview["meizlsuxian"] = function(self, class_name, player)
 	end
 end
 
+sgs.ai_use_revises.meizlsuxian = function(self, card, use)
+	if card:isKindOf("EquipCard")
+		and card:isRed()
+	then
+		same = self:getSameEquip(card)
+		if same and same:isRed()
+		then
+			return false
+		end
+	end
+end
+
 --慈悯（卞夫人）
 sgs.ai_skill_invoke.meizlcimin = function(self, data)
 	local target = data:toPlayer()
@@ -937,6 +955,7 @@ sgs.ai_skill_use_func["#meizlzhinangcard"] = function(card, use, self)
 		end
 	end
 end
+
 
 
 --MEIZL 013 马云禄

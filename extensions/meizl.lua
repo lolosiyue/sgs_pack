@@ -1102,7 +1102,7 @@ meizlhujiacard = sgs.CreateSkillCard {
 	will_throw = false,
 
 	filter = function(self, targets, to_select)
-		return #targets == 0 and (not to_select:isKongcheng()) and to_select:objectName() ~= sgs.Self:objectName()
+		return #targets == 0 and sgs.Self:canPindian(to_select) and to_select:objectName() ~= sgs.Self:objectName()
 	end,
 
 	on_use = function(self, room, source, targets)
@@ -1292,6 +1292,7 @@ meizlzhinangcard = sgs.CreateSkillCard
 				damage.from = source
 				damage.to = targets[1]
 				damage.damage = x
+				damage.reason = self:obbjectName()
 				room:damage(damage)
 			else
 				--[[while x > 0 do
@@ -1514,8 +1515,6 @@ meizlrongzhuang = sgs.CreateTriggerSkill {
 	frequency = sgs.Skill_Frequent,
 	events = { sgs.Damage, sgs.CardFinished },
 	on_trigger = function(self, event, player, data, room)
-		--local splayer = room:findPlayerBySkillName(self:objectName())
-		local meizlmayunlus = room:findPlayersBySkillName(self:objectName())
 		if event == sgs.Damage then
 			local damage = data:toDamage()
 			if damage.card and damage.card:isRed() and damage.card:isKindOf("Slash") and (not damage.chain) and (not damage.transfer) then
@@ -12398,11 +12397,7 @@ shixiang = sgs.CreateTriggerSkill {
 				if room:askForSkillInvoke(player, "shixiang") then
 					room:broadcastInvoke("animate", "lightbox:$Shixiang:3000")
 					room:getThread():delay(3000)
-					local y = player:getHandcardNum()
-					local x = y + y + y
-					if x > 9 then
-						x = 9
-					end
+					local x = math.min(9, player:getHandcardNum() * 3)
 					player:throwAllHandCards()
 					player:drawCards(x)
 					player:loseMark("@shixiang")

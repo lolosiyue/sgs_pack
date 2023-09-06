@@ -5,9 +5,12 @@ Retrial
 
 not done:
 张春华 无情 lostmaxhp ai
+du sunjian tongpao
 
 test:
+emjr 
 SixJushou
+meizl huangyueying
 
 audio:
 du
@@ -77,8 +80,14 @@ hasTuntianEffect(to, need_zaoxian)
 hasZhaxiangEffect(to)
 hasOrangeEffect(player) --dontHurt not yet use
 canNiepan(player) not yet use
+enyuan?
+
 
 cantDamageMore 
 
 getCardDamageNature
+
+needToLoseHp -> getLostHp()skill
+
+getBestHp() -> skill wake up lose maxhp
 

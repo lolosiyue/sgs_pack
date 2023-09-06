@@ -26,6 +26,7 @@ sgs.ai_skill_use_func["#efusha"] = function(card, use, self)
 		end
 	end
 	local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+	slash:deleteLater()
 	for _, enemy in ipairs(self.enemies) do
 		if self:canAttack(enemy) and not enemy:hasSkills("qingnang|jijiu|tianxiang") then
 			for _, card in ipairs(cards) do
@@ -222,21 +223,21 @@ end
 
 sgs.ai_skill_use_func["#eyanshouCard"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:hasEquip() and not self:hasSkills(sgs.lose_equip_skill, enemy) and self:willSkipPlayPhase(enemy) then
+		if enemy:hasEquip() and not self:doNotDiscard(enemy, "e") and self:willSkipPlayPhase(enemy) then
 			use.card = sgs.Card_Parse("#eyanshouCard:.:")
 			if use.to then use.to:append(enemy) end
 			return
 		end
 	end
 	for _, enemy in ipairs(self.enemies) do
-		if enemy:hasEquip() and not self:hasSkills(sgs.lose_equip_skill, enemy) then
+		if enemy:hasEquip() and not self:doNotDiscard(enemy, "e") then
 			use.card = sgs.Card_Parse("#eyanshouCard:.:")
 			if use.to then use.to:append(enemy) end
 			return
 		end
 	end
 	for _, friend in ipairs(self.friends) do
-		if friend:hasEquip() and self:hasSkills(sgs.lose_equip_skill, friend) then
+		if friend:hasEquip() and self:doNotDiscard(friend, "e") then
 			use.card = sgs.Card_Parse("#eyanshouCard:.:")
 			if use.to then use.to:append(friend) end
 			return
@@ -281,12 +282,12 @@ end
 sgs.ai_skill_invoke.ezhuanquan = function(self, data)
 	local target = self.room:getCurrent()
 	if self:isEnemy(target) then
-		if self:doNotDiscard(target) then
+		if self:doNotDiscard(target, "h") then
 			return false
 		end
 	end
 	if self:isFriend(target) then
-		return self:doNotDiscard(target)
+		return self:doNotDiscard(target, "h")
 	end
 	return not self:isFriend(target)
 end

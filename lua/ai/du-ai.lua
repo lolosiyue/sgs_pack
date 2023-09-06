@@ -268,13 +268,6 @@ sgs.ai_card_intention["#duYinlingCard"] = function(self, card, from, tos)
 end
 
 
-sgs.ai_can_damagehp.du_jieying = function(self, from, card, to)
-    return (to:getMark("du_jieying") == 0) and to:getLostHp() < 2
-        and self:ajustDamage(from, to, 1, card) > 0 and to:getPile("du_jin"):length() >= 3
-end
-
-
-
 sgs.ai_cardneed.duXiaoguo = function(to, card, self)
     return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
 end
