@@ -129,7 +129,7 @@ function setInitialTables()
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma|meizlhunshi" --add
+		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi" --add
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
@@ -6606,8 +6606,14 @@ function getBestHp(owner)
 	--add
 	if owner:hasSkills("LuaHuaji+LuaBaonu") and owner:getMark("LuaBaonu") == 0 then return owner:getMaxHp() - 1 end
 	if owner:hasSkills("LuaHuaji+xingLuashenji") and owner:getMark("xingLuashenji") == 0 then return owner:getMaxHp() - 1 end
-	if owner:hasSkills("du_jieying+duYinling") and owner:getMark("du_jieying") == 0 and owner:getPile("du_jin"):length() >= 2 then return owner:getMaxHp() - 2 end
-	if owner:hasSkill("duWuhun") and owner:getMark("BladeUsed") == 0 and owner:getMark("ChiTuUsed") == 0 then return owner:getMaxHp() - 1 end
+	if owner:hasSkills("du_jieying+duYinling") and owner:getMark("du_jieying") == 0 and owner:getPile("du_jin"):length() >= 2 then
+		return
+			owner:getMaxHp() - 2
+	end
+	if owner:hasSkill("duWuhun") and owner:getMark("BladeUsed") == 0 and owner:getMark("ChiTuUsed") == 0 then
+		return
+			owner:getMaxHp() - 1
+	end
 
 
 	return owner:getMaxHp()
@@ -6689,7 +6695,6 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		then
 			bh = math.min(bh, to:getMaxHp() - 1)
 		end
-
 	end
 	local xiangxiang = self.room:findPlayerBySkillName("jieyin")
 	if xiangxiang and xiangxiang:isWounded()
@@ -7388,8 +7393,8 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 
 	--add
 	caifuren = self.room:findPlayerBySkillName("noszhuikong")
-	if caifuren  and caifuren:objectName() ~= player:objectName() and self:isEnemy(player, caifuren)
-		 and caifuren:canPindian(player) and not self:isWeak(caifuren)
+	if caifuren and caifuren:objectName() ~= player:objectName() and self:isEnemy(player, caifuren)
+		and caifuren:canPindian(player) and not self:isWeak(caifuren)
 	then
 		local max_card = self:getMaxCard(caifuren)
 		local player_max_card = self:getMaxCard(player)
@@ -7471,8 +7476,8 @@ function SmartAI:willSkipDiscardPhase(player)
 	end
 
 	--add
-	
-	if player:hasSkill("ekegou")	then
+
+	if player:hasSkill("ekegou") then
 		for _, p in sgs.list(self.room:getAlivePlayers()) do
 			if p:getHandcardNum() >= player:getHandcardNum() then
 				return true
