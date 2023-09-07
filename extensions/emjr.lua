@@ -230,7 +230,8 @@ eqiehu = sgs.CreateTriggerSkill {
 				if not lidian:isNude() then
 					local change = data:toPhaseChange()
 					if change.from == sgs.Player_Draw then
-						if room:askForCard(lidian, "BasicCard", "@eqiehu1:%s".. player:objectName(), data, "eqiehu") then
+						local prompt = string.format("@eqiehu1:%s", player:objectName())
+						if room:askForCard(lidian, "BasicCard", prompt, data, "eqiehu") then
 							if player:getGeneralName() == "zhangliao" or player:getGeneralName() == "kof_zhangliao" then
 								room:broadcastSkillInvoke(self:objectName(), 2)
 							else
@@ -239,7 +240,8 @@ eqiehu = sgs.CreateTriggerSkill {
 							room:drawCards(player, 2, "eqiehu")
 						end
 					elseif change.from == sgs.Player_Discard then
-						if room:askForCard(lidian, "EquipCard,TrickCard", "@eqiehu2:%s".. player:objectName(), data, "eqiehu") then
+						local prompt = string.format("@eqiehu2:%s", player:objectName())
+						if room:askForCard(lidian, "EquipCard,TrickCard", prompt, data, "eqiehu") then
 							if player:getGeneralName() == "sunquan" or player:getGeneralName() == "zhiba_sunquan" then
 								room:broadcastSkillInvoke(self:objectName(), 4)
 							else
@@ -307,11 +309,12 @@ ehuwu = sgs.CreateTriggerSkill {
 							local id = card:getEffectiveId()
 							local choice
 							if not (room:getCardPlace(id) ~= sgs.Player_DiscardPile or player:isDead()) then
-								choice = room:askForChoice(zhoucang, self:objectName(), "ehuwu1=".. card:objectName() .."+ehuwu2=".. player:objectName(), data)
+								choice = room:askForChoice(zhoucang, self:objectName(),
+									"ehuwu1=" .. card:objectName() .. "+ehuwu2=" .. player:objectName(), data)
 							elseif player:isDead() then
-								choice = "ehuwu1=".. card:objectName()
+								choice = "ehuwu1=" .. card:objectName()
 							else
-								choice = "ehuwu2=".. player:objectName()
+								choice = "ehuwu2=" .. player:objectName()
 							end
 							if choice:startsWith("ehuwu1") then
 								zhoucang:obtainCard(card);
@@ -569,7 +572,7 @@ ejisiCard = sgs.CreateSkillCard {
 		local room = player:getRoom()
 		local target = room:getCurrent()
 		room:setPlayerFlag(player, "ejisiUsed")
-		if target and player:pindian(target) then
+		if target and player:pindian(target, "ejisi", nil) then
 			room:broadcastSkillInvoke("ejisi", math.random(2, 3))
 			local nullification = sgs.Sanguosha:cloneCard("nullification", sgs.Card_NoSuit, 0)
 			nullification:toTrick():setCancelable(false)
@@ -752,11 +755,11 @@ ezhuanquan = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		if player:getPhase() == sgs.Player_Discard then
 			local room = player:getRoom()
-			
-				local zhugekes = room:findPlayersBySkillName(self:objectName())
-				for _, zhugeke in sgs.qlist(zhugekes) do
-					local x = player:getHandcardNum() - player:getMaxCards()
-			if x > 0 then
+
+			local zhugekes = room:findPlayersBySkillName(self:objectName())
+			for _, zhugeke in sgs.qlist(zhugekes) do
+				local x = player:getHandcardNum() - player:getMaxCards()
+				if x > 0 then
 					if room:askForSkillInvoke(zhugeke, self:objectName()) then
 						room:broadcastSkillInvoke(self:objectName())
 						room:setPlayerFlag(player, "ezhuanquanTarget_InTempMoving")
@@ -841,53 +844,51 @@ etushou = sgs.CreateTriggerSkill {
 			local equips = player:getEquips()
 			local cardsNum = player:getHandcardNum() + equips:length()
 			if not (player:isKongcheng() and cardsNum < 2) then
-				if room:askForSkillInvoke(player, self:objectName()) then
-					local choice
-					if cardsNum < 2 then
-						choice = room:askForChoice(player, self:objectName(), "etushou1+cancel")
-					elseif player:isKongcheng() then
-						choice = room:askForChoice(player, self:objectName(), "etushou2+cancel")
-					else
-						choice = room:askForChoice(player, self:objectName(), "etushou1+etushou2+cancel")
+				local choice
+				if cardsNum < 2 then
+					choice = room:askForChoice(player, self:objectName(), "etushou1+cancel")
+				elseif player:isKongcheng() then
+					choice = room:askForChoice(player, self:objectName(), "etushou2+cancel")
+				else
+					choice = room:askForChoice(player, self:objectName(), "etushou1+etushou2+cancel")
+				end
+				if choice == "etushou1" then
+					room:addPlayerMark(player, "&" .. self:objectName() .. "+etushou_damageCause-Clear")
+					room:broadcastSkillInvoke(self:objectName(), 1)
+					local maxHp = -1000
+					local to_givelist0 = room:getOtherPlayers(player)
+					for _, p in sgs.qlist(to_givelist0) do
+						if p:getHp() > maxHp then
+							maxHp = p:getHp()
+						end
 					end
-					if choice == "etushou1" then
-						room:addPlayerMark(player, "&" .. self:objectName() .. "+etushou_damageCause-Clear")
-						room:broadcastSkillInvoke(self:objectName(), 1)
-						local maxHp = -1000
-						local to_givelist0 = room:getOtherPlayers(player)
-						for _, p in sgs.qlist(to_givelist0) do
-							if p:getHp() > maxHp then
-								maxHp = p:getHp()
-							end
+					local to_givelist = sgs.SPlayerList()
+					for _, p in sgs.qlist(to_givelist0) do
+						if p:getHp() == maxHp then
+							to_givelist:append(p)
 						end
-						local to_givelist = sgs.SPlayerList()
-						for _, p in sgs.qlist(to_givelist0) do
-							if p:getHp() == maxHp then
-								to_givelist:append(p)
-							end
-						end
-						local to_give = room:askForPlayerChosen(player, to_givelist, self:objectName())
-						local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_GIVE, player:objectName())
-						reason.m_playerId = to_give:objectName()
-						local id = room:askForCardChosen(player, player, "h", self:objectName())
-						local card = sgs.Sanguosha:getCard(id)
-						room:moveCardTo(card, to_give, sgs.Player_PlaceHand, false)
-						equips = player:getEquips()
-						cardsNum = player:getHandcardNum() + equips:length()
-						local x = player:getMaxHp() - cardsNum
-						if x > 0 then
-							player:drawCards(x)
-						end
-						room:setPlayerFlag(player, "etushou1")
-					elseif choice == "etushou2" then
-						room:addPlayerMark(player, "&" .. self:objectName() .. "+etushou_damageInflicte-Clear")
-						room:broadcastSkillInvoke(self:objectName(), 2)
-						room:askForDiscard(player, self:objectName(), 2, 2, false, true);
-						local recover = sgs.RecoverStruct()
-						recover.who = player
-						room:recover(player, recover)
-						room:setPlayerFlag(player, "etushou2")
 					end
+					local to_give = room:askForPlayerChosen(player, to_givelist, self:objectName())
+					local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_GIVE, player:objectName())
+					reason.m_playerId = to_give:objectName()
+					local id = room:askForCardChosen(player, player, "h", self:objectName())
+					local card = sgs.Sanguosha:getCard(id)
+					room:moveCardTo(card, to_give, sgs.Player_PlaceHand, false)
+					equips = player:getEquips()
+					cardsNum = player:getHandcardNum() + equips:length()
+					local x = player:getMaxHp() - cardsNum
+					if x > 0 then
+						player:drawCards(x)
+					end
+					room:setPlayerFlag(player, "etushou1")
+				elseif choice == "etushou2" then
+					room:addPlayerMark(player, "&" .. self:objectName() .. "+etushou_damageInflicte-Clear")
+					room:broadcastSkillInvoke(self:objectName(), 2)
+					room:askForDiscard(player, self:objectName(), 2, 2, false, true);
+					local recover = sgs.RecoverStruct()
+					recover.who = player
+					room:recover(player, recover)
+					room:setPlayerFlag(player, "etushou2")
 				end
 			end
 		end
@@ -903,7 +904,9 @@ etushouEffect = sgs.CreateTriggerSkill {
 		if event == sgs.DamageInflicted then
 			if player:hasFlag("etushou2") then
 				room:broadcastSkillInvoke("etushou", 4)
-				return true
+				damage.prevented = true
+				data:setValue(damage)
+				--return true
 			end
 		end
 		if event == sgs.DamageCaused then
@@ -912,7 +915,9 @@ etushouEffect = sgs.CreateTriggerSkill {
 				if source:isAlive() then
 					if source:hasFlag("etushou1") then
 						room:broadcastSkillInvoke("etushou", 3)
-						return true
+						damage.prevented = true
+						data:setValue(damage)
+						--return true
 					end
 				end
 			end
@@ -1174,7 +1179,7 @@ sgs.LoadTranslationTable {
 --[[ 武将：郝昭（群，4体力）
 技能：
 【死守】【锁定技】：若你的装备区里没有防具牌，红色的杀（含火杀）对你无效，每当你受到一次杀的伤害，你摸一张牌。
-【破计】在你的回合外，当你成为非延时锦囊的目标时，你可以弃置一张与此锦囊相同花色的手牌令其无效。 
+【破计】在你的回合外，当你成为非延时锦囊的目标时，你可以弃置一张与此锦囊相同花色的手牌令其无效。
 ==========================================================
 武将：张翼（蜀，4体力）
 技能：

@@ -86,7 +86,7 @@ sgs.ai_skill_cardask["@eqiehu2"] = function(self, data, pattern, target)
 	local current = self.room:getCurrent()
 	local usable_cards = sgs.QList2Table(self.player:getCards("he"))
 	self:sortByKeepValue(usable_cards)
-	if current and self:isEnemy(current) then
+	if current and self:isEnemy(current) and not self:doNotDiscard(current, "he") then
 		if self.player:hasArmorEffect("silver_lion") and self.player:isWounded() then
 			for _, c in ipairs(usable_cards) do
 				if c:isKindOf("SilverLion") then
@@ -144,13 +144,16 @@ sgs.ai_skill_choice.ehuwu = function(self, choices, data)
 	local obtain = getChoice(choices, "ehuwu1")
 	local draw = getChoice(choices, "ehuwu2")
 	if not use.card and self:isFriend(use.from) then return draw end
-	if use.card:isKindOf("Slash") and not self:hasCrossbowEffect(use.from) and getCardsNum("Slash", use.from, self.player) == 0 and self:isFriend(use.from) then
-		return
-		draw
+	if not self:isFriend(use.from) then return obtain end
+	if use.card:isKindOf("Slash") and not self:hasCrossbowEffect(use.from) and getCardsNum("Slash", use.from, self.player) == 0 then
+		return draw
 	end
-	if self:isWeak(use.from) and self:isFriend(use.from) and (getCardsNum("Slash", use.from, self.player) or not use.card:isKindOf("Slash") or use.from:getHandcardNum() <= use.from:getHp()) then
+	if self:isWeak(use.from) and (getCardsNum("Slash", use.from, self.player) or not use.card:isKindOf("Slash") or use.from:getHandcardNum() <= use.from:getHp()) then
+		return draw
+	end
+	if self:willSkipPlayPhase(self.player) or self:getOverflow() > 0 or self:getOverflow(use.from) == 0 then
 		return
-		draw
+			obtain
 	end
 	local items = choices:split("+")
 	if obtain then return obtain end
@@ -183,10 +186,11 @@ sgs.ai_skill_use["@@erangwai"] = function(self, prompt, method)
 			break
 		end
 	end
+	local current = self.room:getCurrent()
 
-	if card then
+	if card and current then
 		for _, enemy in ipairs(self.enemies) do
-			if self.room:getCurrent():canSlash(enemy) and not self:slashProhibit(nil, enemy) and sgs.getDefenseSlash(enemy, self) <= 2 and self:isGoodTarget(enemy, self.enemies, use_card) and enemy:objectName() ~= self.player:objectName() then
+			if not self:slashProhibit(nil, enemy) and sgs.getDefenseSlash(enemy, self) <= 2 and self:isGoodTarget(enemy, self.enemies, use_card) and current:inMyAttackRange(enemy) then
 				return "#erangwaiCard:" .. card:getEffectiveId() .. ":" .. "->" .. enemy:objectName()
 			end
 		end
@@ -229,7 +233,7 @@ sgs.ai_skill_use_func["#eyanshouCard"] = function(card, use, self)
 	end
 end
 
-
+sgs.ai_cardneed.ejisi = sgs.ai_cardneed.bignumber
 sgs.ai_cardsview_valuable.ejisi = function(self, class_name, player)
 	local usereason = sgs.Sanguosha:getCurrentCardUseReason()
 	if usereason ~= sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then return end
