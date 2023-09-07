@@ -230,7 +230,7 @@ eqiehu = sgs.CreateTriggerSkill {
 				if not lidian:isNude() then
 					local change = data:toPhaseChange()
 					if change.from == sgs.Player_Draw then
-						if room:askForCard(lidian, "BasicCard", "@eqiehu1", data, "eqiehu") then
+						if room:askForCard(lidian, "BasicCard", "@eqiehu1:%s".. player:objectName(), data, "eqiehu") then
 							if player:getGeneralName() == "zhangliao" or player:getGeneralName() == "kof_zhangliao" then
 								room:broadcastSkillInvoke(self:objectName(), 2)
 							else
@@ -239,7 +239,7 @@ eqiehu = sgs.CreateTriggerSkill {
 							room:drawCards(player, 2, "eqiehu")
 						end
 					elseif change.from == sgs.Player_Discard then
-						if room:askForCard(lidian, "EquipCard,TrickCard", "@eqiehu2", data, "eqiehu") then
+						if room:askForCard(lidian, "EquipCard,TrickCard", "@eqiehu2:%s".. player:objectName(), data, "eqiehu") then
 							if player:getGeneralName() == "sunquan" or player:getGeneralName() == "zhiba_sunquan" then
 								room:broadcastSkillInvoke(self:objectName(), 4)
 							else
@@ -1047,8 +1047,8 @@ sgs.LoadTranslationTable {
 	["illustrator:elidian"] = "真三国无双7",
 	["eqiehu"] = "郄縠",
 	[":eqiehu"] = "其他角色的摸牌阶段结束后，你可以弃置一张基本牌，令该角色摸两张牌；其他角色的弃牌阶段结束后，你可以弃置一张非基本牌，令该角色弃置两张牌。",
-	["@eqiehu1"] = "你可以弃置一张基本牌发动“郄縠”，令当前回合角色摸两张牌",
-	["@eqiehu2"] = "你可以弃置一张非基本牌发动“郄縠”，令当前回合角色弃置两张牌",
+	["@eqiehu1"] = "你可以弃置一张基本牌发动“郄縠”，令 %src 摸两张牌",
+	["@eqiehu2"] = "你可以弃置一张非基本牌发动“郄縠”，令 %src 弃置两张牌",
 	["$eqiehu1"] = "典岂敢以私憾而忘公义乎？", --前半段
 	["$eqiehu2"] = "文远兄，我来助你！", --前半段，对张辽
 	["$eqiehu3"] = "苟利国家，专之可也，宜亟击之。", --后半段
@@ -1170,3 +1170,12 @@ sgs.LoadTranslationTable {
 	["$echizhong2"] = "但恐事或不成，反招大祸。",
 	["~ewangyun"] = "臣本为社稷计，事已至此……",
 }
+
+--[[ 武将：郝昭（群，4体力）
+技能：
+【死守】【锁定技】：若你的装备区里没有防具牌，红色的杀（含火杀）对你无效，每当你受到一次杀的伤害，你摸一张牌。
+【破计】在你的回合外，当你成为非延时锦囊的目标时，你可以弃置一张与此锦囊相同花色的手牌令其无效。 
+==========================================================
+武将：张翼（蜀，4体力）
+技能：
+【廷争】其他角色于其回合内使用第一张【杀】时，你可以与其拼点：若你赢，取消此【杀】，你获得双方拼点的牌，其摸两张牌；若你没赢，其获得双方拼点的牌，于此【杀】结算结束后你视为对相同目标使用【杀】。每轮限一次。 ]]
