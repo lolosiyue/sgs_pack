@@ -188,24 +188,6 @@ sgs.ai_skill_use["@@erangwai"] = function(self, prompt, method)
 				return "#erangwaiCard:" .. card:getEffectiveId() .. ":" .. "->" .. enemy:objectName()
 			end
 		end
-
-
-
-
-
-		--[[
-        local dummyuse = { isDummy = true, to = sgs.SPlayerList() }
-        self:useBasicCard(use_card, dummyuse)
-        local targets = {}
-        if not dummyuse.to:isEmpty() then
-            for _, p in sgs.qlist(dummyuse.to) do
-                table.insert(targets, p:objectName())
-            end
-            if #targets > 0 then
-                --return use_card:toString() .. "->" .. table.concat(targets, "+")
-                return "#erangwaiCard:".. card:getEffectiveId()..":" .. "->" .. table.concat(targets, "+")
-            end
-        end]]
 	end
 	return "."
 end
