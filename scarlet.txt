@@ -91,3 +91,6 @@ needToLoseHp -> getLostHp()skill
 
 getBestHp() -> skill wake up lose maxhp
 
+choice =src
+
+mark &

@@ -307,15 +307,15 @@ ehuwu = sgs.CreateTriggerSkill {
 							local id = card:getEffectiveId()
 							local choice
 							if not (room:getCardPlace(id) ~= sgs.Player_DiscardPile or player:isDead()) then
-								choice = room:askForChoice(zhoucang, self:objectName(), "ehuwu1+ehuwu2", data)
+								choice = room:askForChoice(zhoucang, self:objectName(), "ehuwu1=".. card:objectName() .."+ehuwu2=".. player:objectName(), data)
 							elseif player:isDead() then
-								choice = "ehuwu1"
+								choice = "ehuwu1=".. card:objectName()
 							else
-								choice = "ehuwu2"
+								choice = "ehuwu2=".. player:objectName()
 							end
-							if choice == "ehuwu1" then
+							if choice:startsWith("ehuwu1") then
 								zhoucang:obtainCard(card);
-							elseif choice == "ehuwu2" then
+							elseif choice:startsWith("ehuwu2") then
 								player:drawCards(1)
 							end
 						end
@@ -1063,8 +1063,8 @@ sgs.LoadTranslationTable {
 	["illustrator:ezhoucang"] = "三国智",
 	["ehuwu"] = "护武",
 	[":ehuwu"] = "每当其他角色主动使用的红色的【杀】和红色非延时类锦囊牌结算结束后，你可以进行判定，若判定结果不为红桃，你选择一项：1.获得处理区里的此牌；2.令该角色摸一张牌。",
-	["ehuwu:ehuwu1"] = "获得处理区里的此牌",
-	["ehuwu:ehuwu2"] = "令此牌使用者摸一张牌",
+	["ehuwu:ehuwu1"] = "获得处理区里的 %src",
+	["ehuwu:ehuwu2"] = "令 %src 摸一张牌",
 	["$ehuwu1"] = "好刀法！", --红杀
 	["$ehuwu2"] = "好计策！", --红锦囊
 	["$ehuwu3"] = "仓跟随将军，虽万里不辞也。", --对关羽

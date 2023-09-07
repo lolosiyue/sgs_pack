@@ -141,17 +141,19 @@ end
 
 sgs.ai_skill_choice.ehuwu = function(self, choices, data)
 	local use = data:toCardUse()
-	if not use.card and self:isFriend(use.from) then return "ehuwu2" end
+	local obtain = getChoice(choices, "ehuwu1")
+	local draw = getChoice(choices, "ehuwu2")
+	if not use.card and self:isFriend(use.from) then return draw end
 	if use.card:isKindOf("Slash") and not self:hasCrossbowEffect(use.from) and getCardsNum("Slash", use.from, self.player) == 0 and self:isFriend(use.from) then
 		return
-		"ehuwu2"
+		draw
 	end
 	if self:isWeak(use.from) and self:isFriend(use.from) and (getCardsNum("Slash", use.from, self.player) or not use.card:isKindOf("Slash") or use.from:getHandcardNum() <= use.from:getHp()) then
 		return
-		"ehuwu2"
+		draw
 	end
 	local items = choices:split("+")
-	if table.contains(items, "ehuwu1") then return "ehuwu1" end
+	if obtain then return obtain end
 	return items[1]
 end
 
@@ -297,6 +299,7 @@ end
 
 sgs.ai_skill_choice.etushou = function(self, choices, data)
 	local items = choices:split("+")
+
 	if table.contains(items, "etushou2") and self:isWeak() then return "etushou2" end
 	if table.contains(items, "etushou1") and self.player:getMaxHp() - self.player:getHandcardNum() > 2 then
 		local maxHp = 0
@@ -334,6 +337,7 @@ local etiaobo_skill = {
 		local can_use = false
 		self:sort(self.enemies, "chaofeng")
 		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()
 		for _, enemy in ipairs(self.enemies) do
 			if not self:slashIsEffective(slash, enemy) then continue end
 			if enemy:isKongcheng() then continue end
