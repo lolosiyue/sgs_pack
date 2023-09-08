@@ -763,7 +763,7 @@ meizlduyan = sgs.CreateTriggerSkill {
 
 			if player:objectName() == splayer:objectName() or splayer:isKongcheng() or player:isKongcheng() or not splayer:canPindian(player) then return end
 			if not splayer:askForSkillInvoke(self:objectName()) then return end
-			local win = splayer:pindian(player, self:objectName())
+			local win = splayer:pindian(player, self:objectName(), nil)
 			if win then
 				player:skip(sgs.Player_Play)
 			else
@@ -1109,6 +1109,7 @@ meizlhujiacard = sgs.CreateSkillCard {
 		local success = source:pindian(targets[1], "meizlhujia", nil)
 		if success then
 			source:gainMark("@meizlhujia")
+			room:addPlayerMark(source, "&meizlhujia")
 		else
 			if not source:isKongcheng() then
 				room:askForDiscard(source, self:objectName(), 1, 1)
@@ -2110,7 +2111,7 @@ meizlwuyincard = sgs.CreateSkillCard {
 	will_throw = true,
 	filter = function(self, targets, to_select, player)
 		return to_select:getGeneral():isMale() and not (to_select:hasSkill("Kongcheng") and to_select:isKongcheng()) and
-		#targets == 0
+			#targets == 0
 	end,
 	on_use = function(self, room, source, targets)
 		local duel = sgs.Sanguosha:cloneCard("duel", sgs.Card_NoSuit, 0)
@@ -2171,7 +2172,7 @@ meizlmihuncard = sgs.CreateSkillCard {
 	will_throw = true,
 	filter = function(self, targets, to_select)
 		return not (to_select == sgs.Self or to_select:isNude()) and to_select:objectName() ~= sgs.Self:objectName() and
-		(#targets < 2)
+			(#targets < 2)
 	end,
 	feasible = function(self, targets)
 		return #targets == 2
@@ -2774,7 +2775,7 @@ meizlchanhuocard = sgs.CreateSkillCard {
 
 	filter = function(self, targets, to_select, player)
 		return not to_select:isKongcheng() and to_select:objectName() ~= player:objectName() and to_select:getHp() == 1 and
-		(#targets < 1)
+			(#targets < 1)
 	end,
 
 	on_use = function(self, room, source, targets)
@@ -3225,7 +3226,7 @@ meizlshehua = sgs.CreateViewAsSkill {
 		local newanal = sgs.Sanguosha:cloneCard("analeptic", sgs.Card_NoSuit, 0)
 		if player:isCardLimited(newanal, sgs.Card_MethodUse) or player:isProhibited(player, newanal) then return false end
 		return player:usedTimes("Analeptic") <=
-		sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, player, newanal)
+			sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, player, newanal)
 	end,
 	enabled_at_response = function(self, player, pattern)
 		return string.find(pattern, "analeptic")
@@ -3745,7 +3746,7 @@ meizlzefucard = sgs.CreateSkillCard
 		filter = function(self, targets, to_select)
 			if #targets == 0 then
 				return to_select:getHandcardNum() >= sgs.Self:getHandcardNum() and to_select:getHp() >= sgs.Self:getHp() and
-				to_select:getAttackRange() >= sgs.Self:getAttackRange()
+					to_select:getAttackRange() >= sgs.Self:getAttackRange()
 			end
 		end,
 
@@ -4511,7 +4512,7 @@ meizlzhixicard = sgs.CreateSkillCard {
 
 	filter = function(self, targets, to_select)
 		return to_select:getPile("meizlzhixi"):length() == 0 and to_select:objectName() ~= sgs.Self:objectName() and
-		(#targets < 1)
+			(#targets < 1)
 	end,
 	on_use = function(self, room, source, targets)
 		local ids = self:getSubcards()
@@ -4717,7 +4718,7 @@ meizlzhenshi = sgs.CreateViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return (player:getHandcardNum() >= 3 or player:getEquips():length() > 0) and (not player:hasFlag("meizlzhenshi")) and
-		player:isWounded()
+			player:isWounded()
 	end,
 }
 --缓计（神王异）
@@ -5610,7 +5611,7 @@ meispliwuskill             = sgs.CreateViewAsSkill {
 
 	enabled_at_play = function(self, player)
 		return player:getKingdom() == "shu" and player:getMark("@meispfeng") >= 2 and
-		not player:hasUsed("#meispliwucard")
+			not player:hasUsed("#meispliwucard")
 	end,
 }
 
@@ -5994,7 +5995,7 @@ meispxiaojiskill = sgs.CreateViewAsSkill {
 					if p:getPile("meispji"):length() > 0 and p:getPile("meispji"):contains(selected[1]:getId()) then
 						sgs.meispxiaojiPattern = { "jink" }
 						return p:getPile("meispji"):contains(to_select:getId()) and
-						not (#selected == p:getHandcardNum() + p:getEquips():length())
+							not (#selected == p:getHandcardNum() + p:getEquips():length())
 					end
 				end
 			end
@@ -6693,8 +6694,8 @@ meizlselianyuskill = sgs.CreateViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return sgs.Slash_IsAvailable(player) and
-		(player:getMark("@meizlselianyu") > 0 or player:getMark("@meizlsebaonu") > 0) and
-		not player:hasUsed("#meizlselianyucard")
+			(player:getMark("@meizlselianyu") > 0 or player:getMark("@meizlsebaonu") > 0) and
+			not player:hasUsed("#meizlselianyucard")
 	end
 }
 meizlselianyu      = sgs.CreateTriggerSkill {
@@ -7163,7 +7164,7 @@ meizlsepoxiaocard     = sgs.CreateSkillCard {
 
 	filter = function(self, targets, to_select, player)
 		return #targets == 0 and to_select:objectName() ~= player:objectName() and not to_select:isKongcheng() and
-		to_select:getMark("@meizlsepoxiaotarget") == 0
+			to_select:getMark("@meizlsepoxiaotarget") == 0
 	end,
 
 
@@ -7960,7 +7961,7 @@ meizlshzefucard = sgs.CreateSkillCard
 		filter = function(self, targets, to_select, player)
 			if #targets == 0 then
 				return to_select:getHandcardNum() >= player:getHandcardNum() and to_select:getHp() >= player:getHp() and
-				to_select:getAttackRange() >= player:getAttackRange()
+					to_select:getAttackRange() >= player:getAttackRange()
 			end
 		end,
 
@@ -9431,7 +9432,7 @@ meispshliwuskill = sgs.CreateViewAsSkill {
 
 	enabled_at_play = function(self, player)
 		return player:getKingdom() == "shu" and player:getMark("@meispshfeng") >= 1 and
-		not player:hasUsed("#meispshliwucard")
+			not player:hasUsed("#meispshliwucard")
 	end,
 }
 
@@ -11348,8 +11349,10 @@ meizlbooss2shenglinvshendeweixiaoskill = sgs.CreateTriggerSkill {
 	end
 }
 local skills = sgs.SkillList()
-if not sgs.Sanguosha:getSkill("meizlbooss2shenglinvshendeweixiaoskill") then skills:append(
-	meizlbooss2shenglinvshendeweixiaoskill) end
+if not sgs.Sanguosha:getSkill("meizlbooss2shenglinvshendeweixiaoskill") then
+	skills:append(
+		meizlbooss2shenglinvshendeweixiaoskill)
+end
 sgs.Sanguosha:addSkills(skills)
 meizlbooss2jjjfganfunren:addSkill(meizlbooss2jjjfhuangsi)
 meizlbooss2jjjfganfunren:addSkill(meizlbooss2jjjfxiuren)
@@ -11486,7 +11489,7 @@ meizlbooss2mufunrenchangehero = sgs.CreateTriggerSkill {
 				room:changeHero(player, "meizlbooss2jjjfmufunren", true, true, false, true)
 			end
 			room:setPlayerMark(player, "meizlbooss2mufunrenchangehero", player:getMark("meizlbooss2mufunrenchangehero") +
-			1)
+				1)
 		end
 	end
 }
@@ -12534,5 +12537,5 @@ sgs.LoadTranslationTable {
 }
 
 
-
+return { extension }
 ------------------------------------------------------------------------------------------------------------------------------

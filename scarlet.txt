@@ -16,6 +16,8 @@ audio:
 du
 lubu
 woft
+emjr
+meizl
 
 ai:
 SixJushou
@@ -27,6 +29,7 @@ function SmartAI:isGoodTarget(to, targets, card)
 hasHeavyDamage(from, card, to, nature)
 --getDamagedEffects --not use
 changeTranslation
+needToLoseHp
 
 p:hasSkills(sgs.recover_skill)
 

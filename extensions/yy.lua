@@ -1,7 +1,7 @@
 extension = sgs.Package("YY")
 
 --赵云
-gz_zhaoyun = sgs.General(extension, "gz_zhaoyun", "qun", 4, true)
+gz_zhaoyun = sgs.General(extension, "gz_zhaoyun", "qun", 4, true, true)
 Qinggangex = sgs.CreateViewAsEquipSkill {
 	name = "#Qinggangex",
 	view_as_equip = function(self, player)
@@ -150,6 +150,8 @@ gz_zhaoyun:addSkill(luanixi) --攻击距离
 gz_zhaoyun:addSkill(luanixi_tr)
 --gz_zhaoyun:addSkill(luanixi_Keep)
 extension:insertRelatedSkills("luanixi", "#luanixi_tr")
+gz_zhaoyun:addSkill("feiyang")
+gz_zhaoyun:addSkill("bahu")
 
 --extension:insertRelatedSkills("luanixi","#luanixi_Keep")
 

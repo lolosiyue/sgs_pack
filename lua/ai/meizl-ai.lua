@@ -257,6 +257,14 @@ end
 
 sgs.ai_playerchosen_intention.meizlfujun = -80
 
+sgs.ai_can_damagehp.meizlfujun = function(self, from, card, to)
+	if to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to) and to:getCardCount() > 0
+	then
+		return self:getCardsNum("Peach") > 0 and #self.friends_noself > 0 and not self:willSkipPlayPhase()
+	end
+end
+
 --让马（糜夫人）
 sgs.ai_skill_playerchosen.meizlrangma = function(self, targets)
 	local AssistTarget = self:AssistTarget()
@@ -266,16 +274,30 @@ sgs.ai_skill_playerchosen.meizlrangma = function(self, targets)
 
 	self:sort(self.friends_noself, "chaofeng")
 	for _, target in ipairs(self.friends_noself) do
-		if target:hasSkills(sgs.cardneed_skill)
+		if target:hasSkills(sgs.cardneed_skill) and not hasManjuanEffect(target)
 			and (not self:willSkipPlayPhase(target) or target:hasSkill("shensu")) then
 			return target
 		end
 	end
 	for _, target in ipairs(self.friends_noself) do
-		if target:hasSkills("yongsi|zhiheng|" .. sgs.priority_skill .. "|shensu")
+		if not hasManjuanEffect(target) and target:hasSkills("yongsi|zhiheng|" .. sgs.priority_skill .. "|shensu")
 			and (not self:willSkipPlayPhase(target) or target:hasSkill("shensu")) then
 			return target
 		end
+	end
+	for _, target in ipairs(self.friends_noself) do
+		if not hasManjuanEffect(target)
+			and (not self:willSkipPlayPhase(target) or target:hasSkill("shensu")) then
+			return target
+		end
+	end
+	for _, target in ipairs(self.friends_noself) do
+		if not hasManjuanEffect(target) then
+			return target
+		end
+	end
+	for _, target in ipairs(self.friends_noself) do
+		return target
 	end
 end
 
@@ -416,6 +438,10 @@ sgs.ai_skill_discard["meizllipocard"] = function(self, discard_num, optional, in
 	return to_discard
 end
 
+sgs.ai_cardneed.meizllipo = function(to, card)
+	return to:getHandcardNum() < 3
+end
+
 --MEIZL 008 蔡夫人
 --毒言（蔡夫人）
 sgs.ai_skill_invoke.meizlduyan = function(self, data)
@@ -437,11 +463,21 @@ sgs.ai_skill_invoke.meizlduyan = function(self, data)
 	return false
 end
 
-sgs.ai_skill_pindian["meizlduyan"] = function(minusecard, self, requestor, maxcard, mincard)
+function sgs.ai_skill_pindian.meizlduyan(minusecard, self, requestor)
+	local maxcard = self:getMaxCard()
 	return maxcard
 end
 
 sgs.ai_cardneed.meizlduyan = sgs.ai_cardneed.bignumber
+
+sgs.ai_choicemade_filter.skillInvoke.meizlduyan = function(self, player, promptlist)
+	local current = self.room:getCurrent()
+	if promptlist[#promptlist] == "yes" then
+		if current then
+			sgs.updateIntention(player, current, 50)
+		end
+	end
+end
 
 --MEIZL 009 吴国太
 --招婿（吴国太）
@@ -803,6 +839,15 @@ sgs.ai_use_revises.meizlsuxian = function(self, card, use)
 	end
 end
 
+sgs.ai_can_damagehp.meizlsuxian = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return self:isEnemy(from) and self:isWeak(from) and from:getCardCount() > 0
+	end
+end
+
+
 --慈悯（卞夫人）
 sgs.ai_skill_invoke.meizlcimin = function(self, data)
 	local target = data:toPlayer()
@@ -888,16 +933,6 @@ sgs.ai_skill_use_func["#meizlguihancard"] = function(card, use, self)
 	end
 end
 
---魂逝（蔡文姬）
-function sgs.ai_slash_prohibit.meizlhunshi(self, from, to)
-	if hasJueqingEffect(from, to) or (from:hasSkill("nosqianxi") and from:distanceTo(to) == 1) then return false end
-	if from:hasFlag("NosJiefanUsed") then return false end
-	if to:getHp() > 1 or #(self:getEnemies(from)) == 1 then return false end
-	if from:getMaxHp() == 3 and from:getArmor() and from:getDefensiveHorse() then return false end
-	if from:getMaxHp() <= 3 or (from:isLord() and self:isWeak(from)) then return true end
-	if from:getMaxHp() <= 3 or (self.room:getLord() and from:getRole() == "renegade") then return true end
-	return false
-end
 
 --MEIZL 012 黄月英
 --流马（黄月英）
@@ -2666,7 +2701,7 @@ sgs.ai_skill_invoke.meizlhuanji = function(self, data)
 		if self.player:getHp() > enemy_num and enemy_num <= 1 then return false end
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
-	if self:needToLoseHp(self.player, nil, true, true) then return false end
+	if self:needToLoseHp(self.player, nil, nil, true, true) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 
 	return true
