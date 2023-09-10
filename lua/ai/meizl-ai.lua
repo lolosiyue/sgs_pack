@@ -940,24 +940,32 @@ sgs.ai_skill_playerchosen.meizlliuma = function(self, targets)
 	local max_diff = 0
 	local target
 	for _, splayer in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		local diff = 0
-		if splayer:getHp() > splayer:getHandcardNum() then
-			if self:isFriend(splayer) then
-				diff = splayer:getHp() - splayer:getHandcardNum()
-			end
-		elseif splayer:getHp() < splayer:getHandcardNum() then
-			if not self:isFriend(splayer) then
-				diff = splayer:getHandcardNum() - splayer:getHp()
-			end
+		local diff = -splayer:getHandcardNum()
+		local friend = 1
+		if not hasManjuanEffect(splayer) then
+			diff = diff + splayer:getHp()
 		end
-		if diff > max_diff then
+		if hasTuntianEffect(splayer) then
+			diff = diff + 1
+		end
+		if not self:isFriend(splayer) then
+			friend = -1
+		end
+		diff = diff * friend
+
+		if diff > max_diff and not (self:doNotDiscard(splayer, "h") and not self:isFriend(splayer)) then
 			target = splayer
+			max_diff = diff
 		end
 	end
 	if target then
 		return target
 	end
 	return nil
+end
+
+function sgs.ai_cardneed.meizlliuma(to, card)
+	return card:getTypeId() == sgs.Card_TypeTrick
 end
 
 --智囊（黄月英）
@@ -980,7 +988,7 @@ sgs.ai_skill_use_func["#meizlzhinangcard"] = function(card, use, self)
 			use_card = card
 		end
 	end
-	if use_card then
+	if use_card and not self:hasWizard(self.enemies, true) then
 		for _, enemy in ipairs(self.enemies) do
 			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) then
 				use.card = sgs.Card_Parse("#meizlzhinangcard:" .. use_card:getEffectiveId() .. ":")

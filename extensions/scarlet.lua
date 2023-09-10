@@ -12,7 +12,6 @@ function RIGHT(self, player)
     end
 end
 
-
 ---@param room room
 ---@return int輪次數
 function getRoundCount(room)
@@ -67,24 +66,19 @@ end
 function getCardDamageNature(from, to, card)
     local nature = sgs.DamageStruct_Normal
     if card then
-    if card:isKindOf("FireAttack") or card:isKindOf("FireSlash") then
-        nature = sgs.DamageStruct_Fire
-    elseif card:isKindOf("drowning") or card:isKindOf("ThunderSlash") then
-        nature = sgs.DamageStruct_Thunder
-    elseif card:isKindOf("IceSlash") then
-        nature = sgs.DamageStruct_Ice
+        if card:isKindOf("FireAttack") or card:isKindOf("FireSlash") then
+            nature = sgs.DamageStruct_Fire
+        elseif card:isKindOf("drowning") or card:isKindOf("ThunderSlash") then
+            nature = sgs.DamageStruct_Thunder
+        elseif card:isKindOf("IceSlash") then
+            nature = sgs.DamageStruct_Ice
+        end
     end
-end
     if hasWulingEffect("@fire") then
         nature = sgs.DamageStruct_Fire
     end
-	return nature
+    return nature
 end
-
-
-
-
-
 
 -- common prompt
 sgs.LoadTranslationTable {
@@ -2327,7 +2321,7 @@ sgs.LoadTranslationTable {
     [":s4_txbw_qiaobian"] = "出牌阶段限X次，你可以交换两名角色相同区域里一张牌（X为你已损失的体力值）。"
 
 }
-
+--[[
 function addWeiTerritoryPile(card, player, self)
     local room = player:getRoom()
     card = type(card) == "number" and sgs.Sanguosha:getCard(card) or card
@@ -2605,7 +2599,7 @@ sgs.LoadTranslationTable {
     ["s4_weiT_qingjian"] = "清俭",
     [":s4_weiT_qingjian"] = "你可将摸牌阶段外获得的牌置于【魏领土】中。"
 
-}
+}]]
 
 --[[ s4_acg_canna = sgs.General(extension, "s4_acg_canna", "qun", 2, false)
 
