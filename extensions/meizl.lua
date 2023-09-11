@@ -1992,20 +1992,20 @@ meizlqingyanclear = sgs.CreateTriggerSkill {
 		end
 		if event == sgs.EventLoseSkill then
 			for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if splayer and player:objectName() == splayer:objectName() then
-				if data:toString() == "meizlqingyan" then
-					for _, p in sgs.qlist(room:getAlivePlayers()) do
-						if p:getMark("@meizlqingyan") > 0 then
-							room:removePlayerCardLimitation(p, "use,response", "BasicCard")
-							room:setPlayerMark(p, "@meizlqingyan", 0)
-							for _, mark in sgs.list(p:getMarkNames()) do
-								if string.find(mark, "meizlqingyan") and p:getMark(mark) > 0 then
-									room:setPlayerMark(p, mark, 0)
+				if splayer and player:objectName() == splayer:objectName() then
+					if data:toString() == "meizlqingyan" then
+						for _, p in sgs.qlist(room:getAlivePlayers()) do
+							if p:getMark("@meizlqingyan") > 0 then
+								room:removePlayerCardLimitation(p, "use,response", "BasicCard")
+								room:setPlayerMark(p, "@meizlqingyan", 0)
+								for _, mark in sgs.list(p:getMarkNames()) do
+									if string.find(mark, "meizlqingyan") and p:getMark(mark) > 0 then
+										room:setPlayerMark(p, mark, 0)
+									end
 								end
 							end
 						end
 					end
-				end
 				end
 			end
 		end
@@ -2022,32 +2022,32 @@ meizlxiangjie = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-		if splayer and player:getPhase() == sgs.Player_Play and player:objectName() ~= splayer:objectName() then
-			local targets = sgs.SPlayerList()
-			for _, p in sgs.qlist(room:getOtherPlayers(player)) do
-				if player:inMyAttackRange(p) then
-					targets:append(p)
+			if splayer and player:getPhase() == sgs.Player_Play and player:objectName() ~= splayer:objectName() then
+				local targets = sgs.SPlayerList()
+				for _, p in sgs.qlist(room:getOtherPlayers(player)) do
+					if player:inMyAttackRange(p) then
+						targets:append(p)
+					end
 				end
-			end
-			if targets:isEmpty() then return end
-			if splayer:isKongcheng() then return end
-			if room:askForSkillInvoke(splayer, self:objectName()) then
-				local tohelp = sgs.QVariant()
-				tohelp:setValue(player)
-				local prompt = string.format("@meizlxiangjie-slash:%s", player:objectName())
-				local slash = room:askForCard(splayer, "slash", prompt, tohelp, sgs.Card_MethodResponse, player)
-				if slash then
-					local target = room:askForPlayerChosen(splayer, targets, self:objectName())
-					slash:setSkillName("meizlxiangjie")
-					local use = sgs.CardUseStruct()
-					use.card = slash
-					use.from = player
-					use.to:append(target)
-					room:useCard(use)
+				if targets:isEmpty() then return end
+				if splayer:isKongcheng() then return end
+				if room:askForSkillInvoke(splayer, self:objectName()) then
+					local tohelp = sgs.QVariant()
+					tohelp:setValue(player)
+					local prompt = string.format("@meizlxiangjie-slash:%s", player:objectName())
+					local slash = room:askForCard(splayer, "slash", prompt, tohelp, sgs.Card_MethodResponse, player)
+					if slash then
+						local target = room:askForPlayerChosen(splayer, targets, self:objectName())
+						slash:setSkillName("meizlxiangjie")
+						local use = sgs.CardUseStruct()
+						use.card = slash
+						use.from = player
+						use.to:append(target)
+						room:useCard(use)
+					end
 				end
 			end
 		end
-	end
 	end,
 	can_trigger = function(self, player)
 		return true
@@ -2110,7 +2110,7 @@ meizlwuyincard = sgs.CreateSkillCard {
 	target_fixed = false,
 	will_throw = true,
 	filter = function(self, targets, to_select, player)
-		return to_select:getGeneral():isMale() and	#targets == 0
+		return to_select:getGeneral():isMale() and #targets == 0
 	end,
 	on_use = function(self, room, source, targets)
 		local duel = sgs.Sanguosha:cloneCard("duel", sgs.Card_NoSuit, 0)
@@ -2406,13 +2406,13 @@ meizlzenyan = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-		if splayer and player:getPhase() == sgs.Player_Draw and player:objectName() ~= splayer:objectName() then
-			if player:getHandcardNum() > player:getHp() and not splayer:isKongcheng() then
-				if room:askForDiscard(splayer, self:objectName(), 1, 1, true, false, "meizlzenyan-invoke") then
-					local x = player:getHandcardNum() - player:getHp()
-					room:askForDiscard(player, "meizlzenyan_dis", x, x, false, false)
+			if splayer and player:getPhase() == sgs.Player_Draw and player:objectName() ~= splayer:objectName() then
+				if player:getHandcardNum() > player:getHp() and not splayer:isKongcheng() then
+					if room:askForDiscard(splayer, self:objectName(), 1, 1, true, false, "meizlzenyan-invoke") then
+						local x = player:getHandcardNum() - player:getHp()
+						room:askForDiscard(player, "meizlzenyan_dis", x, x, false, false)
+					end
 				end
-			end
 			end
 		end
 	end,
@@ -2429,7 +2429,7 @@ meizlzhuanchong = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if (splayer:objectName() == player:objectName()) then  continue end
+			if (splayer:objectName() == player:objectName()) then continue end
 			if player:getHp() <= 0 then
 				local dest = sgs.QVariant()
 				dest:setValue(player)
@@ -2445,7 +2445,7 @@ meizlzhuanchong = sgs.CreateTriggerSkill {
 					end
 				end
 			end
-		    ::continue::
+			::continue::
 		end
 	end,
 	can_trigger = function(self, player)
@@ -3567,12 +3567,11 @@ meizlfunei = sgs.CreateTriggerSkill {
 		local allplayers = room:findPlayersBySkillName(self:objectName())
 		if player:getPhase() ~= sgs.Player_Start then return end
 		for _, splayer in sgs.qlist(allplayers) do
-			
-			if  splayer:askForSkillInvoke(self:objectName()) then
-			room:loseHp(splayer, 1)
-			player:drawCards(2)
-			room:attachSkillToPlayer(player, "meizlfuneix")
-			room:addPlayerMark(player, "&meizlfunei+to+#" .. splayer:objectName() .. "+-Clear")
+			if splayer:askForSkillInvoke(self:objectName()) then
+				room:loseHp(splayer, 1)
+				player:drawCards(2)
+				room:attachSkillToPlayer(player, "meizlfuneix")
+				room:addPlayerMark(player, "&meizlfunei+to+#" .. splayer:objectName() .. "+-Clear")
 			end
 		end
 	end,
