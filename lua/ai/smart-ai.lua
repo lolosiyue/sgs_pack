@@ -164,7 +164,8 @@ function setInitialTables()
 
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
-		"neoluoyi|longhun|newlonghun|shuijian|yinbing"
+		"neoluoyi|longhun|newlonghun|shuijian|yinbing"..
+		"|meizljinguo" --add
 
 	sgs.judge_reason = "bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue" ..
 		"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
@@ -550,6 +551,13 @@ function SmartAI:assignKeep(start)
 		then
 			self.keepdata.Peach = 10
 			self.keepdata.TrickCard = 8
+			self.keepdata.EquipCard = 7.9
+		end
+
+		--add 
+		if self:hasSkills("meizlzhuanchong", self.friends)
+		then
+			self.keepdata.Peach = 10
 			self.keepdata.EquipCard = 7.9
 		end
 	else
@@ -4892,6 +4900,7 @@ function SmartAI:askForSinglePeach(dying)
 			end
 		elseif dying:hasFlag("Kurou_toDie") and getCardsNum("Crossbow", dying, self.player) < 1
 			or dying:hasSkill("jiushi") and dying:faceUp() and dying:getHp() >= 0
+			or canNiepan(dying) --add
 			or self:doNotSave(dying)
 		then
 			return "."
@@ -6617,6 +6626,9 @@ function getBestHp(owner)
 	if owner:hasSkill("meizlwuqing") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("luanixi") then return owner:getMaxHp() - 1 end
 
+	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu1") == 0 then return 2 end
+	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu2") == 0 then return 1 end
+
 
 
 	return owner:getMaxHp()
@@ -6695,6 +6707,10 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 
 		--add
 		if to:hasSkills("echinei") and self:findFriendsByType(sgs.Friend_Draw, to) and not self:willSkipDrawPhase(to)
+		then
+			bh = math.min(bh, to:getMaxHp() - 1)
+		end
+		if to:hasSkills("meizljichi") and self:findFriendsByType(sgs.Friend_Draw, to) and not self:willSkipPlayPhase(to)
 		then
 			bh = math.min(bh, to:getMaxHp() - 1)
 		end
@@ -7506,6 +7522,7 @@ function canNiepan(player)
 		--add
 		or player:hasSkill("blood_gudan") and player:getMark("@gudan") > 0
 		or player:hasLordSkill("blood_hunzi") and player:getMark("blood_hunzi") == 0
+		or player:hasSkill("meizlboxing") and player:faceUp() and player:getHandcardNum() > 0
 end
 
 function SmartAI:adjustAIRole()

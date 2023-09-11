@@ -8,9 +8,9 @@ not done:
 du sunjian tongpao
 
 test:
-emjr 
 SixJushou
-meizl huangyueying
+meizl 持家
+
 
 audio:
 du
@@ -99,3 +99,18 @@ choice =src
 mark &
 
 prompt mark for skill 
+
+askForSinglePeach jiushi
+
+assignKeep 留牌
+
+find to slash
+for _, enemy in ipairs(self.enemies) do
+	if friend:canSlash(enemy) and not self:slashProhibit(slash, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
+		and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
+		and enemy:objectName() ~= self.player:objectName() then
+		self.meizlxiangjieTarget = enemy
+		return true
+	end
+end
+
