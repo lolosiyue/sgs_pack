@@ -114,3 +114,11 @@ for _, enemy in ipairs(self.enemies) do
 	end
 end
 
+
+
+ai_skill_defense
+
+ImitateResult_DrawNCards
+
+dontHurt cost prevent shield
+

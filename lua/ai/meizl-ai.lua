@@ -2914,7 +2914,7 @@ sgs.ai_skill_use["@@meizlkaoshang"] = function(self, prompt)
 			local equip_index = equip:getRealCard():toEquipCard():location()
 			if not self:getSameEquip(equip, friend) and self:hasSkills(sgs.need_equip_skill .. "|" .. sgs.lose_equip_skill, friend) and friend:getEquip(equip_index) == nil and friend:hasEquipArea(equip_index) then
 				for _, enemy in ipairs(self.enemies) do
-					if (enemy:objectName() ~= friend:objectName()) and friend:distanceTo(enemy) <= friend:getAttackRange() and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) then
+					if (enemy:objectName() ~= friend:objectName()) and friend:distanceTo(enemy) <= friend:getAttackRange() and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) and self:canAttack(enemy, friend) then
 						target = friend
 						select_equip = equip
 						break
@@ -2927,7 +2927,7 @@ sgs.ai_skill_use["@@meizlkaoshang"] = function(self, prompt)
 			local equip_index = equip:getRealCard():toEquipCard():location()
 			if not self:getSameEquip(equip, friend) and friend:getEquip(equip_index) == nil and friend:hasEquipArea(equip_index) then
 				for _, enemy in ipairs(self.enemies) do
-					if (enemy:objectName() ~= friend:objectName()) and friend:distanceTo(enemy) <= friend:getAttackRange() and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) then
+					if (enemy:objectName() ~= friend:objectName()) and friend:distanceTo(enemy) <= friend:getAttackRange() and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) and self:canAttack(enemy, friend) then
 						target = friend
 						select_equip = equip
 						break
@@ -2955,6 +2955,9 @@ sgs.ai_skill_playerchosen.meizlkaoshangcard = sgs.ai_skill_playerchosen.damage
 function sgs.ai_slash_prohibit.meizlbiyin(self, from, to, card)
 	if to:hasSkill("meizlbiyinx") and to:getMark("@meizlbiyinx") > 0 then return true end
 end
+sgs.ai_target_revises["@meizlbiyinx"] = function(to, card, self)
+	return card:isKindOf("Slash")
+end
 
 local meizlbiyin_skill = {}
 meizlbiyin_skill.name = "meizlbiyin"
@@ -2970,12 +2973,12 @@ sgs.ai_skill_use_func["#meizlbiyincard"] = function(card, use, self)
 	local targets = {}
 	local lord = self.room:getLord()
 	self:sort(self.friends, "defense")
-	if lord and lord:getMark("@meizlbiyinx") == 0 and self:isFriend(lord) and not sgs.isLordHealthy() and not self.player:isLord() and not lord:hasSkill("buqu")
+	if lord and lord:getMark("@meizlbiyinx") == 0 and self:isFriend(lord) and not sgs.isLordHealthy() and not self.player:isLord() and not hasBuquEffect(lord)
 		and not (lord:hasSkill("hunzi") and lord:getMark("hunzi") == 0 and lord:getHp() > 1) then
 		table.insert(targets, lord)
 	else
 		for _, friend in ipairs(self.friends) do
-			if friend:getMark("@meizlbiyinx") == 0 and self:isWeak(friend) and not friend:hasSkill("buqu")
+			if friend:getMark("@meizlbiyinx") == 0 and self:isWeak(friend) and not hasBuquEffect(friend)
 				and not (friend:hasSkill("hunzi") and friend:getMark("hunzi") == 0 and friend:getHp() > 1) then
 				table.insert(targets, friend)
 				break
@@ -2984,9 +2987,7 @@ sgs.ai_skill_use_func["#meizlbiyincard"] = function(card, use, self)
 	end
 	if self:isWeak() then table.insert(targets, self.player) end
 	if #targets > 0 then
-		local cards = sgs.QList2Table(self.player:getHandcards())
-		self:sortByUseValue(cards)
-		use.card = sgs.Card_Parse("#meizlbiyincard:" .. cards[1]:getEffectiveId() .. ":")
+		use.card = sgs.Card_Parse("#meizlbiyincard:.:")
 		if use.to then use.to:append(targets[1]) end
 		return
 	end
@@ -3033,7 +3034,10 @@ meizlbiyi_skill.name = "meizlbiyi"
 table.insert(sgs.ai_skills, meizlbiyi_skill)
 meizlbiyi_skill.getTurnUseCard = function(self)
 	if (self.player:getMark("@meizlbiyi") > 0) then
+		local x = math.random(1, 10)
+		if x >= 5 then
 		return sgs.Card_Parse("#meizlbiyicard:.:")
+		end
 	end
 end
 
@@ -3058,7 +3062,7 @@ sgs.ai_skill_playerchosen.meizlxiuse = function(self, targets)
 	local target
 	for _, friend in ipairs(self.friends_noself) do
 		local x = self:ImitateResult_DrawNCards(friend, friend:getVisibleSkillList(true))
-		if x > max then
+		if x > max and not self:willSkipPlayPhase(friend)  then
 			target = friend
 			max = x
 		end
@@ -3172,7 +3176,7 @@ sgs.ai_skill_use_func["#meizlyangxiucard"] = function(card, use, self)
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
 		if (targets:length() < self.player:getPile("meizlqun"):length()) then
-			if (self:damageIsEffective(enemy) and not self:cantbeHurt(enemy, self.player, 2)) and self.player:inMyAttackRange(enemy) then
+			if (self:damageIsEffective(enemy) and not self:cantbeHurt(enemy, self.player, 2)) and self.player:inMyAttackRange(enemy) and self:canAttack(enemy, self.player) then
 				targets:append(enemy)
 			end
 		else
@@ -3186,7 +3190,12 @@ end
 --MEISP 001 娘-赵云
 
 
-
+sgs.ai_ajustdamage_from.meispfengdan = function(self, from, to, card, nature)
+	if from and card and (card:isKindOf("Slash") or card:isKindOf("Duel"))
+	then
+		return from:getMark("@meispfeng")
+	end
+end
 --梨舞（娘-赵云）
 local meispliwu_skill = {}
 meispliwu_skill.name = "meispliwu"
@@ -3279,11 +3288,11 @@ sgs.ai_skill_use_func["#meispruixuecard"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()
 		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) and
 			self.player:distanceTo(enemy) - math.min(self.player:getHp() - 1, self:getCardsNum("Slash")) <= 1
 
 		if not self.player:canSlash(enemy, slash, false) then
-		elseif throw_weapon and enemy:hasArmorEffect("vine") and not self.player:hasSkill("zonghuo") then
 		elseif self:slashProhibit(nil, enemy) then
 		elseif eff then
 			if enemy:getHp() == 1 and getCardsNum("Jink", enemy) == 0 then
@@ -3371,7 +3380,6 @@ sgs.ai_skill_choice["meispniangzhaoyunkingdom"] = function(self, choices)
 					self.player:distanceTo(enemy) - math.min(self.player:getHp() - 1, self:getCardsNum("Slash")) <= 1
 
 				if not self.player:canSlash(enemy, slash, false) then
-				elseif throw_weapon and enemy:hasArmorEffect("vine") and not self.player:hasSkill("zonghuo") then
 				elseif self:slashProhibit(nil, enemy) then
 				elseif eff then
 					if enemy:getHp() == 1 and getCardsNum("Jink", enemy) == 0 then
@@ -3489,7 +3497,12 @@ sgs.ai_skill_playerchosen["meispshuzhuang"] = function(self, targets)
 	local targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) then
+		if self:isEnemy(p) and not hasZhaxiangEffect(p) then
+			return p
+		end
+	end
+	for _, p in ipairs(targets) do
+		if self:isFriend(p) and not self:isWeak(p) and hasZhaxiangEffect(p) and not self:willSkipPlayPhase(p) then
 			return p
 		end
 	end
@@ -3497,7 +3510,15 @@ sgs.ai_skill_playerchosen["meispshuzhuang"] = function(self, targets)
 		return p
 	end
 end
-sgs.ai_playerchosen_intention["meispshuzhuang"] = 80
+
+sgs.ai_playerchosen_intention["meispshuzhuang"] = function(self, from, to)
+	local intention = 50
+	if hasZhaxiangEffect(to) then
+		intention = - intention
+	end
+	sgs.updateIntention(from, to, intention)
+end
+
 
 
 --MEISP 003 娘‧吕布

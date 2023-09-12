@@ -4987,6 +4987,7 @@ meizlkuangjicard = sgs.CreateSkillCard {
 		room:detachSkillFromPlayer(source, "meizlbiyin")
 		source:gainMark("@meizlkuangji")
 		room:addPlayerMark(source, "&meizlkuangji")
+		room:changeTranslation(source,"meizlhuyi",2)
 	end
 }
 meizlkuangjiskill = sgs.CreateViewAsSkill {
@@ -5044,6 +5045,7 @@ sgs.LoadTranslationTable {
 	[":meizlkuangji"] = "<font color=\"magenta\"><b>强化技，</b></font>出牌阶段，你可以弃置一张牌，然后失去技能“庇荫”，并将“虎裔”描述中的X改为2。",
 	["meizlhuyi"] = "虎裔",
 	[":meizlhuyi"] = "你可额外使用X张【杀】；使用【杀】时可额外指定X个目标。 （X为你已损失的体力值）。",
+	[":meizlhuyi2"] = "你可额外使用2张【杀】；使用【杀】时可额外指定2个目标。",
 }
 ------------------------------------------------------------------------------------------------------------------------------
 --MEIZLG 008A 神大乔
@@ -5056,14 +5058,10 @@ meizltihen = sgs.CreateTriggerSkill
 		frequency = sgs.Skill_Compulsory,
 		on_trigger = function(self, event, player, data)
 			local room = player:getRoom()
-			local damage = data:toDamage()
 			if event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_Finish then
 				for _, p in sgs.qlist(room:getAllPlayers()) do
 					local y = p:getHp()
-					local x = p:getHandcardNum()
-					if x <= 0 then
-						x = 1
-					end
+					local x = math.max(p:getHandcardNum(),1)
 					if y > x then
 						room:loseHp(p, y - x)
 					elseif y < x then
@@ -5391,6 +5389,7 @@ meizlyangxiucard = sgs.CreateSkillCard {
 		local x = source:getPile("meizlhua"):length()
 		local y = source:getPile("meizlshan"):length()
 		local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+		dummy:deleteLater()
 		for _, cd in sgs.qlist(source:getPile("meizlshan")) do
 			dummy:addSubcard(cd)
 		end
@@ -6300,7 +6299,7 @@ sgs.LoadTranslationTable {
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
 --MEIBoss 001 董白
-meizlbossdongbai  = sgs.General(extension, "meizlbossdongbai", "qun", 10, false, true)
+meizlbossdongbai  = sgs.General(extension, "meizlbossdongbai", "qun", 10, false, true, true)
 --奢华（魔王‧董白）
 meizlbossshehua   = sgs.CreateTriggerSkill {
 	name = "meizlbossshehua",
@@ -6561,6 +6560,7 @@ meizlsetanlancard  = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:loseMaxHp(source, 1)
 		source:gainMark("@meizlsetanlan")
+		room:changeTranslation(source,"meizlselueduo",2)
 	end
 }
 meizlsetanlanskill = sgs.CreateViewAsSkill {
@@ -6650,13 +6650,14 @@ sgs.LoadTranslationTable {
 	["@meizlselueduo"] = "你可以弃置一张锦囊牌，然后发动“掠夺”后续技能",
 	["@meizlselueduocard"] = "请交给魔界七将‧玛门‧郭女王X张手牌（X为该角色的手牌数与体力值之差）",
 	[":meizlselueduo"] = "其他角色的摸牌阶段结束时，若其手牌数大于体力值，你可以失去1点体力，然后令该角色交给你X张手牌（X为该角色的手牌数与体力值之差）。",
+	[":meizlselueduo2"] = "其他角色的摸牌阶段结束时，若其手牌数大于体力值，你可以弃置一张锦囊牌，然后令该角色交给你X张手牌（X为该角色的手牌数与体力值之差）。",
 	["meizlseyousha"] = "诱杀",
 	["meizlseyoushacard"] = "诱杀",
 	[":meizlseyousha"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张非基本牌并选择两名男性角色，视为这两名角色各对对方造成1点伤害。",
 	["@meizlsetanlan"] = "贪婪",
 	["meizlsetanlan"] = "贪婪",
 	["meizlsetanlancard"] = "贪婪",
-	[":meizlsetanlan"] = "<font color=\"magenta\"><b>强化技，</b></font>出牌阶段，若你的体力值为2或更低，你可以减1点体力上限，并将“谮言”描述中的“失去1点体力”改为“弃置一张锦囊牌”。",
+	[":meizlsetanlan"] = "<font color=\"magenta\"><b>强化技，</b></font>出牌阶段，若你的体力值为2或更低，你可以减1点体力上限，并将“掠夺”描述中的“失去1点体力”改为“弃置一张锦囊牌”。",
 }
 ------------------------------------------------------------------------------------------------------------------------------
 --MEISE 002 魔界七将‧萨麦尔‧董白

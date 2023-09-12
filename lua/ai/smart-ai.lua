@@ -380,7 +380,7 @@ function sgs.getDefense(player) --回避值
 		invoke = drawData[ac]
 		if type(invoke) == "number"
 		then
-			defense = defense - invoke
+			defense = defense + invoke
 		end
 		invoke = damageData[ac]
 		if type(invoke) == "number"
@@ -6660,6 +6660,9 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 			return
 		end
 	else
+		if self:dontHurt(to, from) then
+			return
+		end
 		if card and card:isKindOf("Slash")
 		then
 			if from:hasWeapon("ice_sword") and to:getCardCount() > 1 and not self:isFriend(from, to)
@@ -8212,6 +8215,12 @@ function SmartAI:dontHurt(to, from) --针对队友
 	then
 		return true
 	end
+	--add
+	if to:hasSkill("meispliwu") and to:getMark("@meispliwuprevent") > 0
+	then
+		return true
+	end
+
 	return false
 end
 

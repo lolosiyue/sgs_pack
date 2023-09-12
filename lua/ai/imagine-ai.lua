@@ -826,6 +826,9 @@ end
 	返回值：一个数值，表示最终的摸牌数目
 	注：神速、巧变、绝境（高达一号）等因属于跳过阶段的情形，这里不加以考虑
 ]]--
+
+sgs.ai_drawNcards{}
+
 function SmartAI:ImitateResult_DrawNCards(player,skills,overall)
 	if not player or player:isSkipped(sgs.Player_Draw) then return 0 end
 	skills = skills or player:getVisibleSkillList(true)
@@ -902,6 +905,18 @@ function SmartAI:ImitateResult_DrawNCards(player,skills,overall)
 				count = count+1+math.floor(equips:length()/2)
 			end
 		end
+		for invoke, ac in ipairs(aiConnect(player)) do
+		invoke = sgs.ai_drawNcards[ac]
+		if type(invoke) == "function"
+		then
+			invoke = invoke(self, player, alives)
+			if type(invoke) == "number" then count = count + invoke end
+		elseif type(invoke) == "number" then
+			count = count + invoke
+		end
+	end 
+	
+	
 	end
 	return count
 end
