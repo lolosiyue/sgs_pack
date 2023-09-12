@@ -164,7 +164,7 @@ function setInitialTables()
 
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
-		"neoluoyi|longhun|newlonghun|shuijian|yinbing"..
+		"neoluoyi|longhun|newlonghun|shuijian|yinbing" ..
 		"|meizljinguo" --add
 
 	sgs.judge_reason = "bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue" ..
@@ -554,7 +554,7 @@ function SmartAI:assignKeep(start)
 			self.keepdata.EquipCard = 7.9
 		end
 
-		--add 
+		--add
 		if self:hasSkills("meizlzhuanchong", self.friends)
 		then
 			self.keepdata.Peach = 10
