@@ -216,6 +216,7 @@ function SmartAI:canLiegong(to, from)
 
 	--add
 	if from:hasSkill("meizljianwu") and from:getMark("@meizljianwu") > 0 and to:getHandcardNum() <= from:getAttackRange() then return true end
+	if from:hasSkill("meizlsejunwang") and from:distanceTo(to) <= from:getLostHp() then return true end
 
 	return false
 end

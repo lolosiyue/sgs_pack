@@ -122,3 +122,15 @@ ImitateResult_DrawNCards
 
 dontHurt cost prevent shield
 
+
+local quhu_filter = function(self,player,carduse)
+	if carduse.card:isKindOf("QuhuCard") then
+		sgs.ai_quhu_effect = true
+	end
+end
+
+table.insert(sgs.ai_choicemade_filter.cardUsed,quhu_filter)
+
+?
+被動傷害intention?
+

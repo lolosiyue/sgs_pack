@@ -129,7 +129,7 @@ function setInitialTables()
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi" --add
+		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh" --add
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
@@ -165,7 +165,7 @@ function setInitialTables()
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
 		"neoluoyi|longhun|newlonghun|shuijian|yinbing" ..
-		"|meizljinguo" --add
+		"|meizljinguo|meizlshwuji|meizlshmashu" --add
 
 	sgs.judge_reason = "bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue" ..
 		"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
@@ -182,7 +182,7 @@ function setInitialTables()
 		"|eweicheng|echinei" --add
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
-		"du_jiyu|meizlhunshidistance|meizlkuijiu" --add
+		"du_jiyu|meizlhunshidistance|meizlkuijiu|meizlshhunshidistance" --add
 
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
@@ -4145,6 +4145,7 @@ function SmartAI:needKongcheng(player, keep)
 
 	--add
 	if player:hasSkill("LuaJuejing") and player:getMark("LuaJuejing") < 1 then return true end
+	if player:hasSkill("meizlsecanhui") and player:getMark("@meizlsejidu") > 0 then return true end
 	return player:hasSkills(sgs.need_kongcheng)
 end
 
@@ -4179,6 +4180,10 @@ function SmartAI:getLeastHandcardNum(player)
 	if player:hasSkill("LuaXiongcai") and player:getPhase() ~= sgs.Player_Discard and least < 3
 	then
 		least = 3
+	end
+	if player:hasSkill("meizlsecanhui") and player:getMark("@meizlsejidu") > 0 and least < 1
+	then
+		least = 1
 	end
 
 	return least
@@ -6628,7 +6633,8 @@ function getBestHp(owner)
 
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu1") == 0 then return 2 end
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu2") == 0 then return 1 end
-
+	if owner:hasSkill("meizlseyaohuo")  then return owner:getMaxHp() - 1 end
+	
 
 
 	return owner:getMaxHp()
@@ -6717,6 +6723,9 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		then
 			bh = math.min(bh, to:getMaxHp() - 1)
 		end
+		if from and from:getMark("@meizlwuzhijingjichangstate") > 0 and self:isFriend(from, to) then return true end
+		if from and from:getMark("@meizlwuzhijingjichangstate") > 0 and self:isEnemy(from, to) then return false end
+		if to:hasSkill("xiehou") and card and getCardDamageNature(from, to, card) ~= sgs.DamageStruct_Normal then return true end
 	end
 	local xiangxiang = self.room:findPlayerBySkillName("jieyin")
 	if xiangxiang and xiangxiang:isWounded()
@@ -7425,6 +7434,9 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 			return true
 		end
 	end
+	if player:getMark("@meizlsepoxiao") > 0 then
+		return true
+	end
 
 
 	return false
@@ -7569,6 +7581,21 @@ function hasTuntianEffect(to, need_zaoxian)
 	if to:hasSkill("meizljinlian") and to:getPhase() == sgs.Player_NotActive
 	then
 		return true
+	end
+	if to:hasSkill("meizlshjinlian") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("meizlsesiyi") and to:getPhase() == sgs.Player_NotActive
+	then
+		local x = false
+		for _, p in sgs.qlist(global_room:getAlivePlayers()) do
+			if p:getKingdom() == "sevendevil" then
+				x = true
+				break
+			end
+		end
+		return x
 	end
 	return false
 end
@@ -8217,6 +8244,14 @@ function SmartAI:dontHurt(to, from) --针对队友
 	end
 	--add
 	if to:hasSkill("meispliwu") and to:getMark("@meispliwuprevent") > 0
+	then
+		return true
+	end
+	if to:hasSkill("meispshliwu") and to:getMark("@meispshliwuprevent") > 0
+	then
+		return true
+	end
+	if to:hasSkill("meispshengguangjiahu") and to:getMark("@meispniangzhaoyunmark") >= 2
 	then
 		return true
 	end

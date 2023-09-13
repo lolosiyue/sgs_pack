@@ -411,7 +411,7 @@ function SmartAI:slashIsEffective(slash, to, from, ignore_armor)
 			return
 		end
 	end
-	return self:ajustDamage(from, to, 1, slash) ~= 0
+	return self:ajustDamage(from, to, 1, slash) > 0
 end
 
 function SmartAI:slashIsAvailable(player, slash) -- @todo: param of slashIsAvailable

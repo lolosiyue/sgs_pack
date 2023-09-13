@@ -1293,7 +1293,7 @@ meizlzhinangcard = sgs.CreateSkillCard
 				damage.from = source
 				damage.to = targets[1]
 				damage.damage = x
-				damage.reason = self:obbjectName()
+				damage.reason = self:objectName()
 				room:damage(damage)
 			else
 				--[[while x > 0 do
@@ -6284,7 +6284,7 @@ sgs.LoadTranslationTable {
 	["#meispzhanhun"] = "%from的技能【%arg】被触发，%to被额外指定为目标。",
 	[":meispzhanhun"] = "<font color=\"blue\"><b>锁定技，</b></font>当你使用【杀】指定目标后，若你的体力上限为4或体力值为1，所有武将牌上有“戟”的角色将被额外指定为目标。",
 	["meisproulin"] = "蹂躏",
-	["#meisproulin"] = "%from的技能【%arg】被触发，%to需要%arg2张【闪】才能抵消此【杀】。",
+	["#meisproulin"] = "%from的技能【%arg】被触发，%to需要 %arg2 张【闪】才能抵消此【杀】。",
 	[":meisproulin"] = "<font color=\"blue\"><b>锁定技，</b></font>每当你使用【杀】指定目标角色后，若你的体力上限为3或体力值为1，该角色需依次使用X+1张【闪】 才能抵消。 （X为目标角色“戟”的数量之和）。",
 	["meispzhiji"] = "掷戟",
 	["meispzhijicard"] = "掷戟",
@@ -6669,6 +6669,7 @@ meizlselianyucard  = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		source:loseMark("@meizlselianyu")
 		local slash = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
+		slash:deleteLater()
 		slash:setSkillName("meizlselianyu")
 		local card_use = sgs.CardUseStruct()
 		card_use.from = source
@@ -6752,6 +6753,7 @@ meizlsebaonucard   = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:detachSkillFromPlayer(source, "meizlsemiejue")
 		source:gainMark("@meizlsebaonu")
+		room:changeTranslation(source, "meizlselianyu", 2)
 	end
 }
 meizlsebaonuskill  = sgs.CreateViewAsSkill {
@@ -6789,6 +6791,7 @@ sgs.LoadTranslationTable {
 	["meizlselianyucard"] = "炼狱",
 	["@meizlselianyu"] = "炼狱",
 	[":meizlselianyu"] = "每局游戏限X次，<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以视为对所有其他角色使用了一张火【杀】（X为游戏开始时的魔界七将势力角色数）。",
+	[":meizlselianyu2"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以视为对所有其他角色使用了一张火【杀】。",
 	["meizlsemiejue"] = "灭绝",
 	[":meizlsemiejue"] = "<font color=\"blue\"><b>锁定技，</b></font>游戏开始时，所有其他角色减1点体力上限；当你对其他角色造成属性伤害时，该伤害为X(X为该角色的体力值-1且至少为1)。",
 	["meizlsebaonu"] = "暴怒",
@@ -6938,6 +6941,7 @@ sgs.LoadTranslationTable {
 	["#meizlsezhangchunhua"]            = "邪恶的象征",
 	["meizlsecanhui"]                   = "惭恚",
 	[":meizlsecanhui"]                  = "每当你失去最后的手牌后，你可以令一名其他角色失去1点体力。",
+	[":meizlsecanhui2"]                 = "每当你失去最后的手牌后，你可以令一名其他角色失去1点体力，然后摸一张牌。",
 	["meizlsecanhui-invoke"]            = "你可以发动“惭恚”<br/> <b>操作提示</b>: 选择一名其他角色→点击确定<br/>",
 	["meizlsezhicuan"]                  = "执爨",
 	[":meizlsezhicuan"]                 = "<font color=\"blue\"><b>锁定技，</b></font>其他角色的准备阶段开始时，若当前回合角色的体力值大于你，则视为你对该角色造成1点伤害并回复1点体力。",
@@ -7021,6 +7025,7 @@ meizlseyinyucard    = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:loseMaxHp(source, 1)
 		source:gainMark("@meizlseyinyu")
+		room:changeTranslation(source, "meizlsedangyang", 2)
 	end
 }
 meizlseyinyuskill   = sgs.CreateViewAsSkill {
@@ -7057,6 +7062,7 @@ sgs.LoadTranslationTable {
 	["meizlsedangyang"] = "荡漾",
 	["meizlsedangyangcard"] = "荡漾",
 	[":meizlsedangyang"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以令所有其他角色交给你一张手牌。",
+	[":meizlsedangyang2"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以获得所有其他角色区域里的一张牌。",
 	["meizlsedangyanGive"] = "请交给目标角色1张手牌",
 	["meizlseyaohuo"] = "妖惑",
 	[":meizlseyaohuo"] = "每当其他角色受到属性伤害时，若你已受伤，你可以回复体力至体力上限，然后摸4张牌。",
@@ -7225,6 +7231,12 @@ meizlseaomancard      = sgs.CreateSkillCard {
 	will_throw = true,
 	on_use = function(self, room, source, targets)
 		source:gainMark("@meizlseaoman")
+		room:changeTranslation(source, "meizlsefuchou", 2)
+		room:changeTranslation(source, "meizlsepoxiao", 2)
+		for _, p in sgs.qlist(room:getOtherPlayers(source)) do
+			room:changeTranslation(p, "meizlsefuchoumaxcard", 2)
+			room:changeTranslation(p, "meizlsefuchoudrawcard", 2)
+		end
 	end
 }
 meizlseaomanskill     = sgs.CreateViewAsSkill {
@@ -7269,11 +7281,15 @@ sgs.LoadTranslationTable {
 	["meizlsefuchoumaxcard"] = "复仇效果 （一）",
 	["meizlsefuchoudrawcard"] = "复仇效果 （二）",
 	[":meizlsefuchou"] = "<font color=\"blue\"><b>锁定技，</b></font>体力值大于你的角色的手牌上限-X，并于摸牌阶段少摸X张牌（X为你已损失的体力值）。",
+	[":meizlsefuchou2"] = "<font color=\"blue\"><b>锁定技，</b></font>其他角色的手牌上限-X，并于摸牌阶段少摸X张牌（X为你已损失的体力值）。",
 	[":meizlsefuchoumaxcard"] = "<font color=\"blue\"><b>锁定技，</b></font>若你的体力值大于魔界七将‧路西法‧蔡夫人，你的手牌上限-X（X为蔡夫人已损失的体力值）。",
 	[":meizlsefuchoudrawcard"] = "<font color=\"blue\"><b>锁定技，</b></font>若你的体力值大于魔界七将‧路西法‧蔡夫人，你于摸牌阶段少摸X张牌（X为蔡夫人已损失的体力值）。",
+	[":meizlsefuchoumaxcard2"] = "<font color=\"blue\"><b>锁定技，</b></font>你的手牌上限-X（X为蔡夫人已损失的体力值）。",
+	[":meizlsefuchoudrawcard2"] = "<font color=\"blue\"><b>锁定技，</b></font>你于摸牌阶段少摸X张牌（X为蔡夫人已损失的体力值）。",
 	["meizlsepoxiao"] = "破晓",
 	["meizlsepoxiaocard"] = "破晓",
 	[":meizlsepoxiao"] = "<font color=\"green\"><b>出牌阶段对每名角色限一次，</b></font>你可以与一名其他角色拼点。若你赢，该角色跳过其下一个出牌阶段。",
+	[":meizlsepoxiao2"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以与一名其他角色拼点。若你赢，该角色跳过其下一个出牌阶段。",
 	["meizlseaoman"] = "傲慢",
 	["@meizlseaoman"] = "傲慢",
 	["meizlseaomancard"] = "傲慢",
@@ -7356,6 +7372,7 @@ meizlsebaoshicard  = sgs.CreateSkillCard {
 	will_throw = true,
 	on_use = function(self, room, source, targets)
 		source:gainMark("@meizlsebaoshi")
+		room:changeTranslation(source, "meizlsejunwang", 2)
 	end
 }
 meizlsebaoshiskill = sgs.CreateViewAsSkill {
@@ -7404,6 +7421,7 @@ sgs.LoadTranslationTable {
 	[":meizlsebihui"] = "若你的手牌数少于或等于体力上限，当你使用【杀】时，你可以额外选择两个目标。",
 	["meizlsejunwang"] = "君王",
 	[":meizlsejunwang"] = "<font color=\"blue\"><b>锁定技，</b></font>你对距离X以内的其他角色不能使用【闪】响应你对其使用的【杀】；你对距离1以内的其他角色造成的伤害+X（X为你已损失的体力值） 。",
+	[":meizlsejunwang2"] = "<font color=\"blue\"><b>锁定技，</b></font>你对距离X以内的其他角色不能使用【闪】响应你对其使用的【杀】；你对距离X以内的其他角色造成的伤害+X（X为你已损失的体力值） 。",
 	["#Meizlsejunwangdamage"] = "%from的技能【<font color=\"yellow\"><b>君王</b></font>】被触发，%from对%to造成的伤害由%arg点至增加至%arg2点。",
 	["meizlsebaoshi"] = "暴食",
 	["@meizlsebaoshi"] = "暴食",
@@ -7472,6 +7490,7 @@ meizlselanduocard  = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		source:throwAllHandCards()
 		source:gainMark("@meizlselanduo")
+		room:changeTranslation(source, "meizlsejisu", 2)
 	end
 }
 meizlselanduoskill = sgs.CreateViewAsSkill {
@@ -7507,6 +7526,7 @@ sgs.LoadTranslationTable {
 	["#meizlsedaqiao"] = "亚述的魔神",
 	["meizlsejisu"] = "嫉俗",
 	[":meizlsejisu"] = "<font color=\"blue\"><b>锁定技，</b></font>出牌阶段开始时，体力值大于你的角色弃置所有装备牌。",
+	[":meizlsejisu2"] = "<font color=\"blue\"><b>锁定技，</b></font>出牌阶段开始时，其他角色弃置所有牌。",
 	["meizlsesiyi"] = "肆意",
 	[":meizlsesiyi"] = "你的回合外，每当你失去牌后，你可以摸X张牌（X为当前的魔界七将势力角色数）。",
 	["meizlselanduo"] = "懒惰",
@@ -8852,7 +8872,9 @@ meizlwuzhijingjichang = sgs.CreateTriggerSkill {
 						log.arg2 = tonumber(damage.damage)
 						room:sendLog(log)
 						room:addPlayerMark(damage.from, "@meizlwuzhijingjichangdamage", tonumber(damage.damage))
-						return true
+						damage.prevented = true
+						data:setValue(damage)
+						--return true
 					end
 				elseif event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_RoundStart then
 					if player:getMark("@meizlwuzhijingjichangstate") == 0 then
@@ -8994,7 +9016,7 @@ sgs.LoadTranslationTable {
 	["meizlshhunshi"] = "魂逝‧升华",
 	[":meizlshhunshi"] = "<font color=\"blue\"><b>锁定技，</b></font>你死亡时，杀死你的角色失去2点体力且其他角色计算与其距离-2。",
 	["meizlshhunshidistance"] = "魂逝‧升华",
-	[":meizlshhunshidistance"] = "<font color=\"blue\"><b>锁定技，</b></font>其他角色计算与你的距离-1",
+	[":meizlshhunshidistance"] = "<font color=\"blue\"><b>锁定技，</b></font>其他角色计算与你的距离-2",
 	["meizlzhenhunqu"] = "镇魂曲",
 	["meizlzhenhunqucard"] = "镇魂曲",
 	[":meizlzhenhunqu"] = "<b><font color=\"red\">无</font><font color=\"orange\">双</font><font color=\"purple\">技</font><font color=\"green\">(5)</font></b>，你可以指定一名角色，并展示牌顶堆的两张牌并将之置于弃牌堆，以此法展示的牌点数总和与18每差1，该角色便失去1点体力。",
@@ -9013,7 +9035,6 @@ sgs.LoadTranslationTable {
 	["meizlshxiangjie:nouse"] = "不计入出牌阶段内的使用次数限制",
 	["@meizlshxiangjie-slash"] = "你可以打出一张【杀】时，视为由%src对其攻击范围内你选择的另一名角色使用",
 	[":meizlshxiangjie"] = "其他角色的出牌阶段开始时，你可以打出一张【杀】，视为由当前回合角色对你选择的另一名角色使用（不计入出牌阶段内的使用次数限制）。",
-	["meizlmengshilong"] = "猛狮笼",
 	["#meizlmengshilong1"] = "%from发动技能【%arg】，两回合内，%to的手牌上限-3，并防止%to造成的伤害。",
 	["#meizlmengshilong2"] = "%from的技能【%arg】被触发，%to跳过其本回合的摸牌阶段，并令%from执行一个额外的摸牌阶段。",
 	["#meizlmengshilong3"] = "%from的技能【%arg】被触发，防止了%to造成的伤害。",
@@ -9060,8 +9081,7 @@ sgs.LoadTranslationTable {
 	["meizlshyuguo"] = "域帼‧升华",
 	[":meizlshyuguo"] = "当你使用的【杀】被目标角色的【闪】抵消时，你有50%机率可以获得你使用的【杀】，然后此阶段你可以额外使用一张【杀】且你本回合内使用【杀】造成的伤害+1。",
 	["meizlshrongzhuang"] = "戎装‧升华",
-	["meizlshrongzhuang:usesl"] = "對攻擊範圍內的一名其他角色使用此【杀】",
-	[":meizlshrongzhuang"] = "每当一名角色使用【杀】对目标角色造成一次伤害后，你可以摸一张牌并展示之，若为【杀】，你可以立即对攻击范围内的一名其他角色使用。每名角色的回合限一次。 ",
+	[":meizlshrongzhuang"] = "每当一名角色使用【杀】对目标角色造成一次伤害后，你可以摸一张牌并展示之，若为【杀】，你可以对攻击范围内的一名其他角色使用。每名角色的回合限一次。 ",
 	["~meizlshrongzhuang"] = "选择目标→确定",
 	["#meizlshrongzhuang"] = "请选择【%src】的目标",
 	["meizlshrongzhuang:usesl"] = "對攻擊範圍內的一名其他角色使用此【杀】",
@@ -9945,7 +9965,7 @@ mei_jinji = sgs.CreateTriggerSkill {
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 --MEIZL BOSS2 L001 步兵
-meizlboss2bubing = sgs.General(extension, "meizlboss2bubing", "shu", 3, false, true)
+meizlboss2bubing = sgs.General(extension, "meizlboss2bubing", "shu", 3, false, true, true)
 
 meizlboss2chongfeng = sgs.CreateTriggerSkill {
 	name = "meizlboss2chongfeng",
@@ -9976,7 +9996,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L002 骑兵
-meizlboss2qibing = sgs.General(extension, "meizlboss2qibing", "shu", 3, false, true)
+meizlboss2qibing = sgs.General(extension, "meizlboss2qibing", "shu", 3, false, true, true)
 
 meizlboss2feiqi = sgs.CreateDistanceSkill {
 	name = "meizlboss2feiqi",
@@ -9999,7 +10019,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L003 弓手
-meizlboss2gongshou = sgs.General(extension, "meizlboss2gongshou", "shu", 3, false, true)
+meizlboss2gongshou = sgs.General(extension, "meizlboss2gongshou", "shu", 3, false, true, true)
 
 meizlboss2chuanyang = sgs.CreateTriggerSkill {
 	name = "meizlboss2chuanyang",
@@ -10040,7 +10060,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L004 弩兵
-meizlboss2nubing = sgs.General(extension, "meizlboss2nubing", "shu", 3, false, true)
+meizlboss2nubing = sgs.General(extension, "meizlboss2nubing", "shu", 3, false, true, true)
 
 meizlboss2qiangnu = sgs.CreateTargetModSkill {
 	name = "meizlboss2qiangnu",
@@ -10069,7 +10089,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L005 军师
-meizlboss2junshi = sgs.General(extension, "meizlboss2junshi", "shu", 3, false, true)
+meizlboss2junshi = sgs.General(extension, "meizlboss2junshi", "shu", 3, false, true, true)
 
 meizlboss2guantian = sgs.CreateTriggerSkill {
 	name = "meizlboss2guantian",
@@ -10104,7 +10124,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L006 援兵
-meizlboss2yuanbing = sgs.General(extension, "meizlboss2yuanbing", "shu", 3, false, true)
+meizlboss2yuanbing = sgs.General(extension, "meizlboss2yuanbing", "shu", 3, false, true, true)
 
 meizlboss2ziliang = sgs.CreateTriggerSkill {
 	name = "meizlboss2ziliang",
@@ -10142,7 +10162,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L007 炮兵
-meizlboss2paobing = sgs.General(extension, "meizlboss2paobing", "shu", 3, false, true)
+meizlboss2paobing = sgs.General(extension, "meizlboss2paobing", "shu", 3, false, true, true)
 
 meizlboss2yinhuo = sgs.CreateTriggerSkill {
 	name = "meizlboss2yinhuo",
@@ -10180,7 +10200,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L008 将军
-meizlboss2jiangjun = sgs.General(extension, "meizlboss2jiangjun", "shu", 10, false, true)
+meizlboss2jiangjun = sgs.General(extension, "meizlboss2jiangjun", "shu", 10, false, true, true)
 
 meizlboss2haoling = sgs.CreateTriggerSkill {
 	name = "meizlboss2haoling",
@@ -10229,7 +10249,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L009 魔兵
-meizlboss2mobing = sgs.General(extension, "meizlboss2mobing", "sevendevil", 3, false, true)
+meizlboss2mobing = sgs.General(extension, "meizlboss2mobing", "sevendevil", 3, false, true, true)
 meizlboss2dusha = sgs.CreateTriggerSkill {
 	name = "meizlboss2dusha",
 	frequency = sgs.Skill_Compulsory,
@@ -10295,7 +10315,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L010 魔将
-meizlboss2mojiang = sgs.General(extension, "meizlboss2mojiang", "sevendevil", 20, false, true)
+meizlboss2mojiang = sgs.General(extension, "meizlboss2mojiang", "sevendevil", 20, false, true, true)
 
 meizlboss2nuesha = sgs.CreateTriggerSkill {
 	name = "meizlboss2nuesha",
@@ -10335,7 +10355,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L011 野心家
-meizlboss2yexinjia = sgs.General(extension, "meizlboss2yexinjia", "sevendevil", 30, false, true)
+meizlboss2yexinjia = sgs.General(extension, "meizlboss2yexinjia", "sevendevil", 30, false, true, true)
 
 meizlboss2tuji = sgs.CreateTriggerSkill {
 	name = "meizlboss2tuji",
@@ -10390,7 +10410,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 RH L001 穆夫人‧弱化
-meizlbooss2rhmufunren = sgs.General(extension, "meizlbooss2rhmufunren", "shu", 10, false, true)
+meizlbooss2rhmufunren = sgs.General(extension, "meizlbooss2rhmufunren", "shu", 10, false, true, true)
 meizlbooss2rhmufunren:addSkill(meizlboss2mobingchange)
 sgs.LoadTranslationTable {
 	["meizlbooss2rhmufunren"] = "穆夫人‧弱化",
@@ -10401,7 +10421,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 RH L002 甘夫人‧弱化
-meizlbooss2rhganfunren = sgs.General(extension, "meizlbooss2rhganfunren", "shu", 8, false, true)
+meizlbooss2rhganfunren = sgs.General(extension, "meizlbooss2rhganfunren", "shu", 8, false, true, true)
 sgs.LoadTranslationTable {
 	["meizlbooss2rhganfunren"] = "甘夫人‧弱化",
 	["&meizlbooss2rhganfunren"] = "甘夫人",
@@ -10411,7 +10431,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L001 穆夫人
-meizlbooss2mufunren = sgs.General(extension, "meizlbooss2mufunren", "shu", 10, false, true)
+meizlbooss2mufunren = sgs.General(extension, "meizlbooss2mufunren", "shu", 10, false, true, true)
 
 meizlbooss2muyi     = sgs.CreateTriggerSkill {
 	name = "meizlbooss2muyi",
@@ -10487,7 +10507,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L002 甘夫人
-meizlbooss2ganfunren = sgs.General(extension, "meizlbooss2ganfunren", "shu", 8, false, true)
+meizlbooss2ganfunren = sgs.General(extension, "meizlbooss2ganfunren", "shu", 8, false, true, true)
 
 meizlbooss2huangsi = sgs.CreateTriggerSkill {
 	name = "meizlbooss2huangsi",
@@ -10574,7 +10594,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 SH L001 穆夫人-升华
-meizlbooss2shmufunren    = sgs.General(extension, "meizlbooss2shmufunren", "shu", 12, false, true)
+meizlbooss2shmufunren    = sgs.General(extension, "meizlbooss2shmufunren", "shu", 12, false, true, true)
 
 meizlbooss2shmuyi        = sgs.CreateTriggerSkill {
 	name = "meizlbooss2shmuyi",
@@ -10690,7 +10710,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 L002 甘夫人-升华
-meizlbooss2shganfunren = sgs.General(extension, "meizlbooss2shganfunren", "shu", 8, false, true)
+meizlbooss2shganfunren = sgs.General(extension, "meizlbooss2shganfunren", "shu", 8, false, true, true)
 
 meizlbooss2shhuangsi = sgs.CreateTriggerSkill {
 	name = "meizlbooss2shhuangsi",
@@ -10824,7 +10844,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 JF L001 穆夫人-解放
-meizlbooss2jfmufunren        = sgs.General(extension, "meizlbooss2jfmufunren", "shu", 12, false, true)
+meizlbooss2jfmufunren        = sgs.General(extension, "meizlbooss2jfmufunren", "shu", 12, false, true, true)
 
 meizlbooss2jfmuyi            = sgs.CreateTriggerSkill {
 	name = "meizlbooss2jfmuyi",
@@ -10948,7 +10968,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 JF L002 甘夫人-解放
-meizlbooss2jfganfunren = sgs.General(extension, "meizlbooss2jfganfunren", "shu", 8, false, true)
+meizlbooss2jfganfunren = sgs.General(extension, "meizlbooss2jfganfunren", "shu", 8, false, true, true)
 
 meizlbooss2jfhuangsi = sgs.CreateTriggerSkill {
 	name = "meizlbooss2jfhuangsi",
@@ -11091,7 +11111,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 JJJF L001 穆夫人-究极解放
-meizlbooss2jjjfmufunren      = sgs.General(extension, "meizlbooss2jjjfmufunren", "shu", 8, false, true)
+meizlbooss2jjjfmufunren      = sgs.General(extension, "meizlbooss2jjjfmufunren", "shu", 8, false, true, true)
 
 meizlbooss2jjjfmuyi          = sgs.CreateTriggerSkill {
 	name = "meizlbooss2jjjfmuyi",
@@ -11222,7 +11242,7 @@ sgs.LoadTranslationTable {
 }
 ---------------------------------------------------------------
 --MEIZL BOSS2 JJJF L002 甘夫人-究极解放
-meizlbooss2jjjfganfunren = sgs.General(extension, "meizlbooss2jjjfganfunren", "shu", 2, false, true)
+meizlbooss2jjjfganfunren = sgs.General(extension, "meizlbooss2jjjfganfunren", "shu", 2, false, true, true)
 
 meizlbooss2jjjfhuangsi = sgs.CreateTriggerSkill {
 	name = "meizlbooss2jjjfhuangsi",
@@ -11917,7 +11937,7 @@ hujias = sgs.CreateTriggerSkill
 			local room = player:getRoom()
 			local damage = data:toDamage()
 			if damage.from == nil then return end
-			if not room:askForSkillInvoke(player, "hujias") then return false end
+			if not room:askForSkillInvoke(player, "hujias", data) then return false end
 			room:loseMaxHp(damage.from, 1)
 			room:loseHp(damage.from, 1)
 			local recover = sgs.RecoverStruct()
@@ -11981,7 +12001,7 @@ guihans = sgs.CreateTriggerSkill {
 		if player:getPhase() == sgs.Player_Finish then
 			if not player:isWounded() then return false end
 			if not room:askForSkillInvoke(player, "guihans") then return false end
-			room:setPlayerMark(player, "guihans", 1)
+			room:setPlayerMark(player, "&guihans", 1)
 			room:handleAcquireDetachSkills(player, "-hujias|-guyan")
 		end
 	end
@@ -11994,7 +12014,7 @@ guihanss = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if player:getPhase() == sgs.Player_Start then
-			if player:getMark("guihans") > 0 then
+			if player:getMark("&guihans") > 0 then
 				room:broadcastInvoke("animate", "lightbox:$Guihans:3000")
 				room:getThread():delay(3000)
 				room:handleAcquireDetachSkills(player, "-guihans")
@@ -12007,7 +12027,7 @@ guihanss = sgs.CreateTriggerSkill {
 					player:getRoom():handleAcquireDetachSkills(player, "guyanjh")
 					player:getRoom():handleAcquireDetachSkills(player, "hujiajh")
 				end
-				room:setPlayerMark(player, "guihans", 0)
+				room:setPlayerMark(player, "&guihans", 0)
 			end
 		end
 	end,
@@ -12346,6 +12366,7 @@ shijuncard = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:setPlayerMark(targets[1], "shijuntarget", 1)
 		room:setFixedDistance(source, targets[1], 1)
+		room:setPlayerMark(targets[1], "&shijun+to+#"..source:objectName(), 1)
 	end,
 }
 
@@ -12377,6 +12398,7 @@ shijun = sgs.CreateTriggerSkill {
 		for _, p in sgs.qlist(room:getAllPlayers()) do
 			if p:getMark("shijuntarget") > 0 then
 				room:setPlayerMark(p, "shijuntarget", 0)
+				room:setPlayerMark(p, "&shijun+to+#"..player:objectName(), 0)
 				room:setFixedDistance(player, p, -1)
 			end
 		end
