@@ -240,10 +240,13 @@ filter = function(self, targets, to_select, player)
 		local choice = room:askForChoice(effect.from, "luaqingqi", choicelist, dest)
 		if(choice == "luaqingqi1") then
 			room:broadcastSkillInvoke("shensu",2)
+			local slash = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit,0)
+			slash:deleteLater()
+			slash:setSkillName(self:objectName())
 			local use_card = sgs.CardUseStruct()
 			use_card.from = effect.from
 			use_card.to :append(effect.to)
-			use_card.card = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit,0)
+			use_card.card = slash
 			room:useCard(use_card,false)
 		elseif(choice == "luaqingqi2") then
 			local card_id = room:askForCardChosen(effect.from, effect.to, "hej", "luaqingqi")
@@ -491,7 +494,7 @@ feijiangts = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.CardResponded then
 			local resp = data:toCardResponse()
-			if (resp.m_card:isKindOf("Slash")) and resp.m_who and (not resp.m_who:isKongcheng()) and player:isKongcheng() then
+			if (resp.m_card:isKindOf("Slash")) and resp.m_who and (not resp.m_who:isKongcheng()) and player:isLastHandCard(resp.m_card) then
 				local _data = sgs.QVariant()
 				_data:setValue(resp.m_who)
 				if player:askForSkillInvoke(self:objectName(), _data) then
@@ -501,7 +504,7 @@ feijiangts = sgs.CreateTriggerSkill{
 			end
 		else
 			local use = data:toCardUse()
-			if use.from and (use.from:objectName() == player:objectName()) and (use.card:isKindOf("Slash")) and player:isKongcheng() then
+			if use.from and (use.from:objectName() == player:objectName()) and use.card and (use.card:isKindOf("Slash")) and player:isLastHandCard(use.card) then
 				for _, p in sgs.qlist(use.to) do
 					if p:isKongcheng() then continue end
 					local _data = sgs.QVariant()
@@ -704,6 +707,9 @@ luajiezhi = sgs.CreateTriggerSkill{
 				if card:getSkillName() == "luajiezhi" then
 					room:setPlayerFlag(player,"luajiezhiused")
 					room:setPlayerFlag(player,"-luajiezhix")
+					local use = data:toCardUse()
+					use.m_addHistory = false
+					data:setValue(use)
 				end
 			end
 		end
@@ -1208,7 +1214,7 @@ luamengxi = sgs.CreateTriggerSkill
 luajuesi=sgs.CreateFilterSkill{
 name="luajuesi",
 view_filter=function(self,to_select)
-	return (to_select:isBlack() and to_select:isNDTrick()) or (to_select:isKindOf("EquipCard"))
+	return (to_select:isBlack() and to_select:isNDTrick()) or (to_select:isKindOf("EquipCard")) 
 end,
 view_as=function(self,card)
 	local filtered=nil
@@ -2420,6 +2426,7 @@ luafanfu_card = sgs.CreateSkillCard
 		else
 			local slash  = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit,0)
 			slash:setSkillName(self:objectName())
+			slash:deleteLater()
 			local use_card = sgs.CardUseStruct()
 			use_card.from = from
 			use_card.to :append(to)

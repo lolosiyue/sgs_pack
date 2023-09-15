@@ -4185,6 +4185,14 @@ function SmartAI:getLeastHandcardNum(player)
 	then
 		least = 1
 	end
+	if player:hasSkill("luahuju") then 
+		local x = math.min(getKingdoms(player), 3)
+		if x > 0 and least < x
+	then
+		least = x
+	end
+	end
+
 
 	return least
 end
@@ -6634,6 +6642,9 @@ function getBestHp(owner)
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu1") == 0 then return 2 end
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu2") == 0 then return 1 end
 	if owner:hasSkill("meizlseyaohuo") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("luajiye") and owner:getMark("luajiye") == 0 then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("luatuwei") and owner:getMark("luatuwei") == 0 then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("luashenweiex1") then return owner:getMaxHp() - 1 end
 
 
 
