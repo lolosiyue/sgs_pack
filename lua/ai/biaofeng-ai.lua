@@ -2638,7 +2638,7 @@ sgs.ai_skill_use_func["#PlusFanjian_Card"] = function(card, use, self)
 	for _, enemy_a in ipairs(self.enemies) do
 		for _, enemy_b in ipairs(self.enemies) do
 			if enemy_b:canSlash(enemy_a) and not self:slashProhibit(slash, enemy_a) and sgs.getDefenseSlash(enemy_a, self) <= 2
-				and self:slashIsEffective(slash, enemy_a) and self:isGoodTarget(enemy_a, self.enemies) and enemy_b:getHandcardNum() > enemy_a:getHandcardNum() and enemy_a:objectName() ~= self.player:objectName() then
+				and self:slashIsEffective(slash, enemy_a) and self:isGoodTarget(enemy_a, self.enemies, slash) and enemy_b:getHandcardNum() > enemy_a:getHandcardNum() and enemy_a:objectName() ~= self.player:objectName() then
 				slasher = enemy_b
 				target = enemy_a
 				break
@@ -2649,7 +2649,7 @@ sgs.ai_skill_use_func["#PlusFanjian_Card"] = function(card, use, self)
 		for _, enemy in ipairs(self.enemies) do
 			for _, p in ipairs(sgs.QList2Table(self.room:getOtherPlayers(enemy))) do
 				if p:canSlash(enemy) and not self:slashProhibit(slash, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
-					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies) and p:getHandcardNum() > enemy:getHandcardNum() and enemy:objectName() ~= self.player:objectName() then
+					and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) and p:getHandcardNum() > enemy:getHandcardNum() and enemy:objectName() ~= self.player:objectName() then
 					slasher = p
 					target = enemy
 					break
@@ -2914,7 +2914,7 @@ PlusKurou_skill.getTurnUseCard = function(self, inclusive)
 				and not (enemy:hasSkill("kongcheng") and enemy:isKongcheng())
 				and not (enemy:hasSkills("fankui|guixin") and not self.player:hasSkill("paoxiao"))
 				and not enemy:hasSkills("fenyong|jilei|zhichi")
-				and self:isGoodTarget(enemy, self.enemies) and not self:slashProhibit(slash, enemy) and self.player:getHp() > 1 then
+				and self:isGoodTarget(enemy, self.enemies, slash) and not self:slashProhibit(slash, enemy) and self.player:getHp() > 1 then
 				return sgs.Card_Parse("#PlusKurou_Card:.:")
 			end
 		end
