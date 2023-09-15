@@ -2445,7 +2445,6 @@ meizlzhuanchong = sgs.CreateTriggerSkill {
 					end
 				end
 			end
-			::continue::
 		end
 	end,
 	can_trigger = function(self, player)
@@ -4986,7 +4985,7 @@ meizlkuangjicard = sgs.CreateSkillCard {
 		room:detachSkillFromPlayer(source, "meizlbiyin")
 		source:gainMark("@meizlkuangji")
 		room:addPlayerMark(source, "&meizlkuangji")
-		room:changeTranslation(source,"meizlhuyi",2)
+		room:changeTranslation(source, "meizlhuyi", 2)
 	end
 }
 meizlkuangjiskill = sgs.CreateViewAsSkill {
@@ -5060,7 +5059,7 @@ meizltihen = sgs.CreateTriggerSkill
 			if event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_Finish then
 				for _, p in sgs.qlist(room:getAllPlayers()) do
 					local y = p:getHp()
-					local x = math.max(p:getHandcardNum(),1)
+					local x = math.max(p:getHandcardNum(), 1)
 					if y > x then
 						room:loseHp(p, y - x)
 					elseif y < x then
@@ -6559,7 +6558,7 @@ meizlsetanlancard  = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:loseMaxHp(source, 1)
 		source:gainMark("@meizlsetanlan")
-		room:changeTranslation(source,"meizlselueduo",2)
+		room:changeTranslation(source, "meizlselueduo", 2)
 	end
 }
 meizlsetanlanskill = sgs.CreateViewAsSkill {
@@ -12366,7 +12365,7 @@ shijuncard = sgs.CreateSkillCard {
 	on_use = function(self, room, source, targets)
 		room:setPlayerMark(targets[1], "shijuntarget", 1)
 		room:setFixedDistance(source, targets[1], 1)
-		room:setPlayerMark(targets[1], "&shijun+to+#"..source:objectName(), 1)
+		room:setPlayerMark(targets[1], "&shijun+to+#" .. source:objectName(), 1)
 	end,
 }
 
@@ -12398,7 +12397,7 @@ shijun = sgs.CreateTriggerSkill {
 		for _, p in sgs.qlist(room:getAllPlayers()) do
 			if p:getMark("shijuntarget") > 0 then
 				room:setPlayerMark(p, "shijuntarget", 0)
-				room:setPlayerMark(p, "&shijun+to+#"..player:objectName(), 0)
+				room:setPlayerMark(p, "&shijun+to+#" .. player:objectName(), 0)
 				room:setFixedDistance(player, p, -1)
 			end
 		end
@@ -12552,6 +12551,7 @@ sgs.LoadTranslationTable {
 	["shijuncard"] = "侍君",
 	[":shijun"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张牌并指定一名其他角色，你与该角色的距离始终视为1，直到回合结束。",
 }
+
 
 
 return { extension }

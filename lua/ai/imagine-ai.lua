@@ -9,7 +9,8 @@
 		SmartAI:tdr(result,source,target)
 		SmartAI:KingdomsCount(players)
 		SmartAI:SortByAtomDamageCount(targets,source,nature,card,inverse)
-]]--
+]]
+--
 --[[
 	函数名：AtomDamageCount
 	功能：计算一次单体伤害的点数
@@ -22,41 +23,44 @@
 			雷电伤害：sgs.DamageStruct_Thunder
 		card：伤害所用卡牌，默认值为nil（没有卡牌）
 	返回值：一个整数，表示伤害点数
-]]--
-function SmartAI:AtomDamageCount(target,source,nature,card)
-	if not target then return 0 end--没有伤害目标直接返回0
+]]
+--
+function SmartAI:AtomDamageCount(target, source, nature, card)
+	if not target then return 0 end         --没有伤害目标直接返回0
 	nature = nature or sgs.DamageStruct_Normal --伤害属性的默认值处理
-	if not self:damageIsEffective(target,nature,source)
-	then return 0 end --伤害无效直接返回0
-	local count = 1 --初始伤害点数
+	if not self:damageIsEffective(target, nature, source)
+	then
+		return 0
+	end                  --伤害无效直接返回0
+	local count = 1      --初始伤害点数
 	local isSlash = false --杀造成的伤害
 	local isNDTrick = false --非延时性锦囊造成的伤害
-	if card then --卡牌伤害
+	if card then         --卡牌伤害
 		isSlash = card:isKindOf("Slash")
 		isNDTrick = card:isNDTrick()
 	end
-	if target:getMark("@late")>0 then --如果目标智迟中
+	if target:getMark("@late") > 0 then --如果目标智迟中
 		if isSlash or isNDTrick then --如果卡牌为杀或非延时性锦囊
 			return 0
 		end
 	end
 	if target:hasSkill("wuyan") or target:hasSkill("noswuyan") then --如果目标有技能无言
-		if isNDTrick then --如果卡牌为非延时性锦囊
+		if isNDTrick then                                        --如果卡牌为非延时性锦囊
 			return 0
 		end
 	end
 	if target:hasSkill("huoshou") or target:hasSkill("juxiang") then --如果目标有技能祸首、巨象
-		if isNDTrick and card:isKindOf("SavageAssault") then --如果卡牌为南蛮入侵
+		if isNDTrick and card:isKindOf("SavageAssault") then      --如果卡牌为南蛮入侵
 			return 0
 		end
 	end
-	if nature==sgs.DamageStruct_Fire then --如果是火焰伤害
+	if nature == sgs.DamageStruct_Fire then --如果是火焰伤害
 		if target:hasArmorEffect("vine") then --如果目标装备了藤甲
-			count = count+1
+			count = count + 1
 			self.room:writeToConsole("vine+1")
 		end
-        if target:getMark("&kuangfeng")>0 then --如果目标有狂风标记
-			count = count+1
+		if target:getMark("&kuangfeng") > 0 then --如果目标有狂风标记
+			count = count + 1
 			self.room:writeToConsole("gale+1")
 		end
 	end
@@ -65,25 +69,25 @@ function SmartAI:AtomDamageCount(target,source,nature,card)
 		if weapon then
 			if weapon:isKindOf("GudingBlade") then --如果来源有古锭刀
 				if isSlash and target:isKongcheng() then --如果卡牌为杀且目标空城
-					count = count+1
+					count = count + 1
 					self.room:writeToConsole("guding+1")
 				end
 			end
 		end
-		if source:hasFlag("luoyi") then --如果来源有裸衣标志
+		if source:hasFlag("luoyi") then     --如果来源有裸衣标志
 			if isSlash or card:isKindOf("Duel") then --如果卡牌为杀或决斗
-				count = count+1
+				count = count + 1
 				self.room:writeToConsole("luoyi+1")
 			end
 		end
-		if isSlash then --如果卡牌为杀
+		if isSlash then          --如果卡牌为杀
 			if card:hasFlag("drank") then --如果卡牌为酒杀
-				count = count+1
+				count = count + 1
 				self.room:writeToConsole("drank+1")
 			end
 			if source:hasSkill("jie") then --如果来源有技能疾恶
 				if card:isRed() then --如果是红杀
-					count = count+1
+					count = count + 1
 					self.room:writeToConsole("jie+1")
 				end
 			end
@@ -91,6 +95,7 @@ function SmartAI:AtomDamageCount(target,source,nature,card)
 	end
 	return count
 end
+
 --[[
 	函数名：DamageToCards
 	功能：模拟一次伤害带来的卡牌收入
@@ -107,8 +112,9 @@ end
 			Max：最高收入；
 			Min：最低收入；
 			Expectancy：收入的平均值。
-]]--
-function SmartAI:DamageToCards(target,source,count)
+]]
+--
+function SmartAI:DamageToCards(target, source, count)
 	local result = {
 		thisIncome = {
 			Max = 0,
@@ -126,7 +132,7 @@ function SmartAI:DamageToCards(target,source,count)
 	local thatRangeMax = 0
 	local thatRangeMin = 0
 	--收入计算
-	if target then --伤害目标必须存在
+	if target then    --伤害目标必须存在
 		local room = self.room
 		local civil = false --是否自相残杀
 		local enemies = {}
@@ -137,69 +143,69 @@ function SmartAI:DamageToCards(target,source,count)
 			count = 1
 		end
 		if source then
-			civil = self:isFriend(target,source)
+			civil = self:isFriend(target, source)
 		end
-		for _,p in sgs.list(players)do --区分敌友
-			if self:isFriend(p,target) then
-				table.insert(friends,p)
+		for _, p in sgs.list(players) do --区分敌友
+			if self:isFriend(p, target) then
+				table.insert(friends, p)
 			else
-				table.insert(enemies,p)
+				table.insert(enemies, p)
 			end
 		end
 		--遗计（按点数结算）
 		if target:hasSkill("yiji") then
-			thisRangeMax = thisRangeMax+2*count
-			thisRangeMin = thisRangeMin+2*count
+			thisRangeMax = thisRangeMax + 2 * count
+			thisRangeMin = thisRangeMin + 2 * count
 		end
 		--节命（按点数结算，应取前count名补牌空间最大的同伴计总数）
 		if target:hasSkill("jieming") then
-			for i=1,count,1 do
+			for i = 1, count, 1 do
 				local minCount = 6
 				local maxCount = -1
 				local flag = false
-				for _,p in pairs(friends)do
-					local maxhp = math.min(p:getMaxHp(),5)
+				for _, p in pairs(friends) do
+					local maxhp = math.min(p:getMaxHp(), 5)
 					local handcount = p:getHandcardNum()
-					local ct = maxhp-handcount
-					if ct>maxCount then
+					local ct = maxhp - handcount
+					if ct > maxCount then
 						maxCount = ct
 						flag = true
 					end
-					if ct<minCount then
+					if ct < minCount then
 						minCount = ct
 						flag = true
 					end
 				end
 				if flag then
-					thisRangeMax = thisRangeMax+maxCount
-					thisRangeMin = thisRangeMin+minCount
+					thisRangeMax = thisRangeMax + maxCount
+					thisRangeMin = thisRangeMin + minCount
 				end
 			end
 		end
 		--反馈（按次数结算）
 		if target:hasSkill("fankui") then
 			if source and not civil then
-				thisRangeMax = thisRangeMax+1
-				thisRangeMin = thisRangeMin+1
-				thatRangeMax = thatRangeMax-1
-				thatRangeMin = thatRangeMin-1
+				thisRangeMax = thisRangeMax + 1
+				thisRangeMin = thisRangeMin + 1
+				thatRangeMax = thatRangeMax - 1
+				thatRangeMin = thatRangeMin - 1
 			end
 		end
 		--恩怨（按点数结算）
 		if target:hasSkill("enyuan") then
 			if source and not civil then
-				thisRangeMax = thisRangeMax+count
-				thisRangeMin = thisRangeMin+count
-				thatRangeMax = thatRangeMax-count
-				thatRangeMin = thatRangeMin-count
+				thisRangeMax = thisRangeMax + count
+				thisRangeMin = thisRangeMin + count
+				thatRangeMax = thatRangeMax - count
+				thatRangeMin = thatRangeMin - count
 			end
 		end
 		--刚烈（按次数结算）
 		if target:hasSkill("ganglie") then
 			if source and not civil then
-				if source:getHandcardNum()>=2 then
-					thatRangeMax = thatRangeMax-2 --选择弃牌
-					thatRangeMin = thatRangeMin-0 --选择掉血
+				if source:getHandcardNum() >= 2 then
+					thatRangeMax = thatRangeMax - 2 --选择弃牌
+					thatRangeMin = thatRangeMin - 0 --选择掉血
 				end
 			end
 		end
@@ -207,41 +213,41 @@ function SmartAI:DamageToCards(target,source,count)
 		if target:hasSkill("fangzhu") or target:hasSkill("jilve") then
 			local flag = true
 			local lost = target:getLostHp()
-			for _,p in pairs(friends)do
+			for _, p in pairs(friends) do
 				if not p:faceUp() then --放逐target一方
-					thisRangeMax = thisRangeMax+lost
-					thisRangeMin = thisRangeMin+lost
+					thisRangeMax = thisRangeMax + lost
+					thisRangeMin = thisRangeMin + lost
 					flag = false
 					break
 				end
 			end
 			if flag then --放逐target的对方
-				thatRangeMax = thatRangeMax+lost
-				thatRangeMin = thatRangeMin+lost
+				thatRangeMax = thatRangeMax + lost
+				thatRangeMin = thatRangeMin + lost
 			end
 		end
 		--破军（按次数结算，被忽略）
 		--归心（按点数结算）
 		if target:hasSkill("guixin") then
 			local maxlength = 0
-			for _,p in sgs.list(players)do --统计场上
-				local ct = p:getCardCount(true)+p:getJudgingArea():length()
-				if ct>maxlength then
+			for _, p in sgs.list(players) do --统计场上
+				local ct = p:getCardCount(true) + p:getJudgingArea():length()
+				if ct > maxlength then
 					maxlength = ct
 				end
 			end
-			local times = math.min(maxlength,count) --归心的次数
-			for i=1,times,1 do
+			local times = math.min(maxlength, count) --归心的次数
+			for i = 1, times, 1 do
 				local k = 0
-				for _,p in pairs(enemies)do --由于是统计收益，也就是差值，所以只看能收对方多少牌就行了。
+				for _, p in pairs(enemies) do --由于是统计收益，也就是差值，所以只看能收对方多少牌就行了。
 					if not p:isAllNude() then
-						k = k+1
+						k = k + 1
 					end
 				end
-				thisRangeMax = thisRangeMax+k --发动归心
-				thisRangeMin = thisRangeMin+0 --不发动归心
-				thatRangeMax = thatRangeMax-k --发动归心
-				thatRangeMin = thatRangeMin-0 --不发动归心
+				thisRangeMax = thisRangeMax + k --发动归心
+				thisRangeMin = thisRangeMin + 0 --不发动归心
+				thatRangeMax = thatRangeMax - k --发动归心
+				thatRangeMin = thatRangeMin - 0 --不发动归心
 			end
 		end
 		--誓仇
@@ -250,12 +256,12 @@ function SmartAI:DamageToCards(target,source,count)
 				local tag = target.tag:value("ShichouTarget")
 				if tag then
 					local victim = tag:toPlayer()
-					if self:isFriend(victim,target) then --被誓仇将伤害弹到自己人身上
-						thisRangeMax = thisRangeMax+count
-						thisRangeMin = thisRangeMin+count
+					if self:isFriend(victim, target) then --被誓仇将伤害弹到自己人身上
+						thisRangeMax = thisRangeMax + count
+						thisRangeMin = thisRangeMin + count
 					else --将伤害弹到对方身上
-						thatRangeMax = thatRangeMax+count
-						thatRangeMin = thatRangeMin+count
+						thatRangeMax = thatRangeMax + count
+						thatRangeMin = thatRangeMin + count
 					end
 				end
 			end
@@ -266,89 +272,90 @@ function SmartAI:DamageToCards(target,source,count)
 				local maxCount = -1
 				local minCount = 999
 				local flag = false
-				for _,p in pairs(enemies)do --将伤害弹到target的对方
+				for _, p in pairs(enemies) do --将伤害弹到target的对方
 					local lost = p:getLostHp()
-					if lost<minCount then
+					if lost < minCount then
 						minCount = lost
 						flag = true
 					end
-					if lost>maxCount then
+					if lost > maxCount then
 						maxCount = lost
 						flag = true
 					end
 				end
 				if flag then
-					thatRangeMax = thatRangeMax+maxCount
-					thatRangeMin = thatRangeMin+minCount
+					thatRangeMax = thatRangeMax + maxCount
+					thatRangeMin = thatRangeMin + minCount
 				end
 				flag = false
 				minCount = 999
 				maxCount = -1
-				for _,p in pairs(friends)do --将伤害弹到target一方
+				for _, p in pairs(friends) do --将伤害弹到target一方
 					local lost = p:getLostHp()
-					if lost<minCount then
+					if lost < minCount then
 						minCount = lost
 						flag = true
 					end
-					if lost>maxCount then
+					if lost > maxCount then
 						maxCount = lost
 						flag = true
 					end
 				end
 				if flag then
-					thisRangeMax = thisRangeMax+maxCount-1
-					thisRangeMin = thisRangeMin+minCount-1
+					thisRangeMax = thisRangeMax + maxCount - 1
+					thisRangeMin = thisRangeMin + minCount - 1
 				end
 			end
 		end
 		--涅槃
 		if target:hasSkill("niepan") then
-			if target:getMark("@nirvana")>0 then
-				if target:getHp()<=count then
+			if target:getMark("@nirvana") > 0 then
+				if target:getHp() <= count then
 					local cardcount = target:getCardCount(true) --原有的卡牌数目
-					thisRangeMax = thisRangeMax-cardcount+3 --发动涅槃
-					thisRangeMin = thisRangeMin+0 --不发动涅槃（被前位同伴所救）
+					thisRangeMax = thisRangeMax - cardcount + 3 --发动涅槃
+					thisRangeMin = thisRangeMin + 0 --不发动涅槃（被前位同伴所救）
 				end
 			end
 		end
 		--智愚
 		if target:hasSkill("zhiyu") then
 			if source and not civil then
-				thisRangeMax = thisRangeMax+1
-				thisRangeMin = thisRangeMin+1
-				thatRangeMax = thatRangeMax-1
+				thisRangeMax = thisRangeMax + 1
+				thisRangeMin = thisRangeMin + 1
+				thatRangeMax = thatRangeMax - 1
 				if target:isKongcheng() then
-					thatRangeMin = thatRangeMin-1 --依然同色
+					thatRangeMin = thatRangeMin - 1 --依然同色
 				else
-					thatRangeMin = thatRangeMin-0 --不再同色
+					thatRangeMin = thatRangeMin - 0 --不再同色
 				end
 			end
 		end
 		--连理
-		if target:getMark("@tie")>0 then
-			for _,p in pairs(enemies)do
-				if p:getMark("@tie")>0 then
-					thatRangeMax = thatRangeMax+count
-					thatRangeMin = thatRangeMin+count
+		if target:getMark("@tie") > 0 then
+			for _, p in pairs(enemies) do
+				if p:getMark("@tie") > 0 then
+					thatRangeMax = thatRangeMax + count
+					thatRangeMin = thatRangeMin + count
 				end
 			end
-			for _,p in pairs(friends)do
-				if p:getMark("@tie")>0 then
-					thisRangeMax = thisRangeMax+count
-					thisRangeMin = thisRangeMin+count
+			for _, p in pairs(friends) do
+				if p:getMark("@tie") > 0 then
+					thisRangeMax = thisRangeMax + count
+					thisRangeMin = thisRangeMin + count
 				end
 			end
 		end
 	end
 	--产生结果
-	result[thisIncome][Expectancy] = math.floor( (thisRangeMax+thisRangeMin)/2 ) --对己方收入向下取整
+	result[thisIncome][Expectancy] = math.floor((thisRangeMax + thisRangeMin) / 2) --对己方收入向下取整
 	result[thisIncome][Max] = thisRangeMax
 	result[thisIncome][Min] = thisRangeMin
-	result[thatIncome][Expectancy] = math.ceil( (thatRangeMax+thatRangeMax)/2 ) --对对方收入向上取整
+	result[thatIncome][Expectancy] = math.ceil((thatRangeMax + thatRangeMax) / 2) --对对方收入向上取整
 	result[thatIncome][Max] = thatRangeMax
 	result[thatIncome][Min] = thatRangeMin
 	return result
 end
+
 --[[
 	函数名：DamageToTurnOver
 	功能：模拟一次伤害造成的翻面影响
@@ -367,8 +374,9 @@ end
 			equalNum：对target的对方造成的等价翻面人数（被翻面人数-被翻回人数）
 			faceUp：伤害后target的对方正面向上的人数
 			faceDown：伤害后target的对方背面向上的人数
-]]--
-function SmartAI:DamageToTurnOver(target,source,count)
+]]
+--
+function SmartAI:DamageToTurnOver(target, source, count)
 	local result = {
 		thisResult = {
 			turnOver = 0,
@@ -398,35 +406,35 @@ function SmartAI:DamageToTurnOver(target,source,count)
 		local players = room:getAlivePlayers()
 		local others = room:getOtherPlayers(target)
 		if source then
-			civil = self:isFriend(target,source)
+			civil = self:isFriend(target, source)
 		end
-		for _,p in sgs.list(players)do --区分敌友
-			if self:isFriend(p,target) then
-				table.insert(friends,p)
+		for _, p in sgs.list(players) do --区分敌友
+			if self:isFriend(p, target) then
+				table.insert(friends, p)
 				if not p:faceUp() then
-					thisDownCount = thisDownCount+1
+					thisDownCount = thisDownCount + 1
 				end
 			else
-				table.insert(enemies,p)
+				table.insert(enemies, p)
 				if not p:faceUp() then
-					thatDownCount = thatDownCount+1
+					thatDownCount = thatDownCount + 1
 				end
 			end
 		end
 		--放逐（包括极略中的放逐，按次数结算）
 		if target:hasSkill("fangzhu") or target:hasSkill("jilve") then
-			if thisDownCount>0 then
-				thisDownCount = thisDownCount-1
-				thisTurnOverCount = thisTurnOverCount+1
-				thisEqualNum = thisEqualNum-1
-			elseif target:getLostHp() +count>=3 then
-				thisDownCount = thisDownCount+1
-				thisTurnOverCount = thisTurnOverCount+1
-				thisEqualNum = thisEqualNum+1
+			if thisDownCount > 0 then
+				thisDownCount = thisDownCount - 1
+				thisTurnOverCount = thisTurnOverCount + 1
+				thisEqualNum = thisEqualNum - 1
+			elseif target:getLostHp() + count >= 3 then
+				thisDownCount = thisDownCount + 1
+				thisTurnOverCount = thisTurnOverCount + 1
+				thisEqualNum = thisEqualNum + 1
 			else
-				thatDownCount = thatDownCount+1
-				thatTurnOverCount = thatTurnOverCount+1
-				thatEqualNum = thatEqualNum+1
+				thatDownCount = thatDownCount + 1
+				thatTurnOverCount = thatTurnOverCount + 1
+				thatEqualNum = thatEqualNum + 1
 			end
 		end
 		--破军（按次数结算，被忽略）
@@ -449,63 +457,64 @@ function SmartAI:DamageToTurnOver(target,source,count)
 					end
 				end
 			end
-		end]]--
+		end]]
+		--
 		--归心（按点数结算）
 		if target:hasSkill("guixin") then
 			local flag = target:faceUp()
-			for i=1,count,1 do
+			for i = 1, count, 1 do
 				flag = not flag
 				if flag then
-					thisDownCount = thisDownCount-1
+					thisDownCount = thisDownCount - 1
 				else
-					thisDownCount = thisDownCount+1
+					thisDownCount = thisDownCount + 1
 				end
 			end
-			if flag~=target:faceUp() then
-				thisTurnOverCount = thisTurnOverCount+1
+			if flag ~= target:faceUp() then
+				thisTurnOverCount = thisTurnOverCount + 1
 				if flag then --从背面翻回正面
-					thisEqualNum = thisEqualNum-1
+					thisEqualNum = thisEqualNum - 1
 				else --从正面翻到背面
-					thisEqualNum = thisEqualNum+1
+					thisEqualNum = thisEqualNum + 1
 				end
 			end
 		end
 		--酒诗
 		if target:hasSkill("jiushi") then
 			if target:faceUp() then --正面濒死造酒
-				if target:getHp()<=count then
-					thisDownCount = thisDownCount+1
-					thisTurnOverCount = thisTurnOverCount+1
-					thisEqualNum = thisEqualNum+1
+				if target:getHp() <= count then
+					thisDownCount = thisDownCount + 1
+					thisTurnOverCount = thisTurnOverCount + 1
+					thisEqualNum = thisEqualNum + 1
 				end
 			else --背面受伤翻回
-				thisDownCount = thisDownCount-1
-				thisTurnOverCount = thisTurnOverCount+1
-				thisEqualNum = thisEqualNum-1
+				thisDownCount = thisDownCount - 1
+				thisTurnOverCount = thisTurnOverCount + 1
+				thisEqualNum = thisEqualNum - 1
 			end
 		end
 		--悲歌（被忽略）
-		if target:getHp()<=count then --模拟濒死场景
+		if target:getHp() <= count then --模拟濒死场景
 			--伏枥
 			if target:hasSkill("fuli") then
-				if target:getMark("@laoji")>0 then
+				if target:getMark("@laoji") > 0 then
 					if target:faceUp() then
-						thisDownCount = thisDownCount+1
-						thisEqualNum = thisEqualNum+1
+						thisDownCount = thisDownCount + 1
+						thisEqualNum = thisEqualNum + 1
 					else
-						thisDownCount = thisDownCount-1
-						thisEqualNum = thisEqualNum-1
+						thisDownCount = thisDownCount - 1
+						thisEqualNum = thisEqualNum - 1
 					end
-					thisTurnOverCount = thisTurnOverCount+1
+					thisTurnOverCount = thisTurnOverCount + 1
 				end
 			end
 			--涅槃
 			if target:hasSkill("niepan") then
-				if target:getMark("@nirvana")>0 then
+				if target:getMark("@nirvana") > 0 then
 					if not target:faceUp() then
-						thisDownCount = thisDownCount-1
-						thisTurnOverCount = thisTurnOverCount+1
-						thisEqualNum = thisEqualNum-1
+						thisDownCount = thisDownCount - 1
+						thisTurnOverCount = thisTurnOverCount + 1
+						thisEqualNum = thisEqualNum - 1
 					end
 				end
 			end
@@ -513,15 +522,16 @@ function SmartAI:DamageToTurnOver(target,source,count)
 		--产生结果
 		result[thisResult][turnOver] = thisTurnOverCount
 		result[thisResult][equalNum] = thisEqualNum
-		result[thisResult][faceUp] = #friends-thisDownCount
+		result[thisResult][faceUp] = #friends - thisDownCount
 		result[thisResult][faceDown] = thisDownCount
 		result[thatResult][turnOver] = thatTurnOverCount
 		result[thatResult][equalNum] = thatEqualNum
-		result[thatResult][faceUp] = #enemies-thatDownCount
+		result[thatResult][faceUp] = #enemies - thatDownCount
 		result[thatResult][faceDown] = thatDownCount
 	end
 	return result
 end
+
 --[[
 	函数名：DamageResult
 	功能：模拟一次伤害产生的后果
@@ -546,8 +556,9 @@ end
 			damageCount：对target的对方造成的伤害点数
 			cardsIncome：对target的对方造成的手牌收入
 			turnOver：对target的对方造成的翻面人数
-]]--
-function SmartAI:DamageResult(target,source,nature,card,chained)
+]]
+--
+function SmartAI:DamageResult(target, source, nature, card, chained)
 	local result = {
 		damageValue = 0,
 		friendProfit = {
@@ -562,32 +573,32 @@ function SmartAI:DamageResult(target,source,nature,card,chained)
 		},
 	}
 	local damageValue = 0
-	local enemyProfit = {0,0,0}
-	local friendProfit = {0,0,0}
+	local enemyProfit = { 0, 0, 0 }
+	local friendProfit = { 0, 0, 0 }
 	if target then --伤害目标必须存在
 		if not nature then
 			nature = sgs.DamageStruct_Normal
 		end
-		local shrink = false --伤害缩水标志
+		local shrink = false                     --伤害缩水标志
 		local armor = target:getArmor()
 		if armor and armor:isKindOf("SilverLion") then --目标装备有白银狮子
 			shrink = true
 		end
 		--直接伤害
-		local count = self:AtomDamageCount(target,source,nature,card)
-		if count>1 and shrink then
+		local count = self:AtomDamageCount(target, source, nature, card)
+		if count > 1 and shrink then
 			count = 1
 		end
 		--DEBUG--
-		self.room:writeToConsole(string.format("Now:immediateDamage=%d",count))
+		self.room:writeToConsole(string.format("Now:immediateDamage=%d", count))
 
-		local cardsEffect = self:DamageToCards(target,source,count) --平均收入、最高收入、最低收入
-		local turnOverEffect = self:DamageToTurnOver(target,source,count) --翻面人数、正面人数、背面人数
+		local cardsEffect = self:DamageToCards(target, source, count)                       --平均收入、最高收入、最低收入
+		local turnOverEffect = self:DamageToTurnOver(target, source, count)                 --翻面人数、正面人数、背面人数
 
-		friendProfit[1] = friendProfit[1]+count --对target一方造成的伤害点数
-		friendProfit[2] = friendProfit[2]+cardsEffect[thisIncome][Min] --对target一方造成的卡牌收入
-		friendProfit[3] = friendProfit[3]+turnOverEffect[thisResult][equalNum] --对target一方造成的翻面影响
-		damageValue = damageValue-2*friendProfit[1]+friendProfit[2]-2.5*friendProfit[3] --target一方收益
+		friendProfit[1] = friendProfit[1] + count                                           --对target一方造成的伤害点数
+		friendProfit[2] = friendProfit[2] + cardsEffect[thisIncome][Min]                    --对target一方造成的卡牌收入
+		friendProfit[3] = friendProfit[3] + turnOverEffect[thisResult][equalNum]            --对target一方造成的翻面影响
+		damageValue = damageValue - 2 * friendProfit[1] + friendProfit[2] - 2.5 * friendProfit[3] --target一方收益
 		--DEBUG--
 		self.room:writeToConsole(
 			string.format(
@@ -596,13 +607,13 @@ function SmartAI:DamageResult(target,source,nature,card,chained)
 				friendProfit[1],
 				friendProfit[2],
 				friendProfit[3]
-				)
 			)
+		)
 
-		enemyProfit[1] = enemyProfit[1]+0 --对target对方造成的伤害点数
-		enemyProfit[2] = enemyProfit[2]+cardsEffect[thatIncome][Max] --对target对方造成的卡牌收入
-		enemyProfit[3] = enemyProfit[3]+turnOverEffect[thatResult][equalNum] --对target对方造成的翻面影响
-		damageValue = damageValue+2*enemyProfit[1]-enemyProfit[3]+2.5*enemyProfit[3] --target对方收益
+		enemyProfit[1] = enemyProfit[1] + 0                                              --对target对方造成的伤害点数
+		enemyProfit[2] = enemyProfit[2] + cardsEffect[thatIncome][Max]                   --对target对方造成的卡牌收入
+		enemyProfit[3] = enemyProfit[3] + turnOverEffect[thatResult][equalNum]           --对target对方造成的翻面影响
+		damageValue = damageValue + 2 * enemyProfit[1] - enemyProfit[3] + 2.5 * enemyProfit[3] --target对方收益
 		--DEBUG--
 		self.room:writeToConsole(
 			string.format("Now:damageValue=%d,ed=%d,ec=%d,et=%d",
@@ -610,30 +621,30 @@ function SmartAI:DamageResult(target,source,nature,card,chained)
 				enemyProfit[1],
 				enemyProfit[2],
 				enemyProfit[3]
-				)
 			)
+		)
 
 		--传导伤害
-		if chained then --如果考虑铁索连环
-			if nature~=sgs.DamageStruct_Normal then --如果是属性伤害
-				if target:isChained() then --如果目标被铁索连环
+		if chained then                      --如果考虑铁索连环
+			if nature ~= sgs.DamageStruct_Normal then --如果是属性伤害
+				if target:isChained() then   --如果目标被铁索连环
 					local others = self.room:getOtherPlayers(target)
-					for _,p in sgs.list(others)do
+					for _, p in sgs.list(others) do
 						if p:isChained() then
 							--DEBUG--
 							self.room:writeToConsole("in chained.")
 
-							local SubResult = self:DamageResult(p,source,nature,nil,false)
-							if self:isFriend(p,target) then
-								friendProfit[1] = friendProfit[1]+SubResult[friendProfit][damageCount]
-								friendProfit[2] = friendProfit[2]+SubResult[friendProfit][cardsIncome]
-								friendProfit[3] = friendProfit[3]+SubResult[friendProfit][turnOver]
-								damageValue = damageValue+SubResult[damageValue]
+							local SubResult = self:DamageResult(p, source, nature, nil, false)
+							if self:isFriend(p, target) then
+								friendProfit[1] = friendProfit[1] + SubResult[friendProfit][damageCount]
+								friendProfit[2] = friendProfit[2] + SubResult[friendProfit][cardsIncome]
+								friendProfit[3] = friendProfit[3] + SubResult[friendProfit][turnOver]
+								damageValue = damageValue + SubResult[damageValue]
 							else
-								enemyProfit[1] = enemyProfit[1]+SubResult[enemyProfit][damageCount]
-								enemyProfit[2] = enemyProfit[2]+SubResult[enemyProfit][cardsIncome]
-								enemyProfit[3] = enemyProfit[3]+SubResult[enemyProfit][turnOver]
-								damageValue = damageValue-SubResult[damageValue]
+								enemyProfit[1] = enemyProfit[1] + SubResult[enemyProfit][damageCount]
+								enemyProfit[2] = enemyProfit[2] + SubResult[enemyProfit][cardsIncome]
+								enemyProfit[3] = enemyProfit[3] + SubResult[enemyProfit][turnOver]
+								damageValue = damageValue - SubResult[damageValue]
 							end
 						end
 					end
@@ -651,13 +662,15 @@ function SmartAI:DamageResult(target,source,nature,card,chained)
 	result[enemyProfit][turnOver] = enemyProfit[3]
 	return result
 end
+
 --[[
 	函数名：tdr
 	功能：测试DamageResult函数的结果
 	参数表：result（待测试的结果）
 	返回值：无
-]]--
-function SmartAI:tdr(result,source,target)
+]]
+--
+function SmartAI:tdr(result, source, target)
 	local room = self.room
 	local from = "nobody"
 	local to = "nobody"
@@ -669,41 +682,44 @@ function SmartAI:tdr(result,source,target)
 	end
 	room:writeToConsole("--------------------")
 	room:writeToConsole("*******START********")
-	room:writeToConsole(string.format("damage from %s to %s:",from,to))
-	room:writeToConsole(string.format(" damageValue: %d",result[damageValue]))
+	room:writeToConsole(string.format("damage from %s to %s:", from, to))
+	room:writeToConsole(string.format(" damageValue: %d", result[damageValue]))
 	room:writeToConsole("target:")
-	room:writeToConsole(string.format(" damageCount: %d",result[friendProfit][damageCount]))
-	room:writeToConsole(string.format(" drawCards: %d",result[friendProfit][cardsIncome]))
-	room:writeToConsole(string.format(" turnDelt: %d",result[friendProfit][turnOver]))
+	room:writeToConsole(string.format(" damageCount: %d", result[friendProfit][damageCount]))
+	room:writeToConsole(string.format(" drawCards: %d", result[friendProfit][cardsIncome]))
+	room:writeToConsole(string.format(" turnDelt: %d", result[friendProfit][turnOver]))
 	room:writeToConsole("another:")
-	room:writeToConsole(string.format(" damageCount: %d",result[enemyProfit][damageCount]))
-	room:writeToConsole(string.format(" drawCards: %d",result[enemyProfit][cardsIncome]))
-	room:writeToConsole(string.format(" turnDelt: %d",result[enemyProfit][turnOver]))
+	room:writeToConsole(string.format(" damageCount: %d", result[enemyProfit][damageCount]))
+	room:writeToConsole(string.format(" drawCards: %d", result[enemyProfit][cardsIncome]))
+	room:writeToConsole(string.format(" turnDelt: %d", result[enemyProfit][turnOver]))
 	room:writeToConsole("********END*********")
 	room:writeToConsole("--------------------")
 end
+
 --[[
 	函数名：KingdomsCount
 	功能：统计指定范围内出现的势力数目
 	参数表：players（QList<Player*>类型，表示待统计的范围）
 	返回值：一个整数，表示范围内出现的势力的数目
-]]--
+]]
+--
 function SmartAI:KingdomsCount(players)
 	local kingdoms = {}
-	for _,p in sgs.list(players)do
+	for _, p in sgs.list(players) do
 		local kingdom = p:getKingdom()
 		local flag = true
-		for _,k in pairs(kingdoms)do
-			if k==kingdom then
+		for _, k in pairs(kingdoms) do
+			if k == kingdom then
 				flag = false
 			end
 		end
 		if flag then
-			table.insert(kingdoms,kingdom)
+			table.insert(kingdoms, kingdom)
 		end
 	end
 	return #kingdoms
 end
+
 --[[
 	函数名：SortByAtomDamageCount
 	功能：按单体伤害对一组目标进行排序
@@ -719,31 +735,33 @@ end
 			true：按从小到大的顺序排序
 			false：按从大到小的顺序排序（默认值）
 	返回值：table类型，表示排序结果。
-]]--
-function SmartAI:SortByAtomDamageCount(targets,source,nature,card,inverse)
+]]
+--
+function SmartAI:SortByAtomDamageCount(targets, source, nature, card, inverse)
 	if not nature then
 		nature = sgs.DamageStruct_Normal
 	end
-	local compare_func = function(a,b)
-		local damageA = self:AtomDamageCount(a,source,nature,card)
-		local damageB = self:AtomDamageCount(b,source,nature,card)
-		if damageA==damageB then
+	local compare_func = function(a, b)
+		local damageA = self:AtomDamageCount(a, source, nature, card)
+		local damageB = self:AtomDamageCount(b, source, nature, card)
+		if damageA == damageB then
 			if inverse then
-				return a:getHp()>=b:getHp()
+				return a:getHp() >= b:getHp()
 			else
-				return a:getHp()<=b:getHp()
+				return a:getHp() <= b:getHp()
 			end
 		else
 			if inverse then
-				return damageA<damageB
+				return damageA < damageB
 			else
-				return damageA>damageB
+				return damageA > damageB
 			end
 		end
 	end
-	table.sort(targets,compare_func)
+	table.sort(targets, compare_func)
 	return targets
 end
+
 --[[
 	主题：集火
 	函数列表：
@@ -752,18 +770,19 @@ end
 		SmartAI:RecoverRate(player)
 		SmartAI:sortByRecoverRate(players,inverse)
 		SmartAI:getFocusTarget(players)
-]]--
-sgs.ai_event_callback[sgs.Damaged].general = function(self,player,data)
+]]
+--
+sgs.ai_event_callback[sgs.Damaged].general = function(self, player, data)
 	local damage = data:toDamage()
 	local count = damage.damage
 	local marks = player:getMark("FocusDamageCount")
-	self.room:setPlayerMark(player,"FocusDamageCount",marks+count)
+	self.room:setPlayerMark(player, "FocusDamageCount", marks + count)
 end
-sgs.ai_event_callback[sgs.HpRecover].general = function(self,player,data)
+sgs.ai_event_callback[sgs.HpRecover].general = function(self, player, data)
 	local recover = data:toRecover()
 	local count = recover.recover
 	local marks = player:getMark("FocusRecoverCount")
-	self.room:setPlayerMark(player,"FocusRecoverCount",marks+count)
+	self.room:setPlayerMark(player, "FocusRecoverCount", marks + count)
 end
 function SmartAI:getDamagePoint(player)
 	if player then
@@ -771,49 +790,55 @@ function SmartAI:getDamagePoint(player)
 	end
 	return 0
 end
+
 function SmartAI:getRecoverPoint(player)
 	if player then
 		return player:getMark("FocusRecoverCount")
 	end
 	return 0
 end
+
 function SmartAI:RecoverRate(player)
 	if player then
 		local room = player:getRoom()
 		local damage = player:getMark("FocusDamageCount")
 		local recover = player:getMark("FocusRecoverCount")
-		local rate = (recover+1)/damage
-		return (recover+1)*rate+damage*0.05
+		local rate = (recover + 1) / damage
+		return (recover + 1) * rate + damage * 0.05
 	end
 	return 1000
 end
-function SmartAI:sortByRecoverRate(players,inverse)
-	local compare_func = function(a,b)
+
+function SmartAI:sortByRecoverRate(players, inverse)
+	local compare_func = function(a, b)
 		local rateA = self:RecoverRate(a)
 		local rateB = self:RecoverRate(b)
-		if rateA==rateB then
-			return self:getDamagePoint(a)<self:getDamagePoint(b)
+		if rateA == rateB then
+			return self:getDamagePoint(a) < self:getDamagePoint(b)
 		else
 			if inverse then
-				return rateA>rateB
+				return rateA > rateB
 			else
-				return rateA<rateB
+				return rateA < rateB
 			end
 		end
 	end
-	table.sort(players,compare_func)
+	table.sort(players, compare_func)
 end
+
 function SmartAI:getFocusTarget(players)
-	if players and #players>0 then
+	if players and #players > 0 then
 		self:sortByRecoverRate(players)
 		return players[1]
 	end
 end
+
 --[[
 	主题：特定事件模拟
 	函数列表：
 		SmartAI:ImitateResult_DrawNCards(player,skills,overall)
-]]--
+]]
+--
 --[[
 	函数名：ImitateResult_DrawNCards
 	功能：模拟指定技能对摸牌阶段摸牌数目的影响
@@ -825,98 +850,97 @@ end
 			false：仅考虑所给技能中目标实际拥有的技能（默认值）
 	返回值：一个数值，表示最终的摸牌数目
 	注：神速、巧变、绝境（高达一号）等因属于跳过阶段的情形，这里不加以考虑
-]]--
+]]
+--
 
-sgs.ai_drawNcards{}
+--sgs.ai_drawNcards{}
 
-function SmartAI:ImitateResult_DrawNCards(player,skills,overall)
+function SmartAI:ImitateResult_DrawNCards(player, skills, overall)
 	if not player or player:isSkipped(sgs.Player_Draw) then return 0 end
 	skills = skills or player:getVisibleSkillList(true)
-	if skills:length()<1 then return 2 end
+	if skills:length() < 1 then return 2 end
 	local drawSkills = {}
 	if overall then
-		for _,skill in sgs.list(skills)do
-			table.insert(drawSkills,skill:objectName())
+		for _, skill in sgs.list(skills) do
+			table.insert(drawSkills, skill:objectName())
 		end
 	else
-		for _,skill in sgs.list(skills)do
+		for _, skill in sgs.list(skills) do
 			if player:hasSkill(skill:objectName()) then
-				table.insert(drawSkills,skill:objectName())
+				table.insert(drawSkills, skill:objectName())
 			end
 		end
 	end
-	local count = 2 --初始摸牌数目
-	if #drawSkills>0 then
+	local count = 2                                --初始摸牌数目
+	if #drawSkills > 0 then
 		local others = self.room:getOtherPlayers(player) --其他角色
 		local alives = self.room:getAlivePlayers() --存活角色
-		local lost = player:getLostHp() --已损失体力值
-		for _,skillname in pairs(drawSkills)do
-			if skillname=="tuxi" then --突袭，放弃摸牌
-				return math.min(2,others:length())
-			elseif skillname=="shuangxiong" then --双雄，放弃摸牌
+		local lost = player:getLostHp()            --已损失体力值
+		for _, skillname in pairs(drawSkills) do
+			if skillname == "tuxi" then            --突袭，放弃摸牌
+				return math.min(2, others:length())
+			elseif skillname == "shuangxiong" then --双雄，放弃摸牌
 				return 1
-			elseif skillname=="zaiqi" then --再起，放弃摸牌（摸牌数目不定，返回期望值）
-				return math.floor(lost*3/4)
-			elseif skillname=="shelie" then --涉猎，放弃摸牌（摸牌数目不定，返回期望值）
+			elseif skillname == "zaiqi" then       --再起，放弃摸牌（摸牌数目不定，返回期望值）
+				return math.floor(lost * 3 / 4)
+			elseif skillname == "shelie" then      --涉猎，放弃摸牌（摸牌数目不定，返回期望值）
 				return 3
-			elseif skillname=="xuanhuo" then --眩惑，放弃摸牌（摸牌数目不定，返回期望值）
+			elseif skillname == "xuanhuo" then     --眩惑，放弃摸牌（摸牌数目不定，返回期望值）
 				return 1
-			elseif skillname=="nosfuhun" then --老父魂，放弃摸牌
+			elseif skillname == "nosfuhun" then    --老父魂，放弃摸牌
 				return 2
-			elseif skillname=="luoyi" then --裸衣，少摸一张牌
-				count = count-1
-			elseif skillname=="yingzi" then --英姿，多摸一张牌
-				count = count+1
-			elseif skillname=="haoshi" then --好施，多摸两张牌
-				count = count+2
-			elseif skillname=="juejing" then --绝境，多摸已损失体力值数目的牌
-				count = count+lost
-			elseif skillname=="yongsi" then --庸肆，多摸现存势力数目的牌
-				count = count+self:KingdomsCount(alives)
-			elseif skillname=="shenwei" then --神威，多摸两张牌
-				count = count+2
-			elseif skillname=="jiangchi" then --将驰，多摸一张牌或少摸一张牌
+			elseif skillname == "luoyi" then       --裸衣，少摸一张牌
+				count = count - 1
+			elseif skillname == "yingzi" then      --英姿，多摸一张牌
+				count = count + 1
+			elseif skillname == "haoshi" then      --好施，多摸两张牌
+				count = count + 2
+			elseif skillname == "juejing" then     --绝境，多摸已损失体力值数目的牌
+				count = count + lost
+			elseif skillname == "yongsi" then      --庸肆，多摸现存势力数目的牌
+				count = count + self:KingdomsCount(alives)
+			elseif skillname == "shenwei" then     --神威，多摸两张牌
+				count = count + 2
+			elseif skillname == "jiangchi" then    --将驰，多摸一张牌或少摸一张牌
 				local choices = "jiang+chi+cancel"
 				local func = sgs.ai_skill_choice.jiangchi
 				if func then
-					local choice = func(self,choices)
-					if choice=="jiang" then
-						count = count+1
-					elseif choice=="chi" then
-						count = count-1
+					local choice = func(self, choices)
+					if choice == "jiang" then
+						count = count + 1
+					elseif choice == "chi" then
+						count = count - 1
 					end
 				end
-			elseif skillname=="zishou" then --自守，多摸已损失体力值数目的牌
-				count = count+lost
-			elseif skillname=="hongyuan" then --弘援，少摸一张牌
-				count = count-1
-			elseif skillname=="kuiwei" then --溃围，弃置场上武器数目的牌
-				if player:getMark("@kuiwei")>0 then
-					for _,p in sgs.list(alives)do
+			elseif skillname == "zishou" then --自守，多摸已损失体力值数目的牌
+				count = count + lost
+			elseif skillname == "hongyuan" then --弘援，少摸一张牌
+				count = count - 1
+			elseif skillname == "kuiwei" then --溃围，弃置场上武器数目的牌
+				if player:getMark("@kuiwei") > 0 then
+					for _, p in sgs.list(alives) do
 						if p:getWeapon() then
-							count = count-1
+							count = count - 1
 						end
 					end
 				end
-			elseif skillname=="zhaolie" then --昭烈，少摸一张牌
-				count = count-1
-			elseif skillname=="ayshuijian" then --水箭，多摸(自身装备数目+1)的牌
+			elseif skillname == "zhaolie" then --昭烈，少摸一张牌
+				count = count - 1
+			elseif skillname == "ayshuijian" then --水箭，多摸(自身装备数目+1)的牌
 				local equips = player:getCards("e")
-				count = count+1+math.floor(equips:length()/2)
+				count = count + 1 + math.floor(equips:length() / 2)
 			end
 		end
-		for invoke, ac in ipairs(aiConnect(player)) do
-		invoke = sgs.ai_drawNcards[ac]
-		if type(invoke) == "function"
-		then
-			invoke = invoke(self, player, alives)
-			if type(invoke) == "number" then count = count + invoke end
-		elseif type(invoke) == "number" then
-			count = count + invoke
-		end
-	end 
-	
-	
+		--[[for invoke, ac in ipairs(aiConnect(player)) do
+			invoke = sgs.ai_drawNcards[ac]
+			if type(invoke) == "function"
+			then
+				invoke = invoke(self, player, alives)
+				if type(invoke) == "number" then count = count + invoke end
+			elseif type(invoke) == "number" then
+				count = count + invoke
+			end
+		end]]
 	end
 	return count
 end

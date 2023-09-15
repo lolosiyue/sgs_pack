@@ -963,8 +963,8 @@ sgs.ai_skill_playerchosen.meizlliuma = function(self, targets)
 		if hasTuntianEffect(splayer) then
 			value = value + 1
 		end
-		if hasLoseHandcardEffective(splayer) then
-			value = value + splayer:getLeastHandcardNum(splayer)
+		if self:hasLoseHandcardEffective(splayer) then
+			value = value + self:getLeastHandcardNum(splayer)
 		end
 		value = value * friend
 
@@ -2025,7 +2025,7 @@ sgs.ai_can_damagehp.meizlkuma = function(self, from, card, to)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
 		return self:isEnemy(from) and self:isWeak(from) and from:getCardCount() > 0 and
-		not self:slashProhibit(slash, from) and self:slashIsEffective(slash, from)
+			not self:slashProhibit(slash, from) and self:slashIsEffective(slash, from)
 	end
 end
 
@@ -2410,7 +2410,7 @@ sgs.ai_can_damagehp.meizlkusu = function(self, from, card, to)
 		and self:canLoseHp(from, card, to)
 	then
 		return self:isEnemy(from) and
-		(getKnownCard(from, self.player, "TrickCard") + getKnownCard(self.player, self.player, "TrickCard") > 0 or from:getHandcardNum() > 3)
+			(getKnownCard(from, self.player, "TrickCard") + getKnownCard(self.player, self.player, "TrickCard") > 0 or from:getHandcardNum() > 3)
 	end
 end
 
@@ -2950,6 +2950,7 @@ sgs.ai_skill_playerchosen.meizlkaoshangcard = sgs.ai_skill_playerchosen.damage
 function sgs.ai_slash_prohibit.meizlbiyin(self, from, to, card)
 	if to:hasSkill("meizlbiyinx") and to:getMark("@meizlbiyinx") > 0 then return true end
 end
+
 sgs.ai_target_revises["@meizlbiyinx"] = function(to, card, self)
 	return card:isKindOf("Slash")
 end
@@ -3031,7 +3032,7 @@ meizlbiyi_skill.getTurnUseCard = function(self)
 	if (self.player:getMark("@meizlbiyi") > 0) then
 		local x = math.random(1, 10)
 		if x >= 5 then
-		return sgs.Card_Parse("#meizlbiyicard:.:")
+			return sgs.Card_Parse("#meizlbiyicard:.:")
 		end
 	end
 end
@@ -3057,7 +3058,7 @@ sgs.ai_skill_playerchosen.meizlxiuse = function(self, targets)
 	local target
 	for _, friend in ipairs(self.friends_noself) do
 		local x = self:ImitateResult_DrawNCards(friend, friend:getVisibleSkillList(true))
-		if x > max and not self:willSkipPlayPhase(friend)  then
+		if x > max and not self:willSkipPlayPhase(friend) then
 			target = friend
 			max = x
 		end
@@ -3509,7 +3510,7 @@ end
 sgs.ai_playerchosen_intention["meispshuzhuang"] = function(self, from, to)
 	local intention = 50
 	if hasZhaxiangEffect(to) then
-		intention = - intention
+		intention = -intention
 	end
 	sgs.updateIntention(from, to, intention)
 end
@@ -3731,7 +3732,7 @@ end
 --诱杀（魔界七将‧玛门‧郭女王）
 function SmartAI:findyoushaTarget(card_name, use)
 	local lord = self.room:getLord()
-	
+
 	local findFriend_maxSlash = function(self, first)
 		self:log("Looking for the friend!")
 		local nos_fazheng, fazheng
@@ -3747,7 +3748,7 @@ function SmartAI:findyoushaTarget(card_name, use)
 
 		if friend_maxSlash then
 			local safe = false
-			if self:hasSkills("neoganglie|vsganglie|fankui|enyuan|ganglie|nosenyuan", first)  then
+			if self:hasSkills("neoganglie|vsganglie|fankui|enyuan|ganglie|nosenyuan", first) then
 				if (first:getHp() <= 1 and first:getHandcardNum() == 0) then safe = true end
 			end
 			if safe then return friend_maxSlash end
@@ -3825,7 +3826,7 @@ function SmartAI:findyoushaTarget(card_name, use)
 			end
 			if f_target or e_target then
 				local target
-				if f_target  then
+				if f_target then
 					target = f_target
 				elseif e_target then
 					target = e_target
@@ -3858,27 +3859,25 @@ function SmartAI:findyoushaTarget(card_name, use)
 		local first, second
 
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:isMale()  then
-				
-					for _, anotherenemy in ipairs(self.enemies) do
-						if anotherenemy:isMale() and anotherenemy:objectName() ~= enemy:objectName() then
-								if not (self:needToLoseHp(enemy, anotherenemy)) and not  (self:needToLoseHp(anotherenemy, enemy))  then
-									table.insert(males, enemy)
-								else
-									table.insert(others, enemy)
-								end
-							if #males >= 2 then break end
-							
+			if enemy:isMale() then
+				for _, anotherenemy in ipairs(self.enemies) do
+					if anotherenemy:isMale() and anotherenemy:objectName() ~= enemy:objectName() then
+						if not (self:needToLoseHp(enemy, anotherenemy)) and not (self:needToLoseHp(anotherenemy, enemy)) then
+							table.insert(males, enemy)
+						else
+							table.insert(others, enemy)
 						end
+						if #males >= 2 then break end
 					end
-				
+				end
+
 				if #males >= 2 then break end
 			end
 		end
 
 		if #males >= 1 and sgs.ai_role[males[1]:objectName()] == "rebel" and males[1]:getHp() == 1 then
 			if lord and self:isFriend(lord) and lord:isMale() and lord:objectName() ~= males[1]:objectName()
-				 and lord:objectName() ~= self.player:objectName() and lord:isAlive() and (self:needToLoseHp(lord, males[1]) or not self:isWeak(lord))
+				and lord:objectName() ~= self.player:objectName() and lord:isAlive() and (self:needToLoseHp(lord, males[1]) or not self:isWeak(lord))
 			then
 				return males[1], lord
 			end
@@ -3893,7 +3892,7 @@ function SmartAI:findyoushaTarget(card_name, use)
 			if isLord(males[1]) and sgs.turncount <= 1 and self.role == "rebel" and self.player:aliveCount() >= 3 then
 				local p_slash, max_p, max_pp = 0, nil, nil
 				for _, p in sgs.list(self.room:getOtherPlayers(self.player)) do
-					if p:isMale() and not self:isFriend(p) and p:objectName() ~= males[1]:objectName()  then
+					if p:isMale() and not self:isFriend(p) and p:objectName() ~= males[1]:objectName() then
 						if p:getKingdom() == males[1]:getKingdom() then
 							max_p = p
 							break
@@ -3920,24 +3919,23 @@ function SmartAI:findyoushaTarget(card_name, use)
 				if self.player:isLord() or isRolePredictable() then
 					local friend_maxSlash = findFriend_maxSlash(self, first)
 					if friend_maxSlash then second = friend_maxSlash end
-				elseif lord:isMale()  then
-					if self.role == "rebel" and not first:isLord()  then
+				elseif lord:isMale() then
+					if self.role == "rebel" and not first:isLord() then
 						second = lord
 					else
-						if ((self.role == "loyalist" or self.role == "renegade") ) then
+						if ((self.role == "loyalist" or self.role == "renegade")) then
 							second = lord
 						end
 					end
 				end
 			end
 
-			if first and second and first:objectName() ~= second:objectName()  then
+			if first and second and first:objectName() ~= second:objectName() then
 				return first, second
 			end
 		end
 	end
 end
-
 
 function SmartAI:getyoushaCard()
 	local card_id
@@ -4072,27 +4070,27 @@ function SmartAI:UseAoeSkillValue_mei(element, players, card)
 	for _, player in ipairs(players) do
 		if card and card:isKindOf("Slash") then
 			if self.player:canSlash(player) and not self:slashProhibit(card, player) and self:slashIsEffective(card, player) then
-			if self:isEnemy(player) then
-				if self:isGoodTarget(player, self.enemies, card)  then
-					good = good + 2
-				end
-				if self:isGoodChainTarget(player, card, self.player) then
-					good = good + 2
-				end
-				if self:isWeak(player) and not self:needDeath(player) then
-					good = good + 2
-				end
-			elseif self:isFriend(player) then
-				if not self:needToLoseHp(player, self.player,card) or self:dontHurt(player, self.player) then
-					good = good - 0.2
-				end
-				if player:getHp() == 1 and self:getAllPeachNum() == 0 and not self:needDeath(player) then
-					good = good - 2
+				if self:isEnemy(player) then
+					if self:isGoodTarget(player, self.enemies, card) then
+						good = good + 2
+					end
+					if self:isGoodChainTarget(player, card, self.player) then
+						good = good + 2
+					end
+					if self:isWeak(player) and not self:needDeath(player) then
+						good = good + 2
+					end
+				elseif self:isFriend(player) then
+					if not self:needToLoseHp(player, self.player, card) or self:dontHurt(player, self.player) then
+						good = good - 0.2
+					end
+					if player:getHp() == 1 and self:getAllPeachNum() == 0 and not self:needDeath(player) then
+						good = good - 2
+					end
 				end
 			end
 		end
-		end  
-		end
+	end
 	return good
 end
 
@@ -4161,7 +4159,7 @@ sgs.ai_skill_playerchosen.meizlsecanhui = function(self, targets)
 	local targets = sgs.QList2Table(targets)
 	self:sort(targets, "defense")
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) and not (hasZhaxiangEffect(p) and (p:getHp()>1 or hasBuquEffect(p))) then
+		if self:isEnemy(p) and not (hasZhaxiangEffect(p) and (p:getHp() > 1 or hasBuquEffect(p))) then
 			return p
 		end
 	end
@@ -4171,7 +4169,7 @@ end
 sgs.ai_playerchosen_intention["meizlsecanhui"] = function(self, from, to)
 	local intention = 50
 	if hasZhaxiangEffect(to) then
-		intention = - intention
+		intention = -intention
 	end
 	sgs.updateIntention(from, to, intention)
 end
@@ -4393,7 +4391,7 @@ sgs.ai_use_priority["meizlsebaoshicard"] = sgs.ai_use_priority.ExNihilo - 0.1
 
 sgs.ai_ajustdamage_from.meizlsejunwang = function(self, from, to, card, nature)
 	local x = player:getLostHp()
-	if  (from:distanceTo(to) <= 1) or (from:getMark("@meizlsebaoshi") > 0 and from:distanceTo(to) <= x)
+	if (from:distanceTo(to) <= 1) or (from:getMark("@meizlsebaoshi") > 0 and from:distanceTo(to) <= x)
 	then
 		return x
 	end
@@ -4504,7 +4502,6 @@ function sgs.ai_slash_prohibit.meizlshchunshen(self, from, to)
 	return self:cantbeHurt(to, from)
 end
 
-
 sgs.ai_can_damagehp.meizlshchunshen = function(self, from, card, to)
 	local d = sgs.DamageStruct(self, from, to)
 	d.card = card
@@ -4525,7 +4522,7 @@ meizlluoyingbinfen_skill.getTurnUseCard = function(self)
 	local lord = self.room:getLord()
 	if lord and self.role ~= "rebel" and (lord:getHandcardNum() > lord:getHp()) and lord:isMale() then return end
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-		if (player:getHandcardNum() > 0) and player:isMale() and self:ajustDamage(player, player, player:getHandcardNum()) > 0  then
+		if (player:getHandcardNum() > 0) and player:isMale() and self:ajustDamage(player, player, player:getHandcardNum()) > 0 then
 			if self:isFriend(player) then
 				bad = bad + 1
 			else
@@ -4620,7 +4617,7 @@ meizlshguihan_skill.getTurnUseCard = function(self, inclusive)
 end
 
 sgs.ai_skill_use_func["#meizlshguihancard"] = function(card, use, self)
-	if self:isWeak() or (self.room:alivePlayerCount() < 8 and self.player:getHp() < getBestHp(self.player) )  then
+	if self:isWeak() or (self.room:alivePlayerCount() < 8 and self.player:getHp() < getBestHp(self.player)) then
 		use.card = card
 		if use.to then use.to:append(self.player) end
 		return
@@ -4651,7 +4648,7 @@ sgs.ai_skill_use_func["#meizlzhenhunqucard"] = function(card, use, self)
 	self:sort(self.enemies, "defense")
 
 	for _, enemy in ipairs(self.enemies) do
-		if self:objectiveLevel(enemy) > 3 and self:isGoodTarget(enemy, self.enemies) and not ( hasZhaxiangEffect(enemy) and #self.enemies > 1) then
+		if self:objectiveLevel(enemy) > 3 and self:isGoodTarget(enemy, self.enemies) and not (hasZhaxiangEffect(enemy) and #self.enemies > 1) then
 			use.card = sgs.Card_Parse("#meizlzhenhunqucard:.:")
 			if use.to then
 				use.to:append(enemy)
@@ -4944,7 +4941,7 @@ sgs.ai_use_value["meizlyuezhanyueqiangcard"] = sgs.ai_use_value.ExNihilo - 0.1
 sgs.ai_use_priority["meizlyuezhanyueqiangcard"] = sgs.ai_use_priority.ExNihilo - 0.1
 
 sgs.ai_ajustdamage_from.meizlyuezhanyueqiang = function(self, from, to, card, nature)
-		return from:getMark("@meizlyuezhanyueqiangdamage")
+	return from:getMark("@meizlyuezhanyueqiangdamage")
 end
 
 
@@ -4977,7 +4974,7 @@ end
 
 sgs.ai_ajustdamage_from.meizlshjichi = function(self, from, to, card, nature)
 	if from:inMyAttackRange(to) and from:objectName() ~= to:objectName() and from:isWounded() then
-	return from:getLostHp()
+		return from:getLostHp()
 	end
 end
 
@@ -5138,7 +5135,6 @@ function sgs.ai_slash_prohibit.meizlshrangma(self, from, to)
 	return #(self:getEnemies(from)) > 1 and self:isWeak(to) and from:getHandcardNum() > 3
 end
 
-
 --托孤（糜夫人）
 meizlshtuogu_skill = {}
 meizlshtuogu_skill.name = "meizlshtuogu"
@@ -5240,13 +5236,11 @@ sgs.ai_skill_use_func["#meizlkujingguhuncard"] = function(card, use, self)
 		end
 	else
 		for _, friend in ipairs(self.friends_noself) do
-			
-				use.card = sgs.Card_Parse("#meizlkujingguhuncard:.:")
-				if use.to then
-					use.to:append(friend)
-				end
-				break
-			
+			use.card = sgs.Card_Parse("#meizlkujingguhuncard:.:")
+			if use.to then
+				use.to:append(friend)
+			end
+			break
 		end
 	end
 end
@@ -5472,7 +5466,7 @@ sgs.ai_skill_invoke.hujias = function(self, data)
 				return false
 			end
 		else
-			if hasZhaxiangEffect(damage.from) and damage.from:getHp() > 1  then
+			if hasZhaxiangEffect(damage.from) and damage.from:getHp() > 1 then
 				return false
 			end
 		end
@@ -5533,18 +5527,17 @@ sgs.ai_skill_discard["guyanjh"] = function(self, discard_num, min_num, optional,
 	return {}
 end
 
-function sgs.ai_slash_prohibit.hujiajh(self,from,to)
-	if hasJueqingEffect(from,to) or (from:hasSkill("nosqianxi") and from:distanceTo(to)==1) then return false end
+function sgs.ai_slash_prohibit.hujiajh(self, from, to)
+	if hasJueqingEffect(from, to) or (from:hasSkill("nosqianxi") and from:distanceTo(to) == 1) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
-	if to:getHp()>1 or #(self:getEnemies(from))==1 then return false end
-	if from:getMaxHp()==3 and from:getArmor() and from:getDefensiveHorse() then return false end
-	if from:getMaxHp()<=3 or (from:isLord() and self:isWeak(from)) then return true end
-	if from:getMaxHp()<=3 or (self.room:getLord() and from:getRole()=="renegade") then return true end
+	if to:getHp() > 1 or #(self:getEnemies(from)) == 1 then return false end
+	if from:getMaxHp() == 3 and from:getArmor() and from:getDefensiveHorse() then return false end
+	if from:getMaxHp() <= 3 or (from:isLord() and self:isWeak(from)) then return true end
+	if from:getMaxHp() <= 3 or (self.room:getLord() and from:getRole() == "renegade") then return true end
 	if from:getMaxHp() - to:getHandcardNum() < 3 then return true end
-	if from:getHp()  < from:getHandcardNum() then return true end
+	if from:getHp() < from:getHandcardNum() then return true end
 	return false
 end
-
 
 sgs.ai_skill_invoke.xiehou = function(self, data)
 	return true
