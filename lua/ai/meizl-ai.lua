@@ -963,8 +963,8 @@ sgs.ai_skill_playerchosen.meizlliuma = function(self, targets)
 		if hasTuntianEffect(splayer) then
 			value = value + 1
 		end
-		if hasLoseHandcardEffective(splayer) then
-			value = value + splayer:getLeastHandcardNum(splayer)
+		if self:hasLoseHandcardEffective(splayer) then
+			value = value + self:getLeastHandcardNum(splayer)
 		end
 		value = value * friend
 

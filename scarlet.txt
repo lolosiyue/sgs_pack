@@ -134,3 +134,4 @@ table.insert(sgs.ai_choicemade_filter.cardUsed,quhu_filter)
 ?
 被動傷害intention?
 
+filterEvent
