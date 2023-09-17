@@ -2010,8 +2010,7 @@ sgs.ai_skill_invoke.meizlkuma = function(self, data)
 	local target = damage.from
 	local slash = sgs.Sanguosha:cloneCard("slash")
 	slash:deleteLater()
-	if target and target:isAlive() and self.player:canSlash(target) and not self:slashProhibit(slash, target) and sgs.getDefenseSlash(target, self) <= 2
-		and self:slashIsEffective(slash, target) and ((self:isGoodTarget(target, self.enemies, slash) and self:isEnemy(target)) or (self:isFriend(target) and self:needToLoseHp(target, self.player, slash)))
+	if target and target:isAlive() and self.player:canSlash(target) and not self:slashProhibit(slash, target) and self:slashIsEffective(slash, target) and ((self:isGoodTarget(target, self.enemies, slash) and self:isEnemy(target)) or (self:isFriend(target) and self:needToLoseHp(target, self.player, slash)))
 		and target:objectName() ~= self.player:objectName() then
 		return true
 	end
@@ -3107,6 +3106,13 @@ sgs.ai_skill_use_func["#meizlhuawucard"] = function(card, use, self)
 	return
 end
 
+sgs.ai_can_damagehp.meizlpingting = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return true
+	end
+end
 
 
 --嫣红

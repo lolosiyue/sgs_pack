@@ -1777,7 +1777,7 @@ meizlxianshu = sgs.CreateTriggerSkill {
 		local damage = data:toDamage()
 		local _player = damage.to
 		for _, splayer in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if splayer:canDiscard(splayer, "h") and room:askForSkillInvoke(splayer, self:objectName(), data) then
+			if splayer:canDiscard(_player, "h") and room:askForSkillInvoke(splayer, self:objectName(), data) then
 				local card
 				local id = room:askForCardChosen(splayer, _player, "h", self:objectName())
 				card = sgs.Sanguosha:getCard(id)
@@ -4387,7 +4387,6 @@ meizlhuhun = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_Draw and player:hasSkill(self:objectName()) then
-			room:setPlayerMark(player, "meizlhuhunslash", 1)
 			if room:askForUseCard(player, "@@meizlhuhun", "@meizlhuhun-draw") then
 				return true
 			end

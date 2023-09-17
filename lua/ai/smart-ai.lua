@@ -4185,12 +4185,12 @@ function SmartAI:getLeastHandcardNum(player)
 	then
 		least = 1
 	end
-	if player:hasSkill("luahuju") then 
+	if player:hasSkill("luahuju") then
 		local x = math.min(getKingdoms(player), 3)
 		if x > 0 and least < x
-	then
-		least = x
-	end
+		then
+			least = x
+		end
 	end
 
 
@@ -5624,7 +5624,7 @@ function isCard(class_name, card, player)
 			return card
 		else
 			local cf = CardFilter(card, player, sgs.Player_PlaceHand)
-			if cf:isKindOf(class_name) and not prohibitUseDirectly(cf, player) then return cf end
+			if cf and cf:isKindOf(class_name) and not prohibitUseDirectly(cf, player) then return cf end
 			cf = global_room:getCardOwner(card:getEffectiveId())
 			cf = (not cf or cf:objectName() ~= player:objectName()) and sgs.Player_PlaceHand
 			cf = class_name:getSkillViewCard(card, player, cf)

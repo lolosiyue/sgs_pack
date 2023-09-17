@@ -155,7 +155,8 @@ sgs.ai_skill_use["@@duYinling"] = function(self, prompt)
         for _, enemy in ipairs(self.enemies) do
             local def = sgs.getDefenseSlash(enemy)
             local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-            local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and self:isGoodTarget(enemy, self.enemies, slash)
+            local eff = self:slashIsEffective(slash, enemy, zhijiangwei) and
+                self:isGoodTarget(enemy, self.enemies, slash)
             if zhijiangwei:canSlash(enemy, slash) and not self:slashProhibit(slash, enemy, zhijiangwei) and eff and def <
                 4 then
                 isGood = true
@@ -303,20 +304,21 @@ sgs.ai_skill_invoke.duXiaoguo = function(self, data)
     return false
 end
 
-function sgs.ai_skill_pindian.duXiaoguo(minusecard, self, requestor)
+function sgs.ai_skill_pindian.duXiaoguo(minusecard, self, requestor, maxcard)
     local cards = sgs.QList2Table(self.player:getHandcards())
     self:sortByKeepValue(cards)
     if requestor:objectName() == self.player:objectName() then
         return cards[1]
     end
-    return self:getMaxCard()
+    return maxcard
 end
 
 sgs.ai_ajustdamage_from.duXiaoguo = function(self, from, to, card, nature)
-	if from:getMaxCard():getNumber() >= 10 and from:canPindian(to) and not beFriend(to, from)
-	then
-		return 1
-	end
+    local maxcard = from:getMaxCard()
+    if maxcard and maxcard:getNumber() >= 10 and from:canPindian(to) and not beFriend(to, from)
+    then
+        return 1
+    end
 end
 
 local du_zhouxuan_skill = {}
@@ -444,9 +446,8 @@ sgs.ai_skill_use_func["#du_zhouxuanCard"] = function(card, use, self)
 end
 
 function sgs.ai_armor_value.duWuhun(card)
-	if  card and (card:isKindOf("Blade") or card:objectName() == "chitu")  then return 4 end
+    if card and (card:isKindOf("Blade") or card:objectName() == "chitu") then return 4 end
 end
-
 
 jieyou_skill = {}
 jieyou_skill.name = "jieyou"

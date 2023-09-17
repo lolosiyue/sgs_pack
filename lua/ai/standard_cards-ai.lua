@@ -7,7 +7,7 @@ function SmartAI:canAttack(enemy, attacker, nature)
 		if enemy:hasArmorEffect("vine") then damage = damage + 1 end
 		if enemy:getMark("&kuangfeng") > 0 then damage = damage + 1 end
 	end
-	if #self.enemies == 1 or hasJueqingEffect(enemy, attacker, nature)  then return true end
+	if #self.enemies == 1 or hasJueqingEffect(enemy, attacker, nature) then return true end
 	if self:needToLoseHp(enemy, attacker, false, true) and #self.enemies > 1
 		or not self:isGoodTarget(enemy, self.enemies)
 		or self:objectiveLevel(enemy) <= 2
@@ -213,7 +213,7 @@ function sgs.getDefenseSlash(to, self)
 		end
 		defense = defense + hujiaJink
 	end
-	if to:getMark("@tied") > 0 and not hasJueqingEffect(self.player, to)  then defense = defense + 1 end
+	if to:getMark("@tied") > 0 and not hasJueqingEffect(self.player, to) then defense = defense + 1 end
 	if self.player:canSlashWithoutCrossbow() and self.player:getPhase() == sgs.Player_Play
 	then
 		local hcard = to:getHandcardNum()
@@ -1812,9 +1812,12 @@ sgs.ai_skill_cardask.aoe = function(self, data, pattern, target, name)
 	if menghuo and aoe:isKindOf("SavageAssault") then target = menghuo end
 	if self:ajustDamage(target, self.player, 1, aoe) == 0 then return "." end
 	if self:needToLoseHp(self.player, target, aoe) then return "." end
-	if self.player:hasSkill("wuyan") and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return "." end
-	if target:hasSkill("wuyan") and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return "." end
-	if self.player:getMark("@fenyong") > 0 and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return "." end
+	if self.player:hasSkill("wuyan") and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return
+		"." end
+	if target:hasSkill("wuyan") and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return
+		"." end
+	if self.player:getMark("@fenyong") > 0 and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe)) then return
+		"." end
 	if not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player, aoe))
 		and self.player:hasSkill("jianxiong")
 		and (self.player:getHp() > 1 or self:getAllPeachNum() > 0)
@@ -2134,7 +2137,8 @@ sgs.ai_skill_cardask["duel-slash"] = function(self, data, pattern, target)
 	if self.player:getPhase() == sgs.Player_Play then return self:getCardId("Slash") end
 	if sgs.ai_skill_cardask.nullfilter(self, data, pattern, target) then return "." end
 	if self.player:hasFlag("AIGlobal_NeedToWake") and self.player:getHp() > 1 then return "." end
-	if (target:hasSkill("wuyan") or self.player:hasSkill("wuyan")) and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player))  then return "." end
+	if (target:hasSkill("wuyan") or self.player:hasSkill("wuyan")) and not hasJueqingEffect(target, self.player, getCardDamageNature(target, self.player)) then return
+		"." end
 	if self.player:getMark("@fenyong") > 0 and self.player:hasSkill("fenyong") and not hasJueqingEffect(target, self.player) then
 		return
 		"."
@@ -2753,7 +2757,6 @@ function SmartAI:useCardCollateral(card, use)
 			for _, friend in sgs.list(toList) do
 				if final_enemy then break end
 				self.player:speak("Collateral testing2")
-				self.player:speak("Collateral final enemy" + final_enemy:objectName())
 				self.player:speak("Collateral friend" + friend:objectName())
 				if enemy:canSlash(friend)
 					and enemy:inMyAttackRange(enemy2)
