@@ -2683,7 +2683,7 @@ sgs.ai_skill_use["@@meizlhuhun"] = function(self, prompt)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
-		elseif def < 6 and eff then
+		elseif def < 6 and eff and self.player:distanceTo(enemy) <= 1 then
 			return "#meizlhuhuncard:.:->" .. enemy:objectName()
 		elseif selfSub >= 2 then
 			return "."
@@ -2699,7 +2699,7 @@ sgs.ai_skill_use["@@meizlhuhun"] = function(self, prompt)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
-		elseif eff and def < 8 then
+		elseif eff and def < 8 and self.player:distanceTo(enemy) <= 1 then
 			return "#meizlhuhuncard:.:->" .. enemy:objectName()
 		else
 			return "."

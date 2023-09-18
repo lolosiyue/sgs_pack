@@ -6286,8 +6286,8 @@ PlusFanjianVS = sgs.CreateViewAsSkill {
 			return card
 		end
 	end,
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#PlusFanjian_Card")
+	enabled_at_play = function(self, player)
+		return not player:hasUsed("#PlusFanjian_Card")
 	end
 }
 PlusFanjian = sgs.CreateTriggerSkill {

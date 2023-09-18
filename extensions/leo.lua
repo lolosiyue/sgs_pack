@@ -387,8 +387,8 @@ view_as=function(self, cards)
 		return acard ----返回这个决斗
 	end		
 end,
-enabled_at_play=function()
-    return not sgs.Self:hasFlag("xinwushuangused")
+enabled_at_play=function(self, player)
+    return not player:hasFlag("xinwushuangused")
 end,
 enabled_at_response=function(self,pattern)        
     return false  --不响应打出
