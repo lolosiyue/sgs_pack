@@ -806,7 +806,7 @@ sgs.LoadTranslationTable {
 ----------------------------------------------------------------
 
 
-s4_zhaoyun = sgs.General(extension, "s4_zhaoyun", "shu", 4)
+s4_zhaoyun = sgs.General(extension, "s4_zhaoyun", "shu", 4, true)
 
 s4_changsheng = sgs.CreateTriggerSkill {
     name = "s4_changsheng",
@@ -885,7 +885,7 @@ s4_changsheng_TM = sgs.CreateTargetModSkill{
 s4_changsheng_attackRange = sgs.CreateAttackRangeSkill{
     name = "#s4_changsheng_attackRange",
     extra_func = function(self,target)
-        if target:hasSkill("s4_changsheng") > 0 then
+        if target:hasSkill("s4_changsheng") then
             return target:getMark("&s4_changsheng_in")
         end
     end,
@@ -901,8 +901,8 @@ extension:insertRelatedSkills("s4_changsheng", "#s4_changsheng_attackRange")
 
 sgs.LoadTranslationTable {
     ["s4_zhaoyun"] = "赵云",
-    ["#s4_zhaoyun"] = "飛將",
-    ["~s4_zhaoyun"] = "一身是胆",
+    ["#s4_zhaoyun"] = "一身是胆",
+    ["~s4_zhaoyun"] = "",
     ["designer:s4_zhaoyun"] = "大坏蛋",
     ["cv:s4_zhaoyun"] = "",
     ["illustrator:s4_zhaoyun"] = "DH",
