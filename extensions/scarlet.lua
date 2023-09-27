@@ -820,7 +820,7 @@ s4_changsheng = sgs.CreateTriggerSkill {
         elseif event == sgs.DamageInflicted then
             local damage = data:toDamage()
             if player:getMark("&s4_changsheng_out") > 0 then
-                room:sendCompulsoryTriggerLog(playerm self:objectName())
+                room:sendCompulsoryTriggerLog(player, self:objectName())
                 room:setPlayerMark(player, "&s4_changsheng_out", player:getMark("&s4_changsheng_out") - 1)
                 room:addPlayerMark(player, "&s4_changsheng_in")
                 local x = 2 * player:getMark("&s4_changsheng_out")
