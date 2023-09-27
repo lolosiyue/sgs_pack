@@ -1011,7 +1011,7 @@ kan_nuequ = sgs.CreateViewAsSkill{
 		end
 	end,
 	enabled_at_play = function(self, player)
-		return not sgs.Self:hasUsed("#kan_nuequ")
+		return not player:hasUsed("#kan_nuequ")
 	end,
 }
 
@@ -1037,6 +1037,7 @@ kan_nuequcard = sgs.CreateSkillCard{
 	on_use = function(self, room, source, targets) 
 		if #targets > 0 then
 			local card = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
+			card:deleteLater()
 			card:setSkillName(self:objectName())
 			card:addSubcard(self:getSubcards():first())
 			local use = sgs.CardUseStruct()
