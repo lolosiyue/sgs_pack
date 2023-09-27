@@ -491,7 +491,7 @@ kan_event_damage = sgs.CreateTriggerSkill{
 	end
 }
 
-kan_event_gameend = sgs.CreateTriggerSkill{  --游戏结束时记录玩家各种状态
+kan_event_game_end = sgs.CreateTriggerSkill{
 	name = "kan_event_gameend",
 	global = true,
 	events = {sgs.GameOverJudge},
@@ -589,7 +589,7 @@ kan_event_gameend = sgs.CreateTriggerSkill{  --游戏结束时记录玩家各种
 }
 
 
-kan_event_game_start = sgs.CreateTriggerSkill{  --用于使“千里走单骑”模式开始
+kan_event_game_start = sgs.CreateTriggerSkill{
 	name = "kan_event_game_start",
 	events = {sgs.GameStart, sgs.TurnStart, sgs.DrawInitialCards, sgs.AfterDrawInitialCards},
 	global = true,
@@ -936,58 +936,206 @@ kan_yudachi_kai2:addSkill(kan_chongzhuang)
 kan_yudachi_kai2:addSkill(kan_kuangquan)
 
 sgs.LoadTranslationTable{
-["kan_yudachi"] = "夕立", 
-["&kan_yudachi"] = "夕立", 
-["#kan_yudachi"] = "所罗门的噩梦", 
-["~kan_yudachi"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
-["designer:kan_yudachi"] = "Sword Elucidator",
-["cv:kan_yudachi"] = "谷边由美",
-["illustrator:kan_yudachi"] = "リン☆ユウ",
+	["kan_yudachi"] = "夕立", 
+	["&kan_yudachi"] = "夕立", 
+	["#kan_yudachi"] = "所罗门的噩梦", 
+	["~kan_yudachi"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
+	["designer:kan_yudachi"] = "Sword Elucidator",
+	["cv:kan_yudachi"] = "谷边由美",
+	["illustrator:kan_yudachi"] = "リン☆ユウ",
+	["$kan_yudachi_start"] = "",
+	["$kan_yudachi_equip"] = "",
+	["$kan_yudachi_damaged"] = "",
+	["$kan_yudachi_attack"] = "",
 
-["kan_yudachi_kai2"] = "夕立改二", 
-["&kan_yudachi_kai2"] = "夕立改二", 
-["#kan_yudachi_kai2"] = "所罗门的噩梦", 
-["~kan_yudachi_kai2"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
-["designer:kan_yudachi_kai2"] = "Sword Elucidator",
-["cv:kan_yudachi_kai2"] = "谷边由美",
-["illustrator:kan_yudachi_kai2"] = "",
+	["kan_yudachi_kai2"] = "夕立改二", 
+	["&kan_yudachi_kai2"] = "夕立改二", 
+	["#kan_yudachi_kai2"] = "所罗门的噩梦", 
+	["~kan_yudachi_kai2"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
+	["designer:kan_yudachi_kai2"] = "Sword Elucidator",
+	["cv:kan_yudachi_kai2"] = "谷边由美",
+	["illustrator:kan_yudachi_kai2"] = "",
 
-["kan_emeng"] = "噩梦「所罗门的噩梦poi」",
-["$kan_emeng1"] = "所罗门的噩梦，让你们见识一下！",
-["$kan_emeng2"] = "那么，让我们举办一场华丽的派对吧！",
-["$kan_emeng3"] = "夕立、突击poi。",
-[":kan_emeng"] = "<font color=\"purple\"><b>觉醒技，</b></font>回合开始时，若你的体力值不大于1，你失去一点体力上限并获得技能【英姿】【咆哮】和【冲撞】（当你进入濒死时，移动到一名其他角色的左侧并视为对其使用一张【杀】。），你与所有角色计算距离时为1，其他角色与你计算距离时为1。",
-["kan_emeng$"] = "image=image/animate/kan_emeng.png",
+	["kan_emeng"] = "噩梦「所罗门的噩梦poi」",
+	["$kan_emeng1"] = "所罗门的噩梦，让你们见识一下！",
+	["$kan_emeng2"] = "那么，让我们举办一场华丽的派对吧！",
+	["$kan_emeng3"] = "夕立、突击poi。",
+	[":kan_emeng"] = "<font color=\"purple\"><b>觉醒技，</b></font>回合开始时，若你的体力值不大于1，你失去一点体力上限并获得技能【英姿】【咆哮】和【冲撞】（当你进入濒死时，移动到一名其他角色的左侧并视为对其使用一张【杀】。），你与所有角色计算距离时为1，其他角色与你计算距离时为1。",
+	["kan_emeng$"] = "image=image/animate/kan_emeng.png",
 
-["kan_suo$"] = "所    ",
-["kan_luo$"] = "  罗  ",
-["kan_men$"] = "    门",
-["kan_wo$"] = "\n我          ",
-["kan_you$"] = "\n  又        ",
-["kan_hui$"] = "\n    回      ",
-["kan_lai$"] = "\n      来    ",
-["kan_le$"] = "\n        了  ",
-["kan_a$"] = "\n          啊",
+	["kan_suo$"] = "所    ",
+	["kan_luo$"] = "  罗  ",
+	["kan_men$"] = "    门",
+	["kan_wo$"] = "\n我          ",
+	["kan_you$"] = "\n  又        ",
+	["kan_hui$"] = "\n    回      ",
+	["kan_lai$"] = "\n      来    ",
+	["kan_le$"] = "\n        了  ",
+	["kan_a$"] = "\n          啊",
 
-["kan_kuangquan"] = "狂犬「咬死你poi」",
-["$kan_kuangquan1"] = "随便找一个打了poi？",
-["$kan_kuangquan2"] = "首先从哪里开始打呢？",
-[":kan_kuangquan"] = "你对距离为1的角色使用【杀】造成伤害时，可以令目标失去失去一点体力上限。",
-["kan_kuangquan$"] = "image=image/animate/kan_kuangquan.png",
+	["kan_kuangquan"] = "狂犬「咬死你poi」",
+	["$kan_kuangquan1"] = "随便找一个打了poi？",
+	["$kan_kuangquan2"] = "首先从哪里开始打呢？",
+	[":kan_kuangquan"] = "你对距离为1的角色使用【杀】造成伤害时，可以令目标失去失去一点体力上限。",
+	["kan_kuangquan$"] = "image=image/animate/kan_kuangquan.png",
 
-["kan_chongzhuang"] = "冲撞「风帆突击」",
-["$kan_chongzhuang"] = "即使是把打开船帆，也要继续战斗！",
-[":kan_chongzhuang"] = "当你进入濒死时，移动到一名其他角色的左侧并视为对其使用一张【杀】。",
-["kan_chongzhuang$"] = "image=image/animate/kan_chongzhuang.png",
+	["kan_chongzhuang"] = "冲撞「风帆突击」",
+	["$kan_chongzhuang"] = "即使是把打开船帆，也要继续战斗！",
+	[":kan_chongzhuang"] = "当你进入濒死时，移动到一名其他角色的左侧并视为对其使用一张【杀】。",
+	["kan_chongzhuang$"] = "image=image/animate/kan_chongzhuang.png",
 
-["kan_yingzi"] = "英姿「孤舰突击」",
-[":kan_yingzi"] = "摸牌阶段，你可以额外摸一些牌。",
-["kan_paoxiao"] = "咆哮「噩梦般的雷击」",
-[":kan_paoxiao"] = "你在出牌阶段内使用【杀】时无次数限制。",
+	["kan_yingzi"] = "英姿「孤舰突击」",
+	[":kan_yingzi"] = "摸牌阶段，你可以额外摸一些牌。",
+	["kan_paoxiao"] = "咆哮「噩梦般的雷击」",
+	[":kan_paoxiao"] = "你在出牌阶段内使用【杀】时无次数限制。",
 
 }
 
+--kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false, salvage, salvage)
+kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false )
 
+
+kan_nuequ = sgs.CreateViewAsSkill{
+	name = "kan_nuequ",
+	n = 1,
+	response_or_use = true,
+		view_filter = function(self, selected, to_select)
+		return not to_select:isEquipped()
+	end, 
+	view_as = function(self, cards)
+	if #cards == 1 then 
+		local card = kan_nuequcard:clone()
+		card:addSubcard(cards[1])
+		card:setSkillName(self:objectName())
+		return card
+		end
+	end,
+	enabled_at_play = function(self, player)
+		return not sgs.Self:hasUsed("#kan_nuequ")
+	end,
+}
+
+kan_nuequcard = sgs.CreateSkillCard{
+	name = "kan_nuequ",
+	target_fixed = false,
+	will_throw = false,
+	filter = function(self, targets, to_select) --必须
+	local card = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_SuitToBeDecided, -1)
+	card:setSkillName(self:objectName())
+	local min_hp = 999
+	local qtargets = sgs.PlayerList()
+		for _, p in ipairs(targets) do
+			qtargets:append(p)
+		end
+		for _, p in sgs.qlist(sgs.Self:getAliveSiblings()) do
+			min_hp = math.min(min_hp, p:getHp())
+		end
+		if to_select:objectName() ~= sgs.Self:objectName() and sgs.Self:canSlash(to_select, card,false)  then
+			return card:targetFilter(qtargets, to_select, sgs.Self) and not sgs.Self:isProhibited(to_select, card, qtargets) and to_select:getHp() == min_hp 
+		end
+	end,
+	on_use = function(self, room, source, targets) 
+		if #targets > 0 then
+			local card = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
+			card:setSkillName(self:objectName())
+			card:addSubcard(self:getSubcards():first())
+			local use = sgs.CardUseStruct()
+			use.from = source
+			for _,target in ipairs(targets) do
+				use.to:append(target)
+			end
+			use.card = card
+			room:useCard(use, false)
+		end
+	end,
+}
+
+kan_BurningLove = sgs.CreateTriggerSkill{
+	name = "kan_BurningLove",  
+	frequency = sgs.Skill_NotFrequent, 
+	events = {sgs.DamageCaused},  
+	on_trigger = function(self, event, player, data) 
+		local room = player:getRoom()
+		local damage = data:toDamage()
+		if event == sgs.DamageCaused then
+				if damage.from and damage.from:isAlive() and damage.from:hasSkill(self:objectName()) and damage.nature == sgs.DamageStruct_Fire and 
+				damage.to and damage.to:isAlive() and 
+				damage.card and damage.card:isKindOf("FireSlash") and  room:askForSkillInvoke(player, self:objectName(), data) then
+				room:notifySkillInvoked(player, self:objectName())
+				room:broadcastSkillInvoke(self:objectName())
+							local re = sgs.RecoverStruct()
+						re.who = player	
+						room:recover(damage.to,re,true)
+						return true
+						end	
+		end
+		return false
+	end,
+}
+
+kan_kongou:addSkill("kan_cat_fbb")
+kan_kongou:addSkill("kan_attackRangeLong")
+kan_kongou:addSkill(kan_nuequ)
+kan_kongou:addSkill(kan_BurningLove)
+
+sgs.LoadTranslationTable{
+	["kan_kongou"] = "金剛",
+	["&kan_kongou"] = "金剛",
+	["@Kongou"] = "艦隊collection",
+	["#kan_kongou"] = "大傻",
+	["~kan_kongou"] = "Shit！从提督那里得到的重要装备啊！",
+	["designer:kan_kongou"] = "Sword Elucidator",
+	["cv:kan_kongou"] = "東山奈央",
+	["illustrator:kan_kongou"] = "",
+	["$kan_kongou_start"] = "",
+	["$kan_kongou_equip"] = "",
+	["$kan_kongou_damaged"] = "",
+	["$kan_kongou_attack"] = "",
+
+	["kan_nuequ"] = "杀驱「傻级只会打驱逐舰吧？」",
+	["$kan_nuequ1"] = "射击！Fire～！",
+	["$kan_nuequ2"] = "全火炮！开火！",
+	[":kan_nuequ"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将一张手牌视为对场上体力最少的一名角色使用一张火属性的【杀】。该【杀】不计入出牌阶段次数限制。",
+	["kan_BurningLove"] = "Burning Love！",
+	["$kan_BurningLove1"] = "Burning Love！！",
+	["$kan_BurningLove2"] = "Burning Valentine Love！！",
+	[":kan_BurningLove"] = "每当你使用火属性的【杀】造成伤害时，你可以令该伤害改为回复一点体力。",
+	["BLRecover"] = "令该伤害改为回复一点体力",
+	["BLDamage"] = "令该伤害+1",
+	
+	
+	
+}
+
+
+
+--kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false, salvage, salvage)
+kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false )
+
+sgs.LoadTranslationTable{
+	
+	["fanghuo"] = "放火「烧甲板」",
+	["#fanghuo"] = " %from 的【着火】 标记被触发，受到自身造成的一点火焰伤害，",
+	["@FireCaused"] = "着火",
+	["$fanghuo1"] = "最上，出击了哟。",
+	["$fanghuo2"] = "敌舰发现！攻击—！",
+	[":fanghuo"] = "你使用的【杀】造成伤害时，你可以令目标附加一个【着火】标记。\n\n着火：\n拥有【着火】标记的角色出牌阶段结束时，受到自身造成的一点火焰伤害，然后有25%的概率失去一个【着火】标记。\n拥有【着火】标记时，舰载机类技能无法使用。",
+	["jianhun"] = "舰魂",
+	["$jianhun1"] = "好痛痛痛…我要生气了！",
+	["$jianhun2"] = "痛…我要生气了哦！",
+	["$jianhun3"] = " 要上的话就尽管来吧。",
+	[":jianhun"] = "若场上「西村舰队（最上，时雨）」角色失去的总体力值不少于2，或你拥有【着火】标记，你可以将一张牌当做无视使用次数限制和距离的【杀】使用或打出。",
+	["Mogami"] = "最上",
+	["&Mogami"] = "最上",
+	["@Mogami"] = "舰队collection/wows",
+	["#Mogami"] = "最爹",
+	["~Mogami"] = "唔…这下要是继续战斗的话就困难了。",
+	["designer:Mogami"] = "Sword Elucidator",
+	["cv:Mogami"] = "洲崎綾",
+	["illustrator:Mogami"] = "ケースワベ【K-SUWABE】",
+	
+	
+}
 
 
 

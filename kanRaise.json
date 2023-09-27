@@ -9,7 +9,20 @@
             "60": "kan_chongzhuang",
             "75": "kan_paoxiao"
         },
-        "kailevel" : 50
+        "kailevel" : 50,
+        "hole": 0
+      },
+      {
+        "kanmusu":"kan_kongou",
+        "level": 0,
+        "skill":{
+            "1":"kan_kuangquan",
+            "50": "kan_yingzi",
+            "60": "kan_chongzhuang",
+            "75": "kan_paoxiao"
+        },
+        "kailevel" : 70,
+        "hole": 0
       }
     ]
 }

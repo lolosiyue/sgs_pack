@@ -815,7 +815,7 @@ s4_changsheng = sgs.CreateTriggerSkill {
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart then
-            room:sendCompulsoryTriggerLog(playerm self:objectName())
+            room:sendCompulsoryTriggerLog(player, self:objectName())
             room:addPlayerMark(player, "&s4_changsheng_out", 7)
         elseif event == sgs.DamageInflicted then
             local damage = data:toDamage()
