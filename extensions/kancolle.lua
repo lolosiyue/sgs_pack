@@ -1109,8 +1109,8 @@ sgs.LoadTranslationTable{
 
 
 
---kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false, salvage, salvage)
-kan_kongou = sgs.General(extension, "kan_kongou", "kancolle", 4, false )
+--kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false, salvage, salvage)
+kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false )
 
 sgs.LoadTranslationTable{
 	
