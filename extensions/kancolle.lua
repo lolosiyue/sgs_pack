@@ -1,7 +1,7 @@
 extension = sgs.Package("kancolle")
 
 do
-    require  "lua.config" 
+    require  "lua.config"
 	local config = config
 	local kingdoms = config.kingdoms
             table.insert(kingdoms,"kancolle")
@@ -33,28 +33,30 @@ local skills = sgs.SkillList()
 
 ---@param room room
 ---@return boolean cvTakeOff
-function canTakeOff(cv)
-    if cv and cv:isAlive() and cv:getMark("kan_cat_cv") > 0 then
-        if cv:getHp() > 2 or (cv:getHp() > 1 and isCVB(cv)) then
-            return not isFire(cv)
-        end
-    end
-    return false
-end
-
----@param cv serverplayer
----@return boolean CVB
-function isCVB(cv)
-    if cv then
-        if cv:getMark("kan_cat_cvb") > 0 then
-            return true
-        end
+function CanTakeOff(cv)
+    if cv and cv:isAlive() and ((GetKanmusuCat(cv) == "cv" and  cv:getHp() > 2) or (cv:getHp() > 1 and GetKanmusuCat(cv) == "cvb")) then
+        return not IsFire(cv)
     end
     return false
 end
 
 
-isFire = function(player)
+---@param kanmusu serverplayer
+---@return string kan_cat
+function GetKanmusuCat(kanmusu)
+	if kanmusu and IsKanmusu(kanmusu) then
+        for _, mark in sgs.list(kanmusu:getMarkNames()) do
+            if string.find(mark, "kan_cat_") and kanmusu:getMark(mark) > 0 then
+				local cat = mark:split("_")[2]
+                return cat
+            end
+        end
+    end
+	return ""
+end
+
+
+IsFire = function(player)
 	if player:getMark("@FireCaused") > 0 then
 		return true
 	else
@@ -64,7 +66,7 @@ end
 
 ---@param kanmusu serverplayer
 ---@return boolean isKanmusu
-function isKanmusu(kanmusu)
+function IsKanmusu(kanmusu)
     if kanmusu then
         for _, mark in sgs.list(kanmusu:getMarkNames()) do
             if string.find(mark, "kan_cat_") and kanmusu:getMark(mark) > 0 then
@@ -77,7 +79,7 @@ end
 
 ---@param shinkai serverplayer
 ---@return boolean isShinkai
-function isShinkai(shinkai)
+function IsShinkai(shinkai)
     if shinkai then
         for _, mark in sgs.list(shinkai:getMarkNames()) do
             if string.find(mark, "kan_shinkai") and shinkai:getMark(mark) > 0 then
@@ -109,21 +111,68 @@ function CutInAnimate(kanmusu)
     thread:delay(2900)
 end
 
-readData = function(section)
+
+---@param file string "json path file"
+---@param section string "seclect filed normally data"
+---@param columnName string "seclect columnName"
+---@param filterColumn string "colomn of filtering"
+---@param filterValue string "value of filtering"
+---@return table result
+function ReadData(file, section, columnName, filterColumn, filterValue)
 	local json = require "json"
-	local record = io.open(testdata, "r")
-	local t = {[section] = {}}
-	if record ~= nil then
-		local content = record:read("*all")
-		t = json.decode(content) or t
-		if t[section] == nil and section ~= "*" then
-			t[section] = {}
-		end
-		record:close()
-	end
-	return t
+    local record = io.open(file, "r")
+    local data = {[section] = {}}
+    if record ~= nil then
+        local content = record:read("*all")
+        data = json.decode(content) or data
+        if data[section] == nil and section ~= "*" then
+            data[section] = {}
+        end
+        record:close()
+    end
+
+    local result = {}
+    if data[section] and columnName and filterColumn and filterValue then
+        for _, entry in ipairs(data[section]) do
+            if entry[filterColumn] == filterValue and entry[columnName] then
+                table.insert(result, entry[columnName])
+            end
+        end
+    end
+
+    return result
 end
 
+---@param file string "json path file"
+---@param section string "seclect filed normally data"
+---@param columnName string "seclect columnName"
+---@param filterColumn string "colomn of filtering"
+---@param filterValue string "value of filtering"
+function ReadSingleData(file, section, columnName, filterColumn, filterValue)
+	local json = require "json"
+    local record = io.open(file, "r")
+    local data = {[section] = {}}
+    if record ~= nil then
+        local content = record:read("*all")
+        data = json.decode(content) or data
+        if data[section] == nil and section ~= "*" then
+            data[section] = {}
+        end
+        record:close()
+    end
+
+	local result = nil
+    if data[section] and columnName and filterColumn and filterValue then
+        for _, entry in ipairs(data[section]) do
+            if entry[filterColumn] == filterValue and entry[columnName] then
+                result = entry[columnName]
+                break
+            end
+        end
+    end
+
+    return result
+end
 
 writeData = function(t)
 	local record = assert(io.open(testdata, "w"))
@@ -136,26 +185,26 @@ end
 
 saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1 win , 2. +1 win & +1 gameplay
 	assert(record_type >= 0 and record_type <= 2, "record_type should be 0, 1 or 2")
-	
+
 	local t = readData("Record")
 
 	if t["Record"]["GameTimes"] == nil then
 		t["Record"]["GameTimes"] = {0, 0}
 	end
-	
+
 	local all = sgs.Sanguosha:getLimitedGeneralNames()
 	for _,name in pairs(all) do
 		if sgs.Sanguosha:getGeneral(name):getPackage() == "levelup" and t["Record"][name] == nil then
 			t["Record"][name] = {0, 0}
 		end
 	end
-	
+
 	local name = player:getGeneralName()
 	local skin_id = string.find(name, "_skin") --?株甇血?雿輻??霈啣???(g_skin)
 	if skin_id then
 		name = string.sub(name, 1, skin_id - 1)
 	end
-	
+
 	local name2 = ""
 	if player:getGeneral2() then
 		name2 = player:getGeneral2Name()
@@ -164,7 +213,7 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
 			name2 = string.sub(name2, 1, skin_id2 - 1)
 		end
 	end
-		
+
 	if record_type ~= 0 then -- record_type 1 or 2
 		t["Record"]["GameTimes"][1] = t["Record"]["GameTimes"][1] + 1
 		if t["Record"][name] then
@@ -183,7 +232,7 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
 			t["Record"][name2][2] = t["Record"][name2][2] + 1
 		end
 	end
-	
+
 	writeData(t)
 end
 
@@ -202,9 +251,9 @@ saveItem = function(item_type, item_name, add_num)
 		end
 		t[item_type][item_name] = add_num
 	end
-	
+
 	writeData(t)
-	
+
 	return repeated
 end
 
@@ -428,7 +477,7 @@ kan_audio = sgs.CreateTriggerSkill {
 				return false
 			end
 			for _, p in ipairs(players) do
-				if loser(p) then 
+				if loser(p) then
 					table.removeOne(players, p)
 				end
 			end
@@ -463,17 +512,17 @@ kan_event_damage = sgs.CreateTriggerSkill{
 		if event==sgs.DamageCaused
 		then
             local damage = data:toDamage()
-			if damage and damage.from and isKanmusu(damage.from) and isShinkai(damage.to) then
+			if damage and damage.from and IsKanmusu(damage.from) and IsShinkai(damage.to) then
                 local recordFile = assert(io.open(kanEvent, "r"))
 				local rf = recordFile:read("*all")
 				recordFile:close()
 				local eventdata = json.decode(rf)
                 assert(eventdata)
                 if #eventdata > 0 then
-                for i, value in ipairs(eventdata.data.level.kanmusus) do
+                for i, value in ipairs(eventdata.data.kanmusus) do
                     if value == damage.from:getGeneralName() then
                         local x = math.floor(math.random() * 2 + 1)
-                        damage.damage = damage.damage + x 
+                        damage.damage = damage.damage + x
                         local log = sgs.LogMessage()
                         log.type = "#skill_add_damage"
                         log.from = damage.from
@@ -492,7 +541,7 @@ kan_event_damage = sgs.CreateTriggerSkill{
 }
 
 kan_event_game_end = sgs.CreateTriggerSkill{
-	name = "kan_event_gameend",
+	name = "kan_event_game_end",
 	global = true,
 	events = {sgs.GameOverJudge},
 	on_trigger = function(self, event, splayer, data, room)
@@ -750,7 +799,6 @@ kan_event_game_start = sgs.CreateTriggerSkill{
 
 
 --if not sgs.Sanguosha:getSkill("kan_event_damage") then skills:append(kan_event_damage) end
---if not sgs.Sanguosha:getSkill("kan_event_gameend") then skills:append(kan_event_gameend) end
 
 
 
@@ -782,7 +830,7 @@ sgs.LoadTranslationTable{
     ["kan_cat_cv"] = "艦種：空母",
     ["kan_cat_cvb"] = "艦種：裝甲空母",
     ["kan_shinkai"] = "深海",
-    
+
     ["kan_event_damage"] = "倍卡",
 
     ["kan_anjiang"] ="系統設置",
@@ -796,9 +844,9 @@ kan_yudachi = sgs.General(extension, "kan_yudachi", "kancolle", 4, false )
 kan_yudachi_kai2 = sgs.General(extension, "kan_yudachi_kai2", "kancolle", 3, false)
 --噩梦
 kan_emeng = sgs.CreateTriggerSkill{
-	name = "kan_emeng", 
-	frequency = sgs.Skill_Wake, 
-	events = {sgs.EventPhaseStart}, 
+	name = "kan_emeng",
+	frequency = sgs.Skill_Wake,
+	events = {sgs.EventPhaseStart},
     can_wake = function(self, event, player, data, room)
 		if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then return false end
 		if player:canWake(self:objectName()) then return true end
@@ -806,7 +854,7 @@ kan_emeng = sgs.CreateTriggerSkill{
 	end,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if 	room:changeMaxHpForAwakenSkill(player, -1) then 
+		if 	room:changeMaxHpForAwakenSkill(player, -1) then
 		room:broadcastSkillInvoke(self:objectName())
 		room:doLightbox("kan_suo$", 500)
 		room:doLightbox("kan_luo$", 500)
@@ -822,7 +870,7 @@ kan_emeng = sgs.CreateTriggerSkill{
 			room:changeHero(player, "kan_yudachi_kai2",false, false, false, false)
 		elseif player:getGeneral2Name() == "kan_yudachi" then
 			room:changeHero(player, "kan_yudachi_kai2",false, false, true, false)
-		else 
+		else
 		room:handleAcquireDetachSkills(player, "kan_yingzi")
 		room:handleAcquireDetachSkills(player, "kan_paoxiao")
 		room:handleAcquireDetachSkills(player, "kan_chongzhuang")
@@ -835,13 +883,13 @@ kan_emeng = sgs.CreateTriggerSkill{
 		end
 		end
 		return false
-	end, 
+	end,
 }
 --狂犬
 kan_kuangquan = sgs.CreateTriggerSkill{
-	name = "kan_kuangquan",  
-	frequency = sgs.Skill_NotFrequent, 
-	events = {sgs.DamageCaused}, 
+	name = "kan_kuangquan",
+	frequency = sgs.Skill_NotFrequent,
+	events = {sgs.DamageCaused},
 	priority = -3,
 	on_trigger = function(self, event, player, data)
 		local damage = data:toDamage()
@@ -852,7 +900,7 @@ kan_kuangquan = sgs.CreateTriggerSkill{
 			room:doLightbox("kan_kuangquan$", 1000)
 			room:loseMaxHp(damage.to, 1)
 		end
-	end, 
+	end,
 	can_trigger = function(self, target)
 		return target
 	end
@@ -860,8 +908,8 @@ kan_kuangquan = sgs.CreateTriggerSkill{
 
 --冲撞
 kan_chongzhuang = sgs.CreateTriggerSkill{
-	name = "kan_chongzhuang", 
-	frequency = sgs.Skill_NotFrequent, 
+	name = "kan_chongzhuang",
+	frequency = sgs.Skill_NotFrequent,
 	events = {sgs.Dying},
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
@@ -877,7 +925,7 @@ kan_chongzhuang = sgs.CreateTriggerSkill{
 			end
 			room:doLightbox("kan_chongzhuang$", 1500)
 			local card = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-			card:setSkillName(self:objectName())		
+			card:setSkillName(self:objectName())
 			local use = sgs.CardUseStruct()
 			use.from = source
 			use.to:append(target)
@@ -897,7 +945,11 @@ kan_yingzi = sgs.CreateTriggerSkill{
         if room:askForSkillInvoke(player, "kan_yingzi", data) then
         	room:broadcastSkillInvoke("kan_emeng")
         	local num = math.random(1, 100)
+			
             local count = data:toInt()  + 1
+			if room:getTag("InEvent"):toBool() then
+				count = count + math.floor(math.log(ReadSingleData(kanRaise, "kanmusu", "level", "name","kan_yudachi")))
+			end
             if num > 70 then
             	count = count + 1
             elseif num > 92 then
@@ -919,6 +971,18 @@ kan_paoxiao = sgs.CreateTargetModSkill{
             return 1000
         end
     end,
+	extra_target_func = function(self, player)
+		local room = sgs.Sanguosha:currentRoom()
+	if room:getTag("InEvent"):toBool() then
+		if player:hasSkill(self:objectName()) then
+			local num = (ReadSingleData(kanRaise, "kanmusu", "level", "name","kan_yudachi")) or 0
+			if num > 60 then
+				num = math.abs(num / 60)
+				return num
+			end
+		end
+	end
+end
 }
 
 kan_yudachi:addSkill("kan_cat_dd")
@@ -936,25 +1000,40 @@ kan_yudachi_kai2:addSkill(kan_chongzhuang)
 kan_yudachi_kai2:addSkill(kan_kuangquan)
 
 sgs.LoadTranslationTable{
-	["kan_yudachi"] = "夕立", 
-	["&kan_yudachi"] = "夕立", 
-	["#kan_yudachi"] = "所罗门的噩梦", 
-	["~kan_yudachi"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
+	["kan_yudachi"] = "夕立",
+	["&kan_yudachi"] = "夕立",
+	["#kan_yudachi"] = "所罗门的噩梦",
+	["~kan_yudachi"] = "もしかして…沈んじゃうっぽい…？",
 	["designer:kan_yudachi"] = "Sword Elucidator",
 	["cv:kan_yudachi"] = "谷边由美",
 	["illustrator:kan_yudachi"] = "リン☆ユウ",
-	["$kan_yudachi_start"] = "",
-	["$kan_yudachi_equip"] = "",
-	["$kan_yudachi_damaged"] = "",
-	["$kan_yudachi_attack"] = "",
+	["$kan_yudachi_get"] = "こんにちは、白露型駆逐艦「夕立」よ。よろしくね！",
+	["$kan_yudachi_start1"] = "駆逐艦夕立、出撃よ！",
+	["$kan_yudachi_start2"] = "さあ、ステキなパーティしましょ！",
+	["$kan_yudachi_equip1"] = "ん～～、いい～じゃないですか～",
+	["$kan_yudachi_equip2"] = "私！ニューバージョンっぽい！？",
+	["$kan_yudachi_damaged1"] = "にゃあっ！？",
+	["$kan_yudachi_damaged2"] = "も、も～ばかぁ～！これじゃあ戦えないっぽい！？",
+	["$kan_yudachi_attack1"] = "まず何から撃とうかしら？",
+	["$kan_yudachi_attack2"] = "これでど～お！？",
+	["$kan_yudachi_mvp"] = "夕立ったら、結構頑張ったっぽい！？提督さん、褒めて褒めて～！",
 
-	["kan_yudachi_kai2"] = "夕立改二", 
-	["&kan_yudachi_kai2"] = "夕立改二", 
-	["#kan_yudachi_kai2"] = "所罗门的噩梦", 
-	["~kan_yudachi_kai2"] = "真、真是笨蛋！这样就没法战斗了poi！？", 
+	["kan_yudachi_kai2"] = "夕立改二",
+	["&kan_yudachi_kai2"] = "夕立改二",
+	["#kan_yudachi_kai2"] = "所罗门的噩梦",
+	["~kan_yudachi_kai2"] = "吉川艦長…また、会えるか…なぁ",
 	["designer:kan_yudachi_kai2"] = "Sword Elucidator",
 	["cv:kan_yudachi_kai2"] = "谷边由美",
 	["illustrator:kan_yudachi_kai2"] = "",
+	["$kan_yudachi_kai2_start1"] = "おまだせ　ぽい、駆逐艦夕立、出撃よ！",
+	["$kan_yudachi_kai2_start2"] = "ソロモンの悪夢、見せてあげる！",
+	["$kan_yudachi_kai2_equip1"] = "提督さんのためなら、夕立どんどん強くなれるっぽい！",
+	["$kan_yudachi_kai2_equip2"] = "最高にステキなパーティしましょ！",
+	["$kan_yudachi_kai2_damaged1"] = "夕立、突撃するっぽい",
+	["$kan_yudachi_kai2_damaged2"] = "ハンモックを張ってでも、戦うよ！",
+	["$kan_yudachi_kai2_attack1"] = "選り取りみどりっぽい？",
+	["$kan_yudachi_kai2_attack2"] = "ガルル？",
+
 
 	["kan_emeng"] = "噩梦「所罗门的噩梦poi」",
 	["$kan_emeng1"] = "所罗门的噩梦，让你们见识一下！",
@@ -1001,9 +1080,9 @@ kan_nuequ = sgs.CreateViewAsSkill{
 	response_or_use = true,
 		view_filter = function(self, selected, to_select)
 		return not to_select:isEquipped()
-	end, 
+	end,
 	view_as = function(self, cards)
-	if #cards == 1 then 
+	if #cards == 1 then
 		local card = kan_nuequcard:clone()
 		card:addSubcard(cards[1])
 		card:setSkillName(self:objectName())
@@ -1031,10 +1110,10 @@ kan_nuequcard = sgs.CreateSkillCard{
 			min_hp = math.min(min_hp, p:getHp())
 		end
 		if to_select:objectName() ~= sgs.Self:objectName() and sgs.Self:canSlash(to_select, card,false)  then
-			return card:targetFilter(qtargets, to_select, sgs.Self) and not sgs.Self:isProhibited(to_select, card, qtargets) and to_select:getHp() == min_hp 
+			return card:targetFilter(qtargets, to_select, sgs.Self) and not sgs.Self:isProhibited(to_select, card, qtargets) and to_select:getHp() == min_hp
 		end
 	end,
-	on_use = function(self, room, source, targets) 
+	on_use = function(self, room, source, targets)
 		if #targets > 0 then
 			local card = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
 			card:deleteLater()
@@ -1052,23 +1131,23 @@ kan_nuequcard = sgs.CreateSkillCard{
 }
 
 kan_BurningLove = sgs.CreateTriggerSkill{
-	name = "kan_BurningLove",  
-	frequency = sgs.Skill_NotFrequent, 
-	events = {sgs.DamageCaused},  
-	on_trigger = function(self, event, player, data) 
+	name = "kan_BurningLove",
+	frequency = sgs.Skill_NotFrequent,
+	events = {sgs.DamageCaused},
+	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
 		if event == sgs.DamageCaused then
-				if damage.from and damage.from:isAlive() and damage.from:hasSkill(self:objectName()) and damage.nature == sgs.DamageStruct_Fire and 
-				damage.to and damage.to:isAlive() and 
+				if damage.from and damage.from:isAlive() and damage.from:hasSkill(self:objectName()) and damage.nature == sgs.DamageStruct_Fire and
+				damage.to and damage.to:isAlive() and
 				damage.card and damage.card:isKindOf("FireSlash") and  room:askForSkillInvoke(player, self:objectName(), data) then
 				room:notifySkillInvoked(player, self:objectName())
 				room:broadcastSkillInvoke(self:objectName())
 							local re = sgs.RecoverStruct()
-						re.who = player	
+						re.who = player
 						room:recover(damage.to,re,true)
 						return true
-						end	
+						end
 		end
 		return false
 	end,
@@ -1103,9 +1182,9 @@ sgs.LoadTranslationTable{
 	[":kan_BurningLove"] = "每当你使用火属性的【杀】造成伤害时，你可以令该伤害改为回复一点体力。",
 	["BLRecover"] = "令该伤害改为回复一点体力",
 	["BLDamage"] = "令该伤害+1",
-	
-	
-	
+
+
+
 }
 
 
@@ -1114,7 +1193,7 @@ sgs.LoadTranslationTable{
 kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false )
 
 sgs.LoadTranslationTable{
-	
+
 	["fanghuo"] = "放火「烧甲板」",
 	["#fanghuo"] = " %from 的【着火】 标记被触发，受到自身造成的一点火焰伤害，",
 	["@FireCaused"] = "着火",
@@ -1134,8 +1213,8 @@ sgs.LoadTranslationTable{
 	["designer:Mogami"] = "Sword Elucidator",
 	["cv:Mogami"] = "洲崎綾",
 	["illustrator:Mogami"] = "ケースワベ【K-SUWABE】",
-	
-	
+
+
 }
 
 

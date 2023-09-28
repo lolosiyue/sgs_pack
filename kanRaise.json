@@ -1,7 +1,7 @@
 {
-    "data": [
+    "kanmusu": [
       {
-        "kanmusu":"kan_yudachi",
+        "name":"kan_yudachi",
         "level": 0,
         "skill":{
             "1":"kan_kuangquan",
@@ -9,11 +9,11 @@
             "60": "kan_chongzhuang",
             "75": "kan_paoxiao"
         },
-        "kailevel" : 50,
+        "kailevel" : 55,
         "hole": 0
       },
       {
-        "kanmusu":"kan_kongou",
+        "name":"kan_kongou",
         "level": 0,
         "skill":{
             "1":"kan_kuangquan",
@@ -24,5 +24,8 @@
         "kailevel" : 70,
         "hole": 0
       }
+    ],
+    "equip":[
+
     ]
 }
