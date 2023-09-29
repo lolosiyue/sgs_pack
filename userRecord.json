@@ -1,0 +1,17 @@
+{
+    "kanmusu": [
+      {
+        "name":"kan_yudachi",
+        "level": 1,
+        "hole": 0
+      },
+      {
+        "name":"kan_kongou",
+        "level": 0,
+        "hole": 0
+      }
+    ],
+    "equip":[
+
+    ]
+}

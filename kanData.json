@@ -2,27 +2,23 @@
     "kanmusu": [
       {
         "name":"kan_yudachi",
-        "level": 0,
         "skill":{
             "1":"kan_kuangquan",
             "50": "kan_yingzi",
             "60": "kan_chongzhuang",
             "75": "kan_paoxiao"
         },
-        "kailevel" : 55,
-        "hole": 0
+        "kailevel" : 55
       },
       {
         "name":"kan_kongou",
-        "level": 0,
         "skill":{
             "1":"kan_kuangquan",
             "50": "kan_yingzi",
             "60": "kan_chongzhuang",
             "75": "kan_paoxiao"
         },
-        "kailevel" : 70,
-        "hole": 0
+        "kailevel" : 70
       }
     ],
     "equip":[
