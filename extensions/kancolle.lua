@@ -35,7 +35,7 @@ salvage = true --撈船
 
 local skills = sgs.SkillList()
 
----@param room room
+---@param cv serverplayer
 ---@return boolean cvTakeOff
 function CanTakeOff(cv)
     if cv and cv:isAlive() and ((GetKanmusuCat(cv) == "cv" and  cv:getHp() > 2) or (cv:getHp() > 1 and GetKanmusuCat(cv) == "cvb")) then
@@ -313,8 +313,13 @@ end
 
 ---@param kan_name string "name of level up ship"
 ---@return boolean success
-LevelUpShip = function(kan_name)
+LevelUpShip = function(kan_name, room)
 	local level = ReadSingleData(userRecord, "kanmusu", "level", "name", kan_name)
+	local log= sgs.LogMessage()
+	log.type = "#kan_levelup"
+	log.arg = kan_name
+	log.arg2  = level + 1
+	room:sendLog(log)
 	local success = WriteDataFormat(userRecord, "kanmusu", "level", "name", kan_name, level + 1)
 	return success
 end
@@ -529,6 +534,7 @@ kan_audio = sgs.CreateTriggerSkill {
                 if skill then room:broadcastSkillInvoke(skill:objectName(), index) end
 			end
 		elseif triggerEvent == sgs.GameOverJudge then
+			local death = data:toDeath()
 			local t = getWinner(room, death.who)
 			if not t then return end
 			local players = sgs.QList2Table(room:getAlivePlayers())
@@ -602,6 +608,63 @@ kan_CI = sgs.CreateTriggerSkill{
 	end
 }
 
+--升級/撈船
+kan_game_end = sgs.CreateTriggerSkill{
+	name = "kan_game_end",
+	global = true,
+	events = {sgs.GameOverJudge},
+	on_trigger = function(self, event, splayer, data, room)
+		for _, p in sgs.qlist(room:getAllPlayers(true)) do
+			local death = data:toDeath()
+			local t = getWinner(room, death.who)
+			if not t then return end
+			local function loser(p)
+				local tt = t:split("+")
+				if not table.contains(tt, p:getRole()) then return true end
+				return false
+			end
+			
+			if loser(p)  then continue end
+			if p:getState() ~= "robot" then 
+			local data = ReadAllData(userRecord, "kanmusu")
+			for _, kanmusu in ipairs(data) do
+				if data[kanmusu]["level"] and data[kanmusu]["level"] == 0 then
+					splayer:speak(data[kanmusu]["level"])
+					splayer:speak(kanmusu)
+					local x = math.random(1, 100)
+					--[[ if x > 80 then
+						LevelUpShip(data[kanmusu]["name"], room)
+						local log= sgs.LogMessage()
+						log.type = "#kan_salvage"
+						log.arg = data[kanmusu]["name"]
+						room:sendLog(log)
+						local skill = data[kanmusu]["name"] .. "_get"
+						
+						local index = -1
+						local sources = skill:getSources()
+						if #sources > 1 then index = math.random(1, #sources) end
+						room:doAnimate(2,"skill=KanGet:.:")
+						local thread = room:getThread()
+						thread:delay(1100)
+						if skill then room:broadcastSkillInvoke(skill:objectName(), index) end
+						thread:delay(2900)
+						break
+					end ]]
+					
+				end
+			end
+		end
+			if not IsKanmusu(p) then continue end
+			LevelUpShip(p:getGeneralName(), room)
+			if p:getGeneral2() then
+				LevelUpShip(p:getGeneral2Name(), room)
+			end
+			
+		end
+	end
+}
+
+
 --活動倍卡
 kan_event_damage = sgs.CreateTriggerSkill{
 	name = "kan_event_damage",
@@ -611,6 +674,7 @@ kan_event_damage = sgs.CreateTriggerSkill{
 		if not room:getTag("InEvent"):toBool() then return false end
 		local eventlevel = room:getTag("Event_Level"):toInt()
 		local event_kanmusus =  ReadData(kanEvent, "data", "kanmusus", "level", eventlevel)
+		if #event_kanmusus == 0 then return end
 		if event==sgs.DamageCaused
 		then
             local damage = data:toDamage()
@@ -671,7 +735,7 @@ kan_event_game_end = sgs.CreateTriggerSkill{
 	on_trigger = function(self, event, splayer, data, room)
 		if not room:getTag("InEvent"):toBool() then return false end
 		for _, p in sgs.qlist(room:getAllPlayers(true)) do
-			if not p:getTag("Kanmusu"):toBool() then continue end
+			
 			local recordFile = assert(io.open(GER, "r"))
 			local level = recordFile:read("*l"):split("=")
 			level = tonumber(level[2])
@@ -852,6 +916,9 @@ kan_event_game_start = sgs.CreateTriggerSkill{
 					end
 					room:setTag("InEvent", sgs.QVariant(true))
 					player:setTag("Kanmusu", sgs.QVariant(true))
+					for _, p in sgs.list(room:getAlivePlayers()) do
+						room:addPlayerMark(p, "InEvent")
+					end
 					room:doLightbox("$WelcomeToRAFTOM", 3000)
 					local msg = sgs.LogMessage()
 					msg.type = "$AppendSeparator"
@@ -923,7 +990,9 @@ kan_event_game_start = sgs.CreateTriggerSkill{
 
 
 --if not sgs.Sanguosha:getSkill("kan_event_damage") then skills:append(kan_event_damage) end
-
+if not sgs.Sanguosha:getSkill("kan_CI") then skills:append(kan_CI) end
+if not sgs.Sanguosha:getSkill("kan_game_end") then skills:append(kan_game_end) end
+if not sgs.Sanguosha:getSkill("kan_event_damage") then skills:append(kan_event_damage) end
 
 
 sgs.LoadTranslationTable{
@@ -958,6 +1027,10 @@ sgs.LoadTranslationTable{
     ["kan_event_damage"] = "倍卡",
 
     ["kan_anjiang"] ="系統設置",
+	["#kan_salvage"] = "撈到 %arg",
+	["#kan_levelup"] = " %arg 升級到 %arg2 ",
+
+
 }
 kan_anjiang = sgs.General(extension, "kan_anjiang", "kancolle", 4, false, true)
 --------------------------------------------------------------------------------------------------------------------------

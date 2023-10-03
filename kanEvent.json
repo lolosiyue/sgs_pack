@@ -2,34 +2,73 @@
     "data": [
       {
         "level": 1,
-        "point": "A",
+        "points":[
+          {
+          "point": "A",
+          "shinkai":["",""],
+          "route": [
+            {
+              "connections": ["B", "C"],
+              "limit":[
+                {
+                  "DD": 0, 
+                  "BB": 0
+                }
+              ]
+            }
+          ],
+          "ArmorBreakTrick":[
+            {
+              "prerequisites":0,
+              "point":"A",
+              "result":"A",
+              "done": 0
+          }
+          ],
+          "hidden" : 0
+        }],
         
-        "shinkai":["",""],
+        "clear": 0,
+        
         "reward": [],
         "equips": [],
-        "kanmusus": [""],
-        "route": [
+        "kanmusus": [""]
+      
+      },
+      {
+        "level": 2,
+        "points":[
           {
-            "connections": ["B", "C"],
-            "limit":[
-              {
-                "DD": 0, 
-                "BB": 0
-              }
-            ]
+          "point": "A",
+          "shinkai":["",""],
+          "route": [
+            {
+              "connections": ["B", "C"],
+              "limit":[
+                {
+                  "DD": 0, 
+                  "BB": 0
+                }
+              ]
+            }
+          ],
+          "ArmorBreakTrick":[
+            {
+              "prerequisites":0,
+              "point":"A",
+              "result":"A",
+              "done": 0
           }
-        ],
-        "ArmorBreakTrick":[
-          {
-            "prerequisites":0,
-            "point":"A",
-            "result":"A",
-            "done": 0
-        }
-        ],
-        "hidden" : 0
+          ],
+          "hidden" : 0
+        }],
+        
+        "clear": 0,
+        
+        "reward": [],
+        "equips": [],
+        "kanmusus": [""]
+      
       }
-    
-
     ]
   }
