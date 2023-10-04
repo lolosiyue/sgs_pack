@@ -1,5 +1,7 @@
 extension = sgs.Package("kancolle")
 
+sgs.Print("HelloWorld!")
+
 do
     require  "lua.config"
 	local config = config
@@ -55,6 +57,22 @@ function GetKanmusuCat(kanmusu)
                 return cat
             end
         end
+    end
+	return ""
+end
+---@param kanmusu serverplayer
+---@return string kan_cat
+function GetKanmusuName(kanmusu, isSecondary)
+	if kanmusu and IsKanmusu(kanmusu) then
+		local data
+		if isSecondary then
+			data = ReadData(kanData, "kanmusu", "name", "name", kanmusu:getGeneral2Name())
+		else
+			data = ReadData(kanData, "kanmusu", "name", "name", kanmusu:getGeneralName())
+		end
+		if #data > 0 then
+			return data[1]
+		end
     end
 	return ""
 end
@@ -314,7 +332,8 @@ end
 ---@param kan_name string "name of level up ship"
 ---@return boolean success
 LevelUpShip = function(kan_name, room)
-	local level = ReadSingleData(userRecord, "kanmusu", "level", "name", kan_name)
+	if kan_name == "" then return false end
+	local level = tonumber(ReadSingleData(userRecord, "kanmusu", "level", "name", kan_name) or 0)
 	local log= sgs.LogMessage()
 	log.type = "#kan_levelup"
 	log.arg = kan_name
@@ -463,20 +482,20 @@ kan_shinkai = sgs.CreateGameStartSkill{
 
 
 if not sgs.Sanguosha:getSkill("kan_attackRange") then skills:append(kan_attackRange) end
-if not sgs.Sanguosha:getSkill("kan_attackRangeShort&") then skills:append(kan_attackRangeShort) end
-if not sgs.Sanguosha:getSkill("kan_attackRangeMiddle&") then skills:append(kan_attackRangeMiddle) end
-if not sgs.Sanguosha:getSkill("kan_attackRangeLong&") then skills:append(kan_attackRangeLong) end
-if not sgs.Sanguosha:getSkill("kan_attackRangeSuperlong&") then skills:append(kan_attackRangeSuperlong) end
-if not sgs.Sanguosha:getSkill("kan_cat_dd&") then skills:append(kan_cat_dd) end
-if not sgs.Sanguosha:getSkill("kan_cat_cl&") then skills:append(kan_cat_cl) end
-if not sgs.Sanguosha:getSkill("kan_cat_ca&") then skills:append(kan_cat_ca) end
-if not sgs.Sanguosha:getSkill("kan_cat_cav&") then skills:append(kan_cat_cav) end
-if not sgs.Sanguosha:getSkill("kan_cat_bb&") then skills:append(kan_cat_bb) end
-if not sgs.Sanguosha:getSkill("kan_cat_bbv&") then skills:append(kan_cat_bbv) end
-if not sgs.Sanguosha:getSkill("kan_cat_fbb&") then skills:append(kan_cat_fbb) end
-if not sgs.Sanguosha:getSkill("kan_cat_cv&") then skills:append(kan_cat_cv) end
-if not sgs.Sanguosha:getSkill("kan_cat_cvb&") then skills:append(kan_cat_cvb) end
-if not sgs.Sanguosha:getSkill("kan_shinkai&") then skills:append(kan_shinkai) end
+if not sgs.Sanguosha:getSkill("kan_attackRangeShort") then skills:append(kan_attackRangeShort) end
+if not sgs.Sanguosha:getSkill("kan_attackRangeMiddle") then skills:append(kan_attackRangeMiddle) end
+if not sgs.Sanguosha:getSkill("kan_attackRangeLong") then skills:append(kan_attackRangeLong) end
+if not sgs.Sanguosha:getSkill("kan_attackRangeSuperlong") then skills:append(kan_attackRangeSuperlong) end
+if not sgs.Sanguosha:getSkill("kan_cat_dd") then skills:append(kan_cat_dd) end
+if not sgs.Sanguosha:getSkill("kan_cat_cl") then skills:append(kan_cat_cl) end
+if not sgs.Sanguosha:getSkill("kan_cat_ca") then skills:append(kan_cat_ca) end
+if not sgs.Sanguosha:getSkill("kan_cat_cav") then skills:append(kan_cat_cav) end
+if not sgs.Sanguosha:getSkill("kan_cat_bb") then skills:append(kan_cat_bb) end
+if not sgs.Sanguosha:getSkill("kan_cat_bbv") then skills:append(kan_cat_bbv) end
+if not sgs.Sanguosha:getSkill("kan_cat_fbb") then skills:append(kan_cat_fbb) end
+if not sgs.Sanguosha:getSkill("kan_cat_cv") then skills:append(kan_cat_cv) end
+if not sgs.Sanguosha:getSkill("kan_cat_cvb") then skills:append(kan_cat_cvb) end
+if not sgs.Sanguosha:getSkill("kan_shinkai") then skills:append(kan_shinkai) end
 
 
 
@@ -655,9 +674,9 @@ kan_game_end = sgs.CreateTriggerSkill{
 			end
 		end
 			if not IsKanmusu(p) then continue end
-			LevelUpShip(p:getGeneralName(), room)
+			LevelUpShip(GetKanmusuName(p, false), room)
 			if p:getGeneral2() then
-				LevelUpShip(p:getGeneral2Name(), room)
+				LevelUpShip(GetKanmusuName(p, true), room)
 			end
 			
 		end
