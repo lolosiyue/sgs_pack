@@ -1,6 +1,7 @@
 extension = sgs.Package("kancolle")
 
-sgs.Print("HelloWorld!")
+---version: 20231009
+
 
 do
     require  "lua.config"
@@ -716,14 +717,16 @@ kan_event_damage = sgs.CreateTriggerSkill{
 		elseif event == sgs.DrawNCards then
 			for i, value in ipairs(event_kanmusus) do
 				if value ==player:getGeneralName() or value ==player:getGeneral2Name() then
-					data:setValue(data:toInt() + 2)
+					local x = data:toInt()
+					data:setValue(x + 2)
 				end
 			end
 		elseif event == sgs.TargetConfirmed then
 			local jink_table = sgs.QList2Table(player:getTag("Jink_" .. use.card:toString()):toIntList())
-			local index = 1
+			
 			for i, value in ipairs(event_kanmusus) do
 				if value == player:getGeneralName() or value ==player:getGeneral2Name() then
+					local index = 1
 			for _, p in sgs.qlist(use.to) do
 					if IsShinkai(p) then
 						local room = player:getRoom()
@@ -1351,6 +1354,24 @@ kan_nuequ = sgs.CreateViewAsSkill{
 		end
 	end,
 	enabled_at_play = function(self, player)
+		local x = (ReadSingleData(userRecord, "kanmusu", "level", "name","kan_kongou")) or 0
+		if player:getMark("InEvent") > 0 then
+			local CanusedTimes = 0
+			if x >= 25 then
+				local min_hp = 999
+				local players = player:getAliveSiblings()
+				players:append(player)
+				for _, p in sgs.qlist(players) do
+					if p:getHp() < min_hp then
+						min_hp = p:getHp()
+					end
+				end
+				CanusedTimes = min_hp
+			elseif x >= 75 then
+				CanusedTimes = player:getHp()
+			end
+			return  player:usedTimes("#kan_nuequ") < CanusedTimes
+		end
 		return not player:hasUsed("#kan_nuequ")
 	end,
 }
@@ -1400,15 +1421,41 @@ kan_BurningLove = sgs.CreateTriggerSkill{
 		local damage = data:toDamage()
 		if event == sgs.DamageCaused then
 				if damage.from and damage.from:isAlive() and damage.from:hasSkill(self:objectName()) and damage.nature == sgs.DamageStruct_Fire and
-				damage.to and damage.to:isAlive() and
-				damage.card and damage.card:isKindOf("FireSlash") and  room:askForSkillInvoke(player, self:objectName(), data) then
-				room:notifySkillInvoked(player, self:objectName())
-				room:broadcastSkillInvoke(self:objectName())
-							local re = sgs.RecoverStruct()
-						re.who = player
-						room:recover(damage.to,re,true)
-						return true
+				damage.to and damage.to:isAlive() and damage.card and damage.card:isKindOf("FireSlash") then 
+					local x = (ReadSingleData(userRecord, "kanmusu", "level", "name","kan_kongou")) or 0
+					if x >= 50 and room:getTag("InEvent"):toBool() then
+						local choicelist = "cancel+BLRecover+BLDamage"
+						local choice = room:askForChoice(player, self:objectName(), choicelist)
+						if choice == "BLRecover" then
+							room:notifySkillInvoked(player, self:objectName())
+							room:broadcastSkillInvoke(self:objectName())
+									local re = sgs.RecoverStruct()
+									re.who = player
+									room:recover(damage.to,re,true)
+									return true
+						elseif choice == "BLDamage" then
+							damage.damage = damage.damage + x
+							local log = sgs.LogMessage()
+							log.type = "#skill_add_damage"
+							log.from = damage.from
+							log.to:append(damage.to)
+							log.arg = self:objectName()
+							log.arg2 = damage.damage
+							room:sendLog(log)
+							data:setValue(damage)
 						end
+					else
+						if room:askForSkillInvoke(player, self:objectName(), data) then
+							room:notifySkillInvoked(player, self:objectName())
+							room:broadcastSkillInvoke(self:objectName())
+									local re = sgs.RecoverStruct()
+									re.who = player
+									room:recover(damage.to,re,true)
+									return true
+									end
+								end
+					end
+					
 		end
 		return false
 	end,
@@ -1437,10 +1484,13 @@ sgs.LoadTranslationTable{
 	["$kan_nuequ1"] = "射击！Fire～！",
 	["$kan_nuequ2"] = "全火炮！开火！",
 	[":kan_nuequ"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将一张手牌视为对场上体力最少的一名角色使用一张火属性的【杀】。该【杀】不计入出牌阶段次数限制。",
+	[":kan_nuequ2"] = "<font color=\"green\"><b>出牌阶段限X次，</b></font>你可以将一张手牌视为对场上体力最少的一名角色使用一张火属性的【杀】。该【杀】不计入出牌阶段次数限制。（X为场上体力最少的一名角色的体力值）",
+	[":kan_nuequ3"] = "<font color=\"green\"><b>出牌阶段限X次，</b></font>你可以将一张手牌视为对场上体力最少的一名角色使用一张火属性的【杀】。该【杀】不计入出牌阶段次数限制。（X为你的体力值）",
 	["kan_BurningLove"] = "Burning Love！",
 	["$kan_BurningLove1"] = "Burning Love！！",
 	["$kan_BurningLove2"] = "Burning Valentine Love！！",
 	[":kan_BurningLove"] = "每当你使用火属性的【杀】造成伤害时，你可以令该伤害改为回复一点体力。",
+	[":kan_BurningLove2"] = "每当你使用火属性的【杀】造成伤害时，你可以令该伤害改为回复一点体力或令该伤害+1。",
 	["BLRecover"] = "令该伤害改为回复一点体力",
 	["BLDamage"] = "令该伤害+1",
 
