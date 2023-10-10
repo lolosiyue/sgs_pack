@@ -333,17 +333,25 @@ end
 ---@param kan_name string "name of level up ship"
 ---@return boolean success
 LevelUpShip = function(kan_name, room)
-	if kan_name == "" then return false end
-	local level = tonumber(ReadSingleData(userRecord, "kanmusu", "level", "name", kan_name) or 0)
+	if kan_name == nil then return false end
+	assert(kan_name, "invalid kanmusu name")
+	local level = assert(tonumber(ReadSingleData(userRecord, "kanmusu", "level", "name", kan_name) or 0))
 	local log= sgs.LogMessage()
 	log.type = "#kan_levelup"
 	log.arg = kan_name
 	log.arg2  = level + 1
 	room:sendLog(log)
-	local success = WriteDataFormat(userRecord, "kanmusu", "level", "name", kan_name, level + 1)
+	level = level + 1
+	local success = WriteDataFormat(userRecord, "kanmusu", "level", "name", kan_name, tostring(level))
 	return success
 end
 
+function SelectKanmusu(player, changer, choicelist) 
+	local room = player:getRoom()
+	local general = room:askForGeneral(player, table.concat(choicelist, "+"))
+	room:changeHero(changer, general, false, false)
+	return general
+end
 
 
 kan_attackRange = sgs.CreateAttackRangeSkill
@@ -965,17 +973,7 @@ kan_event_game_start = sgs.CreateTriggerSkill{
 						end
 					elseif level == 1 then
 						selectHero(player, player, 7)
-						local difficulty = room:askForChoice(player, "select_dif", "easy+normal+insane")
-						if difficulty == "easy" then
-							room:setPlayerProperty(player, "maxhp", sgs.QVariant(player:getMaxHp() + 2))
-							judgeHp(player, player:getGeneralName(), 2)
-						elseif difficulty == "normal" then
-							room:setPlayerProperty(player, "maxhp", sgs.QVariant(player:getMaxHp() + 1))
-							judgeHp(player, player:getGeneralName(), 1)
-						else
-							player:speak("rua")
-						end
-						room:setPlayerMark(player, difficulty, 1)
+						
 					end
 					if level ~= 6 then
 						selectHero(player, robot, 3, player:getGeneralName())
@@ -993,7 +991,7 @@ kan_event_game_start = sgs.CreateTriggerSkill{
 			local level = recordFile:read("*l"):split("=")
 			level = tonumber(level[2])
 			recordFile:close()
-			if splayer:getTag("Kanmusu"):toBool() and level ~= 1 then
+			if IsKanmusu(splayer) and level ~= 1 then
 				data:setValue(0)
 			end
 			if splayer:getTag("enemy_buff"):toInt() > 0 then
@@ -1425,7 +1423,7 @@ kan_BurningLove = sgs.CreateTriggerSkill{
 					local x = (ReadSingleData(userRecord, "kanmusu", "level", "name","kan_kongou")) or 0
 					if x >= 50 and room:getTag("InEvent"):toBool() then
 						local choicelist = "cancel+BLRecover+BLDamage"
-						local choice = room:askForChoice(player, self:objectName(), choicelist)
+						local choice = room:askForChoice(player, self:objectName(), choicelist, data)
 						if choice == "BLRecover" then
 							room:notifySkillInvoked(player, self:objectName())
 							room:broadcastSkillInvoke(self:objectName())
