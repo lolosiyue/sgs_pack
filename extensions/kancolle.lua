@@ -1498,30 +1498,149 @@ sgs.LoadTranslationTable{
 
 
 
---kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false, salvage, salvage)
+kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false, salvage, salvage)
 --kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false )
 
-sgs.LoadTranslationTable{
+if salvage then
+	local x = (ReadSingleData(userRecord, "kanmusu", "level", "name","kan_mogami")) or 0
+	if x > 0 then
+		kan_mogami = sgs.General(extension, "kan_mogami", "kancolle", 4, false )
+	end
+end
 
-	["fanghuo"] = "放火「烧甲板」",
-	["#fanghuo"] = " %from 的【着火】 标记被触发，受到自身造成的一点火焰伤害，",
+kan_fanghuo = sgs.CreateTriggerSkill{
+	name = "kan_fanghuo" ,
+	frequency = sgs.Skill_NotFrequent ,
+	events = {sgs.DamageCaused} ,
+	on_trigger = function(self, event, player, data)
+		local room = player:getRoom()
+	if event == sgs.DamageCaused then
+		local damage = data:toDamage()
+		if damage.from and damage.from:hasSkill(self:objectName())	and damage.card and damage.card:isKindOf("Slash") then
+			if room:askForSkillInvoke(damage.from, self:objectName(), data) then
+				room:notifySkillInvoked(damage.from, self:objectName())
+				room:broadcastSkillInvoke(self:objectName())
+				damage.to:gainMark("@FireCaused")
+				room:addPlayerMark(damage.to, "&FireCaused")
+				room:setEmotion(damage.to, "fire_caused")
+			end
+		end
+	end
+	end ,
+}
+kan_fanghuoBuff = sgs.CreateTriggerSkill{
+	name = "#kan_fanghuoBuff",
+	frequency = sgs.Skill_Compulsory,
+	events = {sgs.EventPhaseEnd},
+	on_trigger = function(self, event, player, data)
+		local room = player:getRoom()
+		if player:getPhase() == sgs.Player_Play then
+			room:setEmotion(player, "fire_caused")
+			local damage = sgs.DamageStruct()
+					damage.from = player
+					damage.to = player
+					damage.damage = 1
+					damage.nature = sgs.DamageStruct_Fire
+					room:damage(damage)
+					local log= sgs.LogMessage()
+					log.type = "#kan_fanghuo"
+					log.from = player
+					room:sendLog(log)
+					local ran = math.random(1, 100)
+				    if ran < 26 then
+						player:loseMark("@FireCaused")
+						room:setPlayerMark(player, "&FireCaused", 0)
+					end
+		end
+		return false
+	end,
+	can_trigger = function(self, target)
+		return target and target:getMark("@FireCaused") > 0 and target:isAlive()
+	end
+}
+
+kan_jianhun = sgs.CreateOneCardViewAsSkill{
+	name = "kan_jianhun",
+	response_or_use = true,
+	view_filter = function(self, card)
+		return true
+	end,
+	view_as = function(self, card)
+		local slash = sgs.Sanguosha:cloneCard("slash", card:getSuit(), card:getNumber())
+		slash:addSubcard(card:getId())
+		slash:setSkillName(self:objectName())
+		return slash
+	end,
+	enabled_at_play = function(self, player)
+		local totallost =  player:getLostHp()
+		for _, p in sgs.qlist(player:getAliveSiblings()) do
+			if (string.find(p:getGeneralName(), "Mogami") or  (string.find(p:getGeneral2Name(), "Mogami"))) or (string.find(p:getGeneralName(), "Shigure") or  (string.find(p:getGeneral2Name(), "Shigure")))  then
+				totallost = totallost + p:getLostHp()
+			end
+		end
+		return ((player:getMark("@FireCaused") > 0) or totallost >= 2)
+	end, 
+	enabled_at_response = function(self, player, pattern)
+	local totallost = player:getLostHp()
+		for _, p in sgs.qlist(player:getAliveSiblings()) do
+			if (string.find(p:getGeneralName(), "Mogami") or  (string.find(p:getGeneral2Name(), "Mogami"))) or (string.find(p:getGeneralName(), "Shigure") or  (string.find(p:getGeneral2Name(), "Shigure")))  then
+				totallost = totallost + p:getLostHp()
+			end
+		end
+		return pattern == "slash" and ((player:getMark("@FireCaused") > 0) or totallost >= 2)
+	end
+}
+
+kan_jianhunTargetMod = sgs.CreateTargetModSkill{
+	name = "#kan_jianhunTargetMod",
+	pattern = "Slash",
+	distance_limit_func = function(self, player,  card)
+		if player:hasSkill("kan_jianhun") and (card:getSkillName() == "kan_jianhun") then
+			return 1000
+		else
+			return 0
+		end
+	end,
+	residue_func = function(self, player,  card)
+        if player:hasSkill("kan_jianhun") and (card:getSkillName() == "kan_jianhun") then
+            return 1000
+        end
+    end,
+}
+kan_mogami:addSkill(kan_fanghuo)
+kan_mogami:addSkill(kan_fanghuoBuff)
+kan_mogami:addSkill(kan_jianhun)
+kan_mogami:addSkill(kan_jianhunTargetMod)
+extension:insertRelatedSkills("kan_fanghuo","#kan_fanghuoBuff")
+extension:insertRelatedSkills("kan_jianhun","#kan_jianhunTargetMod")
+
+sgs.LoadTranslationTable{
+	["kan_Mogami"] = "最上",
+	["&kan_Mogami"] = "最上",
+	["@kan_Mogami"] = "舰队collection/wows",
+	["#kan_Mogami"] = "最爹",
+	["~kan_Mogami"] = "唔…这下要是继续战斗的话就困难了。",
+	["designer:kan_Mogami"] = "Sword Elucidator",
+	["cv:kan_Mogami"] = "洲崎綾",
+	["illustrator:kan_Mogami"] = "ケースワベ【K-SUWABE】",
+	["$kan_kongou_start"] = "",
+	["$kan_kongou_equip"] = "",
+	["$kan_kongou_damaged"] = "",
+	["$kan_kongou_attack"] = "",
+
+
+	["kan_fanghuo"] = "放火「烧甲板」",
+	["#kan_fanghuo"] = " %from 的【着火】 标记被触发，受到自身造成的一点火焰伤害，",
 	["@FireCaused"] = "着火",
-	["$fanghuo1"] = "最上，出击了哟。",
-	["$fanghuo2"] = "敌舰发现！攻击—！",
-	[":fanghuo"] = "你使用的【杀】造成伤害时，你可以令目标附加一个【着火】标记。\n\n着火：\n拥有【着火】标记的角色出牌阶段结束时，受到自身造成的一点火焰伤害，然后有25%的概率失去一个【着火】标记。\n拥有【着火】标记时，舰载机类技能无法使用。",
-	["jianhun"] = "舰魂",
-	["$jianhun1"] = "好痛痛痛…我要生气了！",
-	["$jianhun2"] = "痛…我要生气了哦！",
-	["$jianhun3"] = " 要上的话就尽管来吧。",
-	[":jianhun"] = "若场上「西村舰队（最上，时雨）」角色失去的总体力值不少于2，或你拥有【着火】标记，你可以将一张牌当做无视使用次数限制和距离的【杀】使用或打出。",
-	["Mogami"] = "最上",
-	["&Mogami"] = "最上",
-	["@Mogami"] = "舰队collection/wows",
-	["#Mogami"] = "最爹",
-	["~Mogami"] = "唔…这下要是继续战斗的话就困难了。",
-	["designer:Mogami"] = "Sword Elucidator",
-	["cv:Mogami"] = "洲崎綾",
-	["illustrator:Mogami"] = "ケースワベ【K-SUWABE】",
+	["$kan_fanghuo1"] = "最上，出击了哟。",
+	["$kan_fanghuo2"] = "敌舰发现！攻击—！",
+	[":kan_fanghuo"] = "你使用的【杀】造成伤害时，你可以令目标附加一个【着火】标记。\n\n着火：\n拥有【着火】标记的角色出牌阶段结束时，受到自身造成的一点火焰伤害，然后有25%的概率失去一个【着火】标记。\n拥有【着火】标记时，舰载机类技能无法使用。",
+	["kan_jianhun"] = "舰魂",
+	["$kan_jianhun1"] = "好痛痛痛…我要生气了！",
+	["$kan_jianhun2"] = "痛…我要生气了哦！",
+	["$kan_jianhun3"] = " 要上的话就尽管来吧。",
+	[":kan_jianhun"] = "若场上「西村舰队（最上，时雨）」角色失去的总体力值不少于2，或你拥有【着火】标记，你可以将一张牌当做无视使用次数限制和距离的【杀】使用或打出。",
+
 
 
 }
