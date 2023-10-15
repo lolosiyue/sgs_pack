@@ -4396,7 +4396,7 @@ sgs.ai_use_value["meizlsebaoshicard"] = sgs.ai_use_value.ExNihilo - 0.1
 sgs.ai_use_priority["meizlsebaoshicard"] = sgs.ai_use_priority.ExNihilo - 0.1
 
 sgs.ai_ajustdamage_from.meizlsejunwang = function(self, from, to, card, nature)
-	local x = player:getLostHp()
+	local x = from:getLostHp()
 	if (from:distanceTo(to) <= 1) or (from:getMark("@meizlsebaoshi") > 0 and from:distanceTo(to) <= x)
 	then
 		return x
@@ -4448,7 +4448,7 @@ sgs.ai_skill_use["@@meizlshchunshen"] = function(self, data, method)
 		if (enemy:isAlive()) and self.player:distanceTo(enemy) == 1 and enemy:getHp() >= self.player:getHp() then
 			if self:canAttack(enemy, dmg.from or self.room:getCurrent(), dmg.nature)
 				and not (dmg.card and dmg.card:getTypeId() == sgs.Card_TypeTrick and enemy:hasSkill("wuyan")) then
-				return "#meizlchunshencard:.:->" .. enemy:objectName()
+				return "#meizlshchunshencard:.:->" .. enemy:objectName()
 			end
 		end
 	end
@@ -4458,11 +4458,11 @@ sgs.ai_skill_use["@@meizlshchunshen"] = function(self, data, method)
 			if friend:isChained() and dmg.nature ~= sgs.DamageStruct_Normal and not self:isGoodChainTarget(friend, dmg.from, dmg.nature, dmg.damage, dmg.card) then
 			elseif (friend:hasSkills("yiji|buqu|nosbuqu|shuangxiong|zaiqi|yinghun|jianxiong|fangzhu")
 					or self:needToLoseHp(friend)) then
-				return "#meizlchunshencard:.:->" .. friend:objectName()
+				return "#meizlshchunshencard:.:->" .. friend:objectName()
 			elseif dmg.card and dmg.card:getTypeId() == sgs.Card_TypeTrick and friend:hasSkill("wuyan") and friend:getLostHp() > 1 then
-				return "#meizlchunshencard:.:->" .. friend:objectName()
+				return "#meizlshchunshencard:.:->" .. friend:objectName()
 			elseif hasBuquEffect(friend) then
-				return "#meizlchunshencard:.:->" .. friend:objectName()
+				return "#meizlshchunshencard:.:->" .. friend:objectName()
 			end
 		end
 	end

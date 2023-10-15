@@ -1,5 +1,5 @@
 @echo off
-set "executable_path=C:\Users\Tom Chan\Downloads\0705\QSanguosha.exe"
+set "executable_path=H:\Program file\Game\sgs\Qsgs\0705\QSanguosha.exe"
 set "argument=1 -connect:127.0.0.1"
 setlocal enabledelayedexpansion
 :menu

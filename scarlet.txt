@@ -2,6 +2,7 @@ crash:
 setPlayerCardLimitation
 collateral
 Retrial
+hasHuangenEffect
 
 not done:
 张春华 无情 lostmaxhp ai
@@ -9,7 +10,7 @@ du sunjian tongpao
 
 test:
 SixJushou
-meizl 持家
+meizl 升华
 
 
 audio:

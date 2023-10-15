@@ -314,7 +314,7 @@ function sgs.ai_skill_pindian.duXiaoguo(minusecard, self, requestor, maxcard)
 end
 
 sgs.ai_ajustdamage_from.duXiaoguo = function(self, from, to, card, nature)
-    local maxcard = from:getMaxCard()
+    local maxcard = self:getMaxCard(from)
     if maxcard and maxcard:getNumber() >= 10 and from:canPindian(to) and not beFriend(to, from)
     then
         return 1
