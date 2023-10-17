@@ -101,7 +101,7 @@ end
 sgs.ai_can_damagehp.meizlchunshen = function(self, from, card, to)
 	local d = sgs.DamageStruct(self, from, to)
 	d.card = card
-	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs, DamageStruct_Normal
+	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs.DamageStruct_Normal
 	return sgs.ai_skill_use["@@meizlchunshen"](self, d, sgs.Card_MethodDiscard) ~= "."
 end
 
@@ -4511,7 +4511,7 @@ end
 sgs.ai_can_damagehp.meizlshchunshen = function(self, from, card, to)
 	local d = sgs.DamageStruct(self, from, to)
 	d.card = card
-	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs, DamageStruct_Normal
+	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs.DamageStruct_Normal
 	return sgs.ai_skill_use["@@meizlshchunshen"](self, d, sgs.Card_MethodDiscard) ~= "."
 end
 
@@ -4587,7 +4587,7 @@ sgs.ai_skill_use_func["#meizlshhujiacard"] = function(card, use, self)
 	local max_point = max_card:getNumber()
 	if self.player:hasSkill("kongcheng") and self.player:getHandcardNum() == 1 then
 		for _, enemy in ipairs(self.enemies) do
-			if not enemy:isKongcheng() and self.player:canPindian(enemy) then
+			if self.player:canPindian(enemy) then
 				use.card = sgs.Card_Parse("#meizlshhujiacard:.:")
 				if use.to then use.to:append(enemy) end
 				return
@@ -4596,7 +4596,7 @@ sgs.ai_skill_use_func["#meizlshhujiacard"] = function(card, use, self)
 	end
 	if (self:getOverflow() > 0) or (max_point > 9) then
 		for _, enemy in ipairs(self.enemies) do
-			if not enemy:isKongcheng() and self.player:canPindian(enemy) then
+			if self.player:canPindian(enemy) then
 				use.card = sgs.Card_Parse("#meizlshhujiacard:.:")
 				if use.to then use.to:append(enemy) end
 				return
@@ -4878,9 +4878,6 @@ sgs.ai_can_damagehp.meizlshjuese = function(self, from, card, to)
 		end
 	end
 end
-sgs.ai_cardneed.meizlshxianggui = function(to, card)
-	return true
-end
 
 
 local meizlyanranyixiao_skill = {}
@@ -4902,6 +4899,9 @@ end
 sgs.ai_use_value["meizlyanranyixiaocard"] = sgs.ai_use_value.ExNihilo - 0.1
 sgs.ai_use_priority["meizlyanranyixiaocard"] = sgs.ai_use_priority.ExNihilo - 0.1
 
+sgs.ai_cardneed.meizlshxianggui = function(to, card)
+	return true
+end
 
 sgs.ai_slash_prohibit.meizlshxiuhua = function(self, from, enemy, card)
 	if enemy:hasSkill("meizlshxiuhua") and card:isKindOf("NatureSlash") then return true end
@@ -5231,7 +5231,7 @@ end
 sgs.ai_skill_use_func["#meizlkujingguhuncard"] = function(card, use, self)
 	self:sort(self.enemies, "defense")
 	local target
-	if self.role == "loyalist" then
+	if self.role == "rebel" then
 		local lord = self.room:getLord()
 		target = lord
 	end
@@ -5241,12 +5241,12 @@ sgs.ai_skill_use_func["#meizlkujingguhuncard"] = function(card, use, self)
 			use.to:append(target)
 		end
 	else
-		for _, friend in ipairs(self.friends_noself) do
+		for _, enemy in ipairs(self.enemies) do
 			use.card = sgs.Card_Parse("#meizlkujingguhuncard:.:")
 			if use.to then
-				use.to:append(friend)
+				use.to:append(enemy)
+				break
 			end
-			break
 		end
 	end
 end
@@ -5255,13 +5255,13 @@ end
 
 sgs.ai_skill_playerchosen.meizlkujingguhuncard = function(self, targets)
 	local target
-	if self.role == "loyalist" then
+	if self.role == "rebel" then
 		local lord = self.room:getLord()
 		return lord
 	end
 	self:sort(self.friends_noself, "hp")
-	for _, friend in ipairs(self.friends_noself) do
-		return friend
+	for _, enemy in ipairs(self.enemies) do
+		return enemy
 	end
 	return targets[1]
 end
@@ -5368,6 +5368,7 @@ sgs.ai_skill_use_func["#meispshruixuecard"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()        
 		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) and
 			self.player:distanceTo(enemy) - math.min(self.player:getHp() - 1, self:getCardsNum("Slash")) <= 1
 

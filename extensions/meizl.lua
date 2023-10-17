@@ -7663,7 +7663,7 @@ meizlshhujiacard = sgs.CreateSkillCard {
 
 
 	filter = function(self, targets, to_select, player)
-		return not to_select:isKongcheng() and to_select:objectName() ~= player:objectName() and (#targets == 0)
+		return player:canPindian(to_select) and to_select:objectName() ~= player:objectName() and (#targets == 0)
 	end,
 
 	on_use = function(self, room, source, targets)
@@ -8012,7 +8012,10 @@ meizlshxiuhua = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
-		return damage.nature ~= sgs.DamageStruct_Normal
+		if damage.nature ~= sgs.DamageStruct_Normal then
+			damage.prevented = true
+			data:setValue(damage)
+		end
 	end
 }
 
@@ -8135,14 +8138,12 @@ meizlshrongzhuang = sgs.CreateTriggerSkill {
 	frequency = sgs.Skill_Frequent,
 	events = { sgs.Damage, sgs.CardFinished },
 	on_trigger = function(self, event, player, data, room)
-		--local splayer = room:findPlayerBySkillName(self:objectName())
-		local meizlmayunlus = room:findPlayersBySkillName(self:objectName())
 		if event == sgs.Damage then
 			local damage = data:toDamage()
 			local current = room:getCurrent()
 			if damage.card and damage.card:isKindOf("Slash") and (not damage.chain) and (not damage.transfer) and current and not current:hasFlag("meizlshrongzhuang") then
 				for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-					if not room:askForSkillInvoke(p, self:objectName()) then return false end
+					if not room:askForSkillInvoke(p, self:objectName()) then continue end
 					room:setPlayerFlag(current, "meizlshrongzhuang")
 					p:gainMark("@meizlmayunlumark")
 					local card = sgs.Sanguosha:getCard(room:drawCard())
@@ -8651,7 +8652,8 @@ meizlmengshilong = sgs.CreateTriggerSkill {
 						log.to:append(damage.from)
 						log.arg = self:objectName()
 						room:sendLog(log)
-						return true
+						damage.prevented = true
+						data:setValue(damage)
 					end
 				end
 			end
@@ -11856,7 +11858,7 @@ yuxiang = sgs.CreateTriggerSkill {
 				if not room:askForSkillInvoke(player, "yuxiang") then return false end
 				player:loseMark("&spirit", 6)
 				local savage_assault = sgs.Sanguosha:cloneCard("savage_assault", sgs.Card_NoSuit, 0)
-				savage_assault:setSkillName(self:objectName())
+				savage_assault:setSkillName(self:objectName()) 
 				local use = sgs.CardUseStruct()
 				use.card = savage_assault
 				savage_assault:deleteLater()
@@ -12083,15 +12085,11 @@ hujiajh = sgs.CreateTriggerSkill {
 	end,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		local damage = data:toDamageStar()
+		local death = data:toDeath()
+		local damage = death.damage
 		local source = damage.from
 		local sp = room:getAllPlayers()
 		if source == nil then return false end
-		if damage.card ~= nil and damage.card:isKindOf("SavageAssault") then
-			for _, p in sgs.qlist(sp) do
-				if p:hasSkill("huoshou") then source = p end
-			end
-		end
 		room:loseMaxHp(source, player:getHandcardNum())
 		room:loseHp(source, source:getHandcardNum())
 	end,
