@@ -2738,6 +2738,8 @@ allrecord = sgs.CreateTriggerSkill{
                     for _,p in sgs.qlist(room:getAllPlayers(true)) do
                         if string.find(winner, p:getRole()) or string.find(winner, p:objectName()) then
                             saveRecord(p, --[[t,]] 2)
+                        else 
+                            saveRecord(p, 0)
                         end
                     end
 					
