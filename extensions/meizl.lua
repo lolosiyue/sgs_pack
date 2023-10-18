@@ -12088,7 +12088,6 @@ hujiajh = sgs.CreateTriggerSkill {
 		local death = data:toDeath()
 		local damage = death.damage
 		local source = damage.from
-		local sp = room:getAllPlayers()
 		if source == nil then return false end
 		room:loseMaxHp(source, player:getHandcardNum())
 		room:loseHp(source, source:getHandcardNum())
@@ -12417,15 +12416,15 @@ shixiang = sgs.CreateTriggerSkill {
 					player:throwAllHandCards()
 					player:drawCards(x)
 					player:loseMark("@shixiang")
-					room:setPlayerMark(player, "shixiang", 1)
+					room:setPlayerMark(player, "&shixiang", 1)
 				end
 			end
 		end
 		if event == sgs.EventPhaseChanging then
-			if player:getMark("@shixiang") == 0 and player:getMark("shixiang") > 0 then
+			if player:getMark("@shixiang") == 0 and player:getMark("&shixiang") > 0 then
 				local change = data:toPhaseChange()
 				if change.to == sgs.Player_Discard then
-					room:setPlayerMark(player, "shixiang", 0)
+					room:setPlayerMark(player, "&shixiang", 0)
 					player:skip(change.to)
 				end
 			end
