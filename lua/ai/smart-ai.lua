@@ -6637,6 +6637,7 @@ function getBestHp(owner)
 			owner:getMaxHp() - 1
 	end
 	if owner:hasSkill("meizlwuqing") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("guihans") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("luanixi") then return owner:getMaxHp() - 1 end
 
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu1") == 0 then return 2 end
