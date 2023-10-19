@@ -7877,6 +7877,9 @@ meizlshqingyanclear = sgs.CreateTriggerSkill {
 				if event == sgs.EventPhaseEnd and player:getPhase() == sgs.Player_Finish and (player:getMark("@meizlshqingyan") > 0) then
 					room:removePlayerCardLimitation(player, "use,response", "BasicCard,TrickCard")
 					room:setPlayerMark(player, "@meizlshqingyan", 0)
+					for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+						room:setPlayerMark(player, "&meizlshqingyan+to+#" .. p:objectName() .. "_flag", 0)
+					end
 				end
 				if event == sgs.EventLoseSkill then
 					if player:objectName() == splayer:objectName() then
@@ -7885,6 +7888,7 @@ meizlshqingyanclear = sgs.CreateTriggerSkill {
 								if p:getMark("@meizlshqingyan") > 0 and p:getMark("&meizlshqingyan+to+#" .. player:objectName() .. "_flag") > 0 then
 									room:removePlayerCardLimitation(p, "use,response", "BasicCard,TrickCard")
 									room:setPlayerMark(p, "@meizlshqingyan", 0)
+									room:setPlayerMark(p, "&meizlshqingyan+to+#" .. player:objectName() .. "_flag", 0)
 								end
 							end
 						end
@@ -11858,7 +11862,7 @@ yuxiang = sgs.CreateTriggerSkill {
 				if not room:askForSkillInvoke(player, "yuxiang") then return false end
 				player:loseMark("&spirit", 6)
 				local savage_assault = sgs.Sanguosha:cloneCard("savage_assault", sgs.Card_NoSuit, 0)
-				savage_assault:setSkillName(self:objectName()) 
+				savage_assault:setSkillName(self:objectName())
 				local use = sgs.CardUseStruct()
 				use.card = savage_assault
 				savage_assault:deleteLater()

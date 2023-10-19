@@ -99,9 +99,11 @@ function sgs.ai_cardneed.meizlchunshen(to, card, self)
 end
 
 sgs.ai_can_damagehp.meizlchunshen = function(self, from, card, to)
-	local d = sgs.DamageStruct(self, from, to)
-	d.card = card
+	local d = sgs.DamageStruct()
+	d.from = from
+	d.to = to
 	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs.DamageStruct_Normal
+	d.card = card
 	return sgs.ai_skill_use["@@meizlchunshen"](self, d, sgs.Card_MethodDiscard) ~= "."
 end
 
@@ -4509,9 +4511,11 @@ function sgs.ai_slash_prohibit.meizlshchunshen(self, from, to)
 end
 
 sgs.ai_can_damagehp.meizlshchunshen = function(self, from, card, to)
-	local d = sgs.DamageStruct(self, from, to)
-	d.card = card
+	local d = sgs.DamageStruct()
+	d.from = from
+	d.to = to
 	d.nature = card and sgs.card_damage_nature[card:getClassName()] or sgs.DamageStruct_Normal
+	d.card = card
 	return sgs.ai_skill_use["@@meizlshchunshen"](self, d, sgs.Card_MethodDiscard) ~= "."
 end
 
@@ -4598,6 +4602,7 @@ sgs.ai_skill_use_func["#meizlshhujiacard"] = function(card, use, self)
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:canPindian(enemy) then
 				use.card = sgs.Card_Parse("#meizlshhujiacard:.:")
+				self.meizlshhujia_card = max_card:getEffectiveId()
 				if use.to then use.to:append(enemy) end
 				return
 			end
@@ -4679,7 +4684,7 @@ sgs.ai_skill_use_func["#meizlshqingyancard"] = function(card, use, self)
 	local cards = sgs.QList2Table(self.player:getCards("he"))
 	self:sort(self.enemies, "handcard")
 	local slashcount = self:getCardsNum("Slash")
-	self:sortByUseValue(cards, true)
+	self:sortByKeepValue(cards, true)
 	if slashcount > 0 then
 		for _, card in ipairs(cards) do
 			if (not card:isKindOf("Peach") and not card:isKindOf("ExNihilo") and not card:isKindOf("Jink")) or self:getOverflow() > 0 then
@@ -4767,7 +4772,7 @@ sgs.ai_skill_invoke.meizlshxiangjie = function(self, data)
 	if friend and self:isFriend(friend) then
 		self:sort(self.enemies, "defense")
 		for _, enemy in ipairs(self.enemies) do
-			if friend:canSlash(enemy, card, false) and not self:slashProhibit(card, enemy) and sgs.getDefenseSlash(enemy, self) <= 2
+			if friend:canSlash(enemy, card, false) and not self:slashProhibit(card, enemy) and sgs.getDefenseSlash(enemy, self) <= 6
 				and self:slashIsEffective(card, enemy) and self:isGoodTarget(enemy, self.enemies, card)
 				and enemy:objectName() ~= self.player:objectName() then
 				self.meizlxiangjieTarget = enemy
@@ -5368,7 +5373,7 @@ sgs.ai_skill_use_func["#meispshruixuecard"] = function(card, use, self)
 	for _, enemy in ipairs(self.enemies) do
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
-		slash:deleteLater()        
+		slash:deleteLater()
 		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) and
 			self.player:distanceTo(enemy) - math.min(self.player:getHp() - 1, self:getCardsNum("Slash")) <= 1
 
