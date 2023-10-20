@@ -36,7 +36,7 @@ ov_fupan:1,1,1,0,0,0
 jl_juehun:4,0,0
 olshanjia:1,2,0
 langxi:1,0,1,2,2,2,0,0,2,1
-yingrui:1,0,1,0,2,0,2,1,0,1,1,0,1,1
+yingrui:1,0,1,0,2,0,2,1,0,1,1,0,1,1,1,1
 suijiyingbian:3,2,4,1,1,0,1,1,1,1,1,1,1,1,5,2,1,1,1,1
 zhiyi:2
 tenyearmingfa:1,0,6,0,0,0,0,2,0
@@ -50,7 +50,7 @@ ov_xiewei:1,0,0,0,1,1,1,0,0,1,0,0,1,1,0,1,0,1,1,0,0
 fan:1,1,1,0,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,0,1,0,1,1,1,0
 secondmansi:3,0,3,3,1,0,0,0,3,5
 yhduwei:1,0,0,1
-joyelai:2,0,1,0,1,0,0,0,0,0,0,0,1,1,1,1
+joyelai:2,0,1,0,1,0,0,0,0,0,0,0,1,1,1,1,2,1,0
 shensu:1,0,1,1,0,0,0,1,1,1,2,1,1,0,1,0
 mobileqiangxi:1,1,2,1,0,0,0,0,0,1,0,0,0,0,1
 ov_zhengjian:2,0,0,1,0,1,1,1,0,0,0
@@ -107,7 +107,7 @@ sheji:1,1,0,0,0,0
 tenyearduwu:1,1,0,0
 jueman:1,1,0,0,1
 LuaNengchen:2,1,0,0,2,2,0,0,0,1,0,8,0
-olqiangxi:2,2,2,2,2,0,3,4,0,0,3,1,2,4,2,0
+olqiangxi:2,2,2,2,2,0,3,4,0,0,3,1,2,4,2,0,2,2
 tenyearxianzhou:1,0,2,0,2,0,0,0,0,0,0,0,0
 LuaJuece:1,1,1,0,0,1,0,0,1,1,0,1,0
 longnu:1,1,0,5,2,2,0
@@ -164,7 +164,7 @@ cihuai:4
 cuijin:2,1,0,3,0,1
 jinglan:2,0
 xionghuo:1,1
-LuaGuishen:1,0,1,0,0,0
+LuaGuishen:1,0,1,0,0,0,1,1,1
 yuyun:1,0,0,0,1,1,1,0,1,1,0,0
 tyshoulii:1
 tenyearhuace:1,0,3,2,2,1,1
@@ -180,7 +180,7 @@ suizheng:1
 ov_xiongxi:1,0,2,2,2
 fenyue:2,0,0,1,0,1,0
 SixWulve:1,0,1
-kuizhu:1,0,4,0,0
+kuizhu:1,0,4,0,0,1
 huqi:1
 olzhenliang:1,0,0,0,0,0
 zhuning:1,1,1
@@ -243,7 +243,7 @@ cheat:4
 meispzlbhbaiyue:7
 tenyearxuanhuo:1
 mtguzhao:2,0,0,0,0
-meizlseyousha:1,0
+meizlseyousha:1,0,2,2,2,0,0,0,0,0,0
 mobilejuece:1
 mobilerenejian:2
 jianjiehuoji:1,2,3,0

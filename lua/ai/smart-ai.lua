@@ -236,7 +236,7 @@ function SmartAI:initialize(player)
 		sgs.damageData = {}
 		sgs.convertData = {}
 		sgs.recoverData = {}
-		sgs.debugmode = false
+		sgs.debugmode = true
 		sgs.initialized = true
 		global_room = self.room
 		sgs.getMode = self.room:getMode()

@@ -1,23 +1,20 @@
 extension = sgs.Package("zz")
-local debug = true
+local debug = false
 savedata = "save.json" --存档
-readData = function(section)
+readData = function()
     local json = require "json"
     local record = io.open(savedata, "r")
-    local t = { [section] = {} }
+    local t = { Record = {} }
     if record ~= nil then
         local content = record:read("*all")
         t = json.decode(content) or t
-        if t[section] == nil and section ~= "*" then
-            t[section] = {}
-        end
         record:close()
     end
     return t
 end
 writeData = function(t)
     local record = assert(io.open(savedata, "w"))
-    local order = { "Record", "GameTimes" }
+    local order = { "Record"}
     setmetatable(order, { __index = table })
     local content = json.encode(t, { indent = true, level = 1, keyorder = order })
     record:write(content)
@@ -26,34 +23,42 @@ end
 saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1 win , 2. +1 win & +1 gameplay
     assert(record_type >= 0 and record_type <= 2, "record_type should be 0, 1 or 2")
 
-    local t = readData("Record")
+    local t = readData()
 
     local all = sgs.Sanguosha:getLimitedGeneralNames()
     for _, name in pairs(all) do
-        if t["Record"][name] == nil then
-            t["Record"][name] = { 0, 0 }
+        local general = sgs.Sanguosha:getGeneral(name)
+        local package = general:getPackage()
+        if t.Record[package] == nil then
+            t.Record[package] = { }
+        end
+        if t.Record[package][name] == nil then
+            t.Record[package][name] = { 0, 0 } 
         end
     end
 
     local name = player:getGeneralName()
+    local package = player:getGeneral():getPackage()
+    local package2 = ""
     local name2 = ""
     if player:getGeneral2() then
         name2 = player:getGeneral2Name()
+        package2 = player:getGeneral2():getPackage()
     end
     if record_type ~= 0 then -- record_type 1 or 2
-        if t["Record"][name] then
-            t["Record"][name][1] = t["Record"][name][1] + 1
+        if t.Record[package][name] then
+            t.Record[package][name][1] = t.Record[package][name][1] + 1
         end
-        if name2 ~= "" and name ~= name2 and t["Record"][name2] then
-            t["Record"][name2][1] = t["Record"][name2][1] + 1
+        if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
+            t.Record[package2][name2][1] = t.Record[package2][name2][1] + 1
         end
     end
     if record_type ~= 1 then -- record_type 0 or 2
-        if t["Record"][name] then
-            t["Record"][name][2] = t["Record"][name][2] + 1
+        if t.Record[package][name] then
+            t.Record[package][name][2] = t.Record[package][name][2] + 1
         end
-        if name2 ~= "" and name ~= name2 and t["Record"][name2] then
-            t["Record"][name2][2] = t["Record"][name2][2] + 1
+        if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
+            t.Record[package2][name2][2] = t.Record[package2][name2][2] + 1
         end
     end
 
@@ -116,28 +121,21 @@ winrate = sgs.CreateMasochismSkill {
     end
 }
 winshow:addSkill(winrate)
+
 --【显示胜率】（置于页底以确保武将名翻译成功）
 local g_property = "<font color='red'><b>胜率</b></font>"
-local t = readData("Record")
 
-if next(t["Record"]) ~= nil then
+
+local t = readData()
+
+if next(t.Record) ~= nil then
     local round = function(num, idp)
         local mult = 10 ^ (idp or 0)
         return math.floor(num * mult + 0.5) / mult
     end
-    local packageslist = {}
-    local x = 0
-    for key, rate in pairs(t["Record"]) do
-        local general = assert(sgs.Sanguosha:getGeneral(key), key)
-        if not table.contains(packageslist, general:getPackage()) then
-            table.insert(packageslist, general:getPackage())
-        end
-        x = x + 1
-    end
-    for _, p in pairs(packageslist) do
-        for key, rate in pairs(t["Record"]) do
+    for package, contents  in pairs(t.Record) do
+        for key, rate in pairs(contents) do
             local general = sgs.Sanguosha:getGeneral(key)
-            if general:getPackage() == p then
                 local text = rate[1] .. "/" .. rate[2]
                 if rate[2] == 0 then
                     rate = "未知"
@@ -145,14 +143,20 @@ if next(t["Record"]) ~= nil then
                     rate = round(rate[1] / rate[2] * 100) .. "%"
                 end
                 if key ~= "GameTimes" then
-                    g_property = g_property .. "\n" .. sgs.Sanguosha:translate(key)
+                    local translateName = sgs.Sanguosha:translate(key)
+                   
+                    local translatePackage = sgs.Sanguosha:translate(package)
+
+                    g_property = g_property .. "\n" .. translateName
+                    g_property = g_property .. "[" .. translatePackage.."]"
+                    
                     g_property = g_property .. " = " .. text .. " <b>(" .. rate .. ")</b>"
                 end
-            end
         end
     end
 end
 sgs.LoadTranslationTable {
+    ["zz"] = "胜率",
     ["winshow"] = "胜率",
     ["#winshow"] = "角色资讯",
     ["designer:winshow"] = "高达杀制作组",
