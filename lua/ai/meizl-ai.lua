@@ -2949,7 +2949,7 @@ sgs.ai_skill_playerchosen.meizlkaoshangcard = sgs.ai_skill_playerchosen.damage
 --MEIZLG 007 神张星彩
 --庇荫（神张星彩）
 function sgs.ai_slash_prohibit.meizlbiyin(self, from, to, card)
-	if to:hasSkill("meizlbiyinx") and to:getMark("@meizlbiyinx") > 0 then return true end
+	if to:getMark("@meizlbiyinx") > 0 then return true end
 end
 
 sgs.ai_target_revises["@meizlbiyinx"] = function(to, card, self)
@@ -4526,7 +4526,7 @@ meizlluoyingbinfen_skill = {}
 meizlluoyingbinfen_skill.name = "meizlluoyingbinfen"
 table.insert(sgs.ai_skills, meizlluoyingbinfen_skill)
 meizlluoyingbinfen_skill.getTurnUseCard = function(self)
-	if self.player:getMark("@meizldaqiaomark") < 15 then return end
+	if not (self.player:getMark("@meizldaqiaomark") >= 15 or self.player:getMark("@meizlxiaoqiaomark") >= 15) then return end
 	if self.room:getMode() == "_mini_13" then return sgs.Card_Parse("#meizlluoyingbinfencard:.:") end
 	local good, bad = 1, 0
 	local lord = self.room:getLord()
@@ -4568,8 +4568,6 @@ sgs.ai_skill_use_func["#meizlluoyingbinfencard"] = function(card, use, self)
 end
 
 sgs.dynamic_value.damage_card["#meizlluoyingbinfencard"] = true
-
-
 
 -- 蔡文姬‧升华
 --胡笳‧升华
@@ -5440,15 +5438,13 @@ sgs.ai_skill_invoke.feiren = function(self, data)
 
 	if self.player:getHandcardNum() == 1 then
 		if (self:needKongcheng() or not self:hasLoseHandcardEffective()) and not self:isWeak() then return true end
-		local card = self.player:getHandcards():first()
-		if card:isKindOf("Jink") or card:isKindOf("Peach") then return end
 	end
 
-	if (self:needKongcheng() and self.player:getHandcardNum() == 1) or not self:hasLoseHandcardEffective()
+	if (self.player:getHandcardNum() >= self.player:getHp() or (self:needKongcheng() and self.player:getHandcardNum() == 1) or not self:hasLoseHandcardEffective() or self.player:getHp() < target:getHandcardNum())
 		and not self:doNotDiscard(target, "h", true) then
 		return true
 	end
-	if self:doNotDiscard(target, "h", true, 2) then return false end
+	if self:doNotDiscard(target, "he", true, 2) then return false end
 	return false
 end
 
@@ -5555,6 +5551,12 @@ sgs.ai_skill_invoke.xiehou = function(self, data)
 	return true
 end
 
+sgs.ai_can_damagehp.xiehou = function(self, from, card, to)
+	return card and card:isDamageCard() and self:canLoseHp(from, card, to) and
+		getCardDamageNature(from, to, card) ~= sgs.DamageStruct_Normal
+		and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+end
+
 sgs.ai_skill_cardask["@huixue"] = function(self, data, pattern)
 	local hcards = self.player:getCards("h")
 	hcards = sgs.QList2Table(hcards)
@@ -5576,13 +5578,49 @@ sgs.ai_skill_invoke.luoshenjh = function(self, data)
 	return true
 end
 
-sgs.ai_skill_invoke.huixuejh = function(self, data)
-	return true
+sgs.ai_need_damaged.luoshenjh = function(self, attacker, player)
+	local friends = {}
+	for _, ap in sgs.list(self.room:getAlivePlayers()) do
+		if self:isFriend(ap, player) then
+			table.insert(friends, ap)
+		end
+	end
+	self:sort(friends, "hp")
+
+	if #friends > 0 and friends[1]:objectName() == player:objectName() and self:isWeak(player) and getCardsNum("Peach", player, (attacker or self.player)) == 0 then return false end
+
+	return player:getHp() > 2 and sgs.turncount > 2 and #friends > 1 and not self:isWeak(player) and
+		player:getHandcardNum() >= 2
+end
+
+sgs.ai_can_damagehp.luoshenjh = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
 end
 
 
-sgs.ai_skill_invoke.shenfu = function(self, data)
+sgs.ai_skill_invoke.huixuejh = function(self, data)
+	if self.player:getHp() < getBestHp(self.player) then return true end
+	return false
+end
+
+
+
+
+sgs.ai_skill_invoke.meizi_shenfu = function(self, data)
 	return true
+end
+
+sgs.ai_can_damagehp.meizi_shenfu = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+end
+sgs.ai_need_damaged.meizi_shenfu = function(self, attacker, player)
+	if self:getEnemyNumBySeat(self.room:getCurrent(), player, player, true) < player:getHp()
+		and (player:getHp() > 0 or player:getHp() == 1 and (player:faceUp() or player:hasSkill("guixin"))) then
+		return true
+	end
+	return false
 end
 
 
@@ -5595,6 +5633,12 @@ sgs.ai_skill_invoke.biyues = function(self, data)
 		return true
 	end
 	return false
+end
+
+sgs.ai_can_damagehp.biyues = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to) and from and self:isEnemy(from) and not self:doNotDiscard(from) and
+		to:canDiscard(from, "he")
 end
 
 

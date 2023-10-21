@@ -1,5 +1,5 @@
 extension = sgs.Package("zz")
-local debug = false
+local debug = true
 savedata = "save.json" --存档
 readData = function()
     local json = require "json"
@@ -14,7 +14,7 @@ readData = function()
 end
 writeData = function(t)
     local record = assert(io.open(savedata, "w"))
-    local order = { "Record"}
+    local order = { "Record" }
     setmetatable(order, { __index = table })
     local content = json.encode(t, { indent = true, level = 1, keyorder = order })
     record:write(content)
@@ -30,10 +30,10 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
         local general = sgs.Sanguosha:getGeneral(name)
         local package = general:getPackage()
         if t.Record[package] == nil then
-            t.Record[package] = { }
+            t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0 } 
+            t.Record[package][name] = { 0, 0 }
         end
     end
 
@@ -46,6 +46,18 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
         package2 = player:getGeneral2():getPackage()
     end
     if record_type ~= 0 then -- record_type 1 or 2
+        if t.Record[package] == nil then
+            t.Record[package] = {}
+        end
+        if t.Record[package][name] == nil then
+            t.Record[package][name] = { 0, 0 }
+        end
+        if t.Record[package2] == nil then
+            t.Record[package2] = {}
+        end
+        if t.Record[package2][name2] == nil then
+            t.Record[package2][name2] = { 0, 0 }
+        end
         if t.Record[package][name] then
             t.Record[package][name][1] = t.Record[package][name][1] + 1
         end
@@ -54,6 +66,18 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
         end
     end
     if record_type ~= 1 then -- record_type 0 or 2
+        if t.Record[package] == nil then
+            t.Record[package] = {}
+        end
+        if t.Record[package][name] == nil then
+            t.Record[package][name] = { 0, 0 }
+        end
+        if t.Record[package2] == nil then
+            t.Record[package2] = {}
+        end
+        if t.Record[package2][name2] == nil then
+            t.Record[package2][name2] = { 0, 0 }
+        end
         if t.Record[package][name] then
             t.Record[package][name][2] = t.Record[package][name][2] + 1
         end
@@ -133,25 +157,25 @@ if next(t.Record) ~= nil then
         local mult = 10 ^ (idp or 0)
         return math.floor(num * mult + 0.5) / mult
     end
-    for package, contents  in pairs(t.Record) do
+    for package, contents in pairs(t.Record) do
         for key, rate in pairs(contents) do
             local general = sgs.Sanguosha:getGeneral(key)
-                local text = rate[1] .. "/" .. rate[2]
-                if rate[2] == 0 then
-                    rate = "未知"
-                else
-                    rate = round(rate[1] / rate[2] * 100) .. "%"
-                end
-                if key ~= "GameTimes" then
-                    local translateName = sgs.Sanguosha:translate(key)
-                   
-                    local translatePackage = sgs.Sanguosha:translate(package)
+            local text = rate[1] .. "/" .. rate[2]
+            if rate[2] == 0 then
+                rate = "未知"
+            else
+                rate = round(rate[1] / rate[2] * 100) .. "%"
+            end
+            if key ~= "GameTimes" then
+                local translateName = sgs.Sanguosha:translate(key)
 
-                    g_property = g_property .. "\n" .. translateName
-                    g_property = g_property .. "[" .. translatePackage.."]"
-                    
-                    g_property = g_property .. " = " .. text .. " <b>(" .. rate .. ")</b>"
-                end
+                local translatePackage = sgs.Sanguosha:translate(package)
+
+                g_property = g_property .. "\n" .. translateName
+                g_property = g_property .. "[" .. translatePackage .. "]"
+
+                g_property = g_property .. " = " .. text .. " <b>(" .. rate .. ")</b>"
+            end
         end
     end
 end

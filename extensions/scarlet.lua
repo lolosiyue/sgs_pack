@@ -1905,6 +1905,9 @@ s4_txbw_jingzhe = sgs.CreateTriggerSkill {
                                     damage.damage = damage.damage - 1
                                     damage.prevented = damage.damage < 1
                                     data:setValue(damage)
+                                    if damage.damage < 1 then
+                                        return true
+                                    end
                                 end
                             end
                         end

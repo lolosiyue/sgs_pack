@@ -7702,7 +7702,7 @@ meizlshguihancard = sgs.CreateSkillCard {
 		source:loseMark("@meizlshguihan")
 		local x = room:alivePlayerCount()
 		source:drawCards(x + 2)
-		if x < 8 then
+		if x + 2 < 8 then
 			local recover = sgs.RecoverStruct()
 			recover.recover = source:getMaxHp() - source:getHp()
 			recover.who = source
@@ -8019,6 +8019,7 @@ meizlshxiuhua = sgs.CreateTriggerSkill {
 		if damage.nature ~= sgs.DamageStruct_Normal then
 			damage.prevented = true
 			data:setValue(damage)
+			return true
 		end
 	end
 }
@@ -8658,6 +8659,7 @@ meizlmengshilong = sgs.CreateTriggerSkill {
 						room:sendLog(log)
 						damage.prevented = true
 						data:setValue(damage)
+						return true
 					end
 				end
 			end
@@ -8878,7 +8880,7 @@ meizlwuzhijingjichang = sgs.CreateTriggerSkill {
 						room:addPlayerMark(damage.from, "@meizlwuzhijingjichangdamage", tonumber(damage.damage))
 						damage.prevented = true
 						data:setValue(damage)
-						--return true
+						return true
 					end
 				elseif event == sgs.EventPhaseStart and player:getPhase() == sgs.Player_RoundStart then
 					if player:getMark("@meizlwuzhijingjichangstate") == 0 then

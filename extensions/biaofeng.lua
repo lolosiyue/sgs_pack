@@ -1813,11 +1813,11 @@ PlusWulve = sgs.CreateTriggerSkill {
 		local damage = data:toDamage()
 		local card = damage.card
 		local lostHp = player:getLostHp()
-		local prompt = "PlusWulve_choice2=".. lostHp .."+PlusWulve_cancel"
+		local prompt = "PlusWulve_choice2=" .. lostHp .. "+PlusWulve_cancel"
 		if card then
 			local id = card:getEffectiveId()
 			if room:getCardPlace(id) == sgs.Player_PlaceTable then
-				prompt = "PlusWulve_choice1=".. sgs.Sanguosha:getCard(id):objectName() .. "+ " .. prompt
+				prompt = "PlusWulve_choice1=" .. sgs.Sanguosha:getCard(id):objectName() .. "+ " .. prompt
 			end
 		end
 		local choice = room:askForChoice(player, self:objectName(), prompt, data)
@@ -1834,7 +1834,7 @@ PlusWulve = sgs.CreateTriggerSkill {
 			msg.arg = self:objectName()
 			room:sendLog(msg)
 			room:askForDiscard(player, self:objectName(), 1, 1, false, true)
-			
+
 			room:drawCards(player, lostHp, self:objectName())
 		end
 	end,
@@ -4604,7 +4604,8 @@ PlusPaoxiao_Card = sgs.CreateSkillCard {
 	will_throw = true,
 	on_use = function(self, room, source, targets)
 		local x = math.min(source:getLostHp(), 2)
-		local choice = room:askForChoice(source, self:objectName(), "PlusPaoxiao_choice1=".. x .."+PlusPaoxiao_choice2=".. x)
+		local choice = room:askForChoice(source, self:objectName(),
+			"PlusPaoxiao_choice1=" .. x .. "+PlusPaoxiao_choice2=" .. x)
 		if choice:startsWith("PlusPaoxiao_choice1") then
 			room:broadcastSkillInvoke("PlusPaoxiao")
 			room:setPlayerMark(source, "PlusPaoxiao1", x)
@@ -5493,8 +5494,9 @@ PlusQimou_Card = sgs.CreateSkillCard {
 		if not target:isKongcheng() then
 			local dest = sgs.QVariant()
 			dest:setValue(source)
-			local choice = room:askForChoice(target, "PlusQimou", "PlusQimou_Give=".. source:objectName() .."+PlusQimou_Refuse", dest)
-			if choice.startsWith("PlusQimou_Give")  then
+			local choice = room:askForChoice(target, "PlusQimou",
+				"PlusQimou_Give=" .. source:objectName() .. "+PlusQimou_Refuse", dest)
+			if choice.startsWith("PlusQimou_Give") then
 				local card = target:wholeHandCards()
 				room:obtainCard(source, card)
 			end
@@ -6573,13 +6575,13 @@ PlusDujiang = sgs.CreateTriggerSkill {
 	end,
 	can_wake = function(self, event, player, data, room)
 		if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then return false end
-			if player:canWake(self:objectName()) then return true end
-			local slack = player:getPile("slack"):length()
-			if slack < 4 then
-				return false
-			end
-			return true
-		end,
+		if player:canWake(self:objectName()) then return true end
+		local slack = player:getPile("slack"):length()
+		if slack < 4 then
+			return false
+		end
+		return true
+	end,
 }
 LvMeng_Plus:addSkill(PlusDujiang)
 
@@ -8651,7 +8653,8 @@ PlusJiahuo = sgs.CreateTriggerSkill {
 										use.card = slash
 										data:setValue(use)
 										room:setCardFlag(slash, "PlusJiahuo_Slash")
-										room:setCardFlag(slash, "PlusJiahuo_Slash"..source:objectName() .. p:objectName())
+										room:setCardFlag(slash, "PlusJiahuo_Slash" ..
+										source:objectName() .. p:objectName())
 										room:setPlayerFlag(p, "-PlusJiahuo_Target")
 										return true
 									end
@@ -8673,10 +8676,10 @@ PlusJiahuo = sgs.CreateTriggerSkill {
 			if card and card:hasFlag("PlusJiahuo_Slash") then
 				for _, sunluban in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 					for _, p in sgs.qlist(room:getAlivePlayers()) do
-					if card:hasFlag("PlusJiahuo_Slash"..sunluban:objectName()..p:objectName()) then
-						sunluban:turnOver()
+						if card:hasFlag("PlusJiahuo_Slash" .. sunluban:objectName() .. p:objectName()) then
+							sunluban:turnOver()
+						end
 					end
-				end
 				end
 				room:setCardFlag(card, "-PlusJiahuo_Slash")
 			end
@@ -8912,7 +8915,7 @@ PlusMafei = sgs.CreateTriggerSkill {
 								msg.arg = self:objectName()
 								room:sendLog(msg)
 								room:setPlayerFlag(target, "PlusMafei")
-								room:setPlayerMark(target, "&PlusMafei+to+#"..player:objectName().."-Clear", 1)
+								room:setPlayerMark(target, "&PlusMafei+to+#" .. player:objectName() .. "-Clear", 1)
 							end
 						else
 							break
@@ -9658,7 +9661,7 @@ PlusYicong = sgs.CreateDistanceSkill {
 		end
 		if to:hasSkill(self:objectName()) then
 			if to:getHp() <= 2 then
-				return to:getMark("&PlusYicong") 
+				return to:getMark("&PlusYicong")
 			end
 		end
 		return 0
@@ -11458,7 +11461,7 @@ SixQiaoxie = sgs.CreateTriggerSkill {
 						local prompt = string.format("@SixQiaoxie:%s", player:objectName())
 						if room:askForCard(liuye, ".black", prompt, data, sgs.Card_MethodDiscard) then
 							room:setPlayerFlag(player, "InfinityAttackRange")
-							room:addPlayerMark(player, "&SixQiaoxie+to+#".. liuye:objectName().."-Clear")
+							room:addPlayerMark(player, "&SixQiaoxie+to+#" .. liuye:objectName() .. "-Clear")
 						else
 							local msg = sgs.LogMessage()
 							msg.type = "#SixQiaoxieReject"
@@ -15074,8 +15077,12 @@ SevenJieMing = sgs.CreateTriggerSkill {
 		else
 			damage.damage = damage.damage - 1
 		end
-        damage.prevented = damage.damage < 1
+		damage.prevented = damage.damage < 1
+
 		data:setValue(damage)
+		if damage.damage < 1 then
+			return true
+		end
 		return false
 	end
 }

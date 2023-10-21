@@ -906,7 +906,7 @@ etushouEffect = sgs.CreateTriggerSkill {
 				room:broadcastSkillInvoke("etushou", 4)
 				damage.prevented = true
 				data:setValue(damage)
-				--return true
+				return true
 			end
 		end
 		if event == sgs.DamageCaused then
@@ -917,7 +917,7 @@ etushouEffect = sgs.CreateTriggerSkill {
 						room:broadcastSkillInvoke("etushou", 3)
 						damage.prevented = true
 						data:setValue(damage)
-						--return true
+						return true
 					end
 				end
 			end
