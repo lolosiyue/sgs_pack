@@ -7,7 +7,7 @@ import pygetwindow as gw
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "newmspgodzhenji"
+choose_general = "duSunjian"
 
 num_test_runs = 10
 
@@ -143,11 +143,11 @@ for run in range(num_test_runs):
 
             # Perform a mouse click on the center of the target occurrence
             pyautogui.click(target_x, target_y)
-            time.sleep(2)
+            time.sleep(1)
             kb.write(choose_general)
-            time.sleep(2)
+            time.sleep(1)
             pyautogui.click(target_x + 100 + width // 2, target_y)
-            time.sleep(2)
+            time.sleep(1)
     time.sleep(1)
     for image_name, image_data in target_images3.items():
         image_path = image_data['path']
@@ -165,11 +165,11 @@ for run in range(num_test_runs):
 
             # Perform a mouse click on the center of the target occurrence
             pyautogui.click(target_x, target_y)
-            time.sleep(2)
+            time.sleep(1)
             kb.write("☆赵云")
-            time.sleep(2)
+            time.sleep(1)
             pyautogui.click(target_x + 100 + width // 2, target_y)
-            time.sleep(2)
+            time.sleep(1)
 
     time.sleep(2)
     for image_name, image_data in target_images5.items():

@@ -65,6 +65,7 @@ jfTakeCard = sgs.CreateSkillCard {
 				local card = sgs.Sanguosha:getCard(id)
 				source:obtainCard(card)
 				room:showCard(source, id)
+				room:broadcastSkillInvoke("jinfan")
 			end
 		end
 	end
@@ -166,6 +167,7 @@ duYinlingCard = sgs.CreateSkillCard {
 		room:obtainCard(source, id1, false)
 		room:setPlayerFlag(source, "duYinlingStarted")
 		room:addPlayerMark(source, "&duYinling-Clear")
+		room:broadcastSkillInvoke("duYinling")
 	end
 }
 duYinlingVS = sgs.CreateViewAsSkill {
@@ -222,6 +224,7 @@ du_jieying = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local hp = player:getHp()
+		room:broadcastSkillInvoke(self:objectName())
 		local theRecover = sgs.RecoverStruct()
 		theRecover.recover = 1
 		theRecover.who = player
@@ -278,6 +281,7 @@ duXiaoguo = sgs.CreateTriggerSkill {
 							log.arg2 = damage.damage
 							room:sendLog(log)
 							data:setValue(damage)
+							room:broadcastSkillInvoke(self:objectName())
 						end
 					end
 					-- end
@@ -385,6 +389,7 @@ yaochong = sgs.CreateTriggerSkill {
 				end
 				if _movefrom:isMale() then
 					player:gainMark("@yaochong", 1)
+					room:broadcastSkillInvoke(self:objectName())
 				end
 			end
 			if move.to and move.from and (move.from:objectName() == player:objectName()) and move.to and
@@ -434,6 +439,7 @@ duWuhun = sgs.CreateTriggerSkill {
 			room:recover(player, recover)
 			room:changeMaxHpForAwakenSkill(player, -1)
 			room:addPlayerMark(player, self:objectName())
+			room:broadcastSkillInvoke(self:objectName())
 		end
 	end,
 
@@ -577,6 +583,7 @@ jiuwei = sgs.CreateTriggerSkill {
 			if not target:isNude() then
 				if player:askForSkillInvoke(self:objectName(), data) then
 					local room = player:getRoom()
+					room:broadcastSkillInvoke(self:objectName())
 					room:setPlayerFlag(target, "jiuwei_target")
 					local choice = room:askForChoice(player, self:objectName(), "jwTake=" .. target:objectName() ..
 						"+jwDrop=" .. target:objectName())
@@ -621,6 +628,7 @@ du_tongque = sgs.CreateTriggerSkill {
 							local prompt = string.format("#caocao_tongque:%s", victim:objectName())
 							local card = room:askForCard(lord, ".", prompt, data, sgs.AskForPeachesDone)
 							victim:obtainCard(card)
+							room:broadcastSkillInvoke(self:objectName())
 							local hp = victim:getHp()
 							local theRecover = sgs.RecoverStruct()
 							theRecover.recover = 1 - hp
@@ -669,6 +677,7 @@ xixing = sgs.CreateTriggerSkill {
 		dest:setValue(damage.from)
 		if room:askForSkillInvoke(player, "xixing", dest) then
 			player:obtainCard(damage.from:wholeHandCards())
+			room:broadcastSkillInvoke(self:objectName())
 		end
 	end
 }
@@ -683,6 +692,7 @@ du_jiyu = sgs.CreateTriggerSkill {
 		if player:getPhase() == sgs.Player_Start then
 			if player:getHandcardNum() > player:getMaxHp() then
 				room:loseMaxHp(player)
+				room:broadcastSkillInvoke(self:objectName())
 			end
 		end
 	end
@@ -722,6 +732,7 @@ duBaonue = sgs.CreateTriggerSkill {
 					judge.reason = self:objectName()
 					judge.who = player
 					room:judge(judge)
+					room:broadcastSkillInvoke(self:objectName())
 					if judge:isGood() then
 						room:setPlayerProperty(dongzhuo, "maxhp", sgs.QVariant(dongzhuo:getMaxHp() + 1))
 						local msg = sgs.LogMessage()
@@ -836,6 +847,7 @@ tongpaoSlash = sgs.CreateTriggerSkill {
 				sgs.Card_MethodResponse, nil, false, "", true)
 			if slash then
 				room:setPlayerFlag(player, "-tongpao_target")
+				room:broadcastSkillInvoke("tongpao")
 				room:provide(slash)
 				return true
 			end
@@ -873,6 +885,7 @@ tongpaoJink = sgs.CreateTriggerSkill {
 			local jink = room:askForCard(p, "jink", "@tongpao-jink:" .. player:objectName(), dest,
 				sgs.Card_MethodResponse, nil, false, "", true)
 			if jink then
+				room:broadcastSkillInvoke("tongpao")
 				room:provide(jink)
 				return true
 			end
@@ -918,27 +931,36 @@ sgs.LoadTranslationTable {
 
 	["du"] = "独包",
 	["duGuanyu"] = "关羽",
+	["~duGuanyu"] = "汉室未兴，死而有憾~",
 	["duCaocao"] = "曹操",
+	["~duCaocao"] = "霸业未成，未成啊...",
 	["duDongzhuo"] = "董卓",
-	["duSunce"] = "孙策",
+	["~duDongzhuo"] = "竖子，竟敢反我！",
 	["duDiaochan"] = "貂蝉",
+	["~duDiaochan"] = "红颜多薄命，几人能白头！",
 	["duSunjian"] = "孙坚",
-	["duZhonghui"] = "钟会",
-	["duDaqiao"] = "大乔",
+	["~duSunjian"] = "上天的眷顾，真的只是幻觉吗？",
 	["duLejin"] = "乐进",
+	["~duLejin"] = "不能再为主公杀敌了...",
 	["duGanning"] = "甘宁",
-	["duXiahouba"] = "夏侯霸",
+	["~duGanning"] = "银铃将息，锦帆何去...",
 
 	["#zunhui"] = "%from 触发【%arg2】， %to 使用的杀【%arg】对其无效",
 
 	["du_jieying"] = "劫营",
 	[":du_jieying"] = "<font color=\"purple\"><b>觉醒技，</b></font>准备阶段开始时，若你的“锦”大于或等于三张，你回复1点体力，然后失去1点体力上限，并获得“奇袭”。",
+	["$du_jieying1"] = "奋威齐进，呼声动天！",
+	["$du_jieying2"] = "奇兵奋勇，以威天下！",
+
 	["duYinling"] = "银铃",
 	["duyinling"] = "银铃",
 	["duYinlingCard"] = "银铃",
 	[":duYinling"] = "摸牌阶段开始时，你可以获得一名其他角色的一张手牌。若如此做，弃牌阶段结束后，你需要弃置一张牌。",
 	["@duYinlingCard"] = "是否发动技能【银铃】",
 	["~duYinling"] = "请选择一名角色,然后点击确定",
+	["$duYinling1"] = "再回去练上几年吧！",
+	["$duYinling2"] = "疆场杀敌，勇者先胜三分。",
+
 	["jfTakeCard"] = "锦帆",
 	["jinfanTake"] = "锦帆",
 	[":jinfanTake"] = "出牌阶段限一次，你可以选择一张“锦”，甘宁可以将之交给你。",
@@ -948,9 +970,14 @@ sgs.LoadTranslationTable {
 	["du_jin"] = "锦",
 	["jinfanTake_allow"] = "你可以将之交给 %src",
 	["jinfanTake_disallow"] = "拒绝将之交给 %src",
+	["$jinfan1"] = "这里是我们的地盘！",
+	["$jinfan2"] = "锦帆游侠的名号，岂是白叫的？",
 
 	["duXiaoguo"] = "骁果",
 	[":duXiaoguo"] = "当你对一名其他角色造成伤害时，你可以与其拼点，若你赢，则伤害+1。",
+	["$duXiaoguo1"] = "当敌制决，靡有遗失。",
+	["$duXiaoguo2"] = "奋强突固，无坚不可陷。",
+
 	["tongpao"] = "同袍",
 	[":tongpao"] = "当吴势力角色需要使用或打出【杀】或【闪】时，其他吴势力角色可以代为使用或打出【杀】或【闪】",
 	["tongpao_jink"] = "【同胞】，请吴势力角色代你出【闪】",
@@ -958,38 +985,61 @@ sgs.LoadTranslationTable {
 	["@tongpao-jink"] = "【同胞】技能被触发，请吴势力角色代 %src 出【闪】",
 	["@tongpao-slash"] = "【同胞】技能被触发，请吴势力角色代 %src 出【杀】",
 	["#tongpao"] = "%from 请吴国势力代为打出【杀】或【闪】",
+	["$tongpao1"] = "义兵再起，暴乱必除。",
+	["$tongpao2"] = "举贤荐能，以保江东。",
 
 	["du_zhouxuan"] = "周旋",
 	[":du_zhouxuan"] = "出牌阶段，若你拥有“宠”标记，你可以弃一张手牌，与一名男性角色交换其余手牌，或交换两名男性角色的手牌。若如此做，你失去一枚“宠”标记。",
+	["$du_zhouxuan1"] = "都是他的错！",
+	["$du_zhouxuan2"] = "妾身，向来仰慕勇武强者。",
+
 	["du_zhouxuanCard"] = "周旋",
 	["yaochong"] = "邀宠",
 	[":yaochong"] = "每当从男性角色获得两张或以上手牌，你获得一枚“宠”标记；每当男性角色获得你的两张或以上手牌，你失去一枚“宠”标记。回合开始时，若你没有“宠”标记，你获得一枚“宠”标记。",
 	["@yaochong"] = "邀宠",
+	["$yaochong1"] = "得君垂怜，妾身足矣。",
+	["$yaochong2"] = "将军~你的眼睛在往哪儿看呐。",
 
 	["duWuhun"] = "武魂",
 	[":duWuhun"] = "回合开始时，你获得场上、牌堆或弃牌堆里的一张【青龙偃月刀】或【赤兔马】。觉醒技，回合开始时，若你已经装备【青龙偃月刀】则获得“虎啸”，若已装备【赤兔马】则获得“马术”。获得上述两技能后，你回复一点体力，然后失去一点体力上限，并“武魂”改为失效。。",
+	["$duWuhun1"] = "忠心赤胆，青龙啸天！",
+	["$duWuhun2"] = "撒满腔热血，扫天下汉贼！",
+
 	["jieyou"] = "解忧",
 	[":jieyou"] = "你可以将一张♠2~9手牌当【酒】使用。",
+	["$jieyou1"] = "山不厌高，海不厌深。",
+	["$jieyou2"] = "周公吐哺，天下归心。",
 
 	["du_tongque"] = "铜雀",
 	[":du_tongque"] = "<font color=\"orange\"><b>主公技，</b></font>当魏势力角色导致女性角色濒死并求桃失败后，你可以将一张手牌交给其，令其复活。该角色摸三张牌，恢复1点体力，失去1点体力上限，将势力改为魏，并改变身份为“内奸”。",
 	["#du_tongque1"] = "%to 被收入 %from 的铜雀台，势力变为魏，身为变为内奸",
 	["#tongque2"] = "%from 被收入 %to 的铜雀台",
 	["#caocao_tongque"] = "请选择一张手牌给 %src",
+	["$du_tongque"] = "扫清六合，席卷八荒！",
 
 	["jiuwei"] = "酒威",
 	[":jiuwei"] = "你使用的受【酒】影响的【杀】被目标角色的【闪】抵消后，你可以获得其一张牌或弃置其两张牌。",
 	["jwTake"] = "获得 %src 一张牌",
 	["jwDrop"] = "弃置 %src 两张牌",
+	["$jiuwei1"] = "孤，好梦中杀人！",
+	["$jiuwei2"] = "宁教我负天下人，休教天下人负我！",
 
 	["xixing"] = "庸纳",
 	[":xixing"] = "每当你受到伤害后，你可以获得伤害来源的全部手牌。",
+	["$xixing1"] = "敲骨吸髓，不亦乐乎。",
+	["$xixing2"] = "强取豪夺，乃真豪杰。",
 
 	["du_jiyu"] = "积郁",
 	[":du_jiyu"] = "回合开始阶段，若你的手牌数量大于手牌上限，你失去一点体力上限。",
+	["$du_jiyu1"] = "我还要更多，更多！",
+	["$du_jiyu2"] = "酒池肉林，其乐无穷，哈哈哈",
+
 	["duBaonue"] = "暴虐",
 	[":duBaonue"] = "<font color=\"orange\"><b>主公技，</b></font>当其他群势力角色造成伤害后，其可以进行判定，若结果为♠，你增加1点体力上限。",
 	["#baonueMessage"] = "%from 增加 %arg 点体力上限",
+	["$duBaonue1"] = "哈哈哈哈，不愧是我的好部下。",
+	["$duBaonue2"] = "杀得好，大大有赏！",
+
 
 	["~tmp"] = "一二三",
 	["$duWusheng"] = "四五六",
