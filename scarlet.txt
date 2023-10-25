@@ -5,6 +5,7 @@ hasHuangenEffect
 not done:
 张春华 无情 lostmaxhp ai
 du sunjian tongpao
+plusRende
 
 test:
 SixJushou

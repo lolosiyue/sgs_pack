@@ -2280,8 +2280,8 @@ function SmartAI:getValuableCard(who)
 		end
 	end
 
-	if weapon and (weapon:isKindOf("MoonSpear") and who:hasSkill("keji") and who:getHandcardNum() > 5)
-		or who:hasSkills("qiangxi|zhulou|taichen")
+	if weapon and ((weapon:isKindOf("MoonSpear") and who:hasSkill("keji") and who:getHandcardNum() > 5)
+		or who:hasSkills("qiangxi|zhulou|taichen"))
 	then
 		return weapon:getEffectiveId()
 	end
@@ -2757,9 +2757,9 @@ function SmartAI:useCardCollateral(card, use)
 			for _, friend in sgs.list(toList) do
 				if final_enemy then break end
 				self.player:speak("Collateral testing2")
-				self.player:speak("Collateral friend" + friend:objectName())
+				self.player:speak("Collateral friend" .. friend:objectName())
 				if enemy:canSlash(friend)
-					and enemy:inMyAttackRange(enemy2)
+					and enemy:inMyAttackRange(friend)
 					and self:objectiveLevel(friend) < 0
 					and self:needToLoseHp(friend, enemy, dummyCard(), true)
 				then
@@ -2770,7 +2770,7 @@ function SmartAI:useCardCollateral(card, use)
 			for _, friend in sgs.list(toList) do
 				if final_enemy then break end
 				if enemy:canSlash(friend)
-					and enemy:inMyAttackRange(enemy2)
+					and enemy:inMyAttackRange(friend)
 					and self:objectiveLevel(friend) < 0
 					and (getKnownCard(friend, self.player, "Jink", true) > 1 or getCardsNum("Slash", enemy) < 1)
 				then

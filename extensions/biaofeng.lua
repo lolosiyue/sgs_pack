@@ -4017,7 +4017,7 @@ PlusRende_Card = sgs.CreateSkillCard {
 		room:setPlayerMark(source, "PlusRende", new_value)
 		room:setPlayerMark(target, "&PlusRende+to+#" .. source:objectName() .. "-Clear", 1)
 		if (new_value > 2) then
-			room:setPlayerMark(source, "&PlusRende", 1)
+			room:setPlayerMark(source, "&PlusRende-Clear", 1)
 		end
 	end
 }
@@ -4101,6 +4101,7 @@ PlusRende = sgs.CreateTriggerSkill {
 							room:getThread():delay(4000)
 							player:loseMark("@rende")
 							local card = sgs.Sanguosha:cloneCard("god_salvation", sgs.Card_NoSuit, 0)
+							card:deleteLater()
 							card:setSkillName(self:objectName())
 							local use = sgs.CardUseStruct()
 							use.card = card

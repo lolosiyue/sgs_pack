@@ -218,7 +218,8 @@ function SmartAI:canLiegong(to, from)
 	if from:hasSkill("meizljianwu") and from:getMark("@meizljianwu") > 0 and to:getHandcardNum() <= from:getAttackRange() then return true end
 	if from:hasSkill("meizlsejunwang") and from:distanceTo(to) <= from:getLostHp() then return true end
 	if from:hasSkill("luaxiaomeng") and from:distanceTo(to) <= 1 then return true end
-
+	if from:hasSkill("PlusLiegong") and from:getPhase() == sgs.Player_Play and (to:getHandcardNum() >= from:getHp() or to:getHandcardNum() <= from:getAttackRange()) then return true end
+	
 	return false
 end
 

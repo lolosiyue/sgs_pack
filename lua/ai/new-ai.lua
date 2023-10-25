@@ -601,7 +601,7 @@ sgs.ai_skill_use["@@luajiejiang"] = function(self, prompt)
 
 	local add_player = function(player, isfriend)
 		if player:getHandcardNum() == 0 or player:objectName() == self.player:objectName() then return #targets end
-		if self:objectiveLevel(player) == 0 and player:isLord() and sgs.current_mode_players["rebel"] > 1 then
+		if self:objectiveLevel(player) == 0 and player:isLord() and sgs.playerRoles["rebel"] > 1 then
 			return #
 				targets
 		end

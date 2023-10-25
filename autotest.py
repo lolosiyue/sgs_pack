@@ -4,10 +4,13 @@ import time
 import keyboard as kb
 from pynput.keyboard import Controller 
 import pygetwindow as gw
+import psutil
+import win32gui
+import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "duSunjian"
+choose_general = "HuangYueYing_Plus"
 #1920*1080 125%
 #pip cache purge
 num_test_runs = 10
@@ -74,8 +77,14 @@ for run in range(num_test_runs):
     # Launch the game
     game_process = subprocess.Popen(game_path)
 
-    # Wait for the game to initialize
-    time.sleep(2)  # Adjust as needed
+    # Wait for the game process to start
+    while True:
+        # Check if the game process is running
+        if psutil.pid_exists(game_process.pid):
+            _, game_pid = win32process.GetWindowThreadProcessId(win32gui.GetForegroundWindow())
+            if game_pid == game_process.pid:
+                break
+    time.sleep(0.5)  # Adjust the sleep interval as needed
 
     # Perform AI testing logic
     # ...
@@ -174,23 +183,7 @@ for run in range(num_test_runs):
             time.sleep(1)
 
     time.sleep(2)
-    for image_name, image_data in target_images5.items():
-        image_path = image_data['path']
-        image_action = image_data['action']
-
-        # Find all occurrences of the target image on the screen
-        target_occurrences = pyautogui.locateAllOnScreen(image_path)
-
-        # Iterate over each occurrence and perform a mouse click
-        for target_occurrence in target_occurrences:
-            # Get the center coordinates of the target occurrence
-            x, y, width, height = target_occurrence
-            target_x = x + width // 2
-            target_y = y + height // 2
-
-            # Perform a mouse click on the center of the target occurrence
-            pyautogui.click(target_x, target_y)
-    
+    pyautogui.click(1555, 1005)
     while True:
         # Check if the game has finished
         end_game_location = pyautogui.locateOnScreen(end_game_image_path)

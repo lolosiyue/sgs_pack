@@ -6079,7 +6079,7 @@ function SmartAI:hasHuangenEffect(to)
 			to = to or self.player
 			if type(to) ~= "table" then to = { to } end
 			for _, p in ipairs(to) do
-				if table.connects(friends, p)
+				if table.contains(friends, p)
 				then
 					return lx
 				end
@@ -6583,17 +6583,21 @@ function getBestHp(owner)
 		return
 			owner:getMaxHp() - 1
 	end
-	if owner:hasSkill("meizlwuqing") then return owner:getMaxHp() - 1 end
+	
 	if owner:hasSkill("guihans") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("luanixi") then return owner:getMaxHp() - 1 end
 
+	if owner:hasSkill("meizlwuqing") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu1") == 0 then return 2 end
 	if owner:hasSkill("meizlshangwu") and owner:getMark("meizlshangwu2") == 0 then return 1 end
 	if owner:hasSkill("meizlseyaohuo") then return owner:getMaxHp() - 1 end
+
 	if owner:hasSkill("luajiye") and owner:getMark("luajiye") == 0 then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("luatuwei") and owner:getMark("luatuwei") == 0 then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("luashenweiex1") then return owner:getMaxHp() - 1 end
 
+	if owner:hasSkill("PlusPaoxiao") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("PlusLongdan") then return 2 end
 
 
 	return owner:getMaxHp()

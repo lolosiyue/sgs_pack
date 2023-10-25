@@ -708,7 +708,7 @@ function SmartAI:resetCards(cards, except)
 	end
 	return result
 end
-
+--add
 function SmartAI:shouldUseRende()
 	if (self:hasCrossbowEffect() or self:getCardsNum("Crossbow") > 0) and self:getCardsNum("Slash") > 0
 	then
@@ -747,7 +747,7 @@ function SmartAI:shouldUseRende()
 		end
 	end
 	local keepNum = 1
-	if self.player:getMark("rende") + self.player:getMark("nosrende") < 1 then
+	if self.player:getMark("rende") + self.player:getMark("nosrende") + self.player:getMark("PlusRende") < 1 then
 		if self.player:getHandcardNum() == 3 then keepNum = 0 end
 		if self.player:getHandcardNum() > 3 then keepNum = 3 end
 	end
@@ -770,6 +770,11 @@ function SmartAI:shouldUseRende()
 	end
 	if self.player:getMark("nosrende") > 0 and self.player:getMark("nosrende") < 2
 		and (2 - self.player:getMark("nosrende")) >= (self.player:getHandcardNum() - keepNum)
+	then
+		return true
+	end
+	if self.player:getMark("PlusRende") > 0 and self.player:getMark("PlusRende") < 2
+		and (2 - self.player:getMark("PlusRende")) >= (self.player:getHandcardNum() - keepNum)
 	then
 		return true
 	end

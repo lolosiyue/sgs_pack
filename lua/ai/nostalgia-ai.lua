@@ -2056,7 +2056,7 @@ local nosguose_skill={}
 nosguose_skill.name="nosguose"
 table.insert(sgs.ai_skills,nosguose_skill)
 nosguose_skill.getTurnUseCard=function(self,inclusive)
-	local cards = selfaddHandPile("he")
+	local cards = self:addHandPile("he")
 	local card
 	self:sortByUseValue(cards,true)
 	local has_weapon,has_armor = false,false
