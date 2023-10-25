@@ -8,7 +8,8 @@ import pygetwindow as gw
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
 choose_general = "duSunjian"
-
+#1920*1080 125%
+#pip cache purge
 num_test_runs = 10
 
 keyboard = Controller()
@@ -19,7 +20,8 @@ action_delay = 2000
 def bring_window_to_front(window_title):
     window = gw.getWindowsWithTitle(window_title)
     if len(window) > 0:
-        window[0].activate()
+        window[0].minimize()
+        window[0].restore()
         window[0].maximize()  # Optional: maximize the window
     else:
         print("Window not found.")
@@ -125,7 +127,7 @@ for run in range(num_test_runs):
 
             # Perform a mouse click on the center of the target occurrence
             pyautogui.click(target_x, target_y)
-            time.sleep(2)
+            time.sleep(1)
     time.sleep(5)
     for image_name, image_data in target_images3.items():
         image_path = image_data['path']

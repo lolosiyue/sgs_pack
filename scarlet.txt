@@ -1,6 +1,4 @@
 crash:
-setPlayerCardLimitation
-collateral
 Retrial
 hasHuangenEffect
 
@@ -14,6 +12,7 @@ leo
 
 
 audio:
+biaofeng
 lubu
 woft
 emjr

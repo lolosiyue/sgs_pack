@@ -236,7 +236,7 @@ function SmartAI:initialize(player)
 		sgs.damageData = {}
 		sgs.convertData = {}
 		sgs.recoverData = {}
-		sgs.debugmode = true
+		sgs.debugmode = false
 		sgs.initialized = true
 		global_room = self.room
 		sgs.getMode = self.room:getMode()
@@ -4944,59 +4944,6 @@ function SmartAI:askForSinglePeach(dying)
 							end
 						end
 					end
-				end
-			end
-		elseif not dying:hasSkills(sgs.masochism_skill)
-			and lord and not canNiepan(dying) -- 鞭尸...
-		then
-			local mode = string.lower(sgs.getMode)
-			if mode == "06_3v3" and #self.enemies < 2 and dying:isNude()
-				and #self.friends > 2 and not self:isWeak(self.friends)
-			then
-				peach_str = usePeachTo()
-				if peach_str
-				then
-					self:speak("bianshi", dying:isFemale())
-					sgs.ai_doNotUpdateIntenion = true
-				end
-			elseif string.find(mode, "p")
-				and sgs.playerRoles.renegade < 1
-				and mode >= "03p"
-			then
-				if (self.role == "lord" or self.role == "loyalist")
-					and sgs.playerRoles.rebel == 1 and #self.enemies < 2 and dying:isNude()
-					and self.room:getCurrent():getNextAlive():objectName() ~= dying:objectName()
-					and #self.friends > 2
-				then
-					peach_str = usePeachTo()
-					if peach_str
-					then
-						self:speak("bianshi", dying:isFemale())
-						sgs.ai_doNotUpdateIntenion = true
-					end
-				elseif self.role == "rebel"
-					and sgs.playerRoles.loyalist < 1
-					and #self.enemies < 2 and dying:isNude()
-					and self.room:getCurrent():getNextAlive():objectName() ~= dying:objectName()
-					and #self.friends > 2 and not self:isWeak(self.friends)
-				then
-					peach_str = usePeachTo()
-					if peach_str
-					then
-						self:speak("bianshi", dying:isFemale())
-						sgs.ai_doNotUpdateIntenion = true
-					end
-				end
-			end
-			if sgs.jl_bingfen
-				and math.random() < 0.30
-			then
-				peach_str = usePeachTo()
-				if peach_str and jl_bingfen3
-				then
-					sgs.JLBFto = self.player
-					self.player:speak(jl_bingfen3[math.random(1, #jl_bingfen3)])
-					self.room:getThread():delay(sgs.delay * 2)
 				end
 			end
 		end

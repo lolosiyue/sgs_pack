@@ -205,10 +205,12 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 			if self:isFriend(p) then
 				if use.card:isKindOf("AmazingGrace") and
 					(p:getSeat() - current:getSeat()) % (global_room:alivePlayerCount()) < global_room:alivePlayerCount() / 2 then
-					return self:askForDiscard("dummyreason", 1, 1, false, false)
+						local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 				end
 				if use.card:isKindOf("GodSalvation") and p:isWounded() or use.card:isKindOf("ExNihilo") then
-					return self:askForDiscard("dummyreason", 1, 1, false, false)
+					local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 				end
 			end
 			if self:isEnemy(p) or (self:isFriend(p) and p:getRole() == "loyalist" and not hasJueqingEffect(self.player, p, getCardDamageNature(self.player, p, use.card)) and self.player:isLord() and p:getHp() == 1) then
@@ -231,8 +233,8 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 						if self:damageIsEffective(p, sgs.DamageStruct_Normal, from) then
 							if sj_num == 0 and friend_null <= 0 then
 								if self:isEnemy(from) and hasJueqingEffect(from, p, getCardDamageNature(from, p, use.card)) then
-									return self:askForDiscard(
-										"dummyreason", 1, 1, false, false)
+									local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 								end
 								if self:isFriend(from) and p:getRole() == "loyalist" and from:isLord() and p:getHp() == 1 and not hasJueqingEffect(from, p, getCardDamageNature(from, p, use.card)) then
 									return
@@ -250,20 +252,25 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 							if self:damageIsEffective(p, sgs.DamageStruct_Fire, self.player) then
 								if (p:hasArmorEffect("vine") or p:getMark("@gale") > 0) and self.player:getHandcardNum() > 3
 									and not (self.player:hasSkill("hongyan") and getKnownCard(p, p, "spade") > 0) then
-									return self:askForDiscard("dummyreason", 1, 1, false, false)
+										local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+										if #to_discard>0 then return "$"..to_discard[1] end
 								elseif p:isChained() and not self:isGoodChainTarget(p, use.from) then
-									return self:askForDiscard("dummyreason", 1, 1, false, false)
+									local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 								end
 							end
 						end
 					elseif (use.card:isKindOf("Snatch") or use.card:isKindOf("Dismantlement")) and not p:isKongcheng() then
+						self.room:writeToConsole("T10")
 						if self:hasTrickEffective(use.card, p) then
-							return self:askForDiscard("dummyreason", 1, 1, false, false)
+							local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 						end
 					elseif use.card:isKindOf("Duel") then
 						if self:hasTrickEffective(use.card, p) then
 							if self:damageIsEffective(p, sgs.DamageStruct_Normal, self.player) then
-								return self:askForDiscard("dummyreason", 1, 1, false, false)
+								local to_discard = self:askForDiscard("dummyreason",1,1,false,false)
+								if #to_discard>0 then return "$"..to_discard[1] end
 							end
 						end
 					end
@@ -274,7 +281,12 @@ sgs.ai_skill_cardask["@PlusTaohui"] = function(self, data)
 
 	return "."
 end
-
+sgs.ai_target_revises.PlusTaohui = function(to,card,self)
+    if card:isKindOf("TrickCard") and card:isNDTrick() and to:getHandcardNum() <= to:getMaxHp()
+	then
+		return self.player:getHandcardNum()<2
+	end
+end
 
 
 

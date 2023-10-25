@@ -2088,7 +2088,7 @@ PlusTaohui = sgs.CreateTriggerSkill {
 			local source = use.from
 			local targets = use.to
 			local card = use.card
-			if source:objectName() ~= player:objectName() then
+			if source and source:objectName() ~= player:objectName() then
 				if player:getHandcardNum() <= player:getMaxHp() then
 					if targets:contains(player) then
 						if card:isNDTrick() then
@@ -2663,115 +2663,7 @@ XiaHouDun_Plus:addSkill(PlusGanglie)
 		突袭(PlusTuxi)：摸牌阶段摸牌时，你可以少摸X张牌，然后获得X名其他角色的各一张手牌。
 	技能设计：小A
 	状态：验证通过
-]]
---
-
---ZhangLiao_Plus = sgs.General(extension, "ZhangLiao_Plus", "wei", 4, true)
-
---[[
-	技能：PlusTuxi
-	技能名：突袭
-	描述：摸牌阶段，你可以少摸X张牌，然后获得X名其他角色的各一张手牌。
-	状态：验证通过
-]]
---
-PlusTuxi_Card = sgs.CreateSkillCard {
-	name = "PlusTuxi_Card",
-	target_fixed = false,
-	will_throw = true,
-	filter = function(self, targets, to_select)
-		local player = sgs.Self
-		local x = player:getMark("PlusTuxi")
-		if #targets < x then
-			if to_select:objectName() ~= sgs.Self:objectName() then
-				return not to_select:isKongcheng()
-			end
-		end
-	end,
-	feasible = function(self, targets)
-		return #targets > 0
-	end,
-	on_effect = function(self, effect)
-		local source = effect.from
-		local target = effect.to
-		local room = source:getRoom()
-		room:setPlayerFlag(target, "PlusTuxi_target")
-		if not source:hasFlag("PlusTuxi") then
-			room:setPlayerFlag(source, "PlusTuxi")
-		end
-	end,
-}
-PlusTuxiVS = sgs.CreateViewAsSkill {
-	name = "PlusTuxi",
-	n = 0,
-	view_as = function(self, cards)
-		return PlusTuxi_Card:clone()
-	end,
-	enabled_at_play = function(self, player)
-		return false
-	end,
-	enabled_at_response = function(self, player, pattern)
-		return pattern == "@PlusTuxi"
-	end
-}
-PlusTuxi = sgs.CreateTriggerSkill {
-	name = "PlusTuxi",
-	events = { sgs.DrawNCards, sgs.AfterDrawNCards },
-	view_as_skill = PlusTuxiVS,
-	on_trigger = function(self, event, player, data)
-		local room = player:getRoom()
-		if event == sgs.DrawNCards then
-			local can_invoke = false
-			local other_players = room:getOtherPlayers(player)
-			for _, target in sgs.qlist(other_players) do
-				if not target:isKongcheng() then
-					can_invoke = true
-					break;
-				end
-			end
-			if can_invoke then
-				local tot = data:toInt()
-				room:setPlayerMark(player, "PlusTuxi", tot)
-				local prompt = string.format("#PlusTuxi::%s:%d", self:objectName(), tot) --%src,%dest,%arg
-				if room:askForUseCard(player, "@PlusTuxi", prompt) then
-					room:broadcastSkillInvoke(self:objectName())
-					local x = 0
-					for _, target in sgs.qlist(other_players) do
-						if target:hasFlag("PlusTuxi_target") then
-							x = x + 1
-						end
-					end
-					local count = data:toInt()
-					data:setValue(count - x)
-				end
-			end
-		elseif event == sgs.AfterDrawNCards then
-			if player:getPhase() == sgs.Player_Draw then
-				if player:hasFlag("PlusTuxi") then
-					room:setPlayerFlag(player, "-PlusTuxi")
-					local moves = sgs.CardsMoveList()
-					local move = sgs.CardsMoveStruct()
-					local other_players = room:getOtherPlayers(player)
-					local id
-					for _, target in sgs.qlist(other_players) do
-						if target:hasFlag("PlusTuxi_target") then
-							id = room:askForCardChosen(player, target, "h", self:objectName())
-							move = sgs.CardsMoveStruct()
-							move.card_ids:append(id)
-							move.to = player
-							move.to_place = sgs.Player_PlaceHand
-							moves:append(move)
-						end
-					end
-					room:moveCardsAtomic(moves, false)
-				end
-			end
-			return false
-		end
-	end,
-	priority = 0, --先计算摸牌技，如英姿庸肆
-}
---ZhangLiao_Plus:addSkill(PlusTuxi)
+]]--
 
 ----------------------------------------------------------------------------------------------------
 
