@@ -4193,6 +4193,10 @@ function SmartAI:getLeastHandcardNum(player)
 		end
 	end
 
+	if player:hasSkill("PlusDuoshi") and least < 1
+	then
+		least = 1
+	end
 
 	return least
 end
@@ -6598,6 +6602,7 @@ function getBestHp(owner)
 
 	if owner:hasSkill("PlusPaoxiao") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("PlusLongdan") then return 2 end
+	if owner:hasSkill("PlusDujiang") and owner:getMark("PlusDujiang") == 0 and owner:getPile("slack"):length() >= 4 then return owner:getMaxHp() - 1 end
 
 
 	return owner:getMaxHp()

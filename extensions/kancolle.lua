@@ -515,7 +515,7 @@ kan_audio = sgs.CreateTriggerSkill {
 	end,
 	on_trigger = function(self, triggerEvent, player, data)
 		local room = player:getRoom()
-		room:writeToConsole(room:getMode())
+		--room:writeToConsole(room:getMode())
 		local x = 1
 		if triggerEvent == sgs.PreCardUsed or triggerEvent == sgs.CardResponded then
 			local card = nil

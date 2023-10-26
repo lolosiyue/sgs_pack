@@ -2143,7 +2143,7 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 		local def = sgs.getDefenseSlash(enemy, self)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
-		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
@@ -2156,7 +2156,7 @@ sgs.ai_skill_use_func["#PlusQimou_Card"] = function(card, use, self)
 		local def = sgs.getDefense(enemy)
 		local slash = sgs.Sanguosha:cloneCard("slash")
 		slash:deleteLater()
-		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies)
+		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 
 		if not self.player:canSlash(enemy, slash, false) then
 		elseif self:slashProhibit(nil, enemy) then
@@ -2271,21 +2271,22 @@ sgs.ai_skill_use["@PlusZhongyong"] = function(self, prompt)
 	local max_point = max_card:getNumber()
 	local slash = sgs.Sanguosha:cloneCard("slash")
 	slash:deleteLater()
-	local dummy_use = { isDummy = true }
+	local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
 	self.player:setFlags("slashNoDistanceLimit")
 	self:useBasicCard(slash, dummy_use)
 	self.player:setFlags("-slashNoDistanceLimit")
-	if dummy_use.card then
-		for _, enemy in ipairs(self.enemies) do
+	if not dummy_use.to:isEmpty() then
+		for _,enemy in sgs.qlist(dummy_use.to)do
 			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) and not enemy:isKongcheng() and self.player:canPindian(enemy) then
 				local enemy_max_card = self:getMaxCard(enemy)
 				local enemy_max_point = enemy_max_card and enemy_max_card:getNumber() or 100
 				if max_point > enemy_max_point then
+					self.shuangren_card = max_card:getEffectiveId()
 					return "#PlusZhongyong_Card:" .. max_card:getEffectiveId() .. ":->" .. enemy:objectName()
 				end
 			end
 		end
-		for _, enemy in ipairs(self.enemies) do
+		for _,enemy in sgs.qlist(dummy_use.to)do
 			if not (enemy:hasSkill("kongcheng") and enemy:getHandcardNum() == 1) and not enemy:isKongcheng() and self.player:canPindian(enemy) then
 				if max_point >= 10 then
 					self.shuangren_card = max_card:getEffectiveId()
@@ -2295,7 +2296,7 @@ sgs.ai_skill_use["@PlusZhongyong"] = function(self, prompt)
 		end
 		if #self.enemies < 1 then return end
 	end
-	slash:deleteLater()
+	
 	return "."
 end
 
@@ -2452,7 +2453,6 @@ end
 sgs.ai_skill_use_func["#PlusZhiheng_Card"] = function(card, use, self)
 	local unpreferedCards = {}
 	local cards = sgs.QList2Table(self.player:getHandcards())
-	self.player:speak("T1")
 	if self.player:getHp() < 3 then
 		local zcards = self.player:getCards("he")
 		local use_slash, keep_jink, keep_analeptic, keep_weapon = false, false, false
@@ -2505,7 +2505,6 @@ sgs.ai_skill_use_func["#PlusZhiheng_Card"] = function(card, use, self)
 			end
 		end
 	end
-	self.player:speak("T2")
 	if #unpreferedCards == 0 then
 		local use_slash_num = 0
 		self:sortByKeepValue(cards)
@@ -2557,7 +2556,6 @@ sgs.ai_skill_use_func["#PlusZhiheng_Card"] = function(card, use, self)
 			table.insert(unpreferedCards, self.player:getOffensiveHorse():getId())
 		end
 	end
-	self.player:speak("T3")
 	for index = #unpreferedCards, 1, -1 do
 		if sgs.Sanguosha:getCard(unpreferedCards[index]):isKindOf("WoodenOx") and self.player:getPile("wooden_ox"):length() > 0 then
 			table.removeOne(unpreferedCards, unpreferedCards[index])
@@ -2724,8 +2722,8 @@ sgs.ai_use_value["PlusFanjian_Card"] = 0
 sgs.ai_card_intention["PlusFanjian_Card"] = 80
 
 sgs.ai_use_revises.PlusKeji = function(self, card, use)
-	if card:isKindOf("Slash") and not self:hasCrossbowEffect()
-		and (#self.enemies > 1 or #self.friends > 1) and self:getOverflow() > 1 and self.player:getMark("PlusDujiang") == 0 and self.player:hasSkill("PlusDujiang")
+	if card:isKindOf("Slash") and not self:hasCrossbowEffect() and not self.player:hasFlag("PlusKejiSlashInPlayPhase")
+		and self.player:getMark("PlusDujiang") == 0 and self.player:hasSkill("PlusDujiang")
 	then
 		return false
 	end
@@ -3267,7 +3265,7 @@ sgs.ai_skill_use_func["#PlusJieyin_Card"] = function(card, use, self)
 		end
 	end
 	local can_invoke = false
-	if target:isLord() then
+	if target and target:isLord() then
 		if target:getMark("hunzi") == 0 and target:hasSkill("hunzi") and self:getEnemyNumBySeat(self.player, target) <= (target:getHp() >= 2 and 1 or 0) then
 			return
 		elseif self:needToLoseHp(target, nil, nil, true, true) then

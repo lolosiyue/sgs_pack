@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "HuangYueYing_Plus"
+choose_general = "GuYong_Plus"
 #1920*1080 125%
 #pip cache purge
 num_test_runs = 10

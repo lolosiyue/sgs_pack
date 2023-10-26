@@ -3569,7 +3569,7 @@ sgs.ai_skill_use["@@meispxiaoji"] = function(self, prompt)
 				local cardx = {}
 				for _, key in sgs.list(enemy:getPileNames()) do
 					for _, id in sgs.qlist(enemy:getPile(key)) do
-						cards:append(sgs.Sanguosha:getCard(id))
+						table.insert(cardx, sgs.Sanguosha:getCard(id))
 					end
 				end
 				for i = 1, x, 1 do

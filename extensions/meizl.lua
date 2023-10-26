@@ -3027,7 +3027,7 @@ meizldushiskill = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
-		if damage.card:isKindOf("Slash") and player:getHandcardNum() <= player:getHp() then
+		if damage.card and damage.card:isKindOf("Slash") and player:getHandcardNum() <= player:getHp() then
 			damage.damage = damage.damage + 1
 			data:setValue(damage)
 			local log = sgs.LogMessage()

@@ -4067,6 +4067,7 @@ addAiSkills("tenyearzhanjue").getTurnUseCard = function(self)
 	fs:setSkillName("tenyearzhanjue")
   	for i,c in sgs.list(self.player:getHandcards())do
 		i = c:getEffectiveId()
+		self.player.speak("tenyearzhanjue:"..i)
 		if self.player:getMark("tenyearzhanjueIgnore_"..i.."-Clear")>0
 	   	then continue end
 		fs:addSubcard(c)
@@ -4080,6 +4081,7 @@ sgs.ai_use_revises.tenyearzhanjue = function(self,card,use)
 	if card:getSkillName()=="tenyearzhanjue"
 	then
 		for _,ep in sgs.list(self.enemies)do
+			self.player.speak("tenyearzhanjue2")
 			if use.to and CanToCard(card,self.player,ep,use.to)
 			and getCardsNum("Slash",ep,self.player)<1
 			then

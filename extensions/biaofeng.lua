@@ -5274,39 +5274,11 @@ PlusLiegong_Target = sgs.CreateTargetModSkill {
 		end
 	end,
 }
---[[
-PlusLiegongVS = sgs.CreateOneCardViewAsSkill{
-	name = "PlusLiegong",
-	response_or_use = true,
-	view_filter = function(self, card)
-	if not card:isKindOf("Slash") then return false end
-		if sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_PLAY then
-			local slash = sgs.Sanguosha:cloneCard("slash", sgs.Card_SuitToBeDecided, -1)
-			slash:addSubcard(card:getEffectiveId())
-			slash:deleteLater()
-			return slash:isAvailable(sgs.Self)
-		end
-		return true
-	end,
-	view_as = function(self, card)
-		local slash = sgs.Sanguosha:cloneCard(card:objectName(), card:getSuit(), card:getNumber())
-		slash:addSubcard(card:getId())
-		slash:setSkillName(self:objectName())
-		return slash
-	end,
-	enabled_at_play = function(self, player)
-		return sgs.Slash_IsAvailable(player)
-	end,
-	enabled_at_response = function(self, player, pattern)
-		return pattern == "slash"
-	end
-}]]
 
 PlusLiegong = sgs.CreateTriggerSkill {
 	name = "PlusLiegong",
 	frequency = sgs.Skill_NotFrequent,
 	events = { sgs.TargetConfirmed },
-	--view_as_skill = PlusLiegongVS,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local use = data:toCardUse()
@@ -5314,7 +5286,6 @@ PlusLiegong = sgs.CreateTriggerSkill {
 		local targets = use.to
 		if source:objectName() == player:objectName() then
 			local card = use.card
-			--if card:isKindOf("Slash") and card:getSkillName() == "PlusLiegong" and card:hasFlag("PlusLiegong") then
 			if card:isKindOf("Slash") then
 				for _, target in sgs.qlist(targets) do
 					if not player:inMyAttackRange(target) then
@@ -6165,6 +6136,7 @@ PlusFanjian_Card = sgs.CreateSkillCard {
 		card_use.to:append(to)
 		card_use.card = slash
 		room:useCard(card_use, false)
+		slash:deleteLater()
 	end
 }
 PlusFanjianVS = sgs.CreateViewAsSkill {
@@ -6299,69 +6271,7 @@ PlusKeji = sgs.CreateTriggerSkill {
 		return false
 	end
 }
---[[
-PlusKeji = sgs.CreateTriggerSkill{
-	name = "PlusKeji",
-	frequency = sgs.Skill_Frequent,
-	events = {sgs.CardUsed, sgs.CardResponded, sgs.BeforeCardsMove},
-	on_trigger = function(self, event, player, data)
-		local room = player:getRoom()
-		if event == sgs.CardUsed then
-			local phase = player:getPhase()
-			if phase == sgs.Player_Play then
-				local card = data:toCardUse().card
-				if card:isKindOf("Slash") then
-					room:setPlayerFlag(player, "PlusKeji_use_slash")
-				end
-			end
-		elseif event == sgs.CardResponded then
-			local phase = player:getPhase()
-			if phase == sgs.Player_Play then
-				local card = data:toCardResponse().m_card
-				if card:isKindOf("Slash") then
-					room:setPlayerFlag(player, "PlusKeji_use_slash")
-				end
-			end
-		elseif event == sgs.CardsMoveOneTime and player:getPhase() == sgs.Player_Discard then
-			if not player:hasFlag("PlusKeji_use_slash") then
-				--if player:getSlashCount() == 0 then
-					local move = data:toMoveOneTime()
-					local source = move.from
-					if source:objectName() == player:objectName() then
-						if move.to_place == sgs.Player_DiscardPile then
-							local reason = move.reason.m_reason
-							if bit:_and(reason, sgs.CardMoveReason_S_MASK_BASIC_REASON) == sgs.CardMoveReason_S_REASON_DISCARD then
-								local cids = sgs.IntList()
-								local ids = sgs.QList2Table(move.card_ids)
-								local places = move.from_places
-								for i=1, #ids, 1 do
-									local id = ids[i]
-									local place = places[i]
-									if place ~= sgs.Player_PlaceDelayedTrick then
-										if place ~= sgs.Player_PlaceSpecial then
-											if room:getCardPlace(id) == sgs.Player_DiscardPile then
-												cids:append(id)
-											end
-										end
-									end
-								end
-								if not cids:isEmpty() then
-									if room:askForSkillInvoke(player, self:objectName(), data) then
-										room:broadcastSkillInvoke(self:objectName())
-										for _,card_id in sgs.qlist(cids) do
-											player:addToPile("slack", card_id)
-										end
-									end
-								end
-							end
-						end
-					end
-				--end
-			end
-		end
-	end,
-	priority = 4,
-}]]
+
 RemoveSlack = function(lvmeng)
 	local slack = lvmeng:getPile("slack")
 	if slack:length() > 0 then
@@ -6370,7 +6280,6 @@ RemoveSlack = function(lvmeng)
 		local card_id = room:askForAG(lvmeng, slack, false, "PlusKeji")
 		local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_REMOVE_FROM_PILE, "", "PlusKeji", "")
 		room:throwCard(sgs.Sanguosha:getCard(card_id), reason, nil)
-		--room:throwCard(card_id, lvmeng)
 		slack:removeOne(card_id)
 		room:clearAG()
 		return true
@@ -6663,6 +6572,7 @@ PlusCuorui = sgs.CreateTriggerSkill {
 							use.nullified_list = nullified_list
 							data:setValue(use)
 							room:setTag("SkipGameRule", sgs.QVariant(true))
+							room:removeTag("PlusCuorui")
 							break
 						end
 						room:removeTag("PlusCuorui")
