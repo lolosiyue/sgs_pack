@@ -411,7 +411,7 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 	local items = choices:split("+")
 	if table.contains(items, "PlusGanglie_choice1") then
 		if not use.from or use.from:isDead() then return "PlusGanglie_cancel" end
-		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))
+		if self.role == "rebel" and sgs.ai_role[use.fom:objectName()]=="rebel" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))
 			and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 			return "PlusGanglie_cancel"
 		end
@@ -992,7 +992,7 @@ sgs.ai_card_intention.PlusShensu_Card = sgs.ai_card_intention.Slash
 function sgs.ai_skill_invoke.PlusJushou(self, data)
 	local sbdiaochan = self.room:findPlayerBySkillName("lihun")
 	if sbdiaochan and sbdiaochan:faceUp() and not self:willSkipPlayPhase(sbdiaochan)
-		and (self:isEnemy(sbdiaochan) or (sgs.turncount <= 1 and sgs.evaluatePlayerRole(sbdiaochan) == "neutral")) then
+		and (self:isEnemy(sbdiaochan) or (sgs.turncount <= 1 and sgs.ai_role[sbdiaochan:objectName()]=="neutral")) then
 		return false
 	end
 	if not self.player:faceUp() then return true end
@@ -3571,7 +3571,7 @@ function sgs.ai_slash_prohibit.PlusJiahuo(self, from, to, card)
 	if self:isFriend(to, from) then return false end
 	if from:hasFlag("NosJiefanUsed") then return false end
 	for _, friend in ipairs(self:getFriendsNoself(from)) do
-		if to:canSlash(friend) and self:slashIsEffective(card, friend, from) then return true end
+		if to:canSlash(friend) and self:slashIsEffective(card, friend, from) then return not to:faceUp() end
 	end
 end
 
@@ -3762,7 +3762,7 @@ PlusSheji_skill.getTurnUseCard = function(self)
 	if self.player:getHandcardNum() > 1 then
 		for _, c in sgs.qlist(self.player:getHandcards()) do
 			if not c:isKindOf("Analeptic") then
-				if willUse(self, c:getClassName()) or c:isAvailable(self.player) then return end
+				if self:willUse(self.player, c) or c:isAvailable(self.player) then return end
 			end
 		end
 	end
@@ -3889,9 +3889,9 @@ sgs.ai_skill_playerchosen.PlusQingnang = function(self, targets)
 		if self:isFriend(friend) and friend:isAlive() then
 			if isLord(friend) and self:isWeak(friend) then return friend end
 			if not (friend:hasSkill("zhiji") and friend:getMark("zhiji") == 0 and not self:isWeak(friend) and friend:getPhase() == sgs.Player_NotActive) then
-				if sgs.evaluatePlayerRole(friend) == "renegade" then
+				if sgs.ai_role[friend:objectName()]== "renegade" then
 					second = friend
-				elseif sgs.evaluatePlayerRole(friend) ~= "renegade" and not first then
+				elseif sgs.ai_role[friend:objectName()] ~= "renegade" and not first then
 					first = friend
 				end
 			end
@@ -4125,7 +4125,7 @@ function sgs.ai_slash_prohibit.PlusLeiji(self, to, card)
 	if self.role == "rebel" and to:isLord() then
 		local other_rebel
 		for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
-			if sgs.evaluatePlayerRole(player) == "rebel" or sgs.compareRoleEvaluation(player, "rebel", "loyalist") == "rebel" then
+			if sgs.ai_role[player:objectName()] == "rebel" or sgs.compareRoleEvaluation(player, "rebel", "loyalist") == "rebel" then
 				other_rebel = player
 				break
 			end
@@ -4381,7 +4381,7 @@ sgs.ai_skill_invoke.PlusAnxi = function(self, data)
 	local max_point = max_card:getNumber()
 	local target = self.room:getCurrent()
 	if self:isFriend(target) then return false end
-	if target:getHandcardNum() > self.player:getHandcardNum() and not target:isKongcheng() and self.player:canPindian(target, "PlusAnxi") then
+	if target:getHandcardNum() > self.player:getHandcardNum() and not target:isKongcheng() and self.player:canPindian(target) then
 		local enemy_max_card = self:getMaxCard(target)
 		local allknown = 0
 		if self:getKnownNum(target) == target:getHandcardNum() then
@@ -4616,8 +4616,7 @@ sgs.ai_skill_invoke.SixWulve = function(self, data)
                     end
                 end]]
 			else
-				if c:isKindOf("NatureSlash") then
-					if c:isKindOf("FireSlash") or c:isKindOf("ThunderSlash") then
+				if c:isKindOf("Slash") then
 						local dummyuse = { isDummy = true, to = sgs.SPlayerList() }
 						self:useBasicCard(c, dummyuse)
 						local targets = {}
@@ -4628,7 +4627,7 @@ sgs.ai_skill_invoke.SixWulve = function(self, data)
 								--end
 							end
 						end
-					end
+				
 				end
 				--if use_card:isNDTrick() then
 				if c:isKindOf("TrickCard") and not c:isKindOf("Collateral") then
@@ -4719,19 +4718,17 @@ sgs.ai_skill_askforag.SixWulve = function(self, card_ids)
                 end
             end]]
 		else
-			if c:isKindOf("NatureSlash") and self:getCardsNum("NatureSlash") == 0 then
-				if c:isKindOf("FireSlash") or c:isKindOf("ThunderSlash") then
+			if c:isKindOf("Slash") and self:getCardsNum("Slash") == 0 then
+				
 					local dummyuse = { isDummy = true, to = sgs.SPlayerList() }
 					self:useBasicCard(c, dummyuse)
 					local targets = {}
 					if not dummyuse.to:isEmpty() then
 						for _, p in sgs.qlist(dummyuse.to) do
-							if p:isChained() then
 								return c:getEffectiveId()
-							end
 						end
 					end
-				end
+				
 			end
 			--if use_card:isNDTrick() then
 			if c:isKindOf("TrickCard") and not c:isKindOf("Collateral") then
@@ -4750,6 +4747,27 @@ sgs.ai_skill_askforag.SixWulve = function(self, card_ids)
 	end
 
 	return -1
+end
+
+sgs.ai_can_damagehp.SixWulve = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return card:isKindOf("Duel") or card:isKindOf("AOE")
+	end
+end
+sgs.ai_target_revises.SixWulve = function(to, card, self)
+	if card:isDamageCard()
+		and not self:isFriend(to)
+		and card:subcardsLength() > 0
+	then
+		for _, id in sgs.list(card:getSubcards()) do
+			if isCard("Peach,Analeptic", sgs.Sanguosha:getCard(id), to)
+			then
+				return true
+			end
+		end
+	end
 end
 
 
@@ -5098,6 +5116,7 @@ sgs.ai_skill_use["@@SixMingduan"] = function(self, prompt)
 	local target = self.room:getCurrent()
 	local slash2 = sgs.Sanguosha:cloneCard("slash")
 	slash2:deleteLater()
+	if self.room:alivePlayerCount()<=2 or #self.friends_noself < 1 then return "." end
 
 	if self:isEnemy(target) then
 		if target:isJilei(slash2) then can_invoke = true end
@@ -5140,9 +5159,18 @@ end
 sgs.ai_skill_invoke.SixQiaoxie = function(self, data)
 	local target = data:toPlayer()
 	if target and not self:isEnemy(target) and #self.enemies > 0 and self:getCardsNum("Slash") >= 1 and not self:needBear() then
-		self:sort(self.enemies, "defense")
-		if not self.player:inMyAttackRange(self.enemies[1]) then
-			return true
+		local slash = sgs.Sanguosha:cloneCard("slash")
+		slash:deleteLater()
+		local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
+		self.player:setFlags("slashNoDistanceLimit")
+		self:useBasicCard(slash, dummy_use)
+		self.player:setFlags("-slashNoDistanceLimit")
+		if not dummy_use.to:isEmpty() then
+			for _, p in sgs.qlist(dummy_use.to) do
+				if not self.player:inMyAttackRange(p) then
+					return true
+				end
+			end
 		end
 	end
 	return false
@@ -5895,9 +5923,9 @@ sgs.ai_skill_playerchosen.SixToujing = function(self, targets)
 		if self:isFriend(friend) and friend:isAlive() and not (hasManjuanEffect(friend) and friend:getLostHp() == 0) then
 			if isLord(friend) and self:isWeak(friend) then return friend end
 			if not (friend:hasSkill("zhiji") and friend:getMark("zhiji") == 0 and not self:isWeak(friend) and friend:getPhase() == sgs.Player_NotActive) then
-				if sgs.evaluatePlayerRole(friend) == "renegade" then
+				if sgs.ai_role[friend:objectName()]== "renegade" then
 					second = friend
-				elseif sgs.evaluatePlayerRole(friend) ~= "renegade" and not first then
+				elseif sgs.ai_role[friend:objectName()] ~= "renegade" and not first then
 					first = friend
 				end
 			end
@@ -6636,7 +6664,7 @@ sgs.ai_card_intention["SevenZhaoXiang"] = -40
 function sgs.ai_skill_invoke.SevenTaoHui(self, data)
 	local sbdiaochan = self.room:findPlayerBySkillName("lihun")
 	if sbdiaochan and sbdiaochan:faceUp() and not self:willSkipPlayPhase(sbdiaochan)
-		and (self:isEnemy(sbdiaochan) or (sgs.turncount <= 1 and sgs.evaluatePlayerRole(sbdiaochan) == "neutral")) then
+		and (self:isEnemy(sbdiaochan) or (sgs.turncount <= 1 and sgs.ai_role[sbdiaochan:objectName()]=="neutral")) then
 		return false
 	end
 	if not self.player:faceUp() then return true end
@@ -7166,7 +7194,7 @@ sgs.ai_skill_cardask["@SevenQuGao-discard"] = function(self, data)
 		end
 	elseif self:isFriend(use.to:first()) then
 		if not use.from or use.from:isDead() then return "cancel" end
-		if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not hasJueqingEffect(use.from, use.to:first(), getCardDamageNature(use.from, use.to:first(), use.card))
+		if self.role == "rebel" and sgs.ai_role[use.from:objectName()] == "rebel" and not hasJueqingEffect(use.from, use.to:first(), getCardDamageNature(use.from, use.to:first(), use.card))
 			and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 			return "."
 		end

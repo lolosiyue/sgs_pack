@@ -236,8 +236,8 @@ end
 sgs.ai_card_intention["luatuxiex"] = function(self, card, from, tos)
 	local lord = getLord(self.player)
 	local tuxi_lord = false
-	if sgs.evaluatePlayerRole(from) == "neutral" and sgs.evaluatePlayerRole(tos[1]) == "neutral" and
-		(not tos[2] or sgs.evaluatePlayerRole(tos[2]) == "neutral") and lord and not lord:isKongcheng() and
+	if sgs.ai_role[from:objectName()]=="neutral" and sgs.ai_role[tos[1]:objectName()]=="neutral" and
+		(not tos[2] or sgs.ai_role[tos[2]:objectName()]=="neutral") and lord and not lord:isKongcheng() and
 		not (self:needKongcheng(lord) and lord:getHandcardNum() == 1 ) and
 		self:hasLoseHandcardEffective(lord) and not ( hasTuntianEffect(lord, true)) and from:aliveCount() >= 4 then
 			sgs.updateIntention(from, lord, -80)

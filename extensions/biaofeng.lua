@@ -8590,7 +8590,7 @@ PlusSheji_Target = sgs.CreateTargetModSkill {
 	end,
 	residue_func = function(self, player, card)
 		if player:hasSkill("PlusSheji") and card:getSkillName() == "PlusSheji" then
-			return 1
+			return 999
 		end
 	end,
 }

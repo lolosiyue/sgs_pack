@@ -348,7 +348,7 @@ function sgs.ai_slash_prohibit.luafan(self, from, to, card)
 	if from:getRole() == "rebel" and to:isLord() then
 		local other_rebel
 		for _, player in sgs.qlist(self.room:getOtherPlayers(from)) do
-			if sgs.evaluatePlayerRole(player) == "rebel" or sgs.compareRoleEvaluation(player, "rebel", "loyalist") == "rebel" then
+			if sgs.ai_role[player:objectName()]== "rebel" or sgs.compareRoleEvaluation(player, "rebel", "loyalist") == "rebel" then
 				other_rebel = player
 				break
 			end

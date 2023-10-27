@@ -1004,8 +1004,8 @@ sgs.ai_skill_playerchosen.n_banyun = function(self, targets)
         if self:isFriend(friend) and friend:isAlive() then
             if isLord(friend) then return friend end
             if not (friend:hasSkill("zhiji") and friend:getMark("zhiji") == 0 and not self:isWeak(friend) and friend:getPhase() == sgs.Player_NotActive) then
-                if sgs.evaluatePlayerRole(friend) == "renegade" then second = friend
-                elseif sgs.evaluatePlayerRole(friend) ~= "renegade" and not first then first = friend
+                if sgs.ai_role[friend:objectName()] == "renegade" then second = friend
+                elseif sgs.ai_role[friend:objectName()] ~= "renegade" and not first then first = friend
                 end
             end
         end
