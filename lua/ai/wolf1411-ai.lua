@@ -98,7 +98,7 @@ sgs.ai_skill_playerchosen.xionglie = function(self, targets)
 	end
 	local friends = {}
 	for _, target in sgs.qlist(targets) do
-		if self:isFriend(target) and not target:isKongcheng() and self:doNotDiscard(enemy, "h") then
+		if self:isFriend(target) and not target:isKongcheng() and self:doNotDiscard(target, "h") then
 			table.insert(friends, target)
 		end
 	end

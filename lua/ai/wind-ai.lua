@@ -360,7 +360,9 @@ function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 		return value
 	end
 	local cmp = function(a, b)
-		return getCmpValue(a) < getCmpValue(b)
+		local cmpValueA = getCmpValue(a)
+		local cmpValueB = getCmpValue(b)
+		return cmpValueA < cmpValueB
 	end
 	local enemies = self:getEnemies(player)
 	table.sort(enemies, cmp)

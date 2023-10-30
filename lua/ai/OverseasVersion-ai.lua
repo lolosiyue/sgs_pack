@@ -4799,7 +4799,7 @@ sgs.ai_skill_invoke.ov_zuici = function(self,data)
 	local target = data:toPlayer()
 	if target and self:isEnemy(target)
 	then
-		return target:getPhase()>shs.Player_Play
+		return target:getPhase()>sgs.Player_Play
 		or target:getMark("&ov_dingyi1")>0
 		or target:getMark("&ov_dingyi2")>0 and self:getOverflow(target)>1
 	end

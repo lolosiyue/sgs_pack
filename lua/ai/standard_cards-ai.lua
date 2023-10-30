@@ -3022,7 +3022,9 @@ function SmartAI:useCardIndulgence(card, use)
 		return value + (enemy:aliveCount() - self:playerGetRound(enemy)) / 2
 	end
 	local function cmp(a, b)
-		return getvalue(a) > getvalue(b)
+		local cmpValueA = getvalue(a)
+		local cmpValueB = getvalue(b)
+		return cmpValueA > cmpValueB
 	end
 	table.sort(self.enemies, cmp)
 	for _, ep in sgs.list(self.enemies) do

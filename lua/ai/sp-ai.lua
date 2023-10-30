@@ -1605,7 +1605,7 @@ xiemu_skill.getTurnUseCard = function(self)
 	if kingdomDistribute[maxK]+self:getCardsNum("Slash")<4 then return end
 	self.room:setTag("xiemu_choice",sgs.QVariant(maxK))
 	for _,c in sgs.qlist(self.player:getHandcards())do
-		if c:isKindOf("Slash") then return sgs.Card_Parse("@XiemuCard="..subcard:getEffectiveId()) end
+		if c:isKindOf("Slash") then return sgs.Card_Parse("@XiemuCard="..c:getEffectiveId()) end
 	end
 end
 

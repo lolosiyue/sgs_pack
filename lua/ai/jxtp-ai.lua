@@ -4061,7 +4061,7 @@ sgs.ai_skill_defense.tenyearshibei = function(self,to)
 	return to:getMark("shibei")<1 and 1
 	or to:getMark("shibei")<2 and -3
 end
-
+--[[
 addAiSkills("tenyearzhanjue").getTurnUseCard = function(self)
 	local fs = sgs.Sanguosha:cloneCard("duel")
 	fs:setSkillName("tenyearzhanjue")
@@ -4092,7 +4092,7 @@ sgs.ai_use_revises.tenyearzhanjue = function(self,card,use)
 		return use.card==card
 	end
 end
-
+]]
 addAiSkills("tenyearqinwang").getTurnUseCard = function(self)
 	if self.room:getLieges("shu",self.player):length()>0
 	then

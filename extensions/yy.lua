@@ -150,7 +150,7 @@ gz_zhaoyun:addSkill(luanixi) --攻击距离
 gz_zhaoyun:addSkill(luanixi_tr)
 --gz_zhaoyun:addSkill(luanixi_Keep)
 extension:insertRelatedSkills("luanixi", "#luanixi_tr")
-gz_zhaoyun:addSkill("feiyang")
+gz_zhaoyun:addSkill("dangxian")
 gz_zhaoyun:addSkill("bahu")
 
 --extension:insertRelatedSkills("luanixi","#luanixi_Keep")

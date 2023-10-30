@@ -1131,7 +1131,7 @@ sgs.LoadTranslationTable {
 ★已知BUG：被置入处理区时无法发动（突袭缔盟等）；\
 由于太阳神三国杀的程序问题，实际效果为：此牌在被移动后移回原处，中间不会触发技能。（不影响技能效果）",
 	["SixToujing"] = "投井",
-	[":SixToujing"] = "<font color=\"blue\"><b>锁定技，</b></font>当你死亡时，伤害来源为自己，且你需将所有牌交给一名其他角色，然后令其回复2点体力。",
+	[":SixToujing"] = "<font color=\"blue\"><b>锁定技，</b></font>当你死亡时，伤害来源为自己或沒有伤害来源，你需将所有牌交给一名其他角色，然后令其回复2点体力。",
 	["@SixToujing"] = "请选择“投井”的目标角色",
 
 
@@ -6297,7 +6297,7 @@ PlusKeji_Jink = sgs.CreateTriggerSkill {
 			local source = use.from
 			local targets = use.to
 			local card = use.card
-			if source:objectName() ~= player:objectName() then
+			if source and source:objectName() ~= player:objectName() then
 				local times = 0
 				for _, p in sgs.qlist(targets) do
 					if p:objectName() == player:objectName() then
@@ -11593,7 +11593,7 @@ swapEquip = function(first, second) --todo：去掉PlaceTable
 	move2.to_place = sgs.Player_PlaceTable
 	exchangeMove1:append(move1)
 	exchangeMove1:append(move2)
-	room:moveCards(exchangeMove1, false)
+	room:moveCardsAtomic(exchangeMove1, false)
 	local exchangeMove2 = sgs.CardsMoveList()
 	local move3 = sgs.CardsMoveStruct()
 	move3.card_ids = equips1
@@ -11605,7 +11605,7 @@ swapEquip = function(first, second) --todo：去掉PlaceTable
 	move4.to_place = sgs.Player_PlaceEquip
 	exchangeMove2:append(move3)
 	exchangeMove2:append(move4)
-	room:moveCards(exchangeMove2, false)
+	room:moveCardsAtomic(exchangeMove2, false)
 end
 SixWeiyuan = sgs.CreateTriggerSkill {
 	name = "SixWeiyuan",
@@ -12878,6 +12878,8 @@ PlusYingwuClear = sgs.CreateTriggerSkill {
 }
 SunCe_Plus:addSkill(PlusYingwu)
 SunCe_Plus:addSkill(PlusYingwuClear)
+SunCe_Plus:addRelateSkill("yingzi")
+SunCe_Plus:addRelateSkill("yinghun")
 extension:insertRelatedSkills("PlusYingwu", "#PlusYingwuClear")
 
 SunCe_Plus:addSkill("zhiba")

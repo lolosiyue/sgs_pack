@@ -503,6 +503,16 @@ function sgs.getDefense(player) --回避值
 	if player:hasSkill("yishe") then defense = defense + 2 end
 	if player:hasSkill("paiyi") then defense = defense + 1.5 end
 	if player:hasSkill("yongsi") then defense = defense + 2 end
+
+	--add
+	for _, p in sgs.qlist(player:getAliveSiblings()) do
+		if p:hasSkill("SixZhongyong") and player:getHandcardNum() < p:getHandcardNum() and beFriend(p, player) then
+			defense = defense + (p:getHandcardNum() + p:getHp()) * 0.5
+			break
+		end
+	end
+	
+	
 	defense = defense + (player:aliveCount() - (player:getSeat() - current_player:getSeat()) % player:aliveCount()) / 4
 	defense = defense + player:getVisibleSkillList(true):length() * 0.25
 	return defense
@@ -7209,7 +7219,9 @@ function SmartAI:findPlayerToDamage(damage, player, nature, targets, include_sel
 	end
 
 	local func = function(a, b)
-		return getDamageValue(a) >= getDamageValue(b)
+		local cmpValueA = getDamageValue(a)
+		local cmpValueB = getDamageValue(b)
+		return cmpValueA >= cmpValueB
 	end
 	table.sort(targets, func)
 	if return_table then

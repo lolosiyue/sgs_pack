@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "DongZhao_Six"
+choose_general = "HeJin_Six"
 #1920*1080 125%
 #pip cache purge
 num_test_runs = 10
@@ -28,7 +28,6 @@ def bring_window_to_front(window_title):
         window[0].maximize()  # Optional: maximize the window
     else:
         print("Window not found.")
-
 
 # Define a dictionary of target images and their corresponding actions
 target_images = {
@@ -187,13 +186,15 @@ for run in range(num_test_runs):
     while True:
         # Check if the game has finished
         end_game_location = pyautogui.locateOnScreen(end_game_image_path)
-        if end_game_location is not None:
+        if end_game_location is not None  or not psutil.pid_exists(game_process.pid):
             print(f"Test run {run+1} completed.")
             time.sleep(2)
             # Ask the user to press any key to continue or '0' to exit
             user_input = input("Press any key to continue or '0' to exit: ")
+            time.sleep(1)
             cmd_title = "CMD"
             bring_window_to_front(cmd_title)
+            time.sleep(1)
             keyboard.press('2')
             keyboard.release('2')
             time.sleep(1)

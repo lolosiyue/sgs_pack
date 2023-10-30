@@ -2388,15 +2388,15 @@ sgs.ai_skill_use_func["#PlusChenggui"] = function(card, use, self)
 	if not use_card then
 		if hasIndulgence then
 			if self:isFriend(nextAlive) then
-				for _, id in ipairs(cards) do
-					local card = sgs.Sanguosha:getEngineCard(id)
+				for _, card in ipairs(cards) do
+					--local card = sgs.Sanguosha:getEngineCard(id)
 					if card:getSuit() == sgs.Card_Heart then
 						use_card = card
 					end
 				end
 			elseif self:isEnemy(nextAlive) then
-				for _, id in ipairs(cards) do
-					local card = sgs.Sanguosha:getEngineCard(id)
+				for _, card in ipairs(cards) do
+					--local card = sgs.Sanguosha:getEngineCard(id)
 					if card:getSuit() ~= sgs.Card_Heart then
 						use_card = card
 					end
@@ -3313,7 +3313,25 @@ end
 
 sgs.ai_card_intention["#PlusLiangyuan_Card"] = -80
 
+sgs.ai_skill_invoke.PlusYinli = function(self, data)
+	return true
+end
+sgs.ai_skill_askforag.PlusYinli = function(self, card_ids)
+	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
+end
 
+sgs.ai_skill_invoke.PlusHongyan = function(self, data)
+	local target = data:toPlayer()
+	if target and self:isFriend(target) then
+		return true
+	end
+
+	return false
+end
+
+sgs.ai_skill_askforag.PlusHongyan = function(self, card_ids)
+	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
+end
 
 
 sgs.ai_skill_use["@PlusTianxiang"] = function(self, prompt, method)
@@ -5452,10 +5470,9 @@ sgs.ai_skill_use_func["#SixRendeCard"] = function(card, use, self)
 		if friend:objectName() == self.player:objectName() or not self.player:getHandcards():contains(card) then continue end
 		local canJijiang = self.player:hasLordSkill("jijiang") and friend:getKingdom() == "shu"
 		if card:isAvailable(self.player) and ((card:isKindOf("Slash") and not canJijiang) or card:isKindOf("Duel") or card:isKindOf("Snatch") or card:isKindOf("Dismantlement")) then
-			local dummy_use = { isDummy = true, to = sgs.SPlayerList() }
-			local cardtype = card:getTypeId()
-			self["use" .. sgs.ai_type_name[cardtype + 1] .. "Card"](self, card, dummy_use)
-			if dummy_use.card and dummy_use.to:length() > 0 then
+			local dummy_use = self:aiUseCard(card)
+				if dummy_use.card
+				then
 				if card:isKindOf("Slash") or card:isKindOf("Duel") then
 					local t1 = dummy_use.to:first()
 					if dummy_use.to:length() > 1 then
@@ -5733,7 +5750,9 @@ sgs.ai_use_priority["SixSanceCard"] = 3
 sgs.ai_use_value["SixSanceCard"] = 3
 sgs.ai_card_intention["SixSanceCard"] = -80
 
-
+function sgs.ai_cardneed.SixQucai(to, card)
+	return card:getTypeId() == sgs.Card_TypeTrick
+end
 
 
 sgs.ai_skill_invoke.SixZhongyong = function(self, data)
@@ -5745,7 +5764,7 @@ sgs.ai_skill_invoke.SixZhongyong = function(self, data)
 		if not self:slashIsEffective(use.card, target, use.from) then return false end
 		if self:getCardsNum("Jink") > 0 then return true end
 	end
-	if target:hasSkills(sgs.masochism_skill) and not self:isWeak(target) then return false end
+	if self:needToLoseHp(target, use.from, use.card) then return false end
 	if self.player:getHandcardNum() + self.player:getEquips():length() < 2 and not self:isWeak(target) then return false end
 
 
@@ -5821,6 +5840,13 @@ sgs.ai_skill_cardask["@SixWujun"] = function(self, data, pattern, target, target
 		return black_slash:toString()
 	end
 	return "."
+end
+
+sgs.ai_target_revises.SixWujun = function(to, card, self)
+	if card:isKindOf("DefensiveHorse") or card:isKindOf("OffensiveHorse")
+	then
+		return true
+	end
 end
 
 
@@ -5903,14 +5929,18 @@ end
 sgs.ai_choicemade_filter.cardChosen.SixWuzhiCard = sgs.ai_choicemade_filter.cardChosen.snatch
 
 
-
+function sgs.ai_cardneed.SixWuzhi(to, card, self)
+	return isCard("Slash", card, to) and getKnownCard(to, self.player, "Slash", true) == 0
+end
 
 
 sgs.ai_skill_invoke.SixHusi = function(self, data)
 	local move = data:toMoveOneTime()
+	if self.player:isLord() and self:isWeak() then return false end
 	if move.from and self:isFriend(move.from) and move.to and not self:isFriend(move.to) then
 		return move.card_ids:length() >= 2 or self:isWeak(move.from)
 	end
+	if move.from and move.from:objectName() == self.player:objectName() then return not self:isWeak() end
 
 	return false
 end
@@ -5939,26 +5969,6 @@ sgs.ai_skill_playerchosen.SixToujing = function(self, targets)
 		end
 	end
 	return targets[1]
-end
-
-sgs.ai_skill_invoke.PlusYinli = function(self, data)
-	return true
-end
-sgs.ai_skill_askforag.PlusYinli = function(self, card_ids)
-	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
-end
-
-sgs.ai_skill_invoke.PlusHongyan = function(self, data)
-	local target = data:toPlayer()
-	if target and self:isFriend(target) then
-		return true
-	end
-
-	return false
-end
-
-sgs.ai_skill_askforag.PlusHongyan = function(self, card_ids)
-	if self:needKongcheng(self.player, true) then return card_ids[1] else return -1 end
 end
 
 sgs.ai_skill_invoke.PlusYingwu = function(self, data)
@@ -5997,6 +6007,10 @@ sgs.ai_skill_choice.PlusYingwu = function(self, choices, data)
 	return "yingzi"
 end
 
+
+sgs.ai_skill_invoke.SixLiangjie = function(self, data)
+	return self.player:wholeHandCards():isBlack() or self.player:wholeHandCards():isRed()
+end
 
 sgs.ai_skill_invoke.SixLiangjieDraw = function(self, data)
 	return true
@@ -6067,25 +6081,11 @@ sgs.ai_skill_use_func["#SixChunlaoCard"] = function(card, use, self)
 
 	sgs.ai_use_priority["#SixChunlaoCard"] = 0.2
 	local suit_table = { "spade", "club", "heart", "diamond" }
-	local equip_val_table = { 1.2, 1.5, 0.5, 1, 1.3 }
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:getHandcardNum() > 0 then
 			local max_suit_num, max_suit = 0, {}
 			for i = 0, 3, 1 do
 				local suit_num = getKnownCard(enemy, self.player, suit_table[i + 1])
-				for j = 0, 4, 1 do
-					if enemy:getEquip(j) and enemy:getEquip(j):getSuit() == i then
-						local val = equip_val_table[j + 1]
-						if j == 1 and self:needToThrowArmor(enemy) then
-							val = -0.5
-						else
-							if enemy:hasSkills(sgs.lose_equip_skill) then val = val / 8 end
-							if enemy:getEquip(j):getEffectiveId() == self:getValuableCard(enemy) then val = val * 1.1 end
-							if enemy:getEquip(j):getEffectiveId() == self:getDangerousCard(enemy) then val = val * 1.1 end
-						end
-						suit_num = suit_num + j
-					end
-				end
 				if suit_num > max_suit_num then
 					max_suit_num = suit_num
 					max_suit = { i }
@@ -6116,7 +6116,7 @@ sgs.ai_skill_use_func["#SixChunlaoCard"] = function(card, use, self)
 				end
 			end
 			for _, card in ipairs(cards) do
-				if self:getUseValue(card) < 6 and table.contains(max_suit, card:getSuit()) and not (card:isKindOf("Peach") or card:isKindOf("Analeptic")) then
+				if self:getUseValue(card) < 6  and not (card:isKindOf("Peach") or card:isKindOf("Analeptic")) then
 					use.card = sgs.Card_Parse("#SixChunlaoCard:" .. card:getEffectiveId() .. ":")
 					if use.to then use.to:append(enemy) end
 					return
@@ -6129,6 +6129,13 @@ sgs.ai_skill_use_func["#SixChunlaoCard"] = function(card, use, self)
 						if use.to then use.to:append(enemy) end
 						return
 					end
+				end
+			end
+			if self:getOverflow() > 0 then
+				for _, card in ipairs(cards) do		
+					use.card = sgs.Card_Parse("#SixChunlaoCard:" .. card:getEffectiveId() .. ":")
+					if use.to then use.to:append(enemy) end
+					return
 				end
 			end
 		end
@@ -6356,91 +6363,19 @@ sgs.ai_skill_cardask["@SixMiBian"] = function(self, data, pattern, target)
 end
 
 
-
-function sgs.ai_cardneed.SixZuoBao(to, card, self)
-	return card:isKindOf("BasicCard")
-end
-
-sgs.ai_use_priority["SixZuoBao"] = 3
-sgs.ai_use_value["SixZuoBao"] = 3
-
-sgs.ai_view_as["SixZuoBao"] = function(card, player, card_place, class_name)
-	local classname2objectname = {
-		["Slash"] = "slash",
-		["Jink"] = "jink",
-		["Peach"] = "peach",
-		["Analeptic"] = "analeptic",
-		["FireSlash"] = "fire_slash",
-		["ThunderSlash"] = "thunder_slash"
-	}
-	local name = classname2objectname[class_name]
-	if player:getPhase() ~= sgs.Player_NotActive then return false end
-	if not name then return end
-	local no_have = true
-	local cards = player:getCards("h")
-	if player:getPile("wooden_ox"):length() > 0 then
-		for _, id in sgs.qlist(player:getPile("wooden_ox")) do
-			cards:prepend(sgs.Sanguosha:getCard(id))
-		end
-	end
-	for _, c in sgs.qlist(cards) do
-		if c:isKindOf(class_name) then
-			no_have = false
-			break
-		end
-	end
-	if not no_have then return end
-	if class_name == "Peach" then return end
-
-
-	local handcards = sgs.QList2Table(player:getCards("h"))
-	if player:getPile("wooden_ox"):length() > 0 then
-		for _, id in sgs.qlist(player:getPile("wooden_ox")) do
-			table.insert(handcards, sgs.Sanguosha:getCard(id))
-		end
-	end
-	local basic_cards = {}
-	local use_cards = {}
-
-	for _, c in ipairs(handcards) do
-		if not c:isKindOf("Peach") then
-			if c:isKindOf("BasicCard") then
-				table.insert(basic_cards, c:getEffectiveId())
-			end
-		end
-	end
-
-	if #basic_cards > 0 then
-		table.insert(use_cards, basic_cards[1])
-	end
-	if #use_cards == 0 then return end
-
-	if class_name == "Peach" then
-		local dying = player:getRoom():getCurrentDyingPlayer()
-		if dying and dying:getHp() < 0 then return end
-		return (name .. ":SixZuoBao[%s:%s]=%d"):format(sgs.Card_NoSuit, 0, use_cards[1])
-	else
-		return (name .. ":SixZuoBao[%s:%s]=%d"):format(sgs.Card_NoSuit, 0, use_cards[1])
-	end
-end
-
-
-sgs.ai_skill_choice.SixZuoBao_saveself = sgs.ai_skill_choice.guhuo_saveself
-sgs.ai_skill_choice.SixZuoBao_slash = sgs.ai_skill_choice.guhuo_slash
-
-
-
-
-
 sgs.ai_skill_invoke["SixJianCe"] = function(self, data)
 	local target = data:toPlayer()
-	if self:isEnemy(target) then
-		if self.player:getHandcardNum() > target:getHandcardNum() then
-			return true
-		end
-	elseif self:isFriend(target) then
-		if target:hasSkill("enyuan") then
-			return true
+	local max_card = self:getMaxCard()
+	local max_point = max_card:getNumber()
+	if target and self:isEnemy(target) then
+		local enemy_max_card = self:getMaxCard(target)
+		if (enemy_max_card and max_point>enemy_max_card:getNumber() )
+			or (enemy_max_card and max_point>enemy_max_card:getNumber() and max_point>10)
+			or (not enemy_max_card and max_point>10) then
+			if self.player:getHandcardNum() > target:getHandcardNum() then
+				self.SixJianCe_card = max_card:getEffectiveId()
+				return true
+			end
 		end
 	end
 	return false
@@ -6463,6 +6398,14 @@ sgs.ai_skill_discard.SixJianCe = function(self, discard_num, optional, include_e
 	return to_discard
 end
 
+sgs.ai_cardneed.SixJianCe = sgs.ai_cardneed.bignumber
+
+function sgs.ai_skill_pindian.SixJianCe(minusecard,self,requestor)
+	local maxcard = self:getMaxCard()
+	return self:isFriend(requestor) and minusecard or ( maxcard:getNumber()<6 and minusecard or maxcard )
+end
+
+sgs.ai_cardneed.SixShouLue = sgs.ai_cardneed.equip
 
 
 

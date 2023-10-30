@@ -54,7 +54,7 @@ sgs.ai_skill_use["@@feiyang"] = function(self,prompt)
 	end
 	
 	if not self:isWeak() or not handcards[1]:isKindOf("Peach") then
-		table.insert(discard,self.player:getJudgingArea():first())
+		table.insert(discard,self.player:getJudgingArea():first():getEffectiveId())
 		table.insert(discard,handcards[1]:getEffectiveId())
 		table.insert(discard,handcards[2]:getEffectiveId())
 		return "@FeiyangCard="..table.concat(discard,"+")
