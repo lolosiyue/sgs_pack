@@ -9053,12 +9053,14 @@ PlusGuidao = sgs.CreateTriggerSkill {
 				if not zhangjiao:isNude() then
 					local source = pindian.from
 					local target = pindian.to
+					room:setTag("CurrentPindianStruct", data)
 					room:setPlayerFlag(source, "PlusGuidao_Source")
 					room:setPlayerFlag(target, "PlusGuidao_Target")
 					local prompt = string.format("@PlusGuicai_Pindian::%s:%s", self:objectName(), pindian.reason)
 					room:askForUseCard(zhangjiao, "@PlusGuidao2", prompt)
 					room:setPlayerFlag(source, "-PlusGuidao_Source")
 					room:setPlayerFlag(target, "-PlusGuidao_Target")
+					room:removeTag("CurrentPindianStruct")
 					local card_id = room:getTag("PlusGuidao_Card"):toInt()
 					local card = sgs.Sanguosha:getCard(card_id)
 					if card then
@@ -14096,6 +14098,7 @@ SevenZhiDi = sgs.CreateTriggerSkill
 									target)
 								if pattern and pattern ~= "cancel" then
 									ChoiceLog(p, pattern)
+									room:addPlayerMark(player, "&SevenZhiDi+"..pattern.. "+-Clear")
 									local poi = sgs.Sanguosha:cloneCard(pattern, sgs.Card_NoSuit, -1)
 									poi:deleteLater()
 									room:setPlayerCardLimitation(player, "use, response", poi:objectName(), true)
@@ -14224,7 +14227,8 @@ SevenJuGong = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.DrawNCards then
 			local count = data:toInt() + player:getLostHp()
-			SendComLog(self, player)
+			room:broadcastInvoke(self:objectName())
+			room:sendCompulsoryTriggerLog(player, self:objectName())
 			data:setValue(count)
 		elseif event == sgs.AfterDrawNCards then
 			local max = 0
@@ -14302,7 +14306,7 @@ ZhuGeDan_Seven = sgs.General(extension_six, "ZhuGeDan_Seven", "wei", 3, true)
 
 SevenPingPan = sgs.CreateTriggerSkill {
 	name = "SevenPingPan",
-	events = { sgs.Dying },
+	events = { sgs.Dying, sgs.BuryVictim  },
 	on_trigger = function(self, event, player, data, room)
 		local target = nil
 		if event == sgs.Dying then
@@ -14325,6 +14329,8 @@ SevenPingPan = sgs.CreateTriggerSkill {
 					--checkgameover
 				end
 			end
+		elseif event == sgs.BuryVictim then
+			BafeiGameOverJudge(room)
 		end
 		return false
 	end
@@ -14402,7 +14408,7 @@ SevenXiaoRui_Tr = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.TargetConfirmed then
 			local use = data:toCardUse()
-			if (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
+			if not use.from or (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
 			if player:getPhase() ~= sgs.Player_Play then return false end
 			local invoke = false
 			for _, p in sgs.qlist(use.to) do
@@ -14629,6 +14635,7 @@ SevenZhengBianCard = sgs.CreateSkillCard {
 			local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_EXTRACTION, source:objectName())
 			room:obtainCard(source, sgs.Sanguosha:getCard(card_id), reason, false)
 		else
+			room:addPlayerMark(target, "&SevenZhengBian+SevenZhengBian_limit+-Clear")
 			room:setPlayerCardLimitation(target, "use,response", "BasicCard", true)
 		end
 	end,
@@ -14772,7 +14779,8 @@ SevenBaChao = sgs.CreateTriggerSkill {
 		if event == sgs.TrickCardCanceling then
 			local effect = data:toCardEffect()
 			if RIGHT(self, effect.from) and effect.card:hasFlag(self:objectName()) then
-				SendComLog(self, effect.from)
+				room:broadcastInvoke(self:objectName())
+				room:sendCompulsoryTriggerLog(effect.from, self:objectName())
 				return true
 			end
 		elseif ((event == sgs.CardUsed) or (event == sgs.CardResponded)) then
@@ -14870,7 +14878,8 @@ SevenJieMing = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data, room)
 		local damage = data:toDamage()
 		if damage.from then
-			SendComLog(self, player)
+			room:broadcastInvoke(self:objectName())
+			room:sendCompulsoryTriggerLog(player, self:objectName())
 			if not damage.from:isKongcheng() then
 				local card = room:askForCard(damage.from, "..", "@SevenJieMing", data, self:objectName())
 				if card then
@@ -15059,7 +15068,7 @@ SevenFengPingCard = sgs.CreateSkillCard {
 		if #ids > 0 then
 			if choice == "red" then
 				target:drawCards(#ids)
-			elseif choice == "black" then
+			elseif choice == "black" and target:canDiscard(target, "he") then
 				local prompt = string.format("@SevenFengPing_Throw:%s", #ids)
 				local card_ex = room:askForExchange(target, self:objectName(), #ids, #ids, true, "@SevenFengPing_Throw",
 					false)

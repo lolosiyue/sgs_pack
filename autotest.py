@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "HeJin_Six"
+choose_general = "XuShaoXuQian_Seven"
 #1920*1080 125%
 #pip cache purge
 num_test_runs = 10

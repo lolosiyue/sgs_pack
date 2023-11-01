@@ -81,6 +81,21 @@ function getCardDamageNature(from, to, card)
     return nature
 end
 
+function ChoiceLog(player, choice, to)
+	local log = sgs.LogMessage()
+	log.type = "#choice"
+	log.from = player
+	log.arg = choice
+	if to then
+		log.to:append(to)
+	end
+	player:getRoom():sendLog(log)
+end
+
+function GetColor(card)
+	if card:isRed() then return "red" elseif card:isBlack() then return "black" else return "nosuitcolor" end
+end
+
 -- common prompt
 sgs.LoadTranslationTable {
     ["#skill_add_damage"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%from对%to造成的伤害增加至%arg2点。", -- add
@@ -90,7 +105,8 @@ sgs.LoadTranslationTable {
     ["#BecomeTargetBySkill"] = "%from的技能【<font color=\"yellow\"><b> %arg </b></font>】被触发，%to 成为了 %card 的目标", -- add
     ["#ArmorNullifyDamage"] = "%from 的防具【%arg】效果被触发，抵消 %arg2 點傷害", -- add
     ["#SkillNullifyDamage"] = "%from 的技能【%arg】效果被触发，抵消 %arg2 點傷害", -- add
-    ["#ChooseSkill"] = "%from 的技能 %arg 选择了 %arg2"
+    ["#ChooseSkill"] = "%from 的技能 %arg 选择了 %arg2",
+    ["#choice"] = "%from 选择了 %arg",
 }
 s4_cloud_zhangliao = sgs.General(extension, "s4_cloud_zhangliao", "wei", 4, false, false, false, 3)
 

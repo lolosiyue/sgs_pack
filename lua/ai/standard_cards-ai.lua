@@ -2753,17 +2753,13 @@ function SmartAI:useCardCollateral(card, use)
 					final_enemy = enemy2
 				end
 			end
-			self.player:speak("Collateral testing1")
 			for _, friend in sgs.list(toList) do
 				if final_enemy then break end
-				self.player:speak("Collateral testing2")
-				self.player:speak("Collateral friend" .. friend:objectName())
 				if enemy:canSlash(friend)
 					and enemy:inMyAttackRange(friend)
 					and self:objectiveLevel(friend) < 0
 					and self:needToLoseHp(friend, enemy, dummyCard(), true)
 				then
-					self.player:speak("Collateral testing3")
 					final_enemy = friend
 				end
 			end
@@ -2819,7 +2815,6 @@ function SmartAI:useCardCollateral(card, use)
 		end
 	end
 	self:sortEnemies(toList)
-	self.player:speak("Collateral testing5")
 	for _, friend in sgs.list(fromList) do
 		if useToCard(friend) and self:objectiveLevel(friend) < 0
 			and not (friend:hasWeapon("crossbow") and getCardsNum("Slash", friend) > 1)

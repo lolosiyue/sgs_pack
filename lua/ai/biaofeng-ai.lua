@@ -411,7 +411,7 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 	local items = choices:split("+")
 	if table.contains(items, "PlusGanglie_choice1") then
 		if not use.from or use.from:isDead() then return "PlusGanglie_cancel" end
-		if self.role == "rebel" and sgs.ai_role[use.fom:objectName()]=="rebel" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))
+		if self.role == "rebel" and sgs.ai_role[use.from:objectName()]=="rebel" and not hasJueqingEffect(use.from, self.player, getCardDamageNature(use.from, self.player, use.card))
 			and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 			return "PlusGanglie_cancel"
 		end
@@ -6601,7 +6601,10 @@ sgs.ai_use_value["SevenZhaoXiang"] = 7
 sgs.ai_card_intention["SevenZhaoXiang"] = -40
 
 
-
+sgs.ai_can_damagehp.SevenTaoHui = function(self, from, card, to)
+	return to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+end
 
 
 function sgs.ai_skill_invoke.SevenTaoHui(self, data)
@@ -6618,7 +6621,8 @@ function sgs.ai_skill_invoke.SevenTaoHui(self, data)
 			return true
 		end
 	end
-	return self:isWeak()
+	local current = self.room:getCurrent()
+	return self:isWeak() or not (current:getNextAlive():objectName() == self.player:objectName() and self.player:faceUp())
 end
 
 function sgs.ai_skill_invoke.SevenLangMou(self, data)
@@ -6726,16 +6730,55 @@ sgs.ai_skill_invoke.SevenChuaiYi = function(self, data)
 	if damage and damage.from and self:isEnemy(damage.from) then
 		return true
 	end
-	return false
+	return  not self:needToLoseHp(damage.to, damage.from, damage.card)
 end
 
 sgs.ai_skill_cardask["@SevenChuaiYi-show"] = function(self, data)
 	local damage = data:toDamage()
 	local cards = sgs.QList2Table(self.player:getHandcards())
 	self:sortByKeepValue(cards)
+	if damage.from and self.player:objectName() == damage.from:objectName() then
+		
+		if self:isEnemy(damage.to) then
+			
+			for _, card in ipairs(cards) do
+				if getKnownCard(damage.to, self.player, card:getSuitString(), false, "h") > 0 then
+					return "$" .. card:getEffectiveId()
+				end
+			end
+		elseif self:isFriend(damage.to) and not self:needToLoseHp(damage.to, self.player, damage.card) then
+			for _, card in ipairs(cards) do
+				if getKnownCard(damage.to, self.player, card:getSuitString(), false, "h") == 0 then
+					return "$" .. card:getEffectiveId()
+				end
+			end
+		end
+	end
 	return "$" .. cards[1]:getEffectiveId()
 end
 
+sgs.ai_ajustdamage_to.SevenChuaiYi = function(self, from, to, card, nature)
+	if not to:isKongcheng()
+	then
+		if self:isFriend(to, from)
+		then
+			return -1
+		else
+			if from:objectName() ~= self.player:objectName()
+			then
+				if ((getKnownCard(to, self.player, "heart", false, "h") == 0 and getKnownCard(self.player, self.player, "heart", false, "h") > 0 ) or 
+				(getKnownCard(to, self.player, "spade", false, "h") == 0 and getKnownCard(self.player, self.player, "spade", false, "h") > 0 ) or
+				(getKnownCard(to, self.player, "club", false, "h") == 0 and getKnownCard(self.player, self.player, "club", false, "h") > 0 ) or
+				(getKnownCard(to, self.player, "diamond", false, "h") == 0 and getKnownCard(self.player, self.player, "diamond", false, "h") > 0 ) 
+			)
+					
+				then
+					return -1
+				end
+			end
+		end
+	end
+end
 
 
 
@@ -6776,12 +6819,32 @@ sgs.ai_skill_choice["SevenZhiDi"] = function(self, choices, data)
 	return items[math.random(1, #items)]
 end
 
+function sgs.ai_cardsview_valuable.SevenWeiYuan(self,class_name,player)
+	local dying = player:getRoom():getCurrentDyingPlayer()
+	if not dying or self:isEnemy(dying,player) or dying:objectName()==player:objectName() then return nil end
+	if dying:isLord() and self:isFriend(dying,player) then return "#SevenWeiYuan:.:" end
+	
+	if self:playerGetRound(dying)<self:playerGetRound(self.player) and dying:getHp()<0 then return nil end
+	if not player:faceUp()
+	then
+		if player:getHp()<2 and getCardsNum("Jink,Analeptic",player,self.player)>0
+		then return nil end
+		return "#SevenWeiYuan:.:"
+	else
+		if dying:getMark("Global_PreventPeach")==0
+		then
+			for _,c in sgs.qlist(player:getHandcards())do
+				if not isCard("Peach",c,player) then return nil end
+			end
+		end
+		return "#SevenWeiYuan:.:"
+	end
+end
 
 function sgs.ai_cardsview.SevenWeiYuan(self, class_name, player)
-	if class_name == "Peach" then
 		local dying = self.room:getCurrentDyingPlayer()
 		if not dying then return nil end
-		if not self:isFriend(dying) then return nil end
+		if not self:isFriend(dying,player) then return nil end
 		local cards = player:getCards("he")
 		cards = sgs.QList2Table(cards)
 		for _, fcard in ipairs(cards) do
@@ -6793,10 +6856,8 @@ function sgs.ai_cardsview.SevenWeiYuan(self, class_name, player)
 		if dying:isLord() and (self.role == "loyalist" or (self.role == "renegade" and self.room:alivePlayerCount() > 2)) then
 			must_save = true
 		end
-		if not must_save and self:isWeak(player) and not player:hasArmorEffect("silver_lion") then return nil end
-
+		if not must_save and self:isWeak() then return nil end
 		return "#SevenWeiYuan:.:"
-	end
 end
 
 sgs.ai_card_intention.SevenWeiYuan = sgs.ai_card_intention.Peach
@@ -6950,6 +7011,28 @@ sgs.ai_choicemade_filter.cardResponded["@SevenFuTui"] = function(self, player, p
 	end
 end
 
+sgs.ai_skill_invoke.SevenYiZe = function(self, data)
+	return true
+end
+
+sgs.ai_skill_playerchosen.SevenYiZe = function(self, targets)
+	for _, friend in ipairs(self.friends_noself) do
+		if friend:getEquips():length() > 0 and (self:hasSkills(sgs.lose_equip_skill, friend) or self:doNotDiscard(friend, "e")) then
+			return friend
+		end
+	end
+	-- the target of the Duel
+	self:sort(self.enemies, "defense")
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getEquips():length() > 0  then
+			if not (self:doNotDiscard(enemy, "e")) then
+				return enemy
+			end
+		end
+	end
+end
+
+
 sgs.ai_skill_choice.SevenZhengBian = function(self, choices, data)
 	local target = data:toPlayer()
 	if self:isFriend(target) then return "SevenZhengBian_equip" end
@@ -7028,6 +7111,18 @@ sgs.ai_skill_use_func["#SevenZhengBian"] = function(card, use, self)
 						break
 					end
 				end
+			end
+		end
+	end
+	if not target and self:getCardsNum("Slash") > 0 then
+		local slash = self:getCard("Slash")
+		assert(slash)
+		
+		local dummy_use = { isDummy = true ,to = sgs.SPlayerList() }
+		self:useBasicCard(slash,dummy_use)
+		if dummy_use.card and dummy_use.to and dummy_use.to:length()>0 then
+			for _,p in sgs.qlist(dummy_use.to)do
+				if not self:canHit(p, self.player) or (p:getHp() <= 1 and self:getAllPeachNum(p) > 0) then target = p break end
 			end
 		end
 	end

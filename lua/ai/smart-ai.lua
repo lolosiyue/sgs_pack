@@ -7221,7 +7221,7 @@ function SmartAI:findPlayerToDamage(damage, player, nature, targets, include_sel
 	local func = function(a, b)
 		local cmpValueA = getDamageValue(a)
 		local cmpValueB = getDamageValue(b)
-		return cmpValueA >= cmpValueB
+		return math.abs(cmpValueA) >= math.abs(cmpValueB)
 	end
 	table.sort(targets, func)
 	if return_table then
