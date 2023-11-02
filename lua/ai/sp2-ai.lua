@@ -2666,6 +2666,7 @@ local limu_skill = {}
 limu_skill.name = "limu"
 table.insert(sgs.ai_skills,limu_skill)
 limu_skill.getTurnUseCard = function(self)
+	self.player:speak("limu1")
 	local cards,peach = {},0
 	for i,c in sgs.list(self:addHandPile())do
 		if peach<2 and isCard("Peach",c,self.player)
@@ -2680,6 +2681,7 @@ limu_skill.getTurnUseCard = function(self)
 		end
 	end
 	if #cards<1 then return end
+	self.player:speak("limu2")
 	self:sortByKeepValue(cards)
 	if self:isWeak()
 	then
@@ -2697,6 +2699,7 @@ limu_skill.getTurnUseCard = function(self)
 		id = cards[1]:getEffectiveId()
 		slash_num = slash_num-1
 	end
+	self.player:speak("limu3")
 	if slash_num>1
 	then
 		for _,slash in ipairs(self:getCards("Slash"))do

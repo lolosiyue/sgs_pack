@@ -12,8 +12,20 @@ end
 
 --鬼曹操
 sgs.ai_skill_invoke.keguiduoyi = function(self, data)
-	return true
+	return (#(sgs.ai_skill_playerschosen.keguiduoyi(self, data:toCardUse().to, 99, 0)) > 0)
 end
+
+
+sgs.ai_skill_playerschosen.keguiduoyi = function(self,targets,max_num,min_num)
+	local tos = {}
+  	for i,p in sgs.list(targets)do
+		if #tos>=max_num then break end
+		if self:isEnemy(p)
+		then table.insert(tos,p) end
+	end
+	return tos
+end
+
 
 --鬼关羽
 sgs.ai_skill_invoke.keguiwumo = function(self, data)

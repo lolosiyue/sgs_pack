@@ -104,14 +104,7 @@ keguiduoyi = sgs.CreateTriggerSkill{
 							players:removeOne(player)
 						end
 						if not players:isEmpty() then
-							if player:getState() ~= "online" then
-								local no_respond_list = use.no_respond_list
-								for _, szm in sgs.qlist(players) do
-									table.insert(no_respond_list, szm:objectName())
-								end
-								use.no_respond_list = no_respond_list
-								data:setValue(use)
-							else
+							
 								local daomeidan = room:askForPlayersChosen(player, players, self:objectName(), 0, 99, "guicaocao-ask", false, true)
 								local no_respond_list = use.no_respond_list
 								for _, szm in sgs.qlist(daomeidan) do
@@ -119,7 +112,7 @@ keguiduoyi = sgs.CreateTriggerSkill{
 								end
 								use.no_respond_list = no_respond_list
 								data:setValue(use)
-							end
+							
 						end
 					end
 				end
