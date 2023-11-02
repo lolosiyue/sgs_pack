@@ -2663,7 +2663,8 @@ XiaHouDun_Plus:addSkill(PlusGanglie)
 		突袭(PlusTuxi)：摸牌阶段摸牌时，你可以少摸X张牌，然后获得X名其他角色的各一张手牌。
 	技能设计：小A
 	状态：验证通过
-]]--
+]]
+   --
 
 ----------------------------------------------------------------------------------------------------
 
@@ -8457,7 +8458,7 @@ PlusJiahuo = sgs.CreateTriggerSkill {
 										data:setValue(use)
 										room:setCardFlag(slash, "PlusJiahuo_Slash")
 										room:setCardFlag(slash, "PlusJiahuo_Slash" ..
-										source:objectName() .. p:objectName())
+											source:objectName() .. p:objectName())
 										room:setPlayerFlag(p, "-PlusJiahuo_Target")
 										return true
 									end
@@ -14098,7 +14099,7 @@ SevenZhiDi = sgs.CreateTriggerSkill
 									target)
 								if pattern and pattern ~= "cancel" then
 									ChoiceLog(p, pattern)
-									room:addPlayerMark(player, "&SevenZhiDi+"..pattern.. "+-Clear")
+									room:addPlayerMark(player, "&SevenZhiDi+" .. pattern .. "+-Clear")
 									local poi = sgs.Sanguosha:cloneCard(pattern, sgs.Card_NoSuit, -1)
 									poi:deleteLater()
 									room:setPlayerCardLimitation(player, "use, response", poi:objectName(), true)
@@ -14306,7 +14307,7 @@ ZhuGeDan_Seven = sgs.General(extension_six, "ZhuGeDan_Seven", "wei", 3, true)
 
 SevenPingPan = sgs.CreateTriggerSkill {
 	name = "SevenPingPan",
-	events = { sgs.Dying, sgs.BuryVictim  },
+	events = { sgs.Dying, sgs.BuryVictim },
 	on_trigger = function(self, event, player, data, room)
 		local target = nil
 		if event == sgs.Dying then
