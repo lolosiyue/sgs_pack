@@ -1,6 +1,7 @@
 crash:
 Retrial
 hasHuangenEffect
+PlusLiuli
 
 not done:
 张春华 无情 lostmaxhp ai
@@ -8,6 +9,7 @@ du sunjian tongpao
 plusRende
 PlusGuidao --pindian
 SevenWeiYuan
+ZhouYu_Four
 
 test:
 XiaoQiao_Plus

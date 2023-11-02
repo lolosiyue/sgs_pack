@@ -32,12 +32,9 @@ sgs.ai_skill_use_func["#zfduanhe"] = function(card, use, self)
 		use.card = sgs.Card_Parse("#zfduanhe:.:")
 		if use.to then
 			for i = 1, #targets, 1 do
-				self.player:speak("T6")
 				use.to:append(targets[i])
 			end
-			self.player:speak("T7")
 		end
-		self.player:speak("T8")
 		return
 	end
 end

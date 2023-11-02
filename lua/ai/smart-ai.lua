@@ -109,7 +109,8 @@ function setInitialTables()
 
 	sgs.ai_type_name = { "SkillCard", "BasicCard", "TrickCard", "EquipCard" }
 
-	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng"
+	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng"..
+	"|FourQixiB" --add
 
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng"
 
@@ -6704,6 +6705,8 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		if from and from:getMark("@meizlwuzhijingjichangstate") > 0 and self:isFriend(from, to) then return true end
 		if from and from:getMark("@meizlwuzhijingjichangstate") > 0 and self:isEnemy(from, to) then return false end
 		if to:hasSkill("xiehou") and card and getCardDamageNature(from, to, card) ~= sgs.DamageStruct_Normal then return true end
+		if from and from:getMark("FiveYingzhan") == 0 and self:isFriend(from, to) and not from:hasFlag("FiveYingzhan_Damage")
+		and card and getCardDamageNature(from, to, card) == sgs.DamageStruct_Fire then return true end
 	end
 	local xiangxiang = self.room:findPlayerBySkillName("jieyin")
 	if xiangxiang and xiangxiang:isWounded()
@@ -7518,6 +7521,7 @@ function canNiepan(player)
 		or player:hasSkill("blood_gudan") and player:getMark("@gudan") > 0
 		or player:hasLordSkill("blood_hunzi") and player:getMark("blood_hunzi") == 0
 		or player:hasSkill("meizlboxing") and player:faceUp() and player:getHandcardNum() > 0
+		or player:hasSkill("FourNiepan") and player:getMark("@Four_nirvana") > 0
 end
 
 function SmartAI:adjustAIRole()
@@ -7577,6 +7581,21 @@ function hasTuntianEffect(to, need_zaoxian)
 		end
 		return x
 	end
+	if to:hasSkill("FiveGuidaoA") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("FiveLeiji") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("FourQixiA") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+
+	
+	
 	return false
 end
 

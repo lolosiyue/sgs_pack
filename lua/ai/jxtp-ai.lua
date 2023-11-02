@@ -3660,11 +3660,13 @@ sgs.ai_skill_playerchosen.tenyearqianxi = function(self,players)
 end
 
 addAiSkills("tenyearjiaozhao").getTurnUseCard = function(self)
+	self.player:speak("tenyearjiaozhao1")
 	local cards = self.player:getCards("h")
 	cards = self:sortByKeepValue(cards,nil,"l")
 	local basic = self.player:getMark("tenyearjiaozhao_basic-Clear")-1
 	local trick = self.player:getMark("tenyearjiaozhao_trick-Clear")-1
 	local bname = self.player:property("tenyearjiaozhao_name"):toString()
+	self.player:speak("tenyearjiaozhao2")
   	for d,c in sgs.list(cards)do
 		if c:getEffectiveId()~=basic
 		and c:getEffectiveId()~=trick
@@ -3686,6 +3688,7 @@ addAiSkills("tenyearjiaozhao").getTurnUseCard = function(self)
 			bn:deleteLater()
 		end
 	end
+	self.player:speak("tenyearjiaozhao3")
 	local level = self.player:property("tenyearjiaozhao_level"):toInt()
 	level = type(level)=="number" and level or 0
   	for _,c in sgs.list(cards)do
@@ -3697,6 +3700,7 @@ addAiSkills("tenyearjiaozhao").getTurnUseCard = function(self)
 end
 
 sgs.ai_guhuo_card.tenyearjiaozhao = function(self,toname,class_name)
+	self.player:speak("tenyearjiaozhao4")
 	local basic = self.player:getMark("tenyearjiaozhao_basic-Clear")-1
 	local trick = self.player:getMark("tenyearjiaozhao_trick-Clear")-1
 	local bname = self.player:property("tenyearjiaozhao_name"):toString()
@@ -3718,6 +3722,7 @@ sgs.ai_guhuo_card.tenyearjiaozhao = function(self,toname,class_name)
 end
 
 sgs.ai_skill_use_func["TenyearJiaozhaoCard"] = function(card,use,self)
+	self.player:speak("tenyearjiaozhao5")
 	local level = self.player:property("tenyearjiaozhao_level"):toInt()
 	level = type(level)=="number" and level or 0
 	if level>1 then use.card = card return end
@@ -3733,6 +3738,7 @@ sgs.ai_skill_use_func["TenyearJiaozhaoCard"] = function(card,use,self)
 			return
 		end
 	end
+	self.player:speak("tenyearjiaozhao6")
     for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
 		if self.player:distanceTo(p)<=n
 		and not self:isEnemy(p)

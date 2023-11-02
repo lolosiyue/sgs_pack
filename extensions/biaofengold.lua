@@ -250,7 +250,8 @@ sgs.LoadTranslationTable{
 	["illustrator:ZhangJiao_Four"] = "略  模板设计:赛宁",
 	
 	["FourGuidao"] = "鬼道",
-	[":FourGuidao"] = "在一名角色的判定牌生效前，你可以用一张黑色牌替换之。然后你可以在判定牌生效后展示牌堆顶的一张牌，若此牌为黑色则将其置于你的武将牌上，称为“符”，你的武将牌上最多可以有三张“符”；若此牌为红色或你不能这样做，则弃置之。每当其他角色的判定开始前，你可以获得一张“符”。",
+	--[":FourGuidao"] = "在一名角色的判定牌生效前，你可以用一张黑色牌替换之。然后你可以在判定牌生效后展示牌堆顶的一张牌，若此牌为黑色则将其置于你的武将牌上，称为“符”，你的武将牌上最多可以有三张“符”；若此牌为红色或你不能这样做，则弃置之。每当其他角色的判定开始前，你可以获得一张“符”。",
+	[":FourGuidao"] = "在一名角色的判定牌生效前，你可以用一张黑色牌替换之。然后你可以在判定牌生效后展示牌堆顶的一张牌，将其置于你的武将牌上，称为“符”，你的武将牌上最多可以有三张“符”；若你不能这样做，则弃置之。每当其他角色的判定开始前，你可以获得一张“符”。",
 	["symbol"] = "符",
 	["~FourGuidao"] = "选择一张黑色牌→点击确定",
 	
@@ -1058,7 +1059,7 @@ FourJianxiong = sgs.CreateTriggerSkill{
 						prompt = "FourJianxiong_choice1+" .. prompt
 					end
 				end
-				local choice = room:askForChoice(player, self:objectName(), prompt)
+				local choice = room:askForChoice(player, self:objectName(), prompt, data)
 				local msg = sgs.LogMessage()
 				if choice == "FourJianxiong_choice1" then  --获得造成伤害的牌
 					msg.type = "#FourJianxiong1"
@@ -1079,7 +1080,7 @@ FourJianxiong = sgs.CreateTriggerSkill{
 		elseif event == sgs.ConfirmDamage then  --奸雄目标跳过ConfirmDamage时机
 			if player:hasFlag("FourJianxiong_Victim") then
 				room:setPlayerFlag(player, "-FourJianxiong_Victim")
-				return true
+				--return true
 			end
 		elseif event == sgs.Predamage then
 			if player:hasSkill(self:objectName()) then
@@ -1150,7 +1151,7 @@ FourJiaozhao_Card = sgs.CreateSkillCard{
 		local choice = room:askForChoice(source, self:objectName(), table.concat(LordSkills, "+"))
 		local skill = sgs.Sanguosha:getSkill(choice)
 		room:handleAcquireDetachSkills(source, choice)
-		room:setPlayerMark(source, "&FourJiaozhao+"..choice:objectName(), 1)
+		room:setPlayerMark(source, "&FourJiaozhao+"..choice, 1)
 		local jiemingEX = sgs.Sanguosha:getTriggerSkill(choice)
 		if choice ~= "songwei" and choice ~= "ruoyu" then
 			--jiemingEX:trigger(sgs.GameStart, room, source, sgs.QVariant())
@@ -2740,12 +2741,12 @@ FourGuidao = sgs.CreateTriggerSkill{
 						local id = ids:first()
 						local card = sgs.Sanguosha:getCard(id)
 						local flag = false
-						if card:isBlack() then
+						--if card:isBlack() then
 							if zhangjiao:getPile("symbol"):length() < 3 then
 								zhangjiao:addToPile("symbol", id)
 								flag = true
 							end
-						end
+						--end
 						if not flag then
 							room:throwCard(card, nil, nil)
 						end
@@ -2820,7 +2821,7 @@ FourDedao = sgs.CreateTriggerSkill{
 		if player:canWake(self:objectName()) then
 			return true
 		end
-		local symbol = target:getPile("symbol")
+		local symbol = player:getPile("symbol")
 		if symbol:length() >= 3 then
 			return true
 		end
@@ -2854,7 +2855,7 @@ ZhangJiao_Four:addRelateSkill("leiji")
 	状态：验证通过
 ]]--
 
-YuJi_Four = sgs.General(extension, "YuJi_Four", "qun", 3, true)
+--YuJi_Four = sgs.General(extension, "YuJi_Four", "qun", 3, true)
 
 --[[
 	技能：guhuo
@@ -2862,7 +2863,7 @@ YuJi_Four = sgs.General(extension, "YuJi_Four", "qun", 3, true)
 	描述：你可以说出任何一种基本牌或非延时类锦囊牌，并正面朝下使用或打出一张手牌。若无人质疑，则该牌按你所述之牌结算。若有人质疑则亮出验明：若为真，质疑者各失去1点体力：若为假，质疑者各摸一张牌。除非被质疑的牌为红桃且为真时，该牌仍然可以进行结算，否则无论真假，将该牌置入弃牌堆。
 	状态：原有技能
 ]]--
-YuJi_Four:addSkill("guhuo")
+--YuJi_Four:addSkill("guhuo")
 
 --[[
 	技能：FourTaiping
@@ -2959,7 +2960,7 @@ FourTaiping = sgs.CreateTriggerSkill{
 		return target
 	end
 }
-YuJi_Four:addSkill(FourTaiping)
+--YuJi_Four:addSkill(FourTaiping)
 local skill = sgs.Sanguosha:getSkill("FourTaiping_Others")
 if not skill then
 	local skillList = sgs.SkillList()
@@ -3196,7 +3197,7 @@ DiyBaobian = sgs.CreateTriggerSkill{
 		if player:canWake(self:objectName()) then
 			return true
 		end
-		local turn = target:getPile("turn")
+		local turn = player:getPile("turn")
 		if turn:length() >= 3 then
 			return true
 		end

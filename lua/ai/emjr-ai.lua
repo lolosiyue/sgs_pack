@@ -188,7 +188,7 @@ sgs.ai_skill_use["@@erangwai"] = function(self, prompt, method)
 	end
 	local current = self.room:getCurrent()
 
-	if card and current then
+	if card and current and #self.enemies > 0 then
 		for _, enemy in ipairs(self.enemies) do
 			if not self:slashProhibit(nil, enemy) and sgs.getDefenseSlash(enemy, self) <= 2 and self:isGoodTarget(enemy, self.enemies, use_card) and current:inMyAttackRange(enemy) then
 				return "#erangwaiCard:" .. card:getEffectiveId() .. ":" .. "->" .. enemy:objectName()

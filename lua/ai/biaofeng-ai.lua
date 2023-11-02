@@ -3080,7 +3080,7 @@ end
 sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 	local current = self.room:getCurrent()
 	if current and self:isFriend(current) and self:isGoodChainTarget(self.player, current) then return "." end
-
+	self.player:speak("liuli1")
 	local others = self.room:getOtherPlayers(self.player)
 	local slash = self.player:getTag("liuli-card"):toCard()
 	others = sgs.QList2Table(others)
@@ -3099,7 +3099,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 			and (getKnownCard(who, self.player, "Jink", true) >= 1 or self:hasEightDiagramEffect(who)) then
 			return "."
 		end
-
+		self.player:speak("liuli2")
 		local cards = self.player:getCards("h")
 		cards = sgs.QList2Table(cards)
 		self:sortByKeepValue(cards)
@@ -3113,7 +3113,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 				end
 			end
 		end
-
+		self.player:speak("liuli3")
 		local cards = self.player:getCards("e")
 		cards = sgs.QList2Table(cards)
 		self:sortByKeepValue(cards)
@@ -3125,7 +3125,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 		end
 		return "."
 	end
-
+	self.player:speak("liuli4")
 	for _, enemy in ipairs(self.enemies) do
 		if not (source and source:objectName() == enemy:objectName()) then
 			local ret = doLiuli(enemy)
@@ -3140,7 +3140,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 		end
 	end
 
-
+	self.player:speak("liuli5")
 	self:sort(self.friends_noself, "defense")
 	self.friends_noself = sgs.reverse(self.friends_noself)
 
@@ -3174,7 +3174,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 			end
 		end
 	end
-
+	self.player:speak("liuli6")
 	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and not self:getCardId("Jink") then
 		for _, friend in ipairs(self.friends_noself) do
 			if not self:isWeak(friend) or (self:hasEightDiagramEffect(friend) and getCardsNum("Jink", friend) >= 1) then

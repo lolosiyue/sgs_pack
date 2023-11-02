@@ -88,6 +88,7 @@ sgs.ai_playerchosen_intention.FiveFanjian = 10
 sgs.ai_skill_playerchosen.FiveFanjian = function(self, targets)
 	self:sort(self.enemies, "defense")
 	local slash = sgs.Sanguosha:cloneCard("slash")
+	slash:deleteLater()
 	local from
 	for _, player in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		if player:hasFlag("AI_FiveFanjianTarget") then
@@ -98,7 +99,7 @@ sgs.ai_skill_playerchosen.FiveFanjian = function(self, targets)
 	end
 	if from then
 		for _, to in ipairs(self.enemies) do
-			if targets:contains(to) and self:slashIsEffective(slash, to, from) 	and not self:needToLoseHp(to, from, true) and not self:findLeijiTarget(to, 50, from) then
+			if targets:contains(to) and self:slashIsEffective(slash, to, from) 	and not self:needToLoseHp(to, from, slash,true) and not self:findLeijiTarget(to, 50, from) then
 				return to
 			end
 		end
@@ -447,6 +448,15 @@ sgs.ai_skill_choice.FourJianxiong = function(self, choices, data)
 	return items[1]
 end
 
+sgs.ai_target_revises.FourJianxiong = sgs.ai_target_revises.jianxiong
+
+sgs.ai_can_damagehp.FourJianxiong = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return card:isKindOf("Duel") or card:isKindOf("AOE") or to:getLostHp() > 2
+	end
+end
 
 
 FourJiaozhao_skill = {}
@@ -555,18 +565,11 @@ sgs.ai_need_damaged.FourFenyong = function (self, attacker, player)
 	end
 	return false
 end
-
-
-
-
-FourFenyong_damageeffect = function(self, to, nature, from)
-	if to:hasSkill("FourFenyong") and not to:faceUp() then return false end
-	return true
+sgs.ai_ajustdamage_to.FourFenyong = function(self, from, to, card, nature)
+	if to and not to:faceUp() then
+		return -99
+	end
 end
-
-
-table.insert(sgs.ai_damage_effect, FourFenyong_damageeffect)
-
 
 sgs.ai_skill_invoke.FourXuehen = function(self, data)
 	local current = self.room:getCurrent()
@@ -696,8 +699,7 @@ FourWusheng_skill.getTurnUseCard = function(self, inclusive)
 	end
     
     for _, card in ipairs(cards) do
-		if card:isBlack() and not card:isKindOf("Analeptic") 
-			and (not isCard("Crossbow", card, self.player) and not disCrossbow)
+		if card:isBlack() and (not isCard("Crossbow", card, self.player) and not disCrossbow)
 			and (self:getUseValue(card) < sgs.ai_use_value.Analeptic or inclusive or sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue, self.player, sgs.Sanguosha:cloneCard("Analeptic")) > 0) then
 			black_card = card
 			break
