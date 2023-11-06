@@ -1064,6 +1064,12 @@ function SmartAI:canHit(to, from, conservative)
 				return true
 			end
 		end
+		--add
+		if from:hasSkill("keguisheji") and from:getPhase() == sgs.Player_Play then
+			if from:inMyAttackRange(to, 0, true) and to:inMyAttackRange(from, 0, true) then
+				return true
+			end
+		end
 	end
 
 	local hasHeart, hasRed, hasBlack

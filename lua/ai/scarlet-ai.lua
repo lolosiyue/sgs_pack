@@ -92,7 +92,8 @@ sgs.ai_use_revises.s4_cloud_yongyi = function(self, card, use)
     if (record) then
         records = record:split(",")
     end
-    if records and (not table.contains(records, suit) or not card:hasSuit()) then
+    if records and (not table.contains(records, suit) or not card:hasSuit())
+    and card and card:getClassName() and sgs.ai_use_priority[card:getClassName()]  then
         sgs.ai_use_priority[card:getClassName()] = sgs.ai_use_priority[card:getClassName()] + 5
     end
 end

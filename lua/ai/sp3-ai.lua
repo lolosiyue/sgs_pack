@@ -2791,6 +2791,7 @@ addAiSkills("secondjinzhi").getTurnUseCard = function(self)
 	local toids = {}
 	local mark = self.player:getMark("&secondjinzhi_lun")
     local cards = self.player:getCards("he")
+	self.player:speak("secondjinzhi T0")
     cards = sgs.QList2Table(cards) -- 将列表转换为表
     self:sortByKeepValue(cards) -- 按保留值排序
 	if #cards<1 then return end
@@ -2799,15 +2800,18 @@ addAiSkills("secondjinzhi").getTurnUseCard = function(self)
 		table.insert(toids,h:getEffectiveId())
 		if #toids>mark then break end
 	end
+	self.player:speak("secondjinzhi T1")
 	for _,name in sgs.list(patterns)do
         local c = dummyCard(name)
 		if c and c:isKindOf("BasicCard")
 		and #toids>mark and c:isAvailable(self.player)
 		and self:getCardsNum(c:getClassName())<1
 		then
+			self.player:speak("secondjinzhi T2")
          	local dummy = self:aiUseCard(c)
     		if dummy.card and dummy.to
 	     	then
+				self.player:speak("secondjinzhi T3")
 				self.jz_to = dummy.to
 				toids = #toids>0 and table.concat(toids,"+") or "."
 	           	if c:canRecast() and dummy.to:length()<1 then continue end
@@ -2820,6 +2824,7 @@ end
 
 sgs.ai_skill_use_func["SecondJinzhiCard"] = function(card,use,self)
 	use.card = card
+	self.player:speak("secondjinzhi T4")
 	if use.to then use.to = self.jz_to end
 end
 
@@ -2831,6 +2836,7 @@ sgs.ai_guhuo_card.secondjinzhi = function(self,toname,class_name)
 	local mark = self.player:getMark("&secondjinzhi_lun")
     local cards = self.player:getCards("he")
     cards = sgs.QList2Table(cards) -- 将列表转换为表
+	self.player:speak("secondjinzhi T5")
 	if #cards<1 then return end
     self:sortByKeepValue(cards) -- 按保留值排序
 	for _,h in sgs.list(cards)do
@@ -2838,10 +2844,13 @@ sgs.ai_guhuo_card.secondjinzhi = function(self,toname,class_name)
 		table.insert(toids,h:getEffectiveId())
 		if #toids>mark then break end
 	end
+	self.player:speak("secondjinzhi T6")
 	if #toids>mark
 	and self:getCardsNum(class_name)<1
 	then
 		toids = #toids>0 and table.concat(toids,"+") or "."
+		self.player:speak("secondjinzhi T7")
+		self.player:speak("secondjinzhi " .. toname)
         return "@SecondJinzhiCard="..toids..":"..toname
 	end
 end

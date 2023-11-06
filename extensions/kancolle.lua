@@ -1053,7 +1053,7 @@ kan_anjiang = sgs.General(extension, "kan_anjiang", "kancolle", 4, false, true)
 kan_yudachi = sgs.General(extension, "kan_yudachi", "kancolle", 4, false, salvage, salvage)
 if salvage then
 	local x = (ReadSingleData(userRecord, "kanmusu", "level", "name", "kan_yudachi")) or 0
-	if x > 0 then
+	if tonumber(x) > 0 then
 		kan_yudachi = sgs.General(extension, "kan_yudachi", "kancolle", 4, false)
 	end
 end
@@ -1061,7 +1061,7 @@ kan_yudachi_kai2 = sgs.General(extension, "kan_yudachi_kai2", "kancolle", 3, fal
 if salvage then
 	local x = (ReadSingleData(userRecord, "kanmusu", "level", "name", "kan_yudachi")) or 0
 	local y = (ReadSingleData(kanData, "kanmusu", "kailevel", "name", "kan_yudachi")) or 0
-	if x > y then
+	if tonumber(x) > tonumber(y) then
 		kan_yudachi_kai2 = sgs.General(extension, "kan_yudachi_kai2", "kancolle", 3, false, true)
 	end
 end

@@ -3773,18 +3773,22 @@ sgs.ai_use_priority.ov_qingceCard = 4.8
 sgs.ai_skill_use["@@ov_xingluan!"] = function(self,prompt)
 	local valid,to = {},nil
 	local player = self.player
-	local ids = player:getTag("ov_xingluan_forAI"):toString():split("+")
-	ids = getCardList(ids)
+	local table_ids = player:getTag("ov_xingluan_forAI"):toString():split("+")
+	--ids = getCardList(ids)
+	local ids = sgs.IntList()
+	for _, id in pairs(table_ids) do
+		ids:append(id)
+	end
     ids = self:sortByUseValue(ids)
 	local n = player:getMark("ov_xingluanNum-Clear")
 	self:sort(self.enemies,"hp")
 	for i,c in sgs.list(ids)do
 		if to then break end
-		i = c:getEffectiveId()
+		i = c
 		for _,se in sgs.list(self.enemies)do
 			if to then break end
 			if #valid+se:getMark("ov_xingluanNum-Clear")>2
-			or isCard("Peach",c,se)
+			or isCard("Peach",sgs.Sanguosha:getCard(c),se)
 			then continue end
 			if n>=se:getMark("ov_xingluanNum-Clear")
 			then
@@ -3797,7 +3801,8 @@ sgs.ai_skill_use["@@ov_xingluan!"] = function(self,prompt)
 	self:sortByKeepValue(ids,true)
 	for i,c in sgs.list(ids)do
 		if to then break end
-		i = c:getEffectiveId()
+		i = c
+		c = sgs.Sanguosha:getCard(i)
 		for _,se in sgs.list(self.friends)do
 			if to then break end
 			if #valid+se:getMark("ov_xingluanNum-Clear")>2
@@ -3813,7 +3818,8 @@ sgs.ai_skill_use["@@ov_xingluan!"] = function(self,prompt)
  	end
 	for i,c in sgs.list(ids)do
 		if to then break end
-		i = c:getEffectiveId()
+		i = c
+		c = sgs.Sanguosha:getCard(i)
 		for _,se in sgs.list(self.enemies)do
 			if to then break end
 			if #valid+se:getMark("ov_xingluanNum-Clear")>2
@@ -3824,7 +3830,8 @@ sgs.ai_skill_use["@@ov_xingluan!"] = function(self,prompt)
  	end
 	for i,c in sgs.list(ids)do
 		if to then break end
-		i = c:getEffectiveId()
+		i = c
+		c = sgs.Sanguosha:getCard(i)
 		for _,se in sgs.list(self.friends)do
 			if to then break end
 			if #valid+se:getMark("ov_xingluanNum-Clear")>2
@@ -3835,7 +3842,8 @@ sgs.ai_skill_use["@@ov_xingluan!"] = function(self,prompt)
  	end
 	for i,c in sgs.list(ids)do
 		if to then break end
-		i = c:getEffectiveId()
+		i = c
+		c = sgs.Sanguosha:getCard(i)
 		for _,se in sgs.list(self.room:getAlivePlayers())do
 			if to then break end
 			if #valid+se:getMark("ov_xingluanNum-Clear")>2

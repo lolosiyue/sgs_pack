@@ -136,7 +136,7 @@ function setInitialTables()
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
 		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
-		"|s4_cloud_tuxi|luafan|meizlcimin" --add
+		"|s4_cloud_tuxi|luafan|meizlcimin|keguishouye" --add
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
@@ -8252,6 +8252,9 @@ function SmartAI:dontHurt(to, from) --针对队友
 	end
 	if to:hasSkill("meispshengguangjiahu") and to:getMark("@meispniangzhaoyunmark") >= 2
 	then
+		return true
+	end
+	if to:hasSkill("kejieguiqideng") and to:getMark("@kedeng") > 0 then
 		return true
 	end
 
