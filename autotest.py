@@ -11,12 +11,12 @@ import win32process
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
 choose_general = "jikang"
-debug = 1
+debug = 0
 
 user_input = ""
 #1920*1080 125%
 #pip cache purge
-num_test_runs = 10
+num_test_runs = 100
 
 keyboard = Controller()
 

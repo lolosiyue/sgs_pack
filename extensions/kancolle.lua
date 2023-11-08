@@ -362,6 +362,7 @@ kan_attackRange = sgs.CreateAttackRangeSkill
 			if attackRange > 0 then
 				return attackRange
 			end
+			return -1
 		end,
 	}
 
