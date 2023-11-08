@@ -298,7 +298,7 @@ sgs.ai_skill_use_func.DuliangCard = function(card,use,self)
 	for _,player in sgs.qlist(self.room:getOtherPlayers(self.player))do		
 		if not player:isKongcheng() and self:isFriend(player) then
 			table.insert(friends,player)
-		elseif not player:isKongcheng() and self:isEnemy(player) and not self:doNotDiscard(player,"h") then
+		elseif self:isEnemy(player) and self:doDisCard(player,"h") then
 			table.insert(enemies,player)
 		elseif not player:isKongcheng() then
 			table.insert(others,player)
@@ -399,10 +399,10 @@ sgs.ai_skill_use["@@qinqing"] = function(self,prompt,method)
 		if self:isEnemy(target) then
 			if hasManjuanEffect(target) then
 				table.insert(targets,target:objectName())
-			elseif target:hasEquip() and not self:doNotDiscard(target,"e") and
+			elseif target:hasEquip() and self:doDisCard(target,"e") and
 				(self:getDangerousCard(target) or self:getValuableCard(target) or not target:hasSkills(sgs.notActive_cardneed_skill)) then
 				table.insert(targets,target:objectName())
-			elseif target:getHandcardNum()>=lord:getHandcardNum() and not self:doNotDiscard(target,"h") then
+			elseif target:getHandcardNum()>=lord:getHandcardNum() and self:doDisCard(target,"h") then
 				table.insert(targets,target:objectName())
 			end
 		elseif self:isFriend(target) then

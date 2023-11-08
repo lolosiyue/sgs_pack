@@ -572,7 +572,7 @@ sgs.ai_skill_invoke.yhshouzhuang = function(self,data)
 	local invoke = data:toPlayer()
 	if invoke
 	then
-		return self:canDisCard(invoke,"he")
+		return self:doDisCard(invoke,"he")
 		or not self:isFriend(invoke)
 	end
 	invoke = data:toString()
@@ -580,7 +580,7 @@ sgs.ai_skill_invoke.yhshouzhuang = function(self,data)
 	then
 		invoke = invoke:split(":")[2]
 		invoke = BeMan(self.room,invoke)
-		return invoke and (self:canDisCard(invoke,"he") or not self:isFriend(invoke))
+		return invoke and (self:doDisCard(invoke,"he") or not self:isFriend(invoke))
 	end
 end
 
@@ -775,12 +775,12 @@ sgs.ai_skill_playerchosen.yhxiaoyun = function(self,players)
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"ej")
+		and self:doDisCard(target,"ej")
 		then return target end
 	end
     for _,target in sgs.list(destlist)do
 		if self:isEnemy(target)
-		and self:canDisCard(target,"ej")
+		and self:doDisCard(target,"ej")
 		then return target end
 	end
 end
@@ -846,7 +846,7 @@ sgs.ai_skill_choice.yhkudu = function(self,choices)
 	local items = choices:split("+")
 	self.yhkudu_to = nil
 	if table.contains(items,"self=judge")
-	and self:canDisCard(self.player,"j")
+	and self:doDisCard(self.player,"j")
 	then return "self=judge" end
 	if table.contains(items,"self=discard")
 	and self.player:getHandcardNum()>=self.player:getMaxCards()
@@ -904,7 +904,7 @@ sgs.ai_skill_choice.yhkudu = function(self,choices)
 		self:sort(self.friends_noself,"handcard")
 		for i,ep in sgs.list(self.enemies)do
 			self.yhkudu_to = ep
-			if self:canDisCard(ep,"j")
+			if self:doDisCard(ep,"j")
 			then
 				return "other=judge"
 			end

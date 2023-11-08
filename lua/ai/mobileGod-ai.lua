@@ -1009,13 +1009,36 @@ joydaoyao_skill.getTurnUseCard = function(self)
 	cards = sgs.QList2Table(cards)
 	self:sortByKeepValue(cards)
 	local lightning = self:getCard("Lightning")
-	if lightning and not self:willUseLightning(lightning) then
-		card_id = lightning:getEffectiveId()
-	else
-		for _, acard in ipairs(cards) do
-			if acard:isKindOf("Slash") or acard:isKindOf("Jink") or acard:isKindOf("AmazingGrace") or acard:isKindOf("EquipCard") then
-				card_id = acard:getEffectiveId()
-				break
+	if self:needToThrowArmor() then
+		card_id = self.player:getArmor():getId()
+	elseif self.player:getHandcardNum() > self.player:getHp() then
+		if lightning and not self:willUseLightning(lightning) then
+			card_id = lightning:getEffectiveId()
+		else
+			for _, acard in ipairs(cards) do
+				if acard:isKindOf("EquipCard") or acard:isKindOf("AmazingGrace") then
+					card_id = acard:getEffectiveId()
+					break
+				end
+			end
+		end
+	elseif not self.player:getEquips():isEmpty() then
+		local player = self.player
+		if player:getWeapon() then card_id = player:getWeapon():getId()
+		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
+		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
+		elseif player:getArmor() and player:getHandcardNum() <= 1 then card_id = player:getArmor():getId()
+		end
+	end
+	if not card_id then
+		if lightning and not self:willUseLightning(lightning) then
+			card_id = lightning:getEffectiveId()
+		else
+			for _, acard in ipairs(cards) do
+				if acard:isKindOf("EquipCard") or acard:isKindOf("AmazingGrace") then
+					card_id = acard:getEffectiveId()
+					break
+				end
 			end
 		end
 	end

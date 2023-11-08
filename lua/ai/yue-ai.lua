@@ -7,7 +7,7 @@ sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
 	self:sort(self.enemies,"hp")
 	local can = self:getCardsNum("Jink")>0 or not self:isWeak()
 	for _,ep in sgs.list(self.enemies)do
-		if self:canDisCard(ep,"e")
+		if self:doDisCard(ep,"e")
 		and can
 		then
 			use.card = card
@@ -16,7 +16,7 @@ sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
 		end
 	end
 	for _,ep in sgs.list(self.friends_noself)do
-		if self:canDisCard(ep,"ej")
+		if self:doDisCard(ep,"ej")
 		and can
 		then
 			use.card = card
@@ -25,7 +25,7 @@ sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
 		end
 	end
 	for _,ep in sgs.list(self.enemies)do
-		if self:canDisCard(ep,"he")
+		if self:doDisCard(ep,"he")
 		and can
 		then
 			use.card = card
@@ -34,7 +34,7 @@ sgs.ai_skill_use_func["JinXuanbeiCard"] = function(card,use,self)
 		end
 	end
 	for _,ep in sgs.list(self.room:getOtherPlayers(self.player))do
-		if self:canDisCard(ep,"he")
+		if self:doDisCard(ep,"he")
 		and not self:isFriend(ep)
 		and can
 		then
@@ -81,8 +81,8 @@ sgs.ai_skill_invoke.jinwanyi = function(self,data)
 	local target = data:toPlayer()
 	if target
 	then
-		return self:isFriend(target) and self:canDisCard(target,"ej")
-		or self:canDisCard(target,"hej")
+		return self:isFriend(target) and self:doDisCard(target,"ej")
+		or self:doDisCard(target,"hej")
 	end
 end
 

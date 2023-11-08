@@ -113,7 +113,6 @@ addAiSkills("chuifeng").getTurnUseCard = function(self)
 			if d.card and d.to
 			then return sgs.Card_Parse("#chuifeng:.:"..cn) end
 		end
-		if fs then fs:deleteLater() end
 	end
 end
 
@@ -482,18 +481,15 @@ sgs.ai_skill_cardask["@fengzi-discard"] = function(self,data)
 		if h:getTypeId()==use.card:getTypeId()
     	then
 			if use.card:isKindOf("Peach")
-			then
-				if self.player:getLostHp()>1
-				then
-					return h:getEffectiveId()
-				end
+			and self.player:getLostHp()>1
+			then return h:getEffectiveId()
 			elseif use.card:isKindOf("Analeptic")
 			and not(h:isKindOf("Slash") and table.contains(self.toUse,h))
 			then return h:getEffectiveId()
 			elseif use.to:contains(self.player)
 			then return h:getEffectiveId()
 			elseif use.card:isDamageCard()
-			or self:isEnemy(use.to:at(0))
+			or use.card:isKindOf("SingleTargetTrick")
 			then
 				for _,to in sgs.list(use.to)do
 					if self:isFriend(to)
@@ -823,7 +819,7 @@ sgs.ai_skill_playerchosen.jinzhaosong = function(self,players)
 	self:sort(destlist,"card",true)
     for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"ej",target)
+		and self:doDisCard(target,"ej")
 		then return target end
 	end
     for _,target in sgs.list(destlist)do
@@ -1110,9 +1106,8 @@ sgs.ai_skill_choice.dinghan = function(self,choices)
 	then
 		for d,c in sgs.list(self.player:getHandcards())do
 			if table.contains(cns,c:objectName())
-			then continue end
-			if c:targetFixed()
-			and not c:isDamageCard()
+			or c:isZhinangCard() then continue end
+			if c:targetFixed() and not c:isDamageCard()
 			then
 				self.ai_dinghan_choice = c:objectName()
 				d = self:aiUseCard(c)
@@ -1121,28 +1116,26 @@ sgs.ai_skill_choice.dinghan = function(self,choices)
 			end
 		end
 		for c,pn in sgs.list(patterns)do
-			if table.contains(cns,pn)
-			then continue end
+			if table.contains(cns,pn) then continue end
 			c = dummyCard(pn)
 			if c
 			then
 				if table.contains(sgs.ZhinangClassName,c:getClassName())
-				then continue end
-				self.ai_dinghan_choice = c:objectName()
+				or c:isZhinangCard() then continue end
+				self.ai_dinghan_choice = pn
 				if c:targetFixed() and not c:isDamageCard()
 				and self:getRestCardsNum(c:getClassName())>0
 				then return "add" end
 			end
 		end
 		for c,pn in sgs.list(patterns)do
-			if table.contains(cns,pn)
-			then continue end
+			if table.contains(cns,pn) then continue end
 			c = dummyCard(pn)
 			if c
 			then
 				if table.contains(sgs.ZhinangClassName,c:getClassName())
-				then continue end
-				self.ai_dinghan_choice = c:objectName()
+				or c:isZhinangCard() then continue end
+				self.ai_dinghan_choice = pn
 				if c:isKindOf("GlobalEffect") and not c:isDamageCard()
 				and self:getRestCardsNum(c:getClassName())>0
 				then return "add" end

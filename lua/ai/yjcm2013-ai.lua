@@ -305,7 +305,7 @@ sgs.ai_skill_use["@@xiansi"] = function(self,prompt)
 	end
 
 	if #targets==1 then
-		local target = findPlayerByObjectName(self.room,targets[1])
+		local target = self.room:findPlayerByObjectName(targets[1])
 		if target then
 			local another
 			if rest_num>1 then another = self:findPlayerToDiscard("he",true,false,self.room:getOtherPlayers(target)) end
@@ -324,7 +324,7 @@ sgs.ai_card_intention.XiansiCard = function(self,card,from,tos)
 	local lord = self.room:getLord()
 	if sgs.ai_role[from:objectName()]=="neutral" and sgs.ai_role[tos[1]:objectName()]=="neutral"
 		and (not tos[2] or sgs.ai_role[tos[2]:objectName()]=="neutral") and lord and not lord:isNude()
-		and self:doNotDiscard(lord,"he",true) and from:aliveCount()>=4 then
+		and self:doDisCard(lord,"he",true) and from:aliveCount()>=4 then
 		sgs.updateIntention(from,lord,-35)
 		return
 	end
@@ -545,43 +545,34 @@ end
 sgs.ai_card_intention.QiaoshuiCard = 0
 
 sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
+	self.qiaoshui_target = nil
+	self.qiaoshui_collateral = nil
 	local use = data:toCardUse()
 	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = use.to}
-	if use.card:isKindOf("Collateral") then
+	if use.card:isKindOf("Collateral")
+	then
 		self:useCardCollateral(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()==2 then
 			local first = dummy_use.to:at(0):objectName()
 			local second = dummy_use.to:at(1):objectName()
 			self.qiaoshui_collateral = { first,second }
 			return "add"
-		else
-			self.qiaoshui_collateral = nil
 		end
-	elseif use.card:isKindOf("Analeptic")
-	then
 	elseif use.card:isKindOf("Peach") then
 		self:sort(self.friends_noself,"hp")
 		for _,friend in ipairs(self.friends_noself)do
 			if friend:isWounded() and friend:getHp()<getBestHp(friend) then
-				self.qiaoshui_extra_target = friend
-				return "add"
-			end
-		end
-	elseif use.card:isKindOf("ExNihilo") or use.card:isKindOf("Dongzhuxianji")
-	then
-		local friends = self:findPlayerToDraw(false,2,#self.friends_noself)
-		if #friends>0 then
-			for _,p in ipairs(friends)do
-				if not self:hasTrickEffective(card,p,self.player) or self.player:isProhibited(p,use.card) then continue end
-				self.qiaoshui_extra_target = p
+				self.qiaoshui_target = friend
 				return "add"
 			end
 		end
 	elseif use.card:isKindOf("GodSalvation") then
 		self:sort(self.enemies,"hp")
 		for _,enemy in ipairs(self.enemies)do
-			if enemy:isWounded() and self:hasTrickEffective(use.card,enemy,self.player) then
-				self.qiaoshui_remove_target = enemy
+			if use.to:contains(enemy) and enemy:isWounded()
+			and self:hasTrickEffective(use.card,enemy,self.player)
+			then
+				self.qiaoshui_target = enemy
 				return "remove"
 			end
 		end
@@ -589,51 +580,49 @@ sgs.ai_skill_choice.qiaoshui = function(self,choices,data)
 		self:sort(self.enemies)
 		for _,enemy in ipairs(self.enemies)do
 			if self:hasTrickEffective(use.card,enemy,self.player) and not hasManjuanEffect(enemy)
-				and not self:needKongcheng(enemy,true) then
-				self.qiaoshui_remove_target = enemy
+			and not self:needKongcheng(enemy,true)
+			then
+				self.qiaoshui_target = enemy
 				return "remove"
 			end
 		end
 	elseif use.card:isKindOf("AOE") then
 		self:sort(self.friends_noself)
 		local lord = self.room:getLord()
-		if lord and lord:objectName()~=self.player:objectName() and self:isFriend(lord) and self:isWeak(lord) then
-			self.qiaoshui_remove_target = lord
+		if lord and use.to:contains(lord) and self:isFriend(lord) and self:isWeak(lord) then
+			self.qiaoshui_target = lord
 			return "remove"
 		end
 		for _,friend in ipairs(self.friends_noself)do
-			if self:hasTrickEffective(use.card,friend,self.player) then
-				self.qiaoshui_remove_target = friend
+			if use.to:contains(friend)
+			and self:hasTrickEffective(use.card,friend,self.player)
+			then
+				self.qiaoshui_target = friend
 				return "remove"
 			end
 		end
-	elseif use.card:isKindOf("Snatch") or use.card:isKindOf("Dismantlement") then
-		self:useCardSnatchOrDismantlement(use.card,dummy_use)
-		if dummy_use.card and dummy_use.to:length()>0 then
-			self.qiaoshui_extra_target = dummy_use.to:first()
+	elseif use.card:targetFixed()
+	then
+		local friends = self:findPlayerToDraw(false,2,#self.friends_noself)
+		if #friends>0 then
+			for _,p in ipairs(friends)do
+				if not self:hasTrickEffective(card,p,self.player) or self.player:isProhibited(p,use.card) then continue end
+				self.qiaoshui_target = p
 			return "add"
 		end
-	elseif use.card:isKindOf("Slash") then
-		self:useCardSlash(use.card,dummy_use)
-		if dummy_use.card and dummy_use.to:length()>0 then
-			self.qiaoshui_extra_target = dummy_use.to:first()
-			return "add"
 		end
 	else
-		self:useCardByClassName(use.card,dummy_use)
+		self:aiUseCard(use.card,dummy_use)
 		if dummy_use.card and dummy_use.to:length()>0 then
-			self.qiaoshui_extra_target = dummy_use.to:first()
+			self.qiaoshui_target = dummy_use.to:first()
 			return "add"
 		end
 	end
-	self.qiaoshui_extra_target = nil
-	self.qiaoshui_remove_target = nil
 	return "cancel"
 end
 
 sgs.ai_skill_playerchosen.qiaoshui = function(self,targets)
-	if not self.qiaoshui_extra_target and not self.qiaoshui_remove_target then self.room:writeToConsole("Qiaoshui player chosen error!!") end
-	return self.qiaoshui_extra_target or self.qiaoshui_remove_target
+	return self.qiaoshui_target
 end
 
 sgs.ai_skill_use["@@qiaoshui!"] = function(self,prompt) -- extra target for Collateral
@@ -798,11 +787,11 @@ sgs.ai_skill_use_func.DanshouCard = function(card,use,self)
 				if self.player:canDiscard(p,"he") and not p:isNude() then
 					if self:isFriend(p) then
 						if(self:hasSkills(sgs.lose_equip_skill,p) and not p:getEquips():isEmpty())
-						or (self:needToThrowArmor(p) and p:getArmor()) or self:doNotDiscard(p) then
+						or (self:needToThrowArmor(p) and p:getArmor()) or self:doDisCard(p,"he") then
 							target = p  break end
 					elseif self:isEnemy(p) then
 						if times==2 and self:needToThrowArmor(p) then continue
-						elseif (not self:doNotDiscard(p) or self:getDangerousCard(p) or self:getValuableCard(p)) then
+						elseif (self:doDisCard(p,"he") or self:getDangerousCard(p) or self:getValuableCard(p)) then
 							target = p  break end
 					end
 				end

@@ -319,8 +319,8 @@ sgs.ai_use_priority.GuanxuCard = 6.8
 
 sgs.ai_skill_use["@@guanxu1"] = function(self,prompt)
 	local valid = {}
-	local guanxuhand = self.player:getTag("guanxuhand_forAI"):toString():split("+")
-	local guanxudrawpile = self.player:getTag("guanxudrawpile_forAI"):toString():split("+")
+	local guanxuhand = self.player:getTag("guanxuhandForAI"):toIntList()
+	local guanxudrawpile = self.player:getTag("guanxudrawpileForAI"):toIntList()
 	local n1,n2,suits = {},{},{}
 	for c,id in sgs.list(guanxuhand)do
 		c = sgs.Sanguosha:getCard(id)
@@ -407,7 +407,7 @@ sgs.ai_skill_use["@@guanxu1"] = function(self,prompt)
 end
 
 sgs.ai_skill_use["@@guanxu2"] = function(self,prompt)
-	local guanxuhand = self.player:getTag("guanxu_forAI"):toString():split("+")
+	local guanxuhand = self.player:getTag("guanxuForAI"):toIntList()
 	local n1,n2,suits = {},{},{}
 	for c,id in sgs.list(guanxuhand)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -667,7 +667,7 @@ sgs.ai_skill_playerchosen.wanggui = function(self,targets)
 		if target then return target end
 		if self:canDraw() then return self.player end
 	else
-		return self:findPlayerToDamage(1,self.player,sgs.DamageStruct_Normal,targets)
+		return self:findPlayerToDamage(1,self.player,nil,targets)
 	end
 	return nil
 end
@@ -744,23 +744,23 @@ addAiSkills("juguan").getTurnUseCard = function(self)
 		local fs = sgs.Sanguosha:cloneCard("duel")
 		fs:setSkillName("juguan")
 		fs:addSubcard(c)
+		fs:deleteLater()
 		d = self:aiUseCard(fs)
 		self.jg_to = d.to
 		sgs.ai_use_priority.JuguanCard = sgs.ai_use_priority.Duel
 		if fs:isAvailable(self.player) and d.card and d.to
 		then return sgs.Card_Parse("@JuguanCard="..c:getEffectiveId()..":duel") end
-		fs:deleteLater()
 	end
   	for d,c in sgs.list(cards)do
-		local fs = sgs.Sanguosha:cloneCard("Slash")
+		local fs = sgs.Sanguosha:cloneCard("sslash")
 		fs:setSkillName("juguan")
 		fs:addSubcard(c)
+		fs:deleteLater()
 		d = self:aiUseCard(fs)
 		self.jg_to = d.to
 		sgs.ai_use_priority.JuguanCard = sgs.ai_use_priority.Slash
 		if fs:isAvailable(self.player) and d.card and d.to
 		then return sgs.Card_Parse("@JuguanCard="..c:getEffectiveId()..":slash") end
-		fs:deleteLater()
 	end
 end
 
@@ -1017,7 +1017,7 @@ sgs.ai_fill_skill.tenyearshuhe = function(self)
 	local ids = {}
 	for _,p in sgs.list(self.room:getAlivePlayers())do
 		for _,c in sgs.list(p:getCards("ej"))do
-			if self:canDisCard(p,c:getId(),nil,true)
+			if self:doDisCard(p,c:getId(),true)
 			then table.insert(ids,c:getNumber()) end
 		end
 	end
@@ -1586,7 +1586,7 @@ sgs.ai_skill_choice.yuyun = function(self,choices)
 	if table.contains(items,"obtain")
 	then
 		for _,fp in sgs.list(self.friends_noself)do
-			if self:canDisCard(fp,"ej")
+			if self:doDisCard(fp,"ej")
 			then return "obtain" end
 		end
 	end
@@ -1616,17 +1616,17 @@ sgs.ai_skill_playerchosen.yuyun_obtain = function(self,players,reason)
 	self:sort(destlist,"hp")
 	for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"ej")
+		and self:doDisCard(target,"ej")
 		then return target end
 	end
     for _,target in sgs.list(destlist)do
 		if self:isEnemy(target)
-		and self:canDisCard(target)
+		and self:doDisCard(target)
 		then return target end
 	end
 	for _,target in sgs.list(destlist)do
 		if not self:isFriend(target)
-		and self:canDisCard(target)
+		and self:doDisCard(target)
 		then return target end
 	end
 end
@@ -1744,7 +1744,7 @@ sgs.ai_skill_cardask["@zhuangshu-discard"] = function(self,data,pattern,prompt)
 end
 
 sgs.ai_skill_use["@@chuiti"] = function(self,prompt)
-	local ids = self.player:getTag("chuiti_forAI"):toString():split("+")
+	local ids = self.player:getTag("chuitiForAI"):toIntList()
 	for c,id in sgs.list(ids)do
 		c = sgs.Sanguosha:getCard(id)
 		local d = self:aiUseCard(c)
@@ -1816,11 +1816,11 @@ sgs.ai_skill_askforag.zhuning = function(self,card_ids)
 		c = sgs.Sanguosha:getCard(id)
 		c = sgs.Sanguosha:cloneCard(c:objectName())
 		c:setSkillName("_zhuning")
+		c:deleteLater()
 		local d = self:aiUseCard(c)
 		self.zhuning_d = d
 		if d.card and d.to
 		then return id end
-		c:deleteLater()
 	end
 end
 

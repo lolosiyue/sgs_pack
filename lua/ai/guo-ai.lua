@@ -60,7 +60,6 @@ jinchoufa_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func.JinChoufaCard = function(card,use,self)
-	local slash = dummyCard()	
 	self:sort(self.friends_noself,"handcard")
 	self.friends_noself = sgs.reverse(self.friends_noself)
 	self:sort(self.enemies,"handcard")
@@ -68,7 +67,7 @@ sgs.ai_skill_use_func.JinChoufaCard = function(card,use,self)
 	
 	for _,p in sgs.list(self.friends_noself)do
 		if p:isKongcheng() then continue end
-		if p:canSlashWithoutCrossbow() or p:hasWeapon("crossbow") or p:hasWeapon("vscrossbow") and self:willUse(p,slash) then
+		if self:hasCrossbowEffect(p) then
 			use.card = card
 			if use.to then use.to:append(p) end
 			return
@@ -76,8 +75,7 @@ sgs.ai_skill_use_func.JinChoufaCard = function(card,use,self)
 	end
 	
 	for _,p in sgs.list(self.enemies)do
-		if p:isKongcheng() then continue end
-		if (p:canSlashWithoutCrossbow() or p:hasWeapon("crossbow") or p:hasWeapon("vscrossbow")) and self:willUse(p,slash) then continue end
+		if p:isKongcheng() or self:hasCrossbowEffect(p) then continue end
 		use.card = card
 		if use.to then use.to:append(p) end
 		return
@@ -99,10 +97,10 @@ sgs.ai_skill_invoke.jinshiren = function(self,data)
 	if self:isFriend(current) then
 		if self:needToThrowLastHandcard(current) then return true end
 		if self:getOverflow(current)>2 then return true end
-		if self:doNotDiscard(current) then return true end
+		if not self:doDisCard(current) then return true end
 	elseif self:isEnemy(current) then
 		if not self:needToThrowLastHandcard(current) then return true end
-		if not self:doNotDiscard(current) then return true end
+		if self:doDisCard(current) then return true end
 	else
 		return true
 	end
@@ -127,7 +125,7 @@ sgs.ai_skill_use_func.JinYanxiCard = function(card,use,self)
 	local target = nil
 	self:sort(self.enemies,"handcard")
 	for _,p in sgs.list(self.enemies)do
-		if self:doNotDiscard(p,"h") then continue end
+		if not self:doDisCard(p,"h") then continue end
 		target = p
 		break
 	end
@@ -153,7 +151,7 @@ sgs.ai_skill_use_func.JinSanchenCard = function(card,use,self)
 	self:sort(self.friends,"handcard")
 	self.friends = sgs.reverse(self.friends)
 	for _,p in sgs.list(self.friends)do
-		if self:doNotDiscard(p,"h") and p:getMark("jinsanchen_target-Clear")==0 then
+		if not self:doDisCard(p,"h") and p:getMark("jinsanchen_target-Clear")==0 then
 			use.card = card
 			if use.to then
 				use.to:append(p)

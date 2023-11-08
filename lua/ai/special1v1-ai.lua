@@ -41,7 +41,7 @@ function SmartAI:useCardDrowning(card,use)
 		if isCurrent(use.current_targets,friend) then continue end
 		local n = 0
 		for _,e in sgs.list(friend:getEquips())do
-			if self:canDisCard(friend,e:getEffectiveId())
+			if self:doDisCard(friend,e:getEffectiveId())
 			then n = n+1 else n = n-1 end
 		end
 		if friend:isChained()
@@ -62,11 +62,8 @@ end
 
 sgs.ai_card_intention.Drowning = function(self,card,from,tos)
 	for _,to in sgs.list(tos)do
-		if not self:hasTrickEffective(card,to,from)
-		or self:needToThrowArmor(to) then
-		else
-			sgs.updateIntention(from,to,80)
-		end
+		if not self:hasTrickEffective(card,to,from) or self:needToThrowArmor(to) then
+		else sgs.updateIntention(from,to,80) end
 	end
 end
 
@@ -102,7 +99,7 @@ sgs.ai_skill_playerchosen.koftuxi = function(self,targets)
 	if cardstr:match("->") then
 		local targetstr = cardstr:split("->")[2]:split("+")
 		if #targetstr>0 then
-			local target = findPlayerByObjectName(self.room,targetstr[1])
+			local target = self.room:findPlayerByObjectName(targetstr[1])
 			return target
 		end
 	end
@@ -113,7 +110,7 @@ sgs.ai_playerchosen_intention.koftuxi = function(self,from,to)
 	local lord = self.room:getLord()
 	if sgs.ai_role[from:objectName()]=="neutral" and sgs.ai_role[to:objectName()]=="neutral"
 		and lord and not lord:isKongcheng()
-		and not self:doNotDiscard(lord,"h",true) and from:aliveCount()>=4 then
+		and self:doDisCard(lord,"h",true) and from:aliveCount()>=4 then
 		sgs.updateIntention(from,lord,-35)
 		return
 	end
@@ -452,7 +449,7 @@ end
 
 sgs.ai_skill_invoke.yanhuo = function(self,data)
 	local opponent = self.room:getOtherPlayers(self.player,true):first()
-	return opponent:isAlive() and not self:doNotDiscard(opponent)
+	return opponent:isAlive() and self:doDisCard(opponent,"he")
 end
 
 sgs.ai_skill_playerchosen.yanhuo = function(self,targets)
@@ -514,7 +511,7 @@ sgs.ai_use_priority.PujiCard = 4.6
 sgs.ai_card_intention.PujiCard = function(self,card,from,tos)
 	if not self.puji_id_choice then return end
 	local to = tos[1]
-	local em_prompt = { "cardChosen","puji",tostring(self.puji_id_choice),from:objectName(),to:objectName() }
+	local em_prompt = {"cardChosen","puji",tostring(self.puji_id_choice),from:objectName(),to:objectName() }
 	sgs.ai_choicemade_filter.cardChosen.snatch(self,nil,em_prompt)
 end
 
@@ -572,7 +569,7 @@ sgs.ai_skill_invoke.renwang = function(self,data)
 	if self:isFriend(use.from) then
 		local id = self:askForCardChosen(use.from,"he","dummy",sgs.Card_MethodDiscard)
 		return self:needToThrowArmor(use.from) and id==use.from:getArmor():getEffectiveId()
-	elseif not self:doNotDiscard(use.from,"he") and use.from:getCardCount()>0 then
+	elseif self:doDisCard(use.from,"he") then
 		return true
 	end
 	return

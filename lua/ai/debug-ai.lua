@@ -1,11 +1,10 @@
-sgs.ai_debug_func[sgs.EventPhaseStart].debugfunc = function(self,player,data)
-	if player:getPhase()==sgs.Player_Start
+sgs.ai_event_callback[sgs.EventPhaseStart].debugfunc = function(self,player,data)
+	if sgs.debugmode and player:getPhase()==sgs.Player_Start
 	then debugFunc(self,player,data) end
 end
 
-sgs.ai_debug_func[sgs.CardUsed].debugfunc = function(self,player,data)
-	local card = data:toCardUse().card
-	if card:isKindOf("Peach") or card:isKindOf("Nullification")
+sgs.ai_event_callback[sgs.CardUsed].debugfunc = function(self,player,data)
+	if sgs.debugmode and (data:toCardUse().card:isKindOf("Peach") or data:toCardUse().card:isKindOf("Nullification"))
 	then debugFunc(self,player,data) end
 end
 
@@ -155,8 +154,9 @@ function sgs.checkMisjudge(player)
 	if not lord then return end
 	local mode = global_room:getMode()
 	if player then
-		if sgs.playerRoles[player:getRole()]>sgs.mode_player[mode][player:getRole()] or sgs.playerRoles[player:getRole()]<0 then
-			player:getRoom():writeToConsole("Misjudge--------> Role:"..player:getRole().." Current players:"..sgs.playerRoles[player:getRole()]
+		if sgs.playerRoles[player:getRole()]>sgs.mode_player[mode][player:getRole()] or sgs.playerRoles[player:getRole()]<0
+		then
+			global_room:writeToConsole("Misjudge--------> Role:"..player:getRole().." Current players:"..sgs.playerRoles[player:getRole()]
 			.." Valid players:"..sgs.mode_player[mode][player:getRole()])
 		end
 	else
@@ -166,8 +166,7 @@ function sgs.checkMisjudge(player)
 			local role = p:getRole()
 			if role=="rebel" then rebel_num = rebel_num+1
 			elseif role=="loyalist" then loyalist_num = loyalist_num+1
-			elseif role=="renegade" then renegade_num = renegade_num+1
-			end
+			elseif role=="renegade" then renegade_num = renegade_num+1 end
 		end
 		for _,p in sgs.list(global_room:getOtherPlayers(lord))do
 			if sgs.ai_role[p:objectName()]=="rebel" and rebel_num>0 then evaluate_rebel = evaluate_rebel+1

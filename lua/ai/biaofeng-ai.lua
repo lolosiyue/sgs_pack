@@ -6366,8 +6366,9 @@ end
 sgs.ai_skill_invoke["SixJianCe"] = function(self, data)
 	local target = data:toPlayer()
 	local max_card = self:getMaxCard()
-	local max_point = max_card:getNumber()
-	if target and self:isEnemy(target) then
+	
+	if target and self:isEnemy(target) and max_card then
+		local max_point = max_card:getNumber()
 		local enemy_max_card = self:getMaxCard(target)
 		if (enemy_max_card and max_point>enemy_max_card:getNumber() )
 			or (enemy_max_card and max_point>enemy_max_card:getNumber() and max_point>10)

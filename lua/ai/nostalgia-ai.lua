@@ -757,9 +757,8 @@ nosguhuo_skill.name = "nosguhuo"
 table.insert(sgs.ai_skills,nosguhuo_skill)
 nosguhuo_skill.getTurnUseCard = function(self)
     local cards = self.player:getCards("h")
-    cards = sgs.QList2Table(cards) -- 将列表转换为表
-    self:sortByKeepValue(cards) -- 按保留值排序
-	if #cards<1 then return end
+	if cards:length()<1 then return end
+    cards = self:sortByKeepValue(cards) -- 按保留值排序
 	local can = true
 	for _,ep in ipairs(self.enemies)do
     	if ep:getHp()>1 or #cards<2
@@ -769,20 +768,18 @@ nosguhuo_skill.getTurnUseCard = function(self)
         local name = patterns[math.random(1,#patterns)]
 		local c = dummyCard(name)
 		if c and can and math.random(1,5)<3
-		and (c:isKindOf("BasicCard") or c:isNDTrick())
 		and c:isAvailable(self.player)
+		and (c:isKindOf("BasicCard") or c:isNDTrick())
 		and self.player:getMark(name.."-PlayClear")<1
 		and self:getRestCardsNum(c:getClassName())>0
 		then
          	c:setSkillName("nosguhuo")
 			c:addSubcard(cards[1])
 			local dummy = self:aiUseCard(c)
-    		if dummy.card and dummy.to
+    		if dummy.card
 	     	then
-	           	if c:canRecast()
-				and dummy.to:length()<1
-				then continue end
-	         	self.guhuo_use = dummy
+	         	self.guhuo_to = dummy.to
+	           	if c:canRecast() and dummy.to:length()<1 then continue end
                 return sgs.Card_Parse("@NosGuhuoCard="..cards[1]:getId()..":"..name)
 			end
 		end
@@ -797,35 +794,24 @@ nosguhuo_skill.getTurnUseCard = function(self)
 		and (h:isKindOf("BasicCard") or h:isNDTrick())
 		and (can or self:getCardsNum(h:getClassName())>1)
 		then
-    		local slash = dummyCard(h:objectName())
-         	slash:setSkillName("nosguhuo")
-			slash:addSubcard(h)
-         	local dummy = self:aiUseCard(slash)
-    		if dummy.card and dummy.to
+         	local dummy = self:aiUseCard(h)
+    		if dummy.card
 	     	then
-	           	if slash:canRecast()
-				and dummy.to:length()<1
-				then continue end
-	         	self.guhuo_use = dummy
+	         	self.guhuo_to = dummy.to
+	           	if h:canRecast() and dummy.to:length()<1 then continue end
                 return sgs.Card_Parse("@NosGuhuoCard="..h:getId()..":"..h:objectName())
 			end
 		end
 	end
 	for _,h in ipairs(cards)do
-		if h:isAvailable(player)
-		and h:getSuitString()=="heart"
+		if h:isAvailable(self.player) and h:getSuit()==2
 		and (h:isKindOf("BasicCard") or h:isNDTrick())
 		then
-    		local slash = dummyCard(h:objectName())
-         	slash:setSkillName("nosguhuo")
-			slash:addSubcard(h)
-         	local dummy = self:aiUseCard(slash)
-    		if dummy.card and dummy.to
+         	local dummy = self:aiUseCard(h)
+    		if dummy.card
 	     	then
-	           	if slash:canRecast()
-				and dummy.to:length()<1
-				then continue end
-	         	self.guhuo_use = dummy
+	         	self.guhuo_to = dummy.to
+	           	if h:canRecast() and dummy.to:length()<1 then continue end
                 return sgs.Card_Parse("@NosGuhuoCard="..h:getId()..":"..h:objectName())
 			end
 		end
@@ -839,9 +825,9 @@ nosguhuo_skill.getTurnUseCard = function(self)
 			if dummy:isAvailable(self.player)
 			then
 				dummy = self:aiUseCard(dummy)
-				if dummy.card and dummy.to
+				if dummy.card
 				then
-					self.guhuo_use = dummy
+					self.guhuo_to = dummy.to
 					return sgs.Card_Parse(peach_str)
 				end
 			end
@@ -852,9 +838,9 @@ nosguhuo_skill.getTurnUseCard = function(self)
 	and math.random(0,#cards)>1
 	then
 	   	local dummy = self:aiUseCard(dummyCard())
-	   	if dummy.card and dummy.to
+	   	if dummy.card
 	   	then
-	       	self.guhuo_use = dummy
+	       	self.guhuo_to = dummy.to
 	    	return sgs.Card_Parse(slash_str)
 	   	end
 	end
@@ -866,7 +852,7 @@ sgs.ai_skill_use_func.NosGuhuoCard = function(card,use,self)
 	then
 		local cs = card:toString():split(":")
 		self.player:addMark(cs[#cs].."-PlayClear")
-    	use.to = self.guhuo_use.to
+    	use.to = self.guhuo_to
 	end
 end
 
@@ -1030,7 +1016,7 @@ end
 sgs.ai_skill_invoke.nosjuece = function(self,data)
 	local move = data:toMoveOneTime()
 	if not move.from then return false end
-	local from = findPlayerByObjectName(self.room,move.from:objectName())
+	local from = self.room:findPlayerByObjectName(move.from:objectName())
 	return from and ((self:isFriend(from) and self:needToLoseHp(from,self.player)) or (not self:isFriend(from) and self:canAttack(from)))
 end
 
@@ -1043,7 +1029,7 @@ sgs.ai_playerchosen_intention.nosmieji = -50
 sgs.ai_skill_use["@@nosmieji"] = function(self,prompt) -- extra target for Collateral
 	local collateral = dummyCard("collateral")
 	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = {}}
-	dummy_use.current_targets = self.player:property("extra_collateral_current_targets"):toString():split("+")
+	dummy_use.current_targets = self.player:property("extra_collateral"):toString():split("+")
 	self:useCardCollateral(collateral,dummy_use)
 	if dummy_use.card and dummy_use.to:length()==2 then
 		local first = dummy_use.to:at(0):objectName()
@@ -1223,13 +1209,12 @@ sgs.ai_skill_invoke.nosfankui = function(self,data)
 
 	if self:isFriend(target) then
 		if self:getOverflow(target)>2 then return true end
-		if self:doNotDiscard(target) then return true end
-		return (self:hasSkills(sgs.lose_equip_skill,target) and not target:getEquips():isEmpty())
-		  or (self:needToThrowArmor(target) and target:getArmor()) or self:doNotDiscard(target)
+		if self:doDisCard(target,"he") then return true end
+		return
 	end
 	if self:isEnemy(target) then
-		if self:doNotDiscard(target) then return false end
-		return true
+		if self:doDisCard(target,"true") then return true end
+		return
 	end
 	--self:updateLoyalty(-0.8*sgs.ai_loyalty[target:objectName()],self.player:objectName())
 	return true
@@ -1244,7 +1229,7 @@ sgs.ai_choicemade_filter.cardChosen.nosfankui = function(self,player,promptlist)
 		local target = damage.from
 		if self:needToThrowArmor(target) and self.room:getCardPlace(id)==sgs.Player_PlaceEquip and card:isKindOf("Armor") then
 			intention = -intention
-		elseif self:doNotDiscard(target) then intention = -intention
+		elseif not self:doDisCard(target,"he") then intention = -intention
 		elseif self:hasSkills(sgs.lose_equip_skill,target) and not target:getEquips():isEmpty() and
 			self.room:getCardPlace(id)==sgs.Player_PlaceEquip and card:isKindOf("EquipCard") then
 				intention = -intention

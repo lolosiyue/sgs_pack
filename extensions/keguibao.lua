@@ -1727,7 +1727,7 @@ kejieguixiaoshou = sgs.CreateTriggerSkill{
 		else 
 			target = damage.to
 		end
-		if target and target:hasEquip() then
+		if target and target:isAlive() and player and player:isAlive() and target:hasEquip() then
 			local equiplist = {}
 			for i = 0, 3, 1 do
 				if not target:getEquip(i) then continue end

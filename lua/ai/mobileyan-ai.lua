@@ -15,7 +15,7 @@ sgs.ai_skill_use["@@mobileyanyajun1"] = function(self,prompt)
 		and self.player:canPindian(friend)
 		then valid = friend:objectName() end
 	end
-    local cards = player:getCards("he")
+    local cards = self.player:getCards("he")
     cards = sgs.QList2Table(cards) -- 将列表转换为表
     self:sortByKeepValue(cards) -- 按保留值排序
 	local strs = self.player:property("MobileYanYajunIds"):toString():split("+")

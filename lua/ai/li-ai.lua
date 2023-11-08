@@ -2,12 +2,11 @@
 sgs.ai_skill_invoke.jinbuchen = function(self,data)
 	local player = data:toPlayer()
 	if self:needKongcheng(self.player,true) then return false end
-	if self:isFriend(player) and (self:doNotDiscard(player,"he") or self:needToThrowArmor(player)) then return true end
-	if not self:isFriend(player) and not self:doNotDiscard(player,"he") then return true end
+	if self:doDisCard(player,"he") then return true end
 end
 
 sgs.ai_can_damagehp.jinbuchen = function(self,from,card,to)
-	return self:canDisCard(self.room:getCurrent(),"he",to,true)
+	return self:doDisCard(self.room:getCurrent(),"he",true)
 	and to:inYinniState()
 end
 
@@ -268,7 +267,7 @@ sgs.ai_skill_invoke.jincaiwang = function(self,data)
 	local name = data:toString():split(":")[2]
 	local to = self.room:findPlayerByObjectName(name)
 	if not to then return false end
-	return self:isEnemy(to) and not self:doNotDiscard(to,"he")
+	return self:isEnemy(to) and self:doDisCard(to,"he")
 end
 
 addAiSkills("secondjincaiwang").getTurnUseCard = function(self)

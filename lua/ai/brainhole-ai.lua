@@ -42,7 +42,7 @@ sgs.ai_skill_cardask["#moucaigive"] = function(self, data)
 	card = cards[1]:getEffectiveId()
 	return card
 end
-
+--[[
 sgs.ai_chat_func[sgs.CardFinished].n_shenshou = function(self, player, data)
     local use = data:toCardUse()
     if use.card:objectName()=="n_shenshouCard" then
@@ -57,7 +57,7 @@ sgs.ai_chat_func[sgs.CardFinished].n_shenshou = function(self, player, data)
             self.player:speak(chat[math.random(1, #chat)])
         end
     end
-end
+end]]
 
 ----------------------------------
 n_qiuwu_skill = {}

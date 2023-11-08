@@ -19,17 +19,6 @@ sgs.card_damage_nature.IceSlash = "I"
 
 --洞烛先机
 function SmartAI:useCardDongzhuxianji(card,use)
-	local toc = self:getCard("Zhujinqiyuan,Dismantlement,Snatch")
-	if toc
-	then
-		local dummy = self:aiUseCard(toc)
-		if dummy.card and use.to
-		then
-			use.card = toc
-			use.to = dummy.to
-			return
-		end
-	end
 	local xiahou = self:hasSkills("yanyu",self.enemies)
 	if xiahou and xiahou:getMark("YanyuDiscard2")>0 then return end
 	use.card = card
@@ -124,7 +113,7 @@ end
 --逐近弃远
 function SmartAI:useCardZhujinqiyuan(card,use)
 	local tos = {}
-	for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
+	for _,p in sgs.qlist(self.room:getOtherPlayers(self.player))do
 		if CanToCard(card,self.player,p) then table.insert(tos,p) end
 	end
 	if #tos<1 then return end
@@ -140,10 +129,30 @@ function SmartAI:useCardZhujinqiyuan(card,use)
 			then return end
 		end
 	end
+	for _,p in sgs.list(tos)do
+		if isCurrent(use.current_targets,p) then continue end
+		if use.to and self:doDisCard(p,"ej",self.player:distanceTo(p)<2)
+		then
+			use.card = card
+			use.to:append(p)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	for _,p in sgs.list(tos)do
+		if isCurrent(use.current_targets,p) then continue end
+		if use.to and self:doDisCard(p,"hej",self.player:distanceTo(p)<2)
+		then
+			use.card = card
+			use.to:append(p)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
 end
 
 sgs.ai_use_value.Zhujinqiyuan = 9
-sgs.ai_use_priority.Zhujinqiyuan = 4.3
+sgs.ai_use_priority.Zhujinqiyuan = 9.3
 sgs.ai_keep_value.Zhujinqiyuan = 3.46
 
 sgs.dynamic_value.control_card.Zhujinqiyuan = true
@@ -260,10 +269,8 @@ sgs.ai_target_revises.heiguangkai = function(to,card,self,use)
 	if use.to and use.to:length()>1
 	then
 		if card:isKindOf("GlobalEffect") and #self.friends<2
-		and to:objectName()==self.player:objectName()
-		then use.card = nil return true
-		elseif card:isNDTrick()
-    	or card:isKindOf("Slash")
+		and to==self.player then use.card = nil return true
+		elseif card:isNDTrick() or card:isKindOf("Slash")
 		then return true end
 	end
 end
@@ -396,7 +403,7 @@ end
 
 sgs.ai_skill_playerchosen.yb_zhuzhan2 = function(self,targets)
 	local use = self.player:getTag("yb_zhuzhan2_data"):toCardUse()
-	if not use or use.card then return nil end
+	if type(use.card)~="userdata" then return nil end
 	local tos = self:sort(targets,"hp")
 	local dummy_use = {isDummy = true,to = sgs.SPlayerList(),current_targets = use.to}
 	if use.card:isKindOf("Peach")
@@ -417,19 +424,9 @@ sgs.ai_skill_playerchosen.yb_zhuzhan2 = function(self,targets)
 		end
 	elseif use.card:isKindOf("Snatch")
 	or use.card:isKindOf("Dismantlement")
+	or use.card:isKindOf("Slash")
 	then
-		self:useCardSnatchOrDismantlement(use.card,dummy_use)
-		if dummy_use.card
-		then
-			for _,p in sgs.list(dummy_use.to)do
-				if targets:contains(p)
-				and self:canCanmou(p,use)
-				then return p end
-			end
-		end
-	elseif use.card:isKindOf("Slash")
-	then
-		self:useCardSlash(use.card,dummy_use)
+		self:aiUseCard(use.card,dummy_use)
 		if dummy_use.card
 		then
 			for _,p in sgs.list(dummy_use.to)do

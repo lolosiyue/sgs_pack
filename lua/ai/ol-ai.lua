@@ -157,9 +157,8 @@ sgs.ai_skill_use["@@midao"] = function(self,prompt,method)
         local id = self:getRetrialCardId(cards,judge)
         if id~=-1 then return "@MidaoCard="..id end
     end
-	if self:isWeak()
-	and self:getLostHp()>0
-	and #cards<2
+	if self:isWeak() and #cards<2
+	and self.player:getLostHp()>0
 	then
         local id = self:getRetrialCardId(cards,judge,nil,true)
         if id~=-1 then return "@MidaoCard="..id end

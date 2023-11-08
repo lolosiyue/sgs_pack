@@ -6,10 +6,10 @@ end
 
 sgs.ai_skill_choice.moukui = function(self,choices,data)
 	local target = sgs.moukui_target
-	if self:isEnemy(target) and self:doNotDiscard(target) then
-		return "draw"
+	if self:doDisCard(target) then
+		return "discard"
 	end
-	return "discard"
+	return "draw"
 end
 
 sgs.ai_skill_invoke.tianming = function(self,data)
@@ -416,7 +416,7 @@ sgs.ai_skill_invoke.duanzhi = function(self,data)
 		self.player:setFlags("AI_doNotSave")
 		return true
 	end
-	return use.from and self:isEnemy(use.from) and not self:doNotDiscard(use.from,"he",true,2) and self.player:getHp()>2
+	return use.from and self:isEnemy(use.from) and self:doDisCard(use.from,"he",nil,2) and self.player:getHp()>2
 end
 
 sgs.ai_skill_choice.duanzhi = function(self,choices)

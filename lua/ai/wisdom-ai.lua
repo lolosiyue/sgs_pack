@@ -410,7 +410,7 @@ end
 sgs.ai_event_callback[sgs.ChoiceMade].weidai=function(self,player,data)
 	local choices= data:toString():split(":")
 	if choices[1]=="cardResponded" and choices[3]=="@weidai-analeptic" then
-		local target = findPlayerByObjectName(self.room,choices[4])
+		local target = self.room:findPlayerByObjectName(choices[4])
 		local card = choices[#choices]
 		if card~="_nil_" then
 			sgs.updateIntention(player,target,-80)
@@ -556,15 +556,16 @@ sgs.ai_skill_playerchosen.jincui = function(self,targets)
 		self:sort(self.enemies,"handcard")
 		for _,enemy in ipairs(self.enemies)do
 			if enemy:getCards("he"):length()==3
-			  and not self:doNotDiscard(enemy,"he",true,3,true) then
+			  and self:doDisCard(enemy,"he",true,3) then
 				sgs.jincui_discard = true
 				return enemy
 			end
 		end
 		for _,enemy in ipairs(self.enemies)do
 			if enemy:getCards("he"):length()>=3
-			  and not self:doNotDiscard(enemy,"he",true,3,true)
-			  and self:hasSkills(sgs.cardneed_skill,enemy) then
+			and self:doDisCard(enemy,"he",true,3)
+			and self:hasSkills(sgs.cardneed_skill,enemy)
+			then
 				sgs.jincui_discard = true
 				return enemy
 			end

@@ -52,7 +52,7 @@ sgs.ai_skill_playerchosen.happycuorui = function(self,targets)
 	
 	local enemies = {}
 	for _,p in sgs.list(targets)do
-		if self.player:canDiscard(p,"e") and not self:doNotDiscard(p,"e") then
+		if self.player:canDiscard(p,"e") and self:doDisCard(p,"e") then
 			table.insert(enemies,p)
 		end
 	end
@@ -74,7 +74,7 @@ sgs.ai_skill_choice.happycuorui = function(self,choices,data)
 		if self.player:isYourFriend(p) then continue end
 		if not p:getEquips():isEmpty() then
 			for _,c in sgs.list(p:getCards("e"))do
-				if c:sameColorWith(card) and self.player:canDiscard(p,c:getEffectiveId()) and not self:doNotDiscard(p,"e") then
+				if c:sameColorWith(card) and self.player:canDiscard(p,c:getEffectiveId()) and self:doDisCard(p,"e") then
 					table.insert(enemies,p)
 				end
 			end

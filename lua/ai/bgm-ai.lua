@@ -456,7 +456,7 @@ sgs.ai_skill_playerchosen.zhaolie = function(self,targets)
 	targets = sgs.QList2Table(targets)
 	self:sort(targets,"hp")
 	for _,target in sgs.list(targets)do
-		if self:isEnemy(target) and self:damageIsEffective(target) and self:isGoodTarget(target,targets) and not self:doNotDiscard(target)
+		if self:isEnemy(target) and self:damageIsEffective(target) and self:isGoodTarget(target,targets) and self:doDisCard(target)
 			and not (self:isWeak() and (target:getHp()>1 or target:getCardCount()>=3)) then
 			return target
 		end
@@ -715,7 +715,7 @@ sgs.ai_skill_invoke.anxian = function(self,data)
 	local target = damage.to
 	if self:isFriend(target) and not self:needToLoseHp(target,self.player,damage.card,true) then return true end
 	if self:ajustDamage(self.player,damage.to,1,damage.card)>1 then return false end
-	if self:isEnemy(target) and self:needToLoseHp(target,self.player,damage.card) and not self:doNotDiscard(target,"h") then return true end
+	if self:isEnemy(target) and self:needToLoseHp(target,self.player,damage.card) and self:doDisCard(target,"h") then return true end
 	return false
 end
 
@@ -822,7 +822,7 @@ yinling_skill.getTurnUseCard = function(self,inclusive)
 end
 
 sgs.ai_skill_use_func.YinlingCard = function(card,use,self)
-	self:useCardSnatchOrDismantlement(card,use)
+	self:useDismantlement(card,use)
 end
 
 sgs.ai_use_value.YinlingCard = sgs.ai_use_value.Dismantlement+1
@@ -838,7 +838,7 @@ sgs.ai_skill_use["@@junwei"] = function(self,data,method)
 	if #pile>=3 then
 		local tos = {}
 		for _,target in sgs.list(self.enemies)do
-			if not (target:hasEquip() and self:doNotDiscard(target,"e")) then
+			if self:doDisCard(target,"e") then
 				table.insert(tos,target)
 			end
 		end
@@ -855,7 +855,7 @@ end
 
 sgs.ai_skill_invoke.junwei = function(self,data)
 	for _,enemy in sgs.list(self.enemies)do
-		if not (enemy:hasEquip() and self:doNotDiscard(enemy,"e")) then return true end
+		if self:doDisCard(enemy,"e") then return true end
 	end
 end
 
@@ -976,7 +976,7 @@ sgs.ai_skill_choice.xuehen = function(self,choices)
 			end
 		end
 		local armor = current:getArmor()
-		if armor and self:evaluateArmor(armor,current)>=3 and not self:doNotDiscard(current,"e") and n<=2 then return "discard" end
+		if armor and self:evaluateArmor(armor,current)>=3 and self:doDisCard(current,"e") and n<=2 then return "discard" end
 	end
 	if self:isFriend(current) then
 		if n==1 and self:needToThrowArmor(current) then return "discard" end

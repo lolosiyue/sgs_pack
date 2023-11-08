@@ -6,35 +6,31 @@ function SmartAI:toTurnOver(player,n,reason) -- @todo: param of toTurnOver
 	if self:isEnemy(player) then
 		local manchong = self.room:findPlayerBySkillName("junxing")
 		if manchong and self:isFriend(player,manchong) and self:playerGetRound(manchong)<self:playerGetRound(player)
-			and manchong:faceUp() and not self:willSkipPlayPhase(manchong)
-			and not (manchong:isKongcheng() and self:willSkipDrawPhase(manchong)) then
-			return false
-		end
+		and manchong:faceUp() and not self:willSkipPlayPhase(manchong)
+		and not(manchong:isKongcheng() and self:willSkipDrawPhase(manchong))
+		then return false end
 	end
-	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("guixinUsing") and not player:hasFlag("newguixinUsing") then
-		return false
-	end
-	if reason and (reason=="fangzhu" or reason=="mobilefangzhu") and player:getHp()==1 and sgs.ai_AOE_data then
+	if not player:faceUp() and not player:hasFlag("ShenfenUsing") and not player:hasFlag("guixinUsing") and not player:hasFlag("newguixinUsing")
+	then return false end
+	if reason and (reason=="fangzhu" or reason=="mobilefangzhu") and player:getHp()==1 and sgs.ai_AOE_data
+	then
 		local use = sgs.ai_AOE_data:toCardUse()
 		if use.to:contains(player) and self:aoeIsEffective(use.card,player)
-			and self:playerGetRound(player)>self:playerGetRound(self.player)
-			and player:isKongcheng() then
-			return false
-		end
+		and self:playerGetRound(player)>self:playerGetRound(self.player)
+		and player:isKongcheng()
+		then return false end
 	end
 	if player:hasUsed("ShenfenCard") and player:faceUp() and player:getPhase()==sgs.Player_Play
-                and (not player:hasUsed("ShenfenCard") and player:getMark("&wrath")>=6 or player:hasFlag("ShenfenUsing")) then
-		return false
-	end
+    and (not player:hasUsed("ShenfenCard") and player:getMark("&wrath")>=6 or player:hasFlag("ShenfenUsing"))
+	then return false end
 	if n>1 then
-		if ( player:getPhase()~=sgs.Player_NotActive and (player:hasSkills(sgs.Active_cardneed_skill) or player:hasWeapon("Crossbow")) )
-		or ( player:getPhase()==sgs.Player_NotActive and player:hasSkills(sgs.notActive_cardneed_skill) ) then
-		return false end
+		if player:getPhase()~=sgs.Player_NotActive and (player:hasSkills(sgs.Active_cardneed_skill) or player:hasWeapon("Crossbow"))
+		or player:getPhase()==sgs.Player_NotActive and player:hasSkills(sgs.notActive_cardneed_skill)
+		then return false end
 	end
-	if (self:hasSkills("jushou|neojushou|nosjushou|kuiwei",player) and player:getPhase()<=sgs.Player_Finish)
-		or (player:hasSkill("lihun") and not player:hasUsed("LihunCard") and player:faceUp() and player:getPhase()==sgs.Player_Play) then
-		return false
-	end
+	if self:hasSkills("jushou|neojushou|nosjushou|kuiwei",player) and player:getPhase()<=sgs.Player_Finish
+	or player:hasSkill("lihun") and not player:hasUsed("LihunCard") and player:faceUp() and player:getPhase()==sgs.Player_Play
+	then return false end
 	return true
 end
 
@@ -188,14 +184,7 @@ sgs.ai_skill_invoke.lieren = function(self,data)
 		local card  = self.player:getHandcards():first()
 		if card:isKindOf("Jink") or card:isKindOf("Peach") then return end
 	end
-
-	if (self.player:getHandcardNum()>=self.player:getHp() or self:getMaxCard():getNumber()>10
-		or (self:needKongcheng() and self.player:getHandcardNum()==1) or not self:hasLoseHandcardEffective())
-		and not self:doNotDiscard(damage.to,"h",true) and not (self.player:getHandcardNum()==1 and self:doNotDiscard(damage.to,"e",true)) then
-			return true
-	end
-	if self:doNotDiscard(damage.to,"he",true,2) then return false end
-	return false
+	if self:doDisCard(damage.to,"he",true,2) then return true end
 end
 
 function sgs.ai_skill_pindian.lieren(minusecard,self,requestor)
@@ -331,15 +320,15 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 				self:sort(self.enemies,"chaofeng")
 				for _,enemy in ipairs(self.enemies)do
 					if enemy:getCards("he"):length()==n
-						and not self:doNotDiscard(enemy,"nil",true,n) then
+					and self:doDisCard(enemy,"nil",true,n) then
 						self.yinghunchoice = "d1tx"
 						return enemy
 					end
 				end
 				for _,enemy in ipairs(self.enemies)do
 					if enemy:getCards("he"):length()>=n
-						and not self:doNotDiscard(enemy,"nil",true,n)
-						and self:hasSkills(sgs.cardneed_skill,enemy) then
+					and self:doDisCard(enemy,"nil",true,n)
+					and self:hasSkills(sgs.cardneed_skill,enemy) then
 						self.yinghunchoice = "d1tx"
 						return enemy
 					end
@@ -368,7 +357,7 @@ sgs.ai_skill_playerchosen.yinghun = function(self,targets)
 		self:sort(self.enemies,"handcard")
 		for _,enemy in ipairs(self.enemies)do
 			if enemy:getCards("he"):length()>=n
-				and not self:doNotDiscard(enemy,"nil",true,n) then
+			and self:doDisCard(enemy,"nil",true,n) then
 				self.yinghunchoice = "d1tx"
 				return enemy
 			end

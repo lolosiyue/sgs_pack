@@ -21,7 +21,7 @@ sgs.ai_poison_card.yj_poison = true
 sgs.ai_skill_discard.yj_stabs_slash = function(self,max,min)
 	local to_cards = {}
 	local cards = self.player:getCards("h")
-	cards = self:sortByKeepValue(cards,nil,true)
+	cards = self:sortByKeepValue(cards,nil,"j")
    	for _,h in sgs.list(cards)do
    		if #to_cards>=min then break end
 		table.insert(to_cards,h:getEffectiveId())
@@ -34,6 +34,7 @@ function SmartAI:useCardYjChenhuodajie(card,use)
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and self:isGoodTarget(ep,self.enemies,card)
 		then
@@ -44,6 +45,7 @@ function SmartAI:useCardYjChenhuodajie(card,use)
 		end
 	end
 	for _,ep in sgs.list(self.friends_noself)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and self:ajustDamage(self.player,ep,1,card)~=0
 		and self:needToLoseHp(ep,self.player,card,true)
@@ -69,9 +71,10 @@ sgs.ai_skill_cardask["yj_chenhuodajie0"] = function(self,data,pattern,prompt)
 	local c = sgs.Sanguosha:getCard(pattern)
 	if c
 	then
-		if self:isWeak() and c:isKindOf("Analeptic")
-		or self:getKeepValue(c,self.kept,true)>5.3
-		then return "." end
+		local effect = data:toCardEffect()
+		local n = self:ajustDamage(effect.from,effect.to,1,effect.card)
+		if n<2 and (self:isWeak() and c:isKindOf("Analeptic") or self:getKeepValue(c)>5.3)
+		or n==0 then return "." end
 		return c:getEffectiveId()
 	end
 end
@@ -81,6 +84,7 @@ function SmartAI:useCardYjGuaguliaodu(card,use)
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,ep in sgs.list(self.friends)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		then
 	    	use.card = card
@@ -114,18 +118,25 @@ sgs.ai_skill_cardask["yj_yitianjian0"] = function(self,data,pattern,prompt)
 	return true
 end
 
+sgs.ai_use_priority.YjYitianjian = 3
+
 function SmartAI:useCardYjShushangkaihua(card,use)
-	if self.player:getCardCount()>3
-	then use.card = card end
+	local n = #self:poisonCards("e")
+	for _,c in sgs.list(self.player:getHandcards())do
+		if table.contains(self.toUse,c)
+		or self:getKeepValue(c)>6
+		then else n = n+1 end
+		if n>1 then use.card = card break end
+	end
 end
-sgs.ai_use_priority.YjShushangkaihua = 4.4
+sgs.ai_use_priority.YjShushangkaihua = 3.4
 sgs.ai_keep_value.YjShushangkaihua = 2.2
 sgs.ai_use_value.YjShushangkaihua = 4.7
 sgs.ai_card_intention.YjShushangkaihua = -22
 
 sgs.ai_skill_discard.yj_shushangkaihua = function(self)
-	local cards = self.player:getCards("he")
-	cards = self:sortByKeepValue(cards)
+	local cards = self.player:getCards("h")
+	cards = self:sortByCardNeed(cards,nil,"j")
 	local discard = {}
 	for i,c in sgs.list(cards)do
 		if #discard<2 and self.player:hasEquip(c) and self:evaluateArmor(c)<-5
@@ -133,6 +144,8 @@ sgs.ai_skill_discard.yj_shushangkaihua = function(self)
 		if #cards/2>i and #discard<1 and c:isKindOf("EquipCard")
 		then table.insert(discard,c:getEffectiveId()) end
 	end
+	cards = self.player:getCards("he")
+	cards = self:sortByKeepValue(cards,nil,"j")
 	for i,c in sgs.list(cards)do
 		if table.contains(discard,c:getEffectiveId()) then continue end
 		if #discard<2 then table.insert(discard,c:getEffectiveId()) end
@@ -145,8 +158,9 @@ function SmartAI:useCardYjTuixinzhifu(card,use)
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,ep in sgs.list(self.friends_noself)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
-		and self:canDisCard(ep,"ej")
+		and self:doDisCard(ep,"ej")
 		then
 	    	use.card = card
 			use.to:append(ep)
@@ -156,8 +170,9 @@ function SmartAI:useCardYjTuixinzhifu(card,use)
 	end
 	self:sort(self.enemies,"hp")
 	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
-		and self:canDisCard(ep,"ej")
+		and self:doDisCard(ep,"ej")
 		then
 	    	use.card = card
 			use.to:append(ep)
@@ -166,8 +181,9 @@ function SmartAI:useCardYjTuixinzhifu(card,use)
 		end
 	end
 	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
-		and self:canDisCard(ep,"hej")
+		and self:doDisCard(ep,"hej")
 		then
 	    	use.card = card
 			use.to:append(ep)
@@ -178,6 +194,7 @@ function SmartAI:useCardYjTuixinzhifu(card,use)
 	local tos = self.room:getAlivePlayers()
 	tos = self:sort(tos,"card",true)
 	for _,ep in sgs.list(tos)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and ep:getCardCount()>1
 		then
@@ -193,10 +210,9 @@ sgs.ai_keep_value.YjTuixinzhifu = 2.2
 sgs.ai_use_value.YjTuixinzhifu = 4.7
 
 sgs.ai_skill_cardchosen.yj_tuixinzhifu = function(self,who)
-	local player = self.player
 	for i,c in sgs.list(who:getCards("ej"))do
 		i = c:getEffectiveId()
-		if self:canDisCard(who,i,nil,true)
+		if self:doDisCard(who,i,true)
 		then return i end
 	end
 	for i=1,who:getHandcardNum()do
@@ -209,7 +225,7 @@ sgs.ai_skill_cardchosen.yj_tuixinzhifu = function(self,who)
 		i = self:getCardRandomly(who,"hej")
 		if self.disabled_ids:contains(i)
 		then continue end
-		if self:canDisCard(who,i,nil,true)
+		if self:doDisCard(who,i,true)
 		then return i end
 	end
 	return -1
@@ -307,7 +323,7 @@ addAiSkills("yj_xinge").getTurnUseCard = function(self)
 		then self.yjxg_to = self.enemies[1]
 		elseif c:isKindOf("Slash")
 		then
-			if self.toUse and table.contains(self.toUse,c)
+			if table.contains(self.toUse,c)
 			or self.player:getHandcardNum()<2 then continue end
 			self.yjxg_to = self.friends_noself[1]
 		elseif c:isKindOf("Jink")
@@ -316,7 +332,7 @@ addAiSkills("yj_xinge").getTurnUseCard = function(self)
 			self.yjxg_to = self.friends_noself[1]
 		elseif c:isKindOf("Peach")
 		then
-			if self:isWeak() and self.toUse and table.contains(self.toUse,c) then continue end
+			if self:isWeak() and table.contains(self.toUse,c) then continue end
 			self.yjxg_to = self.friends_noself[1]
 		elseif self.player:getHandcardNum()>self.player:getMaxCards()
 		then self.yjxg_to = self.friends_noself[1] end
@@ -381,11 +397,12 @@ sgs.ai_nullification.ZlCaochuanjiejian = function(self,trick,from,to,positive,nu
 	end 
 end
 
-function SmartAI:useCardZlJiejianguitian(card,use)
+function SmartAI:useCardZlJiejiaguitian(card,use)
 	self:sort(self.friends,"hp")
 	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
 	for _,ep in sgs.list(self.friends)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and #self:poisonCards("e",ep)>=ep:getEquips():length()/2
 		then
@@ -414,6 +431,7 @@ function SmartAI:useCardZlJiejianguitian(card,use)
 	end
 	table.sort(self.enemies,func)
 	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and #self:poisonCards("e",ep)<=ep:getEquips():length()/2
 		then
@@ -427,6 +445,7 @@ function SmartAI:useCardZlJiejianguitian(card,use)
 	tos = self:sort(tos,"card",true)
 	table.sort(tos,func)
 	for _,ep in sgs.list(tos)do
+		if isCurrent(use.current_targets,ep) then continue end
 		if use.to and CanToCard(card,self.player,ep)
 		and #self:poisonCards("e",ep)<ep:getEquips():length()/2
 		and not self:isFriend(ep)
@@ -438,10 +457,10 @@ function SmartAI:useCardZlJiejianguitian(card,use)
 		end
 	end
 end
-sgs.ai_use_priority.ZlJiejianguitian = 4.4
-sgs.ai_keep_value.ZlJiejianguitian = 1.2
-sgs.ai_use_value.ZlJiejianguitian = 2.7
-sgs.ai_card_intention.ZlJiejianguitian = function(self,card,from,tos)
+sgs.ai_use_priority.ZlJiejiaguitian = 4.4
+sgs.ai_keep_value.ZlJiejiaguitian = 1.2
+sgs.ai_use_value.ZlJiejiaguitian = 2.7
+sgs.ai_card_intention.ZlJiejiaguitian = function(self,card,from,tos)
     for n,to in sgs.list(tos)do
 		local pc,e = self:poisonCards("e",to),to:getEquips():length()/2
 		if #pc>e then n = 33 elseif #pc<=e then n = -22 end
@@ -562,8 +581,13 @@ sgs.ai_target_revises.zl_yexingyi = function(to,card)
 	then return true end
 end
 
-
 sgs.ai_skill_invoke.zl_yajiaoqiang = true
+sgs.ai_armor_value.zl_yajiaoqiang = 2
+sgs.ai_card_priority.zl_yajiaoqiang = function(self,card)
+	if self.player:getPhase()==sgs.Player_NotActive
+	and card:isBlack() and self.player:getMark("zl_yajiaoqiang-Clear")<1
+	then return 3 end
+end
 
 addAiSkills("zl_jinhe").getTurnUseCard = function(self)
 	local zl_li = self.player:getPile("zl_li")
@@ -578,6 +602,453 @@ end
 
 sgs.ai_use_value.zl_jinheCard = -5.4
 sgs.ai_use_priority.zl_jinheCard = -4.8
+
+
+
+sgs.ai_skill_invoke.zd_xunzhi = function(self,data)
+	return not self:isWeak() and self:getOverflow()>1
+end
+
+sgs.ai_fill_skill.zd_fenyue = function(self)
+    return sgs.Card_Parse("#zd_fenyueCard:.:")
+end
+
+sgs.ai_skill_use_func["#zd_fenyueCard"] = function(card,use,self)
+	local mc = self:getMaxCard()
+	if mc
+	then
+		self:sort(self.enemies,"handcard")
+		for _,p in sgs.list(self.enemies)do
+			local emc = self:getMaxCard(p)
+			if emc and emc:getNumber()<mc:getNumber()
+			then
+				use.card = card
+				if use.to then use.to:append(p) end
+				return
+			end
+		end
+	end
+end
+
+sgs.ai_use_value.zd_fenyueCard = 3.4
+sgs.ai_use_priority.zd_fenyueCard = 5.2
+
+sgs.ai_skill_choice.zd_fenyue = function(self,choices,data)
+	local target = data:toPlayer()
+	local items = choices:split("+")
+	if table.contains(items,"zd_fenyue2")
+	then
+		local d = dummyCard()
+		d:setSkillName("_zd_fenyue")
+		local use = {card=d,from=self.player}
+		if self:canCanmou(target,use)
+		then
+			return "zd_fenyue2"
+		end
+	end
+	if target:getHandcardNum()>0
+	then
+		return "zd_fenyue1"
+	end
+end
+
+sgs.ai_skill_playerchosen.zd_dongcha = function(self,players)
+	local destlist = sgs.QList2Table(players) -- 将列表转换为表
+	self:sort(destlist,"card")
+    for _,target in sgs.list(destlist)do
+		if self:doDisCard(target,"ej",true)
+		then return target end
+	end
+end
+
+
+
+function SmartAI:useCardZdShengdongjixi(card,use)
+	if self.player:getHandcardNum()<2 then return end
+	local toList = self:sort(self.room:getAlivePlayers(),"handcard",true)
+	local fromList = sgs.QList2Table(self.room:getOtherPlayers(self.player))
+	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
+	if use.extra_target then extraTarget = extraTarget+use.extra_target end
+	extraTarget = extraTarget*2
+	for _,enemy in ipairs(fromList)do
+		if isCurrent(use.current_targets,enemy) or use.to and use.to:contains(enemy) then continue end
+		if CanToCard(card,self.player,enemy) and self:objectiveLevel(enemy)>=0
+		and not(enemy:hasEquip() and self:loseEquipEffect(enemy) or enemy:hasSkill("tuntian+zaoxian"))
+		and #self:poisonCards("he",enemy)<1
+		and enemy:getCardCount()>0
+		then
+			for _,p in ipairs(toList)do
+				if self:isFriend(p)
+				and enemy~=p
+				and use.to
+				then
+					use.card = card
+					use.to:append(enemy)
+					use.to:append(p)
+					if use.to:length()>extraTarget
+					then return end
+					break
+				end
+			end
+		end
+	end
+	for _,friend in ipairs(fromList)do
+		if isCurrent(use.current_targets,friend) or use.to and use.to:contains(friend) then continue end
+		if CanToCard(card,self.player,friend) and self:objectiveLevel(friend)<0
+		and #self:poisonCards("h",friend)>0
+		then
+			for _,enemy in ipairs(toList)do
+				if self:objectiveLevel(enemy)>1
+				and enemy~=friend
+				and use.to
+				then
+					use.card = card
+					use.to:append(friend)
+					use.to:append(enemy)
+					if use.to:length()>extraTarget
+					then return end
+					break
+				end
+			end
+		end
+	end
+	for _,friend in ipairs(fromList)do
+		if isCurrent(use.current_targets,friend) or use.to and use.to:contains(friend) then continue end
+		if CanToCard(card,self.player,friend) and self:objectiveLevel(friend)<0
+		and #self:poisonCards("e",friend)>0
+		then
+			for _,p in sgs.list(self.room:getAlivePlayers())do
+				if self:objectiveLevel(p)<=0
+				and p~=friend
+				and use.to
+				then
+					use.card = card
+					use.to:append(friend)
+					use.to:append(p)
+					if use.to:length()>extraTarget
+					then return end
+					break
+				end
+			end
+		end
+	end
+	for _,friend in ipairs(fromList)do
+		if isCurrent(use.current_targets,friend) or use.to and use.to:contains(friend) then continue end
+		if CanToCard(card,self.player,friend) and self:objectiveLevel(friend)<=0
+		and #self:poisonCards("h",friend)<1
+		then
+			for _,p in ipairs(toList)do
+				if self:objectiveLevel(p)<0
+				and p~=friend
+				and use.to
+				then
+					use.card = card
+					use.to:append(friend)
+					use.to:append(p)
+					if use.to:length()>extraTarget
+					then return end
+					break
+				end
+			end
+		end
+	end
+end
+
+sgs.ai_use_value.ZdShengdongjixi = 5.8
+sgs.ai_use_priority.ZdShengdongjixi = 4.75
+sgs.ai_keep_value.ZdShengdongjixi = 3.40
+
+sgs.ai_nullification.ZdShengdongjixi = function(self,trick,from,to,positive,null_num)
+	if positive
+	then
+		if self:isEnemy(from) and (self:isFriend(to) or self:isEnemy(to))
+		and (null_num>1 or self:isWeak(to) or to==self.player)
+        then return true end
+	else
+		
+	end
+end
+
+function SmartAI:useCardZdCaomujiebing(card,use)
+	self:sort(self.enemies,"hp",true)
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		then
+	    	use.card = card
+	    	if use.to then use.to:append(ep) end
+			break
+		end
+	end
+end
+sgs.ai_use_priority.ZdCaomujiebing = 0.4
+sgs.ai_keep_value.ZdCaomujiebing = 2
+sgs.ai_use_value.ZdCaomujiebing = 5.7
+
+sgs.ai_nullification.ZdCaomujiebing = function(self,trick,from,to,positive,null_num)
+	if positive
+	then
+		if to==self.player
+		or self:isFriend(to) and (null_num>1 or self:isWeak(to))
+        then return true end
+	else
+		if self:isEnemy(to)
+		and (null_num>1 or self:isWeak(to))
+        then return true end
+	end
+end
+
+function SmartAI:useCardZdzengbingjianzao(card,use)
+	self:sort(self.friends,"handcard",true)
+	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
+	if use.extra_target then extraTarget = extraTarget+use.extra_target end
+	for _,fp in sgs.list(self.friends)do
+		if isCurrent(use.current_targets,fp) then continue end
+		if CanToCard(card,self.player,fp)
+		and use.to and not use.to:contains(fp)
+		and self:isWeak(fp)
+		then
+	    	use.card = card
+	    	use.to:append(fp)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	if self:getCardsNum("EquipCard,TrickCard","he")>1
+	then
+		if CanToCard(card,self.player,self.player)
+		and use.to and not use.to:contains(self.player)
+		then
+	    	use.card = card
+	    	use.to:append(self.player)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	self:sort(self.friends,"handcard")
+	for _,fp in sgs.list(self.friends)do
+		if isCurrent(use.current_targets,fp) then continue end
+		if CanToCard(card,self.player,fp)
+		and use.to and not use.to:contains(fp)
+		then
+	    	use.card = card
+	    	use.to:append(fp)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+end
+sgs.ai_use_priority.Zdzengbingjianzao = 9.4
+sgs.ai_keep_value.Zdzengbingjianzao = 6
+sgs.ai_use_value.Zdzengbingjianzao = 5.7
+
+sgs.ai_nullification.ZdCaomujiebing = function(self,trick,from,to,positive,null_num)
+	if positive
+	then
+		if self:isEnemy(to)
+		and (null_num>1 or self:isWeak(to))
+        then return true end
+	else
+		if to==self.player
+		or self:isFriend(to) and (null_num>1 or self:isWeak(to))
+        then return true end
+	end
+end
+
+sgs.ai_skill_use["@@ZdZengbing!"] = function(self,prompt)
+	for _,h in sgs.list(self:sortByKeepValue(self.player:getCards("he")))do
+		if h:getTypeId()<2 then continue end
+    	return "#ZdZengbingCard:"..h:getId()..":"
+	end
+end
+
+function SmartAI:useCardZdQijiayebing(card,use)
+	self:sort(self.enemies,"equip")
+	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
+	if use.extra_target then extraTarget = extraTarget+use.extra_target end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		and (ep:getTreasure()==nil or ep:getEquips():length()>1)
+		and self:isWeak(ep)
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+end
+sgs.ai_use_priority.ZdQijiayebing = 8.4
+sgs.ai_keep_value.ZdQijiayebing = 3
+sgs.ai_use_value.ZdQijiayebing = 5.7
+
+sgs.ai_skill_choice.zd_qijiayebing = function(self,choices)
+	if self:getCardsNum("Weapon,OffensiveHorse","he")>self:getCardsNum("Armor,DefensiveHorse","he")
+	then return "ZdQijia2" end
+	return "ZdQijia1"
+end
+
+sgs.ai_skill_use["ZdJinchan0"] = function(self,prompt)
+	for _,h in sgs.list(self:getCard("ZdJinchantuoqiao",true))do
+		if self.player:isLocked(h) then continue end
+    	return h:toString()
+	end
+end
+
+sgs.ai_nullification.ZdJinchantuoqiao = function(self,trick,from,to,positive,null_num)
+	if positive
+	then
+		if self:isEnemy(from)
+		and (null_num>1 or self:isWeak(from))
+        then return true end
+	else
+		if from==self.player
+		or self:isFriend(from) and (null_num>1 or self:isWeak(from))
+        then return true end
+	end
+end
+
+sgs.ai_keep_value.ZdJinchantuoqiao = 2
+sgs.ai_use_value.ZdJinchantuoqiao = 9.7
+
+function SmartAI:useCardZdFulei(card,use)
+	if self:willUseLightning(card)
+	then use.card = card end
+end
+sgs.ai_use_priority.ZdFulei = -4
+sgs.ai_keep_value.ZdFulei = 1
+sgs.ai_use_value.ZdFulei = 1.7
+
+function sgs.ai_cardsview.zd_lanyinjia(self,class_name,player)
+	if class_name=="Jink"
+	then
+		for d,h in sgs.list(self:sortByKeepValue(player:getCards("h")))do
+			d = dummyCard("jink")
+			d:setSkillName("zd_lanyinjia")
+			d:addSubcard(h)
+			if player:isLocked(d,true)
+			then continue end
+			return d:toString()
+		end
+	end
+end
+
+sgs.ai_skill_invoke.zd_zhungangshuo = function(self,data)
+	local target = data:toPlayer()
+	if target and target:getHandcardNum()>0
+	then
+		if self:isEnemy(target)
+		then return self:doDisCard(target,"h",true) end
+	end
+end
+
+
+
+function SmartAI:useCardWlLuanwu(card,use)
+	if #self.enemies>#self.friends_noself
+	or self:isWeak(self.enemies)
+	then use.card = card end
+end
+sgs.ai_use_priority.WlLuanwu = 4
+sgs.ai_keep_value.WlLuanwu = 1
+sgs.ai_use_value.WlLuanwu = 1.7
+
+function SmartAI:useCardWlDouzhuanxingyi(card,use)
+	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
+	if use.extra_target then extraTarget = extraTarget+use.extra_target end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		and ep:getHp()>self.player:getHp()
+		and self.player:isWounded()
+		and self:isWeak(ep)
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		and ep:getHp()>=self.player:getHp()
+		and self.player:isWounded()
+		and self:isWeak(ep)
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+end
+sgs.ai_use_priority.WlDouzhuanxingyi = 4.5
+sgs.ai_keep_value.WlDouzhuanxingyi = 1
+sgs.ai_use_value.WlDouzhuanxingyi = 1.7
+
+function SmartAI:useCardWlLidaitaojing(card,use)
+	local extraTarget = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
+	if use.extra_target then extraTarget = extraTarget+use.extra_target end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		and ep:getHandcardNum()>self.player:getHandcardNum()
+		and self:isWeak(ep)
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+	for _,ep in sgs.list(self.enemies)do
+		if isCurrent(use.current_targets,ep) then continue end
+		if CanToCard(card,self.player,ep)
+		and use.to and not use.to:contains(ep)
+		and ep:getHandcardNum()>=self.player:getHandcardNum()
+		then
+	    	use.card = card
+	    	use.to:append(ep)
+			if use.to:length()>extraTarget
+			then return end
+		end
+	end
+end
+sgs.ai_use_priority.WlLidaitaojing = 5.5
+sgs.ai_keep_value.WlLidaitaojing = 3
+sgs.ai_use_value.WlLidaitaojing = 1.7
+
+function SmartAI:useCardWlToulianghuanzhu(card,use)
+	for _,ep in sgs.list(self.enemies)do
+		if ep:getEquips():length()>self.player:getEquips():length()
+		then
+	    	use.card = card
+			break
+		end
+	end
+end
+sgs.ai_use_priority.WlToulianghuanzhu = 3.5
+sgs.ai_keep_value.WlToulianghuanzhu = 2
+sgs.ai_use_value.WlToulianghuanzhu = 1.7
+
+
 
 
 
@@ -630,11 +1101,11 @@ addAiSkills("yj_zhengyu").getTurnUseCard = function(self)
 	sgs.ai_use_priority.yj_zhengyuCard = 0.8
 	self.yjzy_to = nil
   	for _,c in sgs.list(self:sortByKeepValue(self.player:getHandcards()))do
-		if PresentCardJudge(c)
+		if CardIsPresent(c)
 		then
 			if c:isKindOf("Slash")
 			then
-				if self.toUse and table.contains(self.toUse,c)
+				if table.contains(self.toUse,c)
 				or self:getCardsNum("Slash")<2 and self:getOverflow()<1
 				then continue end
 				self.yjzy_to = self:AlPresentCardTo(c)
@@ -645,7 +1116,7 @@ addAiSkills("yj_zhengyu").getTurnUseCard = function(self)
 			elseif c:isKindOf("Peach")
 			then
 				if self:getCardsNum("Peach")<2
-				and self.toUse and table.contains(self.toUse,c)
+				and table.contains(self.toUse,c)
 				then continue end
 				self.yjzy_to = self:AlPresentCardTo(c)
 			elseif c:isKindOf("YjPoison")
@@ -663,17 +1134,17 @@ addAiSkills("yj_zhengyu").getTurnUseCard = function(self)
 				and (self.player:getHp()<4 or self.player:getMaxCards()>=self.player:getHandcardNum()/2)
 				and math.random()<0.9 then continue end
 				self.yjzy_to = self:AlPresentCardTo(c,true)
-				sgs.ai_use_priority.yj_zhengyuCard = -8
+				sgs.ai_use_priority.yj_zhengyuCard = 0.8
 			elseif c:isKindOf("YjQixingbaodao")
 			then self.yjzy_to = self:AlPresentCardTo(c,true) or self:AlPresentCardTo(c)
 			elseif c:isKindOf("EquipCard")
 			then
-				if self.toUse and table.contains(self.toUse,c) then continue end
+				if table.contains(self.toUse,c) then continue end
 				local enemie = sgs.ai_poison_card[c:objectName()] or self:evaluateArmor(c)<-5
 				self.yjzy_to = self:AlPresentCardTo(c,enemie)
 				sgs.ai_use_priority.yj_zhengyuCard = 8
 			else
-				if self.toUse and table.contains(self.toUse,c) then continue end
+				if table.contains(self.toUse,c) then continue end
 				self.yjzy_to = self:AlPresentCardTo(c,sgs.ai_poison_card[c:objectName()])
 			end
 			if self.yjzy_to==nil then continue end

@@ -89,7 +89,7 @@ end
 sgs.ai_skill_use["@@yuqi1"] = function(self,prompt)
 	if not self:isFriend(self.yuqi_to)
 	then return end
-	local yuqi_help = self.player:getTag("yuqi_forAI"):toString():split("+")
+	local yuqi_help = self.player:getTag("yuqiForAI"):toIntList()
 	local n1,n2 = {},{}
 	for c,id in sgs.list(yuqi_help)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -107,7 +107,7 @@ end
 
 sgs.ai_skill_use["@@yuqi2"] = function(self,prompt)
 	local valid = {}
-	local yuqi_help = self.player:getTag("yuqi_forAI"):toString():split("+")
+	local yuqi_help = self.player:getTag("yuqiForAI"):toIntList()
 	local n1,n2 = {},{}
 	for c,id in sgs.list(yuqi_help)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -232,11 +232,11 @@ sgs.ai_skill_askforag.heqia = function(self,card_ids)
 		c = sgs.Sanguosha:cloneCard(c:objectName())
 		c:addSubcard(cards:at(0))
 		c:setSkillName("_heqia")
+		c:deleteLater()
 		local d = self:aiUseCard(c)
 		self.heqia_use = d
 		if d.card and d.to
 		then return id end
-		c:deleteLater()
 	end
 end
 
@@ -325,7 +325,7 @@ sgs.ai_skill_playerchosen.bingqing = function(self,players)
 	then
 		for _,target in sgs.list(destlist)do
 			if self:isFriend(target)
-			and self:canDisCard(target,"ej")
+			and self:doDisCard(target,"ej")
 			then return target end
 		end
 		for _,target in sgs.list(destlist)do
@@ -394,7 +394,7 @@ sgs.ai_use_value.JinhuiCard = 9.4
 sgs.ai_use_priority.JinhuiCard = 4.8
 
 sgs.ai_skill_use["@@jinhui2!"] = function(self,prompt)
-	local ids = self.player:getTag("jinhui_forAI"):toString():split("+")
+	local ids = self.player:getTag("jinhuiForAI"):toIntList()
 	local n1 = {}
 	for c,id in sgs.list(ids)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -411,7 +411,7 @@ sgs.ai_skill_use["@@jinhui2!"] = function(self,prompt)
 end
 
 sgs.ai_skill_use["@@jinhui1"] = function(self,prompt)
-	local ids = self.player:getTag("jinhui_forAI"):toString():split("+")
+	local ids = self.player:getTag("jinhuiForAI"):toIntList()
 	local n1,n2 = {},{}
 	for c,id in sgs.list(ids)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -889,17 +889,17 @@ sgs.ai_skill_playerchosen.jinweishu_dis = function(self,players)
 	self:sort(destlist,"hp")
     for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"e")
+		and self:doDisCard(target,"e")
 		then return target end
 	end
     for _,target in sgs.list(destlist)do
 		if self:isEnemy(target)
-		and self:canDisCard(target,"he")
+		and self:doDisCard(target,"he")
 		then return target end
 	end
     for _,target in sgs.list(destlist)do
 		if not self:isFriend(target)
-		and self:canDisCard(target,"he")
+		and self:doDisCard(target,"he")
 		then return target end
 	end
 	return destlist[1]
@@ -1074,7 +1074,7 @@ sgs.ai_use_priority.YijiaoCard = 1.8
 
 sgs.ai_skill_use["@@xunli2!"] = function(self,prompt)
 	local valid = {}
-	local jpxlli = self.player:getTag("xunli_forAI"):toString():split("+")
+	local jpxlli = self.player:getTag("xunliForAI"):toIntList()
 	jpxlli = getCardList(jpxlli)
 	jpxlli = self:sortByUseValue(jpxlli)
 	local put = 9-self.player:getPile("jpxlli"):length()
@@ -1324,7 +1324,7 @@ sgs.ai_skill_use["@@chenjian1"] = function(self,prompt)
 end
 
 sgs.ai_skill_use["@@chenjian2"] = function(self,prompt)
-	local jpxlli = self.player:getTag("chenjian_forAI"):toString():split("+")
+	local jpxlli = self.player:getTag("chenjianForAI"):toIntList()
 	jpxlli = getCardList(jpxlli)
 	local suits = {}
     local cards = self.player:getCards("he")
@@ -1350,7 +1350,7 @@ end
 
 sgs.ai_skill_use["@@chenjian3"] = function(self,prompt)
 	local valid = {}
-	local jpxlli = self.player:getTag("chenjian_forAI"):toString():split("+")
+	local jpxlli = self.player:getTag("chenjianForAI"):toIntList()
 	jpxlli = getCardList(jpxlli)
 	jpxlli = self:sortByKeepValue(jpxlli,true)
 	for d,c in sgs.list(jpxlli)do
@@ -1501,7 +1501,7 @@ sgs.ai_skill_invoke.choutao = function(self,data)
 	if target
 	then
 		return not self:isFriend(target) and self:getCardsNum("Jink")<1
-		or self:isFriend(target) and (self:canDisCard(target,"e") or target==self.player and target:getCardCount()>3)
+		or self:isFriend(target) and (self:doDisCard(target,"e") or target==self.player and target:getCardCount()>3)
 	end
 end
 

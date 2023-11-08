@@ -131,7 +131,7 @@ end
 sgs.ai_skill_invoke.enyuan = function(self,data)
 	local move = data:toMoveOneTime()
 	if move and move.from and move.card_ids and move.card_ids:length()>0 then
-		local from = findPlayerByObjectName(self.room,move.from:objectName())
+		local from = self.room:findPlayerByObjectName(move.from:objectName())
 		if from then return self:isFriend(from) and not self:needKongcheng(from,true) end
 	end
 	local damage = data:toDamage()
@@ -369,14 +369,14 @@ end
 
 sgs.ai_skill_invoke.xuanfeng = function(self,data)
 	for _,enemy in ipairs(self.enemies)do
-		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and
+		if (self:doDisCard(enemy,"he") or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and
 		not (enemy:hasSkill("guzheng") and self.room:getCurrent():getPhase()==sgs.Player_Discard) then
 			return true
 		end
 	end
 	for _,friend in ipairs(self.friends_noself)do
 		if(self:hasSkills(sgs.lose_equip_skill,friend) and not friend:getEquips():isEmpty())
-		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doDisCard(friend,"he") then
 			return true
 		end
 	end
@@ -387,14 +387,14 @@ sgs.ai_skill_playerchosen.xuanfeng = function(self,targets)
 	targets = sgs.QList2Table(targets)
 	self:sort(targets,"defense")
 	for _,enemy in ipairs(self.enemies)do
-		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and
+		if (self:doDisCard(enemy,"he") or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and
 		not (enemy:hasSkill("guzheng") and self.room:getCurrent():getPhase()==sgs.Player_Discard) then
 			return enemy
 		end
 	end
 	for _,friend in ipairs(self.friends_noself)do
 		if(self:hasSkills(sgs.lose_equip_skill,friend) and not friend:getEquips():isEmpty())
-		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doDisCard(friend,"he") then
 			return friend
 		end
 	end

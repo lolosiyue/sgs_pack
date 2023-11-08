@@ -1,0 +1,9 @@
+extraOptions:randomRoles
+general:godRule general2:sujiang role:lord starter:true 
+general:shenguanyu_nowuhun general2:shenlvmeng role:renegade 
+general:shenzhouyu general2:shenzhugeliang role:renegade 
+general:shencaocao general2:shenlvbu role:renegade 
+general:new_shenzhaoyun general2:shensimayi role:renegade 
+general:shenliubei general2:shenluxun role:renegade 
+general:shenzhangliao general2:shenganning role:renegade 
+general:yt_shencaocao general2:jinxuandi role:renegade 

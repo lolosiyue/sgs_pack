@@ -1352,3 +1352,19 @@ sgs.ai_card_intention.OLzhaofuCard = 80
 
 sgs.ai_use_priority.OLzhaofuCard = 10
 sgs.ai_use_value.OLzhaofuCard = 3
+
+sgs.ai_skill_playerchosen.yaoming = function(self,players)
+	local destlist = sgs.QList2Table(players) -- 将列表转换为表
+	self:sort(destlist,"card")
+    for _,target in sgs.list(destlist)do
+		if self:isFriend(target)
+		and target:getHandcardNum()<self.player:getHandcardNum()
+		then return target end
+	end
+    for _,target in sgs.list(destlist)do
+		if self:isEnemy(target)
+		and target:getHandcardNum()>self.player:getHandcardNum()
+		then return target end
+	end
+end
+

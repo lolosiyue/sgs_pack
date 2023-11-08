@@ -180,25 +180,28 @@ sgs.ai_skill_use_func.JinShiduCard = function(card,use,self)
 			self:sort(self.enemies,"handcard")
 			self.enemies = sgs.reverse(self.enemies)
 			for _,p in sgs.list(self.enemies)do
-				if self:doNotDiscard(p,"h") or not self.player:canPindian(p) then continue end
 				if math.floor((p:getHandcardNum()+self.player:getHandcardNum())/2)<self.player:getHandcardNum() then continue end
-				use.card = card
-				self.jinshidu_card = max_card
-				if use.to then use.to:append(p) end
-				return
+				if self:doDisCard(p,"h",true) and self.player:canPindian(p)
+				then
+					use.card = card
+					self.jinshidu_card = max_card
+					if use.to then use.to:append(p) end
+					return
+				end
 			end
 			
 			self:sort(self.friends_noself,"handcard")
 			for _,p in sgs.list(self.friends_noself)do
-				if not self:doNotDiscard(p,"h") or not self.player:canPindian(p) then continue end
-				if math.floor((p:getHandcardNum()+self.player:getHandcardNum())/2)<p:getHandcardNum() then continue end
-				--if self:needKongcheng(p,true) then continue end
-				if p:hasSkill("kongcheng") and p:getHandcardNum()==1 then continue end
-				sgs.ai_use_priority.JinShiduCard = 5
-				use.card = card
-				self.jinshidu_card = max_card
-				if use.to then use.to:append(p) end
-				return
+				if math.floor((p:getHandcardNum()+self.player:getHandcardNum())/2)<p:getHandcardNum()
+				or p:hasSkill("kongcheng") and p:getHandcardNum()==1 then continue end
+				if self:doDisCard(p,"h",true) and self.player:canPindian(p)
+				then
+					sgs.ai_use_priority.JinShiduCard = 5
+					use.card = card
+					self.jinshidu_card = max_card
+					if use.to then use.to:append(p) end
+					return
+				end
 			end
 			for _,p in sgs.list(self.friends_noself)do
 				if not self.player:canPindian(p) then continue end
@@ -231,7 +234,8 @@ sgs.ai_skill_use_func.JinShiduCard = function(card,use,self)
 			self.friends_noself = sgs.reverse(self.friends_noself)
 			for _,p in sgs.list(self.friends_noself)do
 				if not self.player:canPindian(p) then continue end
-				if self:doNotDiscard(p,"h") and (not self:isWeak(p) or self:getEnemyNumBySeat(self.player,p,p)==0) then
+				if self:doDisCard(p,"h",true) and (not self:isWeak(p) or self:getEnemyNumBySeat(self.player,p,p)==0)
+				then
 					sgs.ai_use_priority.JinShiduCard = 5
 					use.card = card
 					self.jinshidu_card = min_card
@@ -239,15 +243,18 @@ sgs.ai_skill_use_func.JinShiduCard = function(card,use,self)
 					return
 				end
 			end
-			if self:getOverflow(self.player,true)>0 then
+			if self:getOverflow(self.player,true)>0
+			then
 				self:sort(self.enemies,"handcard")
 				for _,p in sgs.list(self.enemies)do
-					if self:doNotDiscard(p,"h") or not self.player:canPindian(p) then continue end
-					sgs.ai_use_priority.JinShiduCard = 0
-					use.card = card
-					self.jinshidu_card = min_card
-					if use.to then use.to:append(p) end
-					return
+					if self:doDisCard(p,"h") and self.player:canPindian(p)
+					then
+						sgs.ai_use_priority.JinShiduCard = 0
+						use.card = card
+						self.jinshidu_card = min_card
+						if use.to then use.to:append(p) end
+						return
+					end
 				end
 			end
 		end

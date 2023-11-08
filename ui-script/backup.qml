@@ -50,7 +50,7 @@ Rectangle {
         x: -1000
         y: sceneHeight / 2 - 350
         fillMode: Image.PreserveAspectFit
-        source: "../image/animate/" + hero + ".png"
+        source: "../image/fullskin/generals/full" + hero + ".png"
         scale: 0.3
         z: 991
     }

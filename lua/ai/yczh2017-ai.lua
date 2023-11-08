@@ -67,7 +67,7 @@ sgs.ai_skill_invoke.fumian = function(self, data)
 end
 
 function fumianJudgeFriend(self, name, friends)
-	local card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuitRed, 0)
+	local card = sgs.Sanguosha:cloneCard(name)
 	if not card then return false end
 	self.room:setCardFlag(card, "fumian_distance")
 	card:deleteLater()
@@ -105,7 +105,7 @@ function fumianJudgeFriend(self, name, friends)
 end
 
 function fumianJudgeEnemy(self, name, enemies)
-	local card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuitRed, 0)
+	local card = sgs.Sanguosha:cloneCard(name)
 	if not card then return false end
 	self.room:setCardFlag(card, "fumian_distance")
 	card:deleteLater()
@@ -302,7 +302,7 @@ end
 
 sgs.ai_skill_choice.zhongjian = function(self, choices, data)
 	if not self.zhongjian_target then return "draw" end
-	if self:isEnemy(self.zhongjian_target) and not self:doNotDiscard(self.zhongjian_target) then return "discard" end
+	if self:isEnemy(self.zhongjian_target) and self:doDisCard(self.zhongjian_target,"he") then return "discard" end
 	if self:isFriend(self.zhongjian_target) and self:needToThrowCard(self.zhongjian_target, "e") then return "discard" end
 	return "draw"
 end
@@ -706,7 +706,7 @@ sgs.ai_skill_playerchosen.mobilejuexiang_discard = function(self, targets)
 	local targets = sgs.QList2Table(targets)
 	self:sort(targets, "defense")
 	for _, p in ipairs(targets) do
-		if not self:isFriend(p) and not self:doNotDiscard(p, "ej") then
+		if not self:isFriend(p) and self:doDisCard(p,"ej") then
 			return p
 		end
 	end
@@ -840,12 +840,9 @@ sgs.ai_skill_use_func.WenguaCard = function(card, use, self)
 		end
 	end
 
-	if self:needToThrowCard() then
-		sgs.ai_use_priority.WenguaCard = sgs.ai_use_priority.Slash + 0.1
-	elseif nextAlive:getCards("j"):length() > 0 then
-		sgs.ai_use_priority.WenguaCard = 0.1
-	else
-		sgs.ai_use_priority.WenguaCard = sgs.ai_use_priority.IronChain - 0.1
+	if self:needToThrowCard() then sgs.ai_use_priority.WenguaCard = sgs.ai_use_priority.Slash+0.1
+	elseif nextAlive:getCards("j"):length()>0 then sgs.ai_use_priority.WenguaCard = 0.1
+	else sgs.ai_use_priority.WenguaCard = sgs.ai_use_priority.IronChain-0.1
 	end
 
 	if id < 0 then return end
@@ -898,12 +895,9 @@ sgs.ai_skill_use_func.WenguagiveCard = function(card, use, self)
 	end
 
 	if (sgs.ai_role[self.player:objectName()] ~= "neutral" and sgs.ai_role[xushi:objectName()] ~= "neutral") or self.player:hasSkill("wengua") then
-		if self:needToThrowCard() then
-			sgs.ai_use_priority.WenguagiveCard = sgs.ai_use_priority.Slash + 0.1
-		elseif nextAlive:getCards("j"):length() > 0 then
-			sgs.ai_use_priority.WenguagiveCard = 0.1
-		else
-			sgs.ai_use_priority.WenguagiveCard = sgs.ai_use_priority.IronChain - 0.1
+		if self:needToThrowCard() then sgs.ai_use_priority.WenguagiveCard = sgs.ai_use_priority.Slash+0.1
+		elseif nextAlive:getCards("j"):length()>0 then sgs.ai_use_priority.WenguagiveCard = 0.1
+		else sgs.ai_use_priority.WenguagiveCard = sgs.ai_use_priority.IronChain-0.1
 		end
 	else
 		sgs.ai_use_priority.WenguagiveCard = 0.1
@@ -938,10 +932,7 @@ sgs.ai_skill_choice.wengua = function(self, choices, data)
 			if self:goodJudge(nextAlive, reason, c) then return "top" end
 		end
 
-		if self:isFriend(from) and from:isAlive() and self:needKongcheng(from, true) and table.contains(choices, "cancel") then
-			return
-			"cancel"
-		end
+		if self:isFriend(from) and from:isAlive() and self:needKongcheng(from,true) and table.contains(choices,"cancel") then return "cancel" end
 
 		if not self:isEnemy(from) then return "bottom" end
 		if self:needKongcheng(from, true) then return "bottom" end
@@ -971,9 +962,7 @@ end
 --复难
 sgs.ai_skill_invoke.funan = function(self, data)
 	if self.player:property("funan_level_up"):toBool()
-	then
-		return not self:needKongcheng(self.player, true)
-	end
+	then return not self:needKongcheng(self.player,true) end
 	local to = data:toPlayer()
 	if self:isFriend(to) then return not self:needKongcheng(to, true) and not self:needKongcheng(self.player, true) end
 	if not self:isFriend(to) and not self:isEnemy(to) then return not self:needKongcheng(self.player, true) end
@@ -983,20 +972,14 @@ sgs.ai_skill_invoke.funan = function(self, data)
 	if card:isKindOf("AOE")
 	then
 		if sgs.ai_role[to:objectName()] ~= "neutral" and self:canDraw(to)
-		then
-			sgs.updateIntention(self.player, to, 10)
-		end
+		then sgs.updateIntention(self.player,to,10) end
 		return false
 	elseif card:isNDTrick()
-	then
-		return true
-	end
+	then return true end
 	if self:getOverflow() > 0 or self.player:getHandcardNum() >= to:getHandcardNum()
 	then
 		if sgs.ai_role[to:objectName()] ~= "neutral" and self:canDraw(to)
-		then
-			sgs.updateIntention(self.player, to, 10)
-		end
+		then sgs.updateIntention(self.player,to,10) end
 		return false
 	end
 	return true
@@ -1021,7 +1004,7 @@ sgs.ai_skill_playerchosen.jiexun = function(self, targets)
 	if use_time > diamond_count then
 		local n = use_time - diamond_count
 		for _, enemy in ipairs(self.enemies) do
-			if hasManjuanEffect(enemy) and not self:doNotDiscard(enemy, "he", false, use_time, true) then return enemy end
+			if hasManjuanEffect(enemy) and self:doDisCard(enemy,"he",false,use_time) then return enemy end
 			if not second and not self:needToThrowCard(enemy, "he", true) and enemy:getCardCount(true) >= n
 				and not (enemy:hasSkill("lirang") and self:findFriendsByType(sgs.Friend_Draw, enemy)) then
 				second = enemy
@@ -1054,10 +1037,7 @@ sgs.ai_skill_invoke.shouxi = function(self, data)
 	local player = use.from
 	local slash = use.card
 	if not self:slashIsEffective(slash, self.player, player) then return false end
-	if self:getCardsNum("Jink") < 1 then
-		self.player:setTag("Shouxi_ForAI", data)
-		return true
-	end
+	if self:getCardsNum("Jink")<1 then self.player:setTag("Shouxi_ForAI",data) return true end
 	if not self:canHit(self.player, player) then return false end
 	self.player:setTag("Shouxi_ForAI", data)
 	return true
@@ -1105,10 +1085,8 @@ sgs.ai_skill_invoke.huimin = function(self, data)
 	end
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:getHandcardNum() < enemy:getHp() then
-			if self:needKongcheng(enemy, true) then
-				friend_num = friend_num + 1
-			else
-				enemy_num = enemy_num + 1
+			if self:needKongcheng(enemy,true) then friend_num = friend_num+1
+			else enemy_num = enemy_num+1
 			end
 		end
 	end
@@ -1119,16 +1097,13 @@ function huiminValue(self, p, tos)
 	local v = 0
 	local suf, coeff = 0.9, 0.9
 	local next_player = p
-	if self:isFriend(p) then
-		v = 1
-	elseif self:isEnemy(p) then
-		v = -1
+	if self:isFriend(p) then v = 1
+	elseif self:isEnemy(p) then v = -1
 	end
 	repeat
 		next_player = next_player:getNextAlive()
 		if next_player:objectName() ~= p:objectName() and table.contains(tos, next_player) then
-			if self:isFriend(next_player) then
-				v = v + suf
+			if self:isFriend(next_player) then v = v+suf
 			elseif self:isEnemy(next_player) then
 				v = v - suf
 			end
@@ -1200,9 +1175,7 @@ sgs.ai_skill_use["@@tongbo"] = function(self, prompt, method)
 			table.insert(exchange, cards[1]:getId())
 			table.removeOne(piles, piles[#piles])
 			table.removeOne(cards, cards[1])
-		else
-			break
-		end
+		else break end
 	end
 	if #exchange < 2 then return "." end
 	return "@TongboCard=" .. table.concat(exchange, "+")

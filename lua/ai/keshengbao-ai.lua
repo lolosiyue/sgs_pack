@@ -42,28 +42,61 @@ end
 --圣孙策
 
 sgs.ai_skill_cardask["shenghuju-slash"] = function(self, data, pattern, target)
-	if self.player:hasFlag("wantusekeshenghuju") and not self.player:isKongcheng() then
-	    return self:getCardId("Slash")
+	local effect = data:toSlashEffect()
+	if self:isFriend(effect.to) then return "." end
+	if self.player:getCardCount() - 2 >= self.player:getHp()
+		or self:needKongcheng() and self.player:getHandcardNum() > 0
+		or self.player:hasSkill("kuanggu") and self.player:isWounded() and self.player:distanceTo(effect.to) == 1
+		or effect.to:getHp() <= 2 and not hasBuquEffect(effect.to)
+		or self:getOverflow() > 0
+	then
+		return self:getCardId("Slash")
 	else
 		return "."
 	end
 end
 
 sgs.ai_skill_cardask["jieshenghuju-slash"] = function(self, data, pattern, target)
-	if self.player:hasFlag("wantusekejieshenghuju") and not self.player:isKongcheng() then
-	    local cards = sgs.QList2Table(self.player:getHandcards())
-		self:sortByKeepValue(cards)
-		return "$" .. cards[1]:getId()
+	local effect = data:toSlashEffect()
+	if self:isFriend(effect.to) then return "." end
+	if self.player:getCardCount() - 2 >= self.player:getHp()
+		or self:needKongcheng() and self.player:getHandcardNum() > 0
+		or self.player:hasSkill("kuanggu") and self.player:isWounded() and self.player:distanceTo(effect.to) == 1
+		or effect.to:getHp() <= 2 and not hasBuquEffect(effect.to)
+		or self:getOverflow() > 0
+	then
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isRed() and c:isKindOf("Slash") then return c:toString() end
+		end
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isRed()  then return c:toString() end
+		end
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isKindOf("Slash")  then return c:toString() end
+		end
 	else
 		return "."
 	end
 end
 
 sgs.ai_skill_cardask["jieshenghujutwo-slash"] = function(self, data, pattern, target)
-	if self.player:hasFlag("wantusekejieshenghujutwo") and not self.player:isKongcheng() then
-	    local cards = sgs.QList2Table(self.player:getHandcards())
-		self:sortByKeepValue(cards)
-		return "$" .. cards[1]:getId()
+	local effect = data:toSlashEffect()
+	if self:isFriend(effect.to) then return "." end
+	if self.player:getCardCount() - 2 >= self.player:getHp()
+		or self:needKongcheng() and self.player:getHandcardNum() > 0
+		or self.player:hasSkill("kuanggu") and self.player:isWounded() and self.player:distanceTo(effect.to) == 1
+		or effect.to:getHp() <= 2 and not hasBuquEffect(effect.to)
+		or self:getOverflow() > 0
+	then
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isRed() and c:isKindOf("Slash") then return c:toString() end
+		end
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isRed()  then return c:toString() end
+		end
+		for _, c in sgs.list(self.player:getHandcards()) do
+			if c:isKindOf("Slash")  then return c:toString() end
+		end
 	else
 		return "."
 	end
@@ -76,67 +109,53 @@ sgs.ai_skill_invoke.keshengliufeng = function(self, data)
 end
 
 sgs.ai_skill_choice.keshenghuixue = function(self, choices, data)
-    if self.player:hasFlag("huixuehuixue") then return "huixue" end
-	return "shanghai"
+    if self.keshenghuixueChoice then return self.keshenghuixueChoice end
+	return "huixue"
 end
+
+
+sgs.ai_choicemade_filter.skillChoice["keshenghuixue"] = function(self, player, promptlist)
+	local choice = promptlist[#promptlist]
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if p:hasFlag("keshenghuixueTarget") then
+			if choice == "huixue" then
+				sgs.updateIntention(player, p, -80)
+			else 
+				sgs.updateIntention(player, p, 80)
+			end
+		end
+	end
+end
+
 
 local keshenghuixue_skill = {}
 keshenghuixue_skill.name = "keshenghuixue"
 table.insert(sgs.ai_skills, keshenghuixue_skill)
 keshenghuixue_skill.getTurnUseCard = function(self)
+	if not self.player:canDiscard(self.player, "h") then return end
 	if self.player:hasUsed("keshenghuixueCard")  then return end
 	return sgs.Card_Parse("#keshenghuixueCard:.:")
 end
 
 sgs.ai_skill_use_func["#keshenghuixueCard"] = function(card, use, self)
     if not self.player:hasUsed("#keshenghuixueCard") then
-		if (self.player:getHp() > 1) then
-			self:sort(self.enemies)
-			self.enemies = sgs.reverse(self.enemies)
-			local enys = sgs.SPlayerList()
-			for _, enemy in ipairs(self.enemies) do
-				if enys:isEmpty() then
-					enys:append(enemy)
-				else
-					local yes = 1
-					for _,p in sgs.qlist(enys) do
-						if (enemy:getHp()+enemy:getHp()+enemy:getHandcardNum()) >= (p:getHp()+p:getHp()+p:getHandcardNum()) then
-							yes = 0
-						end
-					end
-					if (yes == 1) then
-						enys:removeOne(enys:at(0))
-						enys:append(enemy)
-					end
-				end
+		for _,p in ipairs(self.friends_noself)do
+			if p:getHp() < getBestHp(p) and p:isMale() and p:canDiscard(p, "h") then
+				use.card = sgs.Card_Parse("#keshenghuixueCard:.:")
+				self.keshenghuixueChoice = "huixue"
+				if use.to then use.to:append(p) end
+				return
 			end
-			for _,enemy in sgs.qlist(enys) do
-				if self:objectiveLevel(enemy) > 0 then
-					use.card = card
-					if use.to then use.to:append(enemy) end
-					return
-				end
-			end
-		else
-			self:sort(self.friends)
-			local yes = 0
-			for _, friend in ipairs(self.friends) do
-				if self:isFriend(friend) and friend:isWounded() then
-					yes = 1
-					use.card = card
-					if use.to then use.to:append(friend) end
-					return
-				end
-			end
-			if (yes == 0) then
-				for _, friend in ipairs(self.friends) do
-					if self:isFriend(friend) then
-						yes = 1
-						use.card = card
-						if use.to then use.to:append(friend) end
-						return
-					end
-				end
+		end
+		
+		for _,enemy in ipairs(self.enemies) do
+			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy)
+			and self.player:getHp() > enemy:getHp() and self.player:getHp() > 1 and enemy:canDiscard(enemy, "h")
+			then
+				self.keshenghuixueChoice = "shanghai"
+				use.card = sgs.Card_Parse("#keshenghuixueCard:.:")
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 	end
@@ -144,7 +163,7 @@ end
 
 sgs.ai_use_value.keshenghuixueCard = 8.5
 sgs.ai_use_priority.keshenghuixueCard = 9.5
-sgs.ai_card_intention.keshenghuixueCard = 80
+--sgs.ai_card_intention.keshenghuixueCard = 80
 
 sgs.ai_skill_invoke.kejieshengliufeng = function(self, data)
 	return true
@@ -279,8 +298,13 @@ sgs.ai_use_priority.keshengzhuihunCard = 9.5
 sgs.ai_card_intention.keshengzhuihunCard = -80
 
 sgs.ai_skill_invoke.keshengjiuzhu = function(self, data)
-	return self.player:hasFlag("wantusekeshengjiuzhu")
+	local target = data:toPlayer()
+	if canNiepan(target) then return false end
+	if self.player:getRole() == "loyalist" and self:isWeak(self.room:getLord()) 
+	and  target:objectName() ~= self.player:objectName()  then return false end
+	return self:isFriend(target)
 end
+	
 
 --界圣赵云
 

@@ -51,6 +51,11 @@
 "tableBgshu": "image/system/backdrop/shu.jpg",
 "tableBgwu" : "image/system/backdrop/wu.jpg",
 "tableBgqun": "image/system/backdrop/qun.jpg",
+"tableBgjin": "image/system/backdrop/jin.jpg",
+"tableBgkegui": "image/system/backdrop/kegui.jpg",
+"tableBgkeyao": "image/system/backdrop/keyao.jpg",
+"tableBgkesheng": "image/system/backdrop/kesheng.jpg",
+"tableBgkexian": "image/system/backdrop/kexian.jpg",
 "photoExtraSkillBg": "image/system/huashenSkillBg.png",
 "dashboardExtraSkillBg": "image/system/huashenSkillBg.png",
 

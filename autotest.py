@@ -10,11 +10,13 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "ov_fanchou"
+choose_general = "jikang"
+debug = 1
 
+user_input = ""
 #1920*1080 125%
 #pip cache purge
-num_test_runs = 100
+num_test_runs = 10
 
 keyboard = Controller()
 
@@ -138,49 +140,56 @@ for run in range(num_test_runs):
             pyautogui.click(target_x, target_y)
             time.sleep(1)
     time.sleep(5)
-    for image_name, image_data in target_images3.items():
-        image_path = image_data['path']
-        image_action = image_data['action']
+    if debug == 1:
+        for image_name, image_data in target_images3.items():
+            image_path = image_data['path']
+            image_action = image_data['action']
 
-        # Find all occurrences of the target image on the screen
-        target_occurrences = pyautogui.locateAllOnScreen(image_path)
+            # Find all occurrences of the target image on the screen
+            target_occurrences = pyautogui.locateAllOnScreen(image_path)
 
-        # Iterate over each occurrence and perform a mouse click
-        for target_occurrence in target_occurrences:
-            # Get the center coordinates of the target occurrence
-            x, y, width, height = target_occurrence
-            target_x = x - 100
-            target_y = y + height // 2
+            # Iterate over each occurrence and perform a mouse click
+            for target_occurrence in target_occurrences:
+                # Get the center coordinates of the target occurrence
+                x, y, width, height = target_occurrence
+                target_x = x - 100
+                target_y = y + height // 2
 
-            # Perform a mouse click on the center of the target occurrence
-            pyautogui.click(target_x, target_y)
-            time.sleep(1)
-            kb.write(choose_general)
-            time.sleep(1)
-            pyautogui.click(target_x + 100 + width // 2, target_y)
-            time.sleep(1)
-    time.sleep(1)
-    for image_name, image_data in target_images3.items():
-        image_path = image_data['path']
-        image_action = image_data['action']
+                # Perform a mouse click on the center of the target occurrence
+                pyautogui.click(target_x, target_y)
+                time.sleep(1)
+                kb.write(choose_general)
+                time.sleep(1)
+                pyautogui.click(target_x + 100 + width // 2, target_y)
+                time.sleep(1)
+        time.sleep(1)
+        for image_name, image_data in target_images3.items():
+            image_path = image_data['path']
+            image_action = image_data['action']
 
-        # Find all occurrences of the target image on the screen
-        target_occurrences = pyautogui.locateAllOnScreen(image_path)
+            # Find all occurrences of the target image on the screen
+            target_occurrences = pyautogui.locateAllOnScreen(image_path)
 
-        # Iterate over each occurrence and perform a mouse click
-        for target_occurrence in target_occurrences:
-            # Get the center coordinates of the target occurrence
-            x, y, width, height = target_occurrence
-            target_x = x - 100
-            target_y = y + height // 2
+            # Iterate over each occurrence and perform a mouse click
+            for target_occurrence in target_occurrences:
+                # Get the center coordinates of the target occurrence
+                x, y, width, height = target_occurrence
+                target_x = x - 100
+                target_y = y + height // 2
 
-            # Perform a mouse click on the center of the target occurrence
-            pyautogui.click(target_x, target_y)
-            time.sleep(1)
-            kb.write("☆赵云")
-            time.sleep(1)
-            pyautogui.click(target_x + 100 + width // 2, target_y)
-            time.sleep(1)
+                # Perform a mouse click on the center of the target occurrence
+                pyautogui.click(target_x, target_y)
+                time.sleep(1)
+                kb.write("☆赵云")
+                time.sleep(1)
+                pyautogui.click(target_x + 100 + width // 2, target_y)
+                time.sleep(1)
+    else:
+        kb.press('esc')
+        kb.release('esc')
+        time.sleep(1)
+        kb.press('esc')
+        kb.release('esc')
 
     time.sleep(2)
     pyautogui.click(1555, 1005)
@@ -191,7 +200,8 @@ for run in range(num_test_runs):
             print(f"Test run {run+1} completed.")
             time.sleep(2)
             # Ask the user to press any key to continue or '0' to exit
-            user_input = input("Press any key to continue or '0' to exit: ")
+            if debug == 1:
+                user_input = input("Press any key to continue or '0' to exit: ")
             time.sleep(1)
             cmd_title = "CMD"
             bring_window_to_front(cmd_title)

@@ -56,7 +56,7 @@ sgs.ai_skill_invoke.faen = function(self,data)
 end
 
 sgs.ai_choicemade_filter.skillInvoke.faen = function(self,player,promptlist)
-	local target = findPlayerByObjectName(self.room,promptlist[#promptlist-1])
+	local target = self.room:findPlayerByObjectName(promptlist[#promptlist-1])
 	if not target then return end
 	local yes = promptlist[#promptlist]=="yes"
 	if self:needKongcheng(target,true) then
@@ -818,7 +818,7 @@ sgs.ai_skill_playerchosen.youdi = function(self,targets)
 	self:sort(self.enemies,"defense")
 	self.enemies = sgs.reverse(self.enemies)
 	for _,enemy in ipairs(self.enemies)do
-		if enemy:canDiscard(self.player,"he") and not self:doNotDiscard(enemy,"he") then
+		if self:doDisCard(enemy,"he") then
 			if (valuable and enemy:canDiscard(self.player,valuable)) or (dangerous and enemy:canDiscard(self.player,dangerous)) then
 				if (self:getValuableCard(enemy) or self:getDangerousCard(enemy)) and sgs.getDefense(enemy)>8 then return enemy end
 			elseif not enemy:isNude() then return enemy

@@ -171,7 +171,7 @@ end
 sgs.ai_skill_invoke.jueji = function(self,data)
 	local target = data:toPlayer()
 	if not target then self.jueji_card = nil return false end
-	local invoke = not self:doNotDiscard(target,"h")
+	local invoke = self:doDisCard(target,"h")
 	if invoke then
 		local cards = sgs.QList2Table(self.player:getHandcards())
 		self:sortByUseValue(cards,true)
@@ -206,7 +206,7 @@ sgs.ai_skill_use_func.JuejiCard = function(card,use,self)
 
 	if (self:needKongcheng() and self.player:getHandcardNum()==1) or not self:hasLoseHandcardEffective() then
 		for _,enemy in ipairs(self.enemies)do
-			if not self:doNotDiscard(enemy,"h") and self.player:canPindian(enemy) then
+			if self:doDisCard(enemy,"h",true) and self.player:canPindian(enemy) then
 				self.jueji_card = max_card:getId()
 				use.card = sgs.Card_Parse("@JuejiCard=.")
 				if use.to then use.to:append(enemy) end
@@ -216,7 +216,7 @@ sgs.ai_skill_use_func.JuejiCard = function(card,use,self)
 	end
 
 	for _,enemy in ipairs(self.enemies)do
-		if not self:doNotDiscard(enemy,"h") and self.player:canPindian(enemy) then
+		if self:doDisCard(enemy,"h",true) and self.player:canPindian(enemy) then
 			local enemy_max_card = self:getMaxCard(enemy)
 			local allknown = 0
 			if self:getKnownNum(enemy)==enemy:getHandcardNum() then
@@ -236,7 +236,7 @@ sgs.ai_skill_use_func.JuejiCard = function(card,use,self)
 	self:sortByKeepValue(cards)
 	if self:getOverflow()>0 then
 		for _,enemy in ipairs(self.enemies)do
-			if not self:doNotDiscard(enemy,"h",true) and self.player:canPindian(enemy) then
+			if self:doDisCard(enemy,"h",true) and self.player:canPindian(enemy) then
 				self.jueji_card = cards[1]:getId()
 				use.card = sgs.Card_Parse("@JuejiCard=.")
 				if use.to then use.to:append(enemy) end
@@ -845,7 +845,7 @@ lexue_skill.getTurnUseCard = function(self)
 			end
 		end
 	end
-	return sgs.Card_Parse("@LexueCard=.")
+	return self.player:usedTimes("LexueCard")<1 and sgs.Card_Parse("@LexueCard=.")
 end
 
 sgs.ai_skill_use_func.LexueCard = function(card,use,self)
@@ -1118,7 +1118,7 @@ sgs.ai_skill_use_func.TaichenCard = function(card,use,self)
 
 				if self:isFriend(player) then
 					table.insert(friends,player)
-				elseif self:isEnemy(player) and not self:doNotDiscard(player,"he",nil,2) then
+				elseif self:isEnemy(player) and self:doDisCard(player,"he",nil,2) then
 					table.insert(enemies,player)
 				end
 			end
@@ -1131,7 +1131,7 @@ sgs.ai_skill_use_func.TaichenCard = function(card,use,self)
 
 				if self:isFriend(player) then
 					table.insert(friends,player)
-				elseif self:isEnemy(player) and not self:doNotDiscard(player,"he",nil,2) then
+				elseif self:isEnemy(player) and self:doDisCard(player,"he",nil,2) then
 					table.insert(enemies,player)
 				end
 			end

@@ -1,5 +1,5 @@
 extension = sgs.Package("zz")
-local debug = true
+local debug = false
 savedata = "save.json" --存档
 readData = function()
     local json = require "json"
@@ -33,12 +33,23 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
         end
     end
 
     local name = player:getGeneralName()
     local package = player:getGeneral():getPackage()
+    local list = {"lord", "loyalist", "rebel", "renegade"}
+    local role = player:getRole()
+    local roleIndex = nil
+
+    for i, value in ipairs(list) do
+        if value == role then
+            roleIndex = i
+            break
+        end
+    end
+    roleIndex = roleIndex + 2
     local package2 = ""
     local name2 = ""
     if player:getGeneral2() then
@@ -50,16 +61,16 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0 }
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0}
         end
         if t.Record[package][name] then
-            t.Record[package][name][1] = t.Record[package][name][1] + 1
+            t.Record[package][name][1] = t.Record[package][name][1] + 1   
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][1] = t.Record[package2][name2][1] + 1
@@ -70,19 +81,21 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0 }
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0}
         end
         if t.Record[package][name] then
             t.Record[package][name][2] = t.Record[package][name][2] + 1
+            t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][2] = t.Record[package2][name2][2] + 1
+            t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
         end
     end
 

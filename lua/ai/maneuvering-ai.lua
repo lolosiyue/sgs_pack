@@ -103,25 +103,60 @@ end
 
 function SmartAI:useCardAnaleptic(card,use)
 	if card:subcardsLength()+self:getOverflow()>1
-	and not (self.player:hasEquip(card) or self:isWeak() or self:hasLoseHandcardEffective())
+	and not(self.player:hasEquip(card) or self:isWeak() or self:hasLoseHandcardEffective())
 	then use.card = card
+	elseif sgs.Sanguosha:getCurrentCardUseReason()==sgs.CardUseStruct_CARD_USE_REASON_PLAY
+	then
+		if sgs.turncount<=1 and self.role=="renegade" and sgs.isLordHealthy() and self:getOverflow()<2
+		or self.player:hasSkill("canshi") and self.player:hasFlag("canshi") and self.player:getHandcardNum()<3
+		then return end
+		local n,cs = 0,{}
+		for _,c in ipairs(self:sortByDynamicUsePriority(self:getCards("Slash")))do
+			self.player:addHistory("Slash",n)
+			local can = c:isAvailable(self.player)
+			self.player:addHistory("Slash",-n)
+			can = can and self:aiUseCard(c)
+			if can and can.card
+			then
+				table.insert(cs,can)
+				n = n+1
+			end
+		end
+		if #cs<1 then return end
+		local tm = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue,self.player,card)
+		for i,d in ipairs(cs)do
+			if #cs-i>tm then continue end
+			for _,to in sgs.qlist(d.to)do
+				if self:isFriend(to)
+				or to:hasSkill("zhenlie")
+				or to:hasSkill("mobilejxtpjinjiu")
+				or to:hasSkill("anxian") and to:getHandcardNum()>0 and self:getOverflow()<0
+				then return end
+				if to:hasArmorEffect("silver_lion") and d.card:hasFlag("Qinggang") then
+				else
+					local da = self:ajustDamage(self.player,to,2,d.card)
+					if da==0 or da==1 then return end
+				end
+				n = getKnownCard(to,self.player,"Jink",true,"he")
+				if self.player:hasSkill("roulin") and to:isFemale()
+				or self.player:isFemale() and to:hasSkill("roulin")
+				or self.player:hasSkill("wushuang")
+				then if n>1 then return end end
+				if self.player:hasSkill("kofliegong") and n>=self.player:getHp()
+				or self.player:hasSkill("liegong") and (n>=self.player:getHp() or n<=self.player:getAttackRange())
+				then use.card = card return end
+				if n>0 and sgs.card_lack[to:objectName()]["Jink"]~=1 and self:getOverflow()<2
+				then return end
+			end
+		end
+		use.card = card
 	elseif #self.toUse>0
 	and sgs.Sanguosha:getCurrentCardUseReason()~=sgs.CardUseStruct_CARD_USE_REASON_PLAY
 	then
 		for _,c in ipairs(self.toUse)do
 			if c:isKindOf("Slash")
-			then
-				use.card = card
-				break
-			elseif c:isKindOf("SkillCard")
-			then
-				c = c:toString():split(":")
-				if c[#c]:startsWith("slash")
-				then
-					use.card = card
-					break
-				end
-			end
+			or c:isKindOf("SkillCard") and c:toString():match("slash")
+			then use.card = card break end
 		end
 	end
 end
@@ -145,14 +180,10 @@ function SmartAI:searchForAnaleptic(slash,enemy)
 		and a:isAvailable(self.player)
 		then
 			local sa = {}
-			for cs,c in ipairs(self.toUse)do
-				if c:isKindOf("Slash") then table.insert(sa,c:getEffectiveId())
-				elseif c:isKindOf("SkillCard")
-				then
-					cs = c:toString():split(":")
-					if cs[#cs]:startsWith("slash")
-					then table.insert(sa,c:getEffectiveId()) end
-				end
+			for _,c in ipairs(self.toUse)do
+				if c:isKindOf("Slash")
+				or c:isKindOf("SkillCard") and c:toString():match("slash")
+				then table.insert(sa,c:getEffectiveId()) end
 			end
 			r = sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_Residue,self.player,a)
 			if r<1 and sa[#sa]~=slash:getEffectiveId()
@@ -398,7 +429,7 @@ function SmartAI:useCardIronChain(card,use)
 	if self.player:isLocked(card) then return end
 	local friendtargets,friendtargets2,otherfriends = {},{},{}
 	self:sort(self.friends,"defense")
-	for _,friend in sgs.list(self.friends)do
+	for _,friend in ipairs(self.friends)do
 		if friend:isChained() and not self:isGoodChainPartner(friend)
 		then
 			if friend:containsTrick("lightning")
@@ -406,10 +437,10 @@ function SmartAI:useCardIronChain(card,use)
 			else table.insert(friendtargets2,friend) end
 		else table.insert(otherfriends,friend) end
 	end
-	InsertList(friendtargets,friendtargets2)
 	local extraTarget = 1+sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget,self.player,card)
 	if use.extra_target then extraTarget = extraTarget+use.extra_target end
-	for _,friend in sgs.list(friendtargets)do
+	InsertList(friendtargets,friendtargets2)
+	for _,friend in ipairs(friendtargets)do
 		if isCurrent(use.current_targets,friend) then continue end
 		if use.to and CanToCard(card,self.player,friend)
 		then
@@ -419,10 +450,10 @@ function SmartAI:useCardIronChain(card,use)
 		end
 	end
 	self:sort(self.enemies,"defense")
-	for _,enemy in sgs.list(self.enemies)do
+	for _,enemy in ipairs(self.enemies)do
 		if isCurrent(use.current_targets,enemy) then continue end
 		if use.to and CanToCard(card,self.player,enemy) and self:objectiveLevel(enemy)>2
-		and not (enemy:isChained() or self:needToLoseHp(enemy))
+		and not(enemy:isChained() or self:needToLoseHp(enemy))
 		and self:isGoodTarget(enemy,self.enemies)
 		then
 			use.to:append(enemy)
@@ -435,7 +466,7 @@ function SmartAI:useCardIronChain(card,use)
 	and self:needToLoseHp(self.player) and not(self.player:isChained() or hasJueqingEffect(self.player))
 	and (self:getCard("NatureSlash") or self:getCard("FireAttack") and self.player:getHandcardNum()>2)
 	then use.to:append(self.player) if use.to:length()>extraTarget then return end end
-	for _,friend in sgs.list(otherfriends)do
+	for _,friend in ipairs(otherfriends)do
 		if isCurrent(use.current_targets,friend) then continue end
 		if use.to and not use.to:contains(friend)
 		and CanToCard(card,self.player,friend)

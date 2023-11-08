@@ -379,7 +379,7 @@ sgs.ai_skill_use_func.TianyiCard = function(card,use,self)
 	if isCard("Slash",max_card,self.player) then slashcount = slashcount-1 end
 	if self.player:hasSkill("kongcheng") and self.player:getHandcardNum()==1 then
 		for _,enemy in sgs.list(self.enemies)do
-			if self.player:canPindian(enemy) and not self:doNotDiscard(enemy,"h") then
+			if self.player:canPindian(enemy) and self:doDisCard(enemy,"h") then
 				sgs.ai_use_priority.TianyiCard = 1.2
 				self.tianyi_card = max_card:getId()
 				use.card = sgs.Card_Parse("@TianyiCard=.")
@@ -488,7 +488,7 @@ sgs.ai_skill_use_func.TianyiCard = function(card,use,self)
 
 	if self:getOverflow()>0 then
 		for _,enemy in sgs.list(self.enemies)do
-			if not self:doNotDiscard(enemy,"h",true) and self.player:canPindian(enemy) then
+			if self:doDisCard(enemy,"h") and self.player:canPindian(enemy) then
 				self.tianyi_card = cards[1]:getId()
 				use.card = sgs.Card_Parse("@TianyiCard=.")
 				if use.to then use.to:append(enemy) end
@@ -646,12 +646,12 @@ end
 sgs.ai_skill_invoke.mengjin = function(self,data)
 	local effect = data:toSlashEffect()
 	if self:isEnemy(effect.to) then
-		if self:doNotDiscard(effect.to) then
-			return false
+		if self:doDisCard(effect.to) then
+			return true
 		end
 	end
 	if self:isFriend(effect.to) then
-		return self:needToThrowArmor(effect.to) or self:doNotDiscard(effect.to)
+		return self:needToThrowArmor(effect.to) or self:doDisCard(effect.to)
 	end
 	return not self:isFriend(effect.to)
 end

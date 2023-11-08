@@ -21,7 +21,7 @@ def show_column_percentages(data):
 
     with open('winRate.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Package", "Gerenal", "Percentage", "GameTimes"])
+        writer.writerow(["Package", "Gerenal", "lord主", "loyalist忠", "rebel反", "renegade內", "Percentage", "GameTimes"])
 
         for row in sorted_data:
             writer.writerow(row)

@@ -533,7 +533,7 @@ sgs.ai_skill_use_func.SongciCard = function(card,use,self)
 	self.enemies = sgs.reverse(self.enemies)
 	for _,enemy in ipairs(self.enemies)do
 		if enemy:getMark("songci"..self.player:objectName())==0 and enemy:getHandcardNum()>enemy:getHp() and not enemy:isNude()
-			and not self:doNotDiscard(enemy,nil,false,2) then
+			and self:doDisCard(enemy,"he",true,2) then
 			use.card = sgs.Card_Parse("@SongciCard=.")
 			if use.to then use.to:append(enemy) end
 			return
@@ -2078,10 +2078,10 @@ sgs.ai_skill_invoke["zhiman"] = function(self,data)
 		if self:needToLoseHp(target,self.player)
 		and (target:getJudgingArea():isEmpty() or target:containsTrick("YanxiaoCard"))
 		then return false end
-		return self:canDisCard(target,"ej")
+		return self:doDisCard(target,"ej")
 	else
 		if self:isWeak(target) then return false end
-		if self:doNotDiscard(target,"e",true) then return false end
+		if self:doDisCard(target,"e",true) then return true end
 		if self:needToLoseHp(target,self.player)
 		or (target:getArmor() and not target:getArmor():isKindOf("SilverLion"))
 		then return true end
@@ -2382,13 +2382,13 @@ end
 sgs.ai_skill_playerchosen.fentian = function(self,targets)
 	self:sort(self.enemies,"defense")
 	for _,enemy in ipairs(self.enemies)do
-		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and self.player:inMyAttackRange(enemy) then
+		if (self:doDisCard(enemy,"he") or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and self.player:inMyAttackRange(enemy) then
 			return enemy
 		end
 	end
 	for _,friend in ipairs(self.friends)do
 		if(self:hasSkills(sgs.lose_equip_skill,friend) and not friend:getEquips():isEmpty())
-		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) and self.player:inMyAttackRange(friend) then
+		or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doDisCard(friend,"he") and self.player:inMyAttackRange(friend) then
 			return friend
 		end
 	end
@@ -2698,18 +2698,15 @@ sgs.ai_skill_invoke.zhenyi = function(self,data)
 		then return false end
 		local suit = judge.card:getSuit()
 		local new_card = sgs.Sanguosha:getWrappedCard(judge.card:getId())
-		new_card:setSkillName("zhenyi")
 		new_card:setNumber(5)
 		new_card:setSuit(sgs.Card_Spade)
 		new_card:setModified(true)
-		new_card:deleteLater()
 		if self:isFriend(judge.who) and judge:isGood(new_card)
 		or self:isEnemy(judge.who) and not judge:isGood(new_card)
 		then
 			sgs.ai_skill_choice.zhenyi = "spade"
 			return true
 		end
-		
 		new_card:setSuit(sgs.Card_Heart)
 		if self:isFriend(judge.who) and judge:isGood(new_card)
 		or self:isEnemy(judge.who) and not judge:isGood(new_card)
@@ -2765,7 +2762,6 @@ sgs.ai_skill_invoke.tenyearzhenyi = function(self,data)
 		if self:isFriend(judge.who) and judge:isGood(judge.card)
 		or self:isEnemy(judge.who) and not judge:isGood(judge.card)
 		then return false end
-		
 		local new_card = sgs.Sanguosha:getWrappedCard(judge.card:getId())
 		new_card:setSkillName("tenyearzhenyi")
 		new_card:setNumber(5)
@@ -2775,7 +2771,6 @@ sgs.ai_skill_invoke.tenyearzhenyi = function(self,data)
 		if self:isFriend(judge.who) and judge:isGood(new_card)
 		or self:isEnemy(judge.who) and not judge:isGood(new_card)
 		then sgs.ai_skill_choice.zhenyi = "spade" return true end
-		
 		new_card:setSuit(sgs.Card_Heart)
 		if self:isFriend(judge.who) and judge:isGood(new_card)
 		or self:isEnemy(judge.who) and not judge:isGood(new_card)
@@ -3763,13 +3758,13 @@ sgs.ai_skill_playerchosen.chouce = function(self,targets)
 	local target = self:findPlayerToDiscard("hej",true,true,targets)
 	if target then return target end
 	for _,enemy in ipairs(self.enemies)do
-		if (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and self.player:canDiscard(enemy,"he") then
+		if (self:doDisCard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and self.player:canDiscard(enemy,"he") then
 			return enemy
 		end
 	end
 	for _,friend in ipairs(self.friends)do
-		if (self:needToThrowArmor(friend) and friend:getArmor()) or (self:hasSkills(sgs.lose_equip_skill,friend) and self.player:canDiscard(friend,"e")) or
-		self:doNotDiscard(friend) then
+		if (self:needToThrowArmor(friend) and friend:getArmor()) or (self:hasSkills(sgs.lose_equip_skill,friend) and self.player:canDiscard(friend,"e"))
+		or self:doDisCard(friend) then
 			return friend
 		end
 	end
@@ -3821,13 +3816,13 @@ sgs.ai_skill_playerchosen.shuomeng = function(self,targets)
 		(not card:isKindOf("Jink") and not card:isKindOf("Peach") and not card:isKindOf("Analeptic"))) then
 		self:sort(self.enemies,"handcard")
 		for _,p in ipairs(self.enemies)do
-			if not self:doNotDiscard(p,"h",true) and targets:contains(p) then
+			if self:doDisCard(p,"h",true) and targets:contains(p) then
 				return p
 			end
 		end
 		self:sort(self.friends_noself,"handcard")
 		for _,p in ipairs(self.friends_noself)do
-			if self:doNotDiscard(p,"h",true) and targets:contains(p) and p:getOverflow()>0 then
+			if self:doDisCard(p,"h",true) and targets:contains(p) and p:getOverflow()>0 then
 				return p
 			end
 		end
@@ -3836,7 +3831,7 @@ sgs.ai_skill_playerchosen.shuomeng = function(self,targets)
 	if self:getMaxCard():getNumber()<6 then return nil end
 	self:sort(self.enemies,"handcard")
 	for _,p in ipairs(self.enemies)do
-		if not self:doNotDiscard(p,"h",true) and targets:contains(p) then
+		if self:doDisCard(p,"h",true) and targets:contains(p) then
 			return p
 		end
 	end

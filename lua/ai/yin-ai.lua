@@ -3,7 +3,7 @@ sgs.ai_skill_invoke.juzhan = function(self,data)
 	local target = data:toPlayer()
 	if self.player:getChangeSkillState("juzhan")==2 then
 		if self:isFriend(target) then return false end
-		if self:isEnemy(target) and self:doNotDiscard(target) then return false end
+		if self:isEnemy(target) and not self:doDisCard(target,"he") then return false end
 	end
 	return true
 end
@@ -282,7 +282,7 @@ sgs.ai_skill_playerchosen.chezheng = function(self,targets)
 	local to = self:findPlayerToDiscard("he",false,false,targets,return_table)
 	if to then return to end
 	for _,to in sgs.qlist(targets)do
-		if not self:isFriend(to) and not self:doNotDiscard(to) then return to end
+		if not self:isFriend(to) and self:doDisCard(to,"he") then return to end
 	end
 	return targets[1]
 end
@@ -338,7 +338,7 @@ sgs.ai_skill_playerchosen.qizhi = function(self,targets)
 	end
 	for _,target in ipairs(targets)do
 		if self:isEnemy(target) and (self:getDangerousCard(target) or self:keepWoodenOx(target)) then return target end
-		if self:isEnemy(target) and self:getValuableCard(target) and not self:doNotDiscard(target,"e") 
+		if self:isEnemy(target) and self:getValuableCard(target) and self:doDisCard(target,"e") 
 		and not target:hasSkills(sgs.notActive_cardneed_skill) then
 			return target
 		end

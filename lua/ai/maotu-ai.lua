@@ -41,7 +41,6 @@ end
 
 sgs.ai_fill_skill.mtzhihe = function(self)
     local cards = {}
-	local cs = sgs.IntList()
 	local suits = {}
 	for c,id in sgs.list(self.player:getPile("yhjyye"))do
 		c = sgs.Sanguosha:getCard(id)
@@ -52,6 +51,7 @@ sgs.ai_fill_skill.mtzhihe = function(self)
 	end
 	if #cards<1 then return end
 	suits = 4-#suits
+	local cs = sgs.IntList()
 	if suits<1 then suits = 1 end
 	for d,h in sgs.list(self:sortByKeepValue(self.player:getCards("h"),nil,"l"))do
 		if cs:length()<1 or h:getSuit()==sgs.Sanguosha:getCard(cs:at(0)):getSuit()
@@ -64,9 +64,14 @@ sgs.ai_fill_skill.mtzhihe = function(self)
 		d = dummyCard(c:objectName())
 		d:setSkillName("mtzhihe")
 		d:addSubcards(cs)
-		table.insert(suits,d)
+		local dc = self:aiUseCard(d)
+		if dc.card
+		then
+			if dc.to:length()<1 and d:canRecast()
+			then continue end
+			return d
+		end
 	end
-	return #suits>0 and suits
 end
 
 sgs.ai_skill_use["@@mtjiye"] = function(self,prompt)
@@ -265,7 +270,7 @@ sgs.ai_skill_invoke.mtrenyu = function(self,data)
 	local to = data:toPlayer()
     if self:isFriend(to)
 	then
-		return self:canDisCard(to,"e") or self:isWeak(to)
+		return self:doDisCard(to,"e") or self:isWeak(to)
 	end
 end
 
@@ -366,6 +371,7 @@ sgs.ai_skill_discard.mtdianpei = function(self,x,n)
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards)
 	self:sortByKeepValue(cards)
+	local to_cards = {}
    	for _,h in sgs.list(cards)do
    		if #to_cards<n
 		then
@@ -442,7 +448,7 @@ end
 sgs.ai_skill_use["@@mtweiqie"] = function(self,prompt)
     local cs = {}
     local tocs = {}
-	for _,c in sgs.list(self.player:getTag("mtweiqie_forAI"):toString():split("+"))do
+	for _,c in sgs.list(self.player:getTag("mtweiqieForAI"):toIntList())do
 		table.insert(cs,sgs.Sanguosha:getCard(c))
 	end
     self:sortByUseValue(cs)
@@ -479,7 +485,7 @@ sgs.ai_skill_invoke.mtzhongyi = function(self,data)
 	end
 	if to and str[1]=="current"
 	then
-		return not self:isFriend(to) or self:canDisCard(to,"e")
+		return not self:isFriend(to) or self:doDisCard(to,"e")
 	end
 end
 

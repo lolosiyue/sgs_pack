@@ -502,7 +502,7 @@ f_qizhengxiangsheng = sgs.CreateTrickCard{
 	damage_card = true,
 	subclass = sgs.LuaTrickCard_TypeSingleTargetTrick,
 	filter = function(self, targets, to_select, player)
-	    return #targets == 0 and to_select:objectName() ~= sgs.Self:objectName() and not sgs.Self:isCardLimited(self, sgs.Card_MethodUse) and not player:isProhibited(to_select, self)
+	    return #targets == 0 and to_select:objectName() ~= player:objectName() and not player:isCardLimited(self, sgs.Card_MethodUse) and not player:isProhibited(to_select, self)
 	end,
 	on_effect = function(self, effect)
 		local room = effect.to:getRoom()
@@ -7034,7 +7034,7 @@ joywushenBuffB = sgs.CreateTriggerSkill{
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("joywushen")
+		return player and player:hasSkill("joywushen")
 	end,
 }
 joy_shenguanyu:addSkill(joywushen)
@@ -8873,7 +8873,7 @@ joyruyiTwo = sgs.CreateTriggerSkill{ --距离为2的专属效果
 			end
 		elseif event == sgs.ConfirmDamage then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
 			and player:getWeapon() == nil and player:hasSkill("joyruyi") and player:getMark("&joy_ruyijingubang") == 2
 			and player:getPhase() ~= sgs.Player_NotActive and not player:hasFlag("joyruyiTwo_notfirstSlash") then
 				local hurt = damage.damage
@@ -9446,7 +9446,7 @@ JoyZjTwo = sgs.CreateTriggerSkill{ --距离为1&2的效果
 			end
 		elseif event == sgs.ConfirmDamage then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
 			and player:getWeapon() == nil and player:hasSkill("joyruyiEX_zhongji") and (player:getMark("&joy_zjjingubang") == 1 or player:getMark("&joy_zjjingubang") == 2)
 			and player:getPhase() ~= sgs.Player_NotActive and not player:hasFlag("JoyZjTwo_notfirstSlash") then
 				local hurt = damage.damage
@@ -10394,13 +10394,13 @@ jlsgliegongBfs = sgs.CreateTriggerSkill{
 				end
 			end
 		elseif event == sgs.ConfirmDamage then --矢贯坚石，劲冠三军！
-			if damage.card:isKindOf("Slash") and damage.card:getSkillName() == "jlsgliegong" and damage.card:subcardsLength() >= 3 then
+			if damage.card and damage.card:isKindOf("Slash") and damage.card:getSkillName() == "jlsgliegong" and damage.card:subcardsLength() >= 3 then
 				room:sendCompulsoryTriggerLog(player, "jlsgliegong")
 				damage.damage = damage.damage + 1
 				data:setValue(damage)
 			end
 		elseif event == sgs.Damage then --♥♠♦♣吾虽年迈，箭矢犹锋！
-			if damage.card:isKindOf("Slash") and damage.card:getSkillName() == "jlsgliegong" and damage.card:subcardsLength() >= 4
+			if damage.card and damage.card:isKindOf("Slash") and damage.card:getSkillName() == "jlsgliegong" and damage.card:subcardsLength() >= 4
 			and damage.to and damage.to:isAlive() then
 				room:sendCompulsoryTriggerLog(player, "jlsgliegong")
 				local loseskill = {}
@@ -14775,7 +14775,7 @@ f_miaodao = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.CardsMoveOneTime then
 			local move = data:toMoveOneTime()
-			if move.from:objectName() == player:objectName() and move.from_places:contains(sgs.Player_PlaceSpecial)
+			if move.from and move.from:objectName() == player:objectName() and move.from_places:contains(sgs.Player_PlaceSpecial)
 			and table.contains(move.from_pile_names, "f_syjDao") and player:getPile("f_syjDao"):length() == 0 then
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:broadcastSkillInvoke(self:objectName())
@@ -16141,12 +16141,12 @@ f_lingqiSlashs = sgs.CreateTriggerSkill{
 			end
 			player:setFlags("-f_lingqiPFfrom")
 		elseif event == sgs.DamageInflicted then --转化为毒属性伤害
-			if damage.card:objectName() == "slash" and (damage.card:getSkillName() == "f_lingqix_poison" or damage.card:hasFlag("poison_slash")) then
+			if damage.card and damage.card:objectName() == "slash" and (damage.card:getSkillName() == "f_lingqix_poison" or damage.card:hasFlag("poison_slash")) then
 				damage.nature = sgs.DamageStruct_Poison
 				data:setValue(damage)
 			end
 		elseif event == sgs.Damage then --“毒杀”效果
-			if damage.card:objectName() == "slash" and (damage.card:getSkillName() == "f_lingqix_poison" or damage.card:hasFlag("poison_slash")) then
+			if damage.card and damage.card:objectName() == "slash" and (damage.card:getSkillName() == "f_lingqix_poison" or damage.card:hasFlag("poison_slash")) then
 				local lhp = damage.to:getLostHp()
 				local n = lhp*0.2
 				if lhp >= 5 or (lhp < 5 and math.random() <= n) then --5*20%=100%
@@ -16501,7 +16501,7 @@ f_jishenBUFF = sgs.CreateTriggerSkill{
 				if damage.damage < 1 then return true end
 			end
 		elseif event == sgs.PreHpRecover then
-			if recover.who:objectName() == player:objectName() and player:getMark("&f_jishen+jsdefen") > 0 then
+			if recover.who and recover.who:objectName() == player:objectName() and player:getMark("&f_jishen+jsdefen") > 0 then
 				if smj then room:sendCompulsoryTriggerLog(smj, "f_jishen") end
 				room:broadcastSkillInvoke("f_jishen")
 				recover.recover = recover.recover*2
@@ -16597,7 +16597,7 @@ f_zhengmie = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.DamageCaused then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:hasFlag("f_zhengmieTarget") then
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:hasFlag("f_zhengmieTarget") then
 				room:setPlayerFlag(player, "-f_zhengmieTarget")
 				for _, zmf in sgs.qlist(room:getAllPlayers()) do
 					if zmf:hasFlag("f_zhengmieSource") then
@@ -16809,7 +16809,7 @@ f_zhengmie_f = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.DamageCaused then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:hasFlag("f_zhengmie_fTarget") then
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:hasFlag("f_zhengmie_fTarget") then
 				room:setPlayerFlag(player, "-f_zhengmie_fTarget")
 				for _, zmf in sgs.qlist(room:getAllPlayers()) do
 					if zmf:hasFlag("f_zhengmie_fSource") then

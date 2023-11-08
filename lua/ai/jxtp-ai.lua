@@ -1015,7 +1015,7 @@ sgs.dynamic_value.benefit.TenyearQingnangCard = true
 sgs.ai_skill_invoke.tenyearliyu = function(self,data)
 	local to = data:toPlayer()
     if self:isFriend(to)
-	then return self:canDisCard(to,"ej") or #self.enemies>0
+	then return self:doDisCard(to,"ej") or #self.enemies>0
 	else return to:hasEquip() end
 end
 
@@ -1348,7 +1348,7 @@ end
 sgs.ai_skill_invoke.tenyearjianchu = function(self,data)
 	local target = data:toPlayer()
 	if not target then return false end
-	return not self:isFriend(target) and not self:doNotDiscard(target,"he")
+	return not self:isFriend(target) and self:doDisCard(target,"he")
 end
 
 --散谣
@@ -1447,7 +1447,7 @@ sgs.ai_skill_playerchosen.tenyearzhenjun = function(self,targets)
     end
     targets = sgs.reverse(targets)
     for _,target in ipairs(targets)do
-        if self:isEnemy(target) and not self:doNotDiscard(target,"he") then 
+        if self:isEnemy(target) and self:doDisCard(target,"he") then 
             self.tenyearzhenjun_discard = true
             return target 
         end
@@ -1884,7 +1884,7 @@ sgs.ai_skill_playerchosen.tenyearyaoming = function(self,targets)
 		end
 	end
 	for _,p in ipairs(targets)do
-		if self:isEnemy(p) and p:getHandcardNum()>self.player:getHandcardNum() and not self:doNotDiscard(p,"h") then
+		if self:isEnemy(p) and p:getHandcardNum()>self.player:getHandcardNum() and self:doDisCard(p,"h") then
 			return p
 		end
 	end
@@ -1896,7 +1896,7 @@ sgs.ai_skill_playerchosen.tenyearyaoming = function(self,targets)
 	end
 	targets = sgs.reverse(targets)
 	for _,p in ipairs(targets)do
-		if self:isFriend(p) and p:getHandcardNum()>self.player:getHandcardNum() and (self:doNotDiscard(p,"h") or self:needToThrowLastHandcard(p)) then
+		if self:isFriend(p) and p:getHandcardNum()>self.player:getHandcardNum() and not self:doDisCard(p,"h") then
 			return p
 		end
 	end
@@ -1918,7 +1918,7 @@ sgs.ai_playerchosen_intention.tenyearyaoming = function(self,from,to)
 	if to:getHandcardNum()<=from:getHandcardNum() then
 		sgs.updateIntention(from,to,-20)
 	else
-		if self:doNotDiscard(to) or self:needToThrowLastHandcard(p) then
+		if self:doDisCard(to) then
 			sgs.updateIntention(from,to,-20)
 		else
 			sgs.updateIntention(from,to,20)
@@ -2260,7 +2260,7 @@ sgs.ai_skill_use_func.TenyearYanzhuCard = function(card,use,self)
 	if self.player:property("tenyearyanzhu_level_up"):toBool() then
 		self:sort(self.enemies,"defense")
 		for _,p in ipairs(self.enemies)do
-			if not self:doNotDiscard(p,"he") then
+			if self:doDisCard(p,"he") then
 				use.card = card
 				if (use.to) then use.to:append(p) end
 				return
@@ -2410,15 +2410,11 @@ end
 
 --慎断
 sgs.ai_skill_use["@@tenyearshenduan"] = function(self)
-	local ids = self.player:getTag("tenyearshenduan_forAI"):toString():split("+")
-	for _,id in ipairs(ids)do
-		local card = sgs.Sanguosha:getCard(id)
-		local card_str = ("supply_shortage:tenyearshenduan[%s:%s]=%d"):format(card:getSuitString(),card:getNumberString(),id)
-		local ss = sgs.Card_Parse(card_str)
-		ss:deleteLater()
+	for _,id in ipairs(self.player:getTag("tenyearshenduan_forAI"):toString():split("+"))do
+		local ss = dummyCard("supply_shortage")
+		ss:addSubcard(id)
 		if self.player:isCardLimited(ss,sgs.Card_MethodUse) then continue end
-		local dummy_use = { isDummy = true ,to = sgs.SPlayerList() }
-		self:useCardSupplyShortage(ss,dummy_use)
+		local dummy_use = self:aiUseCard(ss)
 		if dummy_use.card and dummy_use.to:length()>0 then
 			return "@TenyearShenduanCard="..id.."->"..dummy_use.to:first():objectName()
 		end
@@ -2434,14 +2430,14 @@ sgs.ai_skill_invoke.tenyearyonglve = function(self,data)
 	if not current or current:isDead() then return false end
 	local slash = dummyCard()
 	slash:setSkillName("_tenyearyonglve")
-	if self:isFriend(current) and self:canDisCard(current,"j")
+	if self:isFriend(current) and self:doDisCard(current,"j")
 	then
 		if self.player:inMyAttackRange(current) then return true end
 		if not self:slashIsEffective(slash,current,self.player) then return true end
 		if not self:isWeak(current) or getKnownCard(current,self.player,"Jink")>0 then return true end
 	elseif self:isEnemy(current)
 	then
-		if self:canDisCard(current,"j") then return true end
+		if self:doDisCard(current,"j") then return true end
 		for _,card in sgs.qlist(current:getJudgingArea())do
 			if card:isKindOf("SupplyShortage") and (current:getHandcardNum()>4 or current:containsTrick("indulgence"))
 			then
@@ -2490,6 +2486,75 @@ end
 sgs.ai_use_value.TenyearQiaoshuiCard = 3.4
 sgs.ai_use_priority.TenyearQiaoshuiCard = 4.8
 
+sgs.ai_skill_choice.tenyearqiaoshui = function(self,choices,data)
+	local items = choices:split("+")
+	local use = data:toCardUse()
+	if table.contains(items,"add")
+	then
+		local d = {to=sgs.SPlayerList(),current_targets=use.to}
+		self:aiUseCard(use.card,d)
+		if d.card
+		then
+			self.tenyearqiaoshui_to = {d.to:at(0)}
+			if d.card:isKindOf("Collateral")
+			then
+				self.tenyearqiaoshui_to = {d.to:at(0),d.to:at(1)}
+			end
+			return "add"
+		end
+	end
+	if table.contains(items,"remove")
+	then
+		if use.card:isKindOf("GlobalEffect")
+		then
+			for _,to in sgs.list(use.to)do
+				if self:isEnemy(to)
+				and self:hasTrickEffective(use.card,to,use.from)
+				then
+					self.tenyearqiaoshui_to = {to}
+					return "remove"
+				end
+			end
+		elseif use.card:isDamageCard()
+		then
+			for _,to in sgs.list(use.to)do
+				if self:isFriend(to) and self:isWeak(to)
+				and self:hasTrickEffective(use.card,to,use.from)
+				then
+					self.tenyearqiaoshui_to = {to}
+					return "remove"
+				end
+			end
+			for _,to in sgs.list(use.to)do
+				if self:isFriend(to)
+				and self:hasTrickEffective(use.card,to,use.from)
+				then
+					self.tenyearqiaoshui_to = {to}
+					return "remove"
+				end
+			end
+		end
+	end
+	return "cancel"
+end
+
+sgs.ai_skill_use["@@tenyearqiaoshui1"] = function(self)
+    local s = {}
+	for _,to in sgs.list(self.tenyearqiaoshui_to)do
+        table.insert(s,to:objectName())
+    end
+    if #s==0 then return "." end
+    return "@TenyearQiaoshuiTargetCard=.->"..table.concat(s,"+")
+end
+
+sgs.ai_skill_use["@@tenyearqiaoshui2"] = function(self)
+    local s = {}
+	for _,to in sgs.list(self.tenyearqiaoshui_to)do
+        table.insert(s,to:objectName())
+    end
+    if #s==0 then return "." end
+    return "@ExtraCollateralCard=.->"..table.concat(s,"+")
+end
 
 --傲才
 function sgs.ai_cardsview_valuable.tenyearaocai(self,class_name,player)
@@ -2736,11 +2801,8 @@ function sgs.ai_skill_pindian.tenyearxianzhen(minusecard,self,requestor)
 end
 
 sgs.ai_skill_playerchosen.tenyearxianzhen = function(self,targets)
-	if sgs.lastevent==sgs.CardUsed
-	then
-		self.player:setTag("yb_zhuzhan2_data",data)
-		return sgs.ai_skill_playerchosen.yb_zhuzhan2(self,targets)
-	end
+	self.player:setTag("yb_zhuzhan2_data",ToData(sgs.UsedData))
+	return sgs.ai_skill_playerchosen.yb_zhuzhan2(self,targets)
 end
 
 sgs.ai_card_intention.TenyearXianzhenCard = sgs.ai_card_intention.XianzhenCard
@@ -3868,11 +3930,11 @@ sgs.ai_skill_cardask["@tenyearzhuhai"] = function(self,data)
    	local target = self.room:getCurrent()
 	sgs.ai_skill_choice.tenyearzhuhai = "dismantlement="..target:objectName()
 	if self:isFriend(target)
-	and self:canDisCard(target,"ej")
+	and self:doDisCard(target,"ej")
   	then return true end
 	if self:isEnemy(target)
 	and not self:isWeak(target)
-	and self:canDisCard(target)
+	and self:doDisCard(target)
   	then return true end
 	sgs.ai_skill_choice.tenyearzhuhai = "slash="..target:objectName()
     return self:isEnemy(target) and (self:isWeak(target) or self.player:getHandcardNum()>1)
@@ -4058,7 +4120,7 @@ sgs.ai_use_revises.TenyearJianying = function(self,card,use)
 end
 
 sgs.ai_can_damagehp.tenyearshibei = function(self,from,card,to)
-	return to:getMark("shibei")<1
+	return to:getMark("tenyearshibei-Clear")<1
 	and self:canLoseHp(from,card,to)
 	and to:getHp()>1
 end
@@ -4067,13 +4129,12 @@ sgs.ai_skill_defense.tenyearshibei = function(self,to)
 	return to:getMark("shibei")<1 and 1
 	or to:getMark("shibei")<2 and -3
 end
---[[
+
 addAiSkills("tenyearzhanjue").getTurnUseCard = function(self)
 	local fs = sgs.Sanguosha:cloneCard("duel")
 	fs:setSkillName("tenyearzhanjue")
   	for i,c in sgs.list(self.player:getHandcards())do
 		i = c:getEffectiveId()
-		self.player.speak("tenyearzhanjue:"..i)
 		if self.player:getMark("tenyearzhanjueIgnore_"..i.."-Clear")>0
 	   	then continue end
 		fs:addSubcard(c)
@@ -4087,7 +4148,6 @@ sgs.ai_use_revises.tenyearzhanjue = function(self,card,use)
 	if card:getSkillName()=="tenyearzhanjue"
 	then
 		for _,ep in sgs.list(self.enemies)do
-			self.player.speak("tenyearzhanjue2")
 			if use.to and CanToCard(card,self.player,ep,use.to)
 			and getCardsNum("Slash",ep,self.player)<1
 			then
@@ -4098,7 +4158,7 @@ sgs.ai_use_revises.tenyearzhanjue = function(self,card,use)
 		return use.card==card
 	end
 end
-]]
+
 addAiSkills("tenyearqinwang").getTurnUseCard = function(self)
 	if self.room:getLieges("shu",self.player):length()>0
 	then
@@ -4125,19 +4185,19 @@ sgs.ai_skill_playerschosen.tenyearxiansi = function(self,targets,max_num,min_num
   	for i,p in sgs.list(targets)do
 		if #tos>=max_num then break end
 		if self:isFriend(p)
-		and self:canDisCard(p,"e")
+		and self:doDisCard(p,"e")
 		then table.insert(tos,p) end
 	end
   	for i,p in sgs.list(targets)do
 		if #tos>=max_num then break end
 		if self:isEnemy(p)
-		and self:canDisCard(p,"he")
+		and self:doDisCard(p,"he")
 		then table.insert(tos,p) end
 	end
   	for i,p in sgs.list(targets)do
 		if #tos>=max_num then break end
 		if not self:isFriend(p)
-		and self:canDisCard(p,"he")
+		and self:doDisCard(p,"he")
 		and not table.contains(tos,p)
 		then table.insert(tos,p) end
 	end
@@ -4393,8 +4453,7 @@ end
 addAiSkills("tenyearfencheng").getTurnUseCard = function(self)
 	local can = 0
 	for _,ep in sgs.list(self.enemies)do
-		if self:isWeak(ep)
-		then can = can+1 end
+		if self:isWeak(ep) then can = can+1 end
 	end
 	if can<#self.enemies/2 then return end
 	return sgs.Card_Parse("@TenyearFenchengCard=.")
@@ -4411,8 +4470,7 @@ sgs.ai_skill_use_func["TenyearFenchengCard"] = function(card,use,self)
 		end
 	end
 	for _,ep in sgs.list(self.room:getOtherPlayers(self.player))do
-		if not self:isEnemy(ep)
-		and self:isEnemy(ep:getNextAlive())
+		if not self:isEnemy(ep) and self:isEnemy(ep:getNextAlive())
 		then
 			use.card = card
 			if use.to then use.to:append(fp) end

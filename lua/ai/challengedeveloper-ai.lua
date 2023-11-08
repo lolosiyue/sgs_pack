@@ -497,7 +497,7 @@ end
 sgs.ai_skill_use_func.DevNiniCard = function(card,use,self)
 	self:sort(self.enemies,"handcard")
 	for _,p in sgs.list(self.enemies)do
-		if not self.player:canPindian(p) or self:doNotDiscard(p,"h") then continue end
+		if not(self.player:canPindian(p) and self:doDisCard(p,"h")) then continue end
 		use.card = sgs.Card_Parse("@DevNiniCard=.")
 		if use.to then use.to:append(p) end return
 	end
@@ -529,12 +529,12 @@ sgs.ai_skill_use["@@dev_gengxin"] = function(self,prompt)
 	local x = {}
 	local enemies,friends = {},{}
 	for _,p in sgs.list(self.enemies)do
-		if p:getWeapon() and self.player:canDiscard(p,p:getEquip(0):getEffectiveId()) and not self:doNotDiscard(p,"e") then
+		if p:getWeapon() and self.player:canDiscard(p,p:getEquip(0):getEffectiveId()) and self:doDisCard(p,"e") then
 			table.insert(enemies,p)
 		end
 	end
 	for _,p in sgs.list(self.friends)do
-		if p:getWeapon() and self.player:canDiscard(p,p:getEquip(0):getEffectiveId()) and (p:hasSkills(sgs.lose_equip_skill) or self:doNotDiscard(p,"e")) then
+		if p:getWeapon() and self.player:canDiscard(p,p:getEquip(0):getEffectiveId()) and (p:hasSkills(sgs.lose_equip_skill) or self:doDisCard(p,"e")) then
 			table.insert(friends,p)
 		end
 	end
@@ -628,7 +628,7 @@ end
 sgs.ai_skill_invoke.dev_meihuo = function(self,data)
 	local target = data:toPlayer()
 	if target then
-		return self:canDraw() and not self:isFriend(target) and (not self:doNotDiscard(target,"h") or
+		return self:canDraw() and not self:isFriend(target) and (self:doDisCard(target,"h") or
 		(target:getHp()==1 and target:getHandcardNum()==1 and not hasBuquEffect(target)))
 	else
 		local use = data:toCardUse()
@@ -923,7 +923,7 @@ sgs.ai_skill_invoke.dev_jiaoqi = function(self,data)
 	local target = self.room:findPlayerByObjectName(strs[2])
 	if not target or target:isDead() then return false end
 	if strs[1]=="discard" then
-		return self:isEnemy(target) and not self:doNotDiscard(target,"e")
+		return self:isEnemy(target) and self:doDisCard(target,"e")
 	elseif strs[1]=="jink" then
 		return self:isEnemy(target)
 	end

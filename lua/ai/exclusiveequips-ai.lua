@@ -122,7 +122,7 @@ end
 sgs.ai_skill_choice._xishu = function(self,choices)
 	local items = choices:split("+")
 	if table.contains(items,"judge")
-	and self:canDisCard(self.player,"j")
+	and self:doDisCard(self.player,"j")
 	then return "judge" end
 	if table.contains(items,"discard")
 	then return "discard" end

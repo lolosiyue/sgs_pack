@@ -141,24 +141,22 @@ keshenghuju = sgs.CreateTriggerSkill{
 			local effect = data:toSlashEffect()
 			if effect.to:isAlive() and effect.from:hasSkill(self:objectName()) then
 				if player:askForSkillInvoke(self:objectName(), data) then
-					if not effect.from:isYourFriend(effect.to) then room:setPlayerFlag(effect.from,"wantusekeshenghuju") end
 					local slash = room:askForCard(effect.from,"slash","shenghuju-slash", data,sgs.Card_MethodResponse)
 					if slash then
 						room:broadcastSkillInvoke(self:objectName())
-						room:setPlayerFlag(player,"keshenghuju")
+						room:setCardFlag(effect.slash,"keshenghuju")
 						room:slashResult(effect,nil)
 					end
-					room:setPlayerFlag(effect.from,"-wantusekeshenghuju")
 				end
 			end
 		end
 		if event == sgs.ConfirmDamage then
 			local damage = data:toDamage()
-			if damage.card and damage.card:isKindOf("Slash") and damage.from:hasFlag("keshenghuju") then
+			if damage.card and damage.card:isKindOf("Slash") and damage.card:hasFlag("keshenghuju") then
 				local hurt = damage.damage
 				damage.damage = hurt + 1
-				room:setPlayerFlag(player,"-keshenghuju")
 				data:setValue(damage)
+				room:writeToConsole("t1")
 			end
 		end
 	end,
@@ -206,8 +204,9 @@ keshenghuixueCard = sgs.CreateSkillCard{
 	end,
 	on_use = function(self, room, player, targets)
 		local target = targets[1]
-		if player:isYourFriend(target) then room:setPlayerFlag(player,"huixuehuixue") end
+		room:setPlayerFlag(target, "keshenghuixueTarget")
 		local result = room:askForChoice(player,"keshenghuixue","huixue+shanghai")
+		room:setPlayerFlag(target, "-keshenghuixueTarget")
 		if result == "huixue" then
 			if not (player:isKongcheng()) then
 				if not room:askForDiscard(player, self:objectName(), 1, 1, false, false, "shenghuixue-discard") then
@@ -224,15 +223,25 @@ keshenghuixueCard = sgs.CreateSkillCard{
 				end
 			end
 			room:broadcastSkillInvoke(self:objectName())
-			room:recover(player, sgs.RecoverStruct())
-			room:recover(target, sgs.RecoverStruct())
+			local recover = sgs.RecoverStruct()
+			recover.who = player
+			room:recover(player, recover)
+			room:recover(target, recover)
 		end
 		if result == "shanghai" then
 			room:broadcastSkillInvoke(self:objectName())
 			room:loseHp(player, 1,true)
+			if player:isAlive() then
 			room:damage(sgs.DamageStruct(self:objectName(), player, target))
-			player:drawCards(1)
-			target:drawCards(1)
+			else
+				room:damage(sgs.DamageStruct(self:objectName(), nil, target))
+			end
+			if player:isAlive() then
+				player:drawCards(1)
+			end
+			if target:isAlive() then
+				target:drawCards(1)
+			end
 		end
 		room:setPlayerFlag(player,"-huixuehuixue")
 	end
@@ -295,7 +304,7 @@ keshengzhuihun = sgs.CreateTriggerSkill{
 		if (event == sgs.ConfirmDamage) then
 			local room = player:getRoom()
 		    local damage = data:toDamage()
-			if player:hasSkill(self:objectName()) and (damage.card:isKindOf("Slash") or damage.card:isKindOf("Duel")) 
+			if player:hasSkill(self:objectName()) and damage.card and (damage.card:isKindOf("Slash") or damage.card:isKindOf("Duel")) 
 			and (damage.from:objectName() == player:objectName()) and (player:getPhase() == sgs.Player_Play) and (not damage.to:isKongcheng())then
 				local hurt = damage.damage                   
 				damage.damage = hurt + player:getMark("&keshengzhuihun")
@@ -373,16 +382,13 @@ keshengjiuzhu = sgs.CreateTriggerSkill{
 		local dying = data:toDying()
 		local to_data = sgs.QVariant()
 		to_data:setValue(dying.who)
-		if player:isYourFriend(dying.who) then room:setPlayerFlag(player,"wantusekeshengjiuzhu") end
-		local will_use = room:askForSkillInvoke(player, self:objectName(), to_data)
-		if will_use then
+		if room:askForSkillInvoke(player, self:objectName(), to_data) then
 			room:removePlayerMark(player,"@shengjiuzhu")
 			local recover = sgs.RecoverStruct()
 			recover.who = dying.who
 			recover.recover = 3
 			room:recover(dying.who, recover)
 		end
-		room:setPlayerFlag(player,"-wantusekeshengjiuzhu")
 	end
 }
 keshengzhaoyun:addSkill(keshengjiuzhu)

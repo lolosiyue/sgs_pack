@@ -5,7 +5,7 @@ end
 
 sgs.ai_skill_use["@@qianlong"] = function(self,prompt)
 	self.qianlong_use = false
-	local yuqi_help = self.player:getTag("qianlong_forAI"):toString():split("+")
+	local yuqi_help = self.player:getTag("qianlongForAI"):toIntList()
 	local n1,n2 = {},{}
 	for c,id in sgs.list(yuqi_help)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -264,7 +264,7 @@ sgs.ai_skill_choice.luochong = function(self,choices)
 		end
 		for _,to in sgs.list(self.friends_noself)do
 			self.luochong_to = to
-			if self:canDisCard(to,"e")
+			if self:doDisCard(to,"e")
 			then return "recover" end
 		end
 		for _,to in sgs.list(self.enemies)do
@@ -459,7 +459,7 @@ sgs.ai_skill_invoke.tenyeardeshao = function(self,data)
 	then
 		return not self:isFriend(target)
 		or target:getHandcardNum()<=self.player:getHandcardNum()
-		or self:canDisCard(target,"e")
+		or self:doDisCard(target,"e")
 	end
 end
 
@@ -509,10 +509,10 @@ end
 sgs.ai_skill_cardchosen.liejie = function(self,who,flags,method)
 	if self:isFriend(who)
 	then
-		if self:canDisCard(who,"e")
+		if self:doDisCard(who,"e")
 		then
 			for _,e in sgs.list(who:getEquipsId())do
-				if self:canDisCard(who,e)
+				if self:doDisCard(who,e)
 				then return e end
 			end
 		end
@@ -544,7 +544,7 @@ sgs.ai_skill_playerchosen.tuoxian = function(self,players)
 	local n = self.player:getChangeSkillState("piaoping")
 	for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"ej")
+		and self:doDisCard(target,"ej")
 		and self.player:getMark("&piaoping_trigger-Clear")<3
 		then return target end
 	end
@@ -564,7 +564,7 @@ sgs.ai_skill_use["@@tuoxian"] = function(self,prompt)
 	for i,c in sgs.list(n1)do
 		i = c:getEffectiveId()
 		if #n2>=self.player:getMark("tuoxian_discard") then break end
-		if self:canDisCard(self.player,i) then table.insert(n2,i) end
+		if self:doDisCard(self.player,i) then table.insert(n2,i) end
 	end
 	for i,c in sgs.list(n1)do
 		i = c:getEffectiveId()
@@ -657,7 +657,7 @@ sgs.ai_skill_invoke.sushou = function(self,data)
 end
 
 sgs.ai_skill_use["@@sushou"] = function(self,prompt)
-	local yuqi_help = self.player:getTag("sushou_forAI"):toString():split("+")
+	local yuqi_help = self.player:getTag("sushouForAI"):toIntList()
 	local n1,n2 = {},{}
 	for c,id in sgs.list(yuqi_help)do
 		table.insert(n1,sgs.Sanguosha:getCard(id))
@@ -773,14 +773,14 @@ sgs.ai_skill_playerschosen.pingxi = function(self,players)
 	for _,target in sgs.list(destlist)do
 		if #tos>=n then break end
 		if self:isEnemy(target)
-		and self:canDisCard(target)
+		and self:doDisCard(target)
 		then table.insert(tos,target) end
 	end
 	self:sort(destlist,"card",true)
 	for _,target in sgs.list(destlist)do
 		if #tos>=n then break end
 		if self:isFriend(target)
-		and self:canDisCard(target,"ej")
+		and self:doDisCard(target,"ej")
 		then table.insert(tos,target) end
 	end
 	self:sort(destlist,"card")
@@ -788,7 +788,7 @@ sgs.ai_skill_playerschosen.pingxi = function(self,players)
 		if #tos>=n then break end
 		if not self:isFriend(target)
 		and not table.contains(tos,target)
-		and self:canDisCard(target)
+		and self:doDisCard(target)
 		then table.insert(tos,target) end
 	end
 	for _,target in sgs.list(destlist)do
@@ -860,33 +860,30 @@ sgs.ai_skill_invoke.fanyin_targetfixed = function(self,data)
 end
 
 sgs.ai_skill_playerschosen.fanyin = function(self,players,x,n)
-	if sgs.lastevent==sgs.PreCardUsed
-	then
-		local tos = {}
-		self.player:setTag("yb_zhuzhan2_data",sgs.lasteventdata)
-		while true do
-			local to = sgs.ai_skill_playerchosen.yb_zhuzhan2(self,players)
-			if to and #tos<x
-			then
-				table.insert(tos,to)
-				players:removeOne(to)
-			else break end
-		end
-		return tos
+	local tos = {}
+	self.player:setTag("yb_zhuzhan2_data",self.player:getTag("fanyinData"))
+	while true do
+		local to = sgs.ai_skill_playerchosen.yb_zhuzhan2(self,players)
+		if to and #tos<x
+		then
+			table.insert(tos,to)
+			players:removeOne(to)
+		else break end
 	end
+	return tos
 end
 
 sgs.ai_skill_invoke.peiqi = function(self,data)
 	self.peiqiData = {}
 	for ejs,ep in sgs.list(self.friends)do
-		if self:canDisCard(ep,"ej")
+		if self:doDisCard(ep,"ej")
 		then
 			self.peiqiData.from = ep
 			ejs = ep:getCards("ej")
 			ejs = self:sortByKeepValue(ejs)
 			for i,ej in sgs.list(ejs)do
 				i = ej:getEffectiveId()
-				if self:canDisCard(ep,i)
+				if self:doDisCard(ep,i)
 				then
 					self.peiqiData.cid = i
 					for n,fp in sgs.list(self.enemies)do
@@ -906,14 +903,14 @@ sgs.ai_skill_invoke.peiqi = function(self,data)
 		end
 	end
 	for ejs,ep in sgs.list(self.enemies)do
-		if self:canDisCard(ep,"ej")
+		if self:doDisCard(ep,"ej")
 		then
 			self.peiqiData.from = ep
 			ejs = ep:getCards("ej")
 			ejs = self:sortByKeepValue(ejs,true)
 			for i,ej in sgs.list(ejs)do
 				i = ej:getEffectiveId()
-				if self:canDisCard(ep,i)
+				if self:doDisCard(ep,i)
 				then
 					self.peiqiData.cid = i
 					for n,fp in sgs.list(self.friends)do
@@ -933,7 +930,7 @@ sgs.ai_skill_invoke.peiqi = function(self,data)
 		end
 	end
 	for ejs,ep in sgs.list(self.room:getOtherPlayers(self.player))do
-		if self:canDisCard(ep,"ej")
+		if self:doDisCard(ep,"ej")
 		and not self:isFriend(ep)
 		then
 			self.peiqiData.from = ep
@@ -941,7 +938,7 @@ sgs.ai_skill_invoke.peiqi = function(self,data)
 			ejs = self:sortByKeepValue(ejs,true)
 			for i,ej in sgs.list(ejs)do
 				i = ej:getEffectiveId()
-				if self:canDisCard(ep,i)
+				if self:doDisCard(ep,i)
 				then
 					self.peiqiData.cid = i
 					for n,fp in sgs.list(self.friends)do
@@ -996,17 +993,17 @@ sgs.ai_skill_playerchosen.xiaoxinf = function(self,players)
 	self:sort(destlist,"hp")
 	for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"e")
+		and self:doDisCard(target,"e")
 		then return target end
 	end
 	for _,target in sgs.list(destlist)do
 		if self:isEnemy(target)
-		and self:canDisCard(target,"he")
+		and self:doDisCard(target,"he")
 		then return target end
 	end
 	for _,target in sgs.list(destlist)do
 		if not self:isFriend(target)
-		and self:canDisCard(target,"he")
+		and self:doDisCard(target,"he")
 		then return target end
 	end
 end
@@ -1411,7 +1408,7 @@ sgs.ai_skill_invoke.yingtu = function(self,data)
 		if not self:isFriend(target)
 		and not self:isEnemy(to)
 		then return true end
-		if self:canDisCard(target,"e")
+		if self:doDisCard(target,"e")
 		then return true end
 		if self:isFriend(target)
 		and self:isFriend(to)
@@ -1431,27 +1428,27 @@ sgs.ai_skill_playerchosen.tenyearpoyuan = function(self,players)
 	self:sort(destlist,"hp")
 	for _,target in sgs.list(destlist)do
 		if self:isFriend(target)
-		and self:canDisCard(target,"e")
+		and self:doDisCard(target,"e")
 		then return target end
 	end
 	for _,target in sgs.list(destlist)do
 		if self:isEnemy(target)
-		and self:canDisCard(target,"e")
+		and self:doDisCard(target,"e")
 		then return target end
 	end
 	for _,target in sgs.list(destlist)do
 		if not self:isFriend(target)
-		and self:canDisCard(target,"e")
+		and self:doDisCard(target,"e")
 		then return target end
 	end
 end
 
 sgs.ai_skill_cardchosen.tenyearpoyuan = function(self,who,flags,method)
-	if self:canDisCard(who,flags)
+	if self:doDisCard(who,flags)
 	then
 		for i,c in sgs.list(who:getCards(flags))do
 			i = c:getEffectiveId()
-			if self:canDisCard(who,i)
+			if self:doDisCard(who,i)
 			then return i end
 		end
 	end
@@ -1734,7 +1731,7 @@ end
 
 sgs.ai_skill_use_func["AnliaoCard"] = function(card,use,self)
 	for _,fp in sgs.list(self.friends)do
-		if self:canDisCard(fp,"e")
+		if self:doDisCard(fp,"e")
 		then
 			use.card = card
 			if use.to then use.to:append(fp) end
@@ -1752,7 +1749,7 @@ sgs.ai_skill_use_func["AnliaoCard"] = function(card,use,self)
 		end
 	end
 	for _,ep in sgs.list(self.enemies)do
-		if self:canDisCard(ep,"he")
+		if self:doDisCard(ep,"he")
 		then
 			use.card = card
 			if use.to then use.to:append(ep) end

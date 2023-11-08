@@ -428,7 +428,7 @@ sgs.ai_skill_use_func.MobileZhiDuojiCard = function(card,use,self)
 	self:sort(self.enemies,"equip")
 	self.enemies = sgs.reverse(self.enemies)
 	for _,p in ipairs(self.enemies)do
-		if not self:doNotDiscard(p,"e") and p:getEquips():length()>=2 then
+		if self:doDisCard(p,"e",true) and p:getEquips():length()>=2 then
 			sgs.ai_use_priority.MobileZhiDuojiCard = sgs.ai_use_priority.Slash+0.1
 			use.card = sgs.Card_Parse("@MobileZhiDuojiCard="..cards[1].."+"..cards[2])
 			if use.to then use.to:append(p) end
@@ -439,7 +439,7 @@ sgs.ai_skill_use_func.MobileZhiDuojiCard = function(card,use,self)
 		self:sort(self.friends_noself)
 		for _,p in ipairs(self.friends_noself)do
 			if p:getEquips():length()==1 and not (p:hasTreasure("wooden_ox") and not p:getPile("wooden_ox"):isEmpty()) then
-				if self:doNotDiscard(p,"e") or self:needToThrowArmor(p) then
+				if self:doDisCard(p,"e",true) then
 					use.card = sgs.Card_Parse("@MobileZhiDuojiCard="..cards[1].."+"..cards[2])
 					if use.to then use.to:append(p) end
 					return
@@ -555,7 +555,7 @@ mobilezhimiewu.name = "mobilezhimiewu"
 table.insert(sgs.ai_skills,mobilezhimiewu)
 mobilezhimiewu.getTurnUseCard = function(self)
     local cards = self:addHandPile("he")
-    cards = self:sortByKeepValue(cards,nil,true) -- 按保留值排序
+    cards = self:sortByKeepValue(cards,nil,"l") -- 按保留值排序
 	if #cards<1 then return end
     for _,name in sgs.list(patterns)do
         local card = dummyCard(name)
@@ -563,12 +563,12 @@ mobilezhimiewu.getTurnUseCard = function(self)
        	and card:isDamageCard()
 		then
 			if self:getCardsNum(card:getClassName())>1 and #cards>1 then continue end
-            card:addSubcard(cards[1])
             card:setSkillName("mobilezhimiewu")
+            card:addSubcard(cards[1])
          	local dummy = self:aiUseCard(card)
-			self.Miewudummy = dummy
-			if dummy.card and dummy.to
+			if dummy.card
 			then
+				self.Miewudummy = dummy
 				return sgs.Card_Parse("@MobileZhiMiewuCard="..cards[1]:getEffectiveId()..":"..name)
 			end
 		end
@@ -578,12 +578,12 @@ mobilezhimiewu.getTurnUseCard = function(self)
         if card and card:isAvailable(self.player)
 		then
 			if self:getCardsNum(card:getClassName())>1 and #cards>1 then continue end
-            card:addSubcard(cards[1])
             card:setSkillName("mobilezhimiewu")
+            card:addSubcard(cards[1])
          	local dummy = self:aiUseCard(card)
-			self.Miewudummy = dummy
-			if dummy.card and dummy.to
+			if dummy.card
 			then
+				self.Miewudummy = dummy
 	           	if card:canRecast() and dummy.to:length()<1 then continue end
 				return sgs.Card_Parse("@MobileZhiMiewuCard="..cards[1]:getEffectiveId()..":"..name)
 			end

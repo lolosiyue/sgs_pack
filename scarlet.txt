@@ -12,8 +12,8 @@ SevenWeiYuan
 ZhouYu_Four
 
 test:
-XiaoQiao_Plus
-SixJushou
+sheng
+yao
 leo
 
 
@@ -26,7 +26,7 @@ meizl
 leo
 
 ai:
-SixJushou
+
 
 code:
 self:isGoodTarget

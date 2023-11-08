@@ -813,10 +813,7 @@ olluanji_skill.getTurnUseCard = function(self)
 				archery:addSubcard(fcard)
 				archery:addSubcard(scard)
 				local dummy_use = self:aiUseCard(archery)
-				if dummy_use.card
-				then
-					return archery
-				end
+				if dummy_use.card then return archery end
 				archery:deleteLater()
 			end
 		end
@@ -1321,7 +1318,7 @@ sgs.ai_card_intention.OLZhibaPindianCard = 0
 
 sgs.ai_choicemade_filter.pindian.olzhiba_pindian = function(self,from,promptlist)
 	local number = sgs.Sanguosha:getCard(tonumber(promptlist[4])):getNumber()
-	local lord = findPlayerByObjectName(self.room,promptlist[5])
+	local lord = self.room:findPlayerByObjectName(promptlist[5])
 	if not lord then return end
 	local lord_max_card = self:getMaxCard(lord)
 	if lord_max_card and lord_max_card:getNumber()>=number then sgs.updateIntention(from,lord,-60)
@@ -1347,7 +1344,7 @@ sgs.ai_skill_invoke.olqiaomeng = function(self,data)
 		end
 		return false
 	end
-	return not self:doNotDiscard(player,"e")
+	return self:doDisCard(player,"e")
 end
 
 addAiSkills("olchangbiao").getTurnUseCard = function(self)
@@ -1476,14 +1473,14 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 	if #items>2
 	then
 		if self.olqiaobian_phase=="judge"
-		and self:canDisCard(self.player,"j")
+		and self:doDisCard(self.player,"j")
 		and self:getCardsNum("Nullification")<1
 		then can = true end
 		if self.olqiaobian_phase=="draw"
 		then
 			local n = 0
 			for _,ep in sgs.list(self.enemies)do
-				if self:canDisCard(ep,"h")
+				if self:doDisCard(ep,"h")
 				then n = n+1 end
 			end
 			can = n>1
@@ -1495,7 +1492,7 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 				self.olqiaobian_to = fp
 				for n,j in sgs.list(fp:getJudgingArea())do
 					if can then break end
-					if self:canDisCard(fp,j:getEffectiveId())
+					if self:doDisCard(fp,j:getEffectiveId())
 					then
 						self.olqiaobian_ej = j
 						for _,ep in sgs.list(self.enemies)do
@@ -1520,7 +1517,7 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 					self.olqiaobian_ej = e
 					n = e:getRealCard():toEquipCard():location()
 					for _,fp in sgs.list(self.friends)do
-						if self:canDisCard(ep,e:getEffectiveId())
+						if self:doDisCard(ep,e:getEffectiveId())
 						and not fp:getEquip(n)
 						then can = true end
 					end
@@ -1540,13 +1537,13 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 		end
 	else
 		if self.olqiaobian_phase=="judge"
-		and self:canDisCard(self.player,"j")
+		and self:doDisCard(self.player,"j")
 		then can = true end
 		if self.olqiaobian_phase=="draw"
 		then
 			local n = 0
 			for _,ep in sgs.list(self.enemies)do
-				if self:canDisCard(ep,"h")
+				if self:doDisCard(ep,"h")
 				then n = n+1 end
 			end
 			can = n>1
@@ -1558,7 +1555,7 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 				self.olqiaobian_to = fp
 				for n,j in sgs.list(fp:getJudgingArea())do
 					if can then break end
-					if self:canDisCard(fp,j:getEffectiveId())
+					if self:doDisCard(fp,j:getEffectiveId())
 					then
 						self.olqiaobian_ej = j
 						for _,ep in sgs.list(self.enemies)do
@@ -1583,7 +1580,7 @@ sgs.ai_skill_choice.olqiaobian = function(self,choices)
 					self.olqiaobian_ej = e
 					n = e:getRealCard():toEquipCard():location()
 					for _,fp in sgs.list(self.friends)do
-						if self:canDisCard(ep,e:getEffectiveId())
+						if self:doDisCard(ep,e:getEffectiveId())
 						and not fp:getEquip(n)
 						then can = true end
 					end
@@ -1611,7 +1608,7 @@ sgs.ai_skill_use["@@olqiaobian"] = function(self,prompt)
 	for _,p in sgs.list(destlist)do
 		if #valid>=n then break end
 		self.olqiaobian_phase = p
-		if self:isEnemy(p) and n>1 and self:canDisCard(p,"h")
+		if self:isEnemy(p) and n>1 and self:doDisCard(p,"h")
 		then table.insert(valid,p:objectName()) continue end
 		if n<2 and self.olqiaobian_to:objectName()==p:objectName()
 		then table.insert(valid,p:objectName()) continue end
@@ -1620,13 +1617,13 @@ sgs.ai_skill_use["@@olqiaobian"] = function(self,prompt)
 		if #valid>=n then break end
 		if table.contains(valid,p:objectName()) then continue end
 		self.olqiaobian_phase = p
-		if not self:isFriend(p) and n>1 and self:canDisCard(p,"h")
+		if not self:isFriend(p) and n>1 and self:doDisCard(p,"h")
 		then table.insert(valid,p:objectName()) continue end
 		if n<2 and self.olqiaobian_to:objectName()==p:objectName()
 		then table.insert(valid,p:objectName()) continue end
-		if self:isFriend(p) and n<2 and self:canDisCard(p,"ej")
+		if self:isFriend(p) and n<2 and self:doDisCard(p,"ej")
 		then table.insert(valid,p:objectName()) continue end
-		if not self:isFriend(p) and n<2 and self:canDisCard(p,"e")
+		if not self:isFriend(p) and n<2 and self:doDisCard(p,"e")
 		then table.insert(valid,p:objectName()) continue end
 	end
 	if #valid>0
