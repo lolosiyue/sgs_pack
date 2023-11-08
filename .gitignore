@@ -1,2 +1,3 @@
 config.ini
 /lua/ai/data/*
+*.bak
