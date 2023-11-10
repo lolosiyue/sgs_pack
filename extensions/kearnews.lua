@@ -3682,7 +3682,7 @@ kechenniangex = sgs.CreateTriggerSkill{
 		end
 		if event == sgs.DamageForseen then
 			local damage = data:toDamage()
-			if damage.card and (damage.from:getMark("&kechenniang")>0) and (not damage.chain) then
+			if damage.card and damage.from and (damage.from:getMark("&kechenniang")>0) and (not damage.chain) then
 				local hurt = damage.damage
 				damage.damage = hurt + 1
 				data:setValue(damage)
@@ -3690,7 +3690,7 @@ kechenniangex = sgs.CreateTriggerSkill{
 		end
 		if event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.card:hasFlag("kenewpaoxiaocard") then
+			if damage.card and damage.card:hasFlag("kenewpaoxiaocard") then
 				room:setCardFlag(damage.card, "-kenewpaoxiaocard")
 			end
 		end
@@ -4060,7 +4060,7 @@ ketwopaomuex = sgs.CreateTriggerSkill{
 	global = true,
 	frequency = sgs.Skill_Compulsory,
 	events = {sgs.BuryVictim},
-	on_trigger = function(self, event, player, data)
+	on_trigger = function(self, event, player, data, room)
 		local death = data:toDeath()
 		local damage = death.damage
 		if damage then

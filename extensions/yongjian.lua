@@ -2579,7 +2579,7 @@ ZhongdanOnTrigger = sgs.CreateTriggerSkill{
 		elseif event==sgs.CardsMoveOneTime
 		then
 			local move = data:toMoveOneTime()
-			if bit32.band(move.reason.m_reason,sgs.CardMoveReason_S_MASK_BASIC_REASON) == sgs.CardMoveReason_S_REASON_DISCARD
+			if move.from and bit32.band(move.reason.m_reason,sgs.CardMoveReason_S_MASK_BASIC_REASON) == sgs.CardMoveReason_S_REASON_DISCARD
 			and move.from:objectName()==player:objectName()
 			then
 				for i,id in sgs.list(move.card_ids)do

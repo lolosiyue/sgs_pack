@@ -686,6 +686,7 @@ sgs.ai_guhuo_card.zhenshan = function(self,toname,class_name)
    	local poi = sgs.Sanguosha:cloneCard(toname)
 	if not poi then return end
 	poi:deleteLater()
+    self.player:speak("zhenshan1")
   	for _,p in sgs.list(self.room:getOtherPlayers(self.player))do
 		if not self:isEnemy(p)
 		and p:getHandcardNum()<self.player:getHandcardNum()
@@ -695,6 +696,7 @@ sgs.ai_guhuo_card.zhenshan = function(self,toname,class_name)
 	and self:getCardsNum(class_name)<1
 	and not self.player:hasFlag("ZhenshanUsed")
     then
+        self.player:speak("zhenshan2")
         return "@ZhenshanCard=.:"..toname
 	end
 end
@@ -708,6 +710,7 @@ addAiSkills("zhenshan").getTurnUseCard = function(self)
 	end
 	if not can
 	then return end
+    self.player:speak("zhenshan3")
    	for _,name in sgs.list(patterns)do
    		local poi = sgs.Sanguosha:cloneCard(name)
 		if not poi then continue end
@@ -720,6 +723,7 @@ addAiSkills("zhenshan").getTurnUseCard = function(self)
 	       	if dummy.card
            	and dummy.to
 	       	then
+                self.player:speak("zhenshan4")
 				self.zhenshan_to = dummy.to
 				local parse = sgs.Card_Parse("@ZhenshanCard=.:"..name)
                 assert(parse)
@@ -731,6 +735,7 @@ end
 
 sgs.ai_skill_use_func["ZhenshanCard"] = function(card,use,self)
 	use.card = card
+    self.player:speak("zhenshan5")
    	if use.to then use.to = self.zhenshan_to end
 end
 

@@ -2329,7 +2329,7 @@ WmKongmingdeng = sgs.CreateTriggerSkill{
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:getDefensiveHorse():objectName() == "_wm_kongmingdeng"
+		return player and player:getDefensiveHorse() and  player:getDefensiveHorse():objectName() == "_wm_kongmingdeng"
 	end,
 }
 if not sgs.Sanguosha:getSkill("WmKongmingdeng") then skills:append(WmKongmingdeng) end
@@ -2346,7 +2346,7 @@ WmHuoshou = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		local damage = data:toDamage()
 		if event == sgs.DamageCaused then
-			if damage.from:objectName() == player:objectName() and player:getOffensiveHorse():objectName() == "_wm_huoshou"
+			if damage.from and damage.from:objectName() == player:objectName() and player:getOffensiveHorse() and player:getOffensiveHorse():objectName() == "_wm_huoshou"
 			and damage.to:objectName() ~= player:objectName() and damage.to:getArmor() ~= nil then
 				if room:askForSkillInvoke(player, self:objectName(), data) then
 					sgs.Sanguosha:playAudioEffect("audio/skill/_wm_huoshou.ogg", false)

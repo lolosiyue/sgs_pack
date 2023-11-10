@@ -1606,6 +1606,7 @@ f_zhiquu = sgs.CreateTriggerSkill{
 		        local use = data:toCardUse()
 				local di = room:findPlayerBySkillName("f_zhiqu")
 			    if not di then return false end
+				if not use.card then return false end
 				if use.card:isBlack() then
 				    room:sendCompulsoryTriggerLog(di, "f_zhiqu")
 			        room:broadcastSkillInvoke("f_zhiqu", 1)
@@ -1618,7 +1619,7 @@ f_zhiquu = sgs.CreateTriggerSkill{
 		end
 	end,
 	can_trigger = function(self, player)
-	    return player:getMark("&mark_zhanshan") > 0
+	    return player and player:getMark("&mark_zhanshan") > 0
 	end,
 }
 f_shendengai:addSkill(f_zhiqu)
@@ -8522,7 +8523,7 @@ fcj_kannanBUFF = sgs.CreateTriggerSkill{
 	    local room = player:getRoom()
 		if event == sgs.ConfirmDamage then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:getMark("&fcj_kannan") > 0 then
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:getMark("&fcj_kannan") > 0 then
 				local jly = room:findPlayerBySkillName("fcj_kannan")
 				if not jly then return false end
 				room:sendCompulsoryTriggerLog(jly, "fcj_kannan")

@@ -4758,7 +4758,7 @@ function getKnownCards(player, from, flags, suit)
 	flags = flags or "h"
 	if flags:match("h")
 	then
-		InsertList(gs, player:getHandcards())
+		--InsertList(gs, player:getHandcards())
 		if flags:match("&")
 		then
 			for _,id in sgs.qlist(player:getHandPile())do

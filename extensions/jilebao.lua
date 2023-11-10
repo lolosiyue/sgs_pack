@@ -16213,7 +16213,7 @@ jlBingfenOnTrigger = sgs.CreateTriggerSkill{
 	frequency = sgs.Skill_Compulsory,
 	can_trigger = function(self,target)
 		if table.contains(sgs.Sanguosha:getBanPackages(),"jl_bingfen") or sgs.jl_bingfen then 
-		else return target and target:getOwner()==target end
+		else return target  end
 	end,
 	on_trigger = function(self,event,player,data,room)
 		local log = sgs.LogMessage()

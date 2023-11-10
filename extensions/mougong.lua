@@ -83,7 +83,7 @@ mouliegongg = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.TargetConfirmed then
 		    local use = data:toCardUse()
-			if not use.from:hasSkill(self:objectName()) or player:objectName() ~= use.from:objectName() or use.to:length() ~= 1 or not use.card:isKindOf("Slash") then return false end
+			if not use.from or not use.from:hasSkill(self:objectName()) or player:objectName() ~= use.from:objectName() or use.to:length() ~= 1 or not use.card:isKindOf("Slash") then return false end
 			if room:askForSkillInvoke(player, self:objectName(), data) then
 				room:broadcastSkillInvoke(self:objectName())
 				local x = -1
@@ -314,7 +314,7 @@ mouliegongf = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.TargetConfirmed then
 		    local use = data:toCardUse()
-			if not use.from:hasSkill(self:objectName()) or player:objectName() ~= use.from:objectName() or (use.to:length() ~= 1 and not player:hasFlag("mouliegongf_RMtargetlimit")) or not use.card:isKindOf("Slash") then return false end
+			if not use.from or not use.from:hasSkill(self:objectName()) or player:objectName() ~= use.from:objectName() or (use.to:length() ~= 1 and not player:hasFlag("mouliegongf_RMtargetlimit")) or not use.card:isKindOf("Slash") then return false end
 			if room:askForSkillInvoke(player, self:objectName(), data) then
 				room:broadcastSkillInvoke(self:objectName())
 				local x = -1
@@ -2425,7 +2425,7 @@ mouxiejii = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.card:getSkillName() == "mouxiejiiS" and damage.from:objectName() == player:objectName() and player:hasSkill(self:objectName()) then
+			if damage.card and damage.card:getSkillName() == "mouxiejiiS" and damage.from:objectName() == player:objectName() and player:hasSkill(self:objectName()) then
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:drawCards(player, damage.damage, self:objectName())
 			end
@@ -3930,7 +3930,7 @@ fcquediDamage = sgs.CreateTriggerSkill{
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
-		if not damage.card:isKindOf("Slash") and not damage.card:isKindOf("Duel") then return false end
+		if not damage.card or (not damage.card:isKindOf("Slash") and not damage.card:isKindOf("Duel")) then return false end
 		if not damage.card:hasFlag("fcquediDamage") then return false end
 		damage.damage = damage.damage + 1
 		data:setValue(damage)
@@ -4153,7 +4153,7 @@ fcchongjianPFandPE = sgs.CreateTriggerSkill{
 			player:setFlags("-fcchongjianPFfrom")
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.to:getEquips():length() == 0 or damage.card:getSkillName() ~= "fcchongjian" or not player:hasSkill("fcchongjian") then return false end
+			if not damge.card and damage.to:getEquips():length() == 0 or damage.card:getSkillName() ~= "fcchongjian" or not player:hasSkill("fcchongjian") then return false end
 			local cj = damage.damage
 			local n = 0
 			local ec1 = room:askForCardChosen(player, damage.to, "e", "fcchongjian")
@@ -5405,7 +5405,7 @@ mouqiaoshii = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.Damaged then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() or damage.to:objectName() ~= player:objectName()
+			if damage.from and damage.from:objectName() == player:objectName() or damage.to:objectName() ~= player:objectName()
 			or not player:hasSkill(self:objectName()) or player:getMark(self:objectName()) > 0 or not player:isAlive() then return false end
 			if room:askForSkillInvoke(damage.from, "@mouqiaoshii_RecoverHer", data) then
 				room:recover(player, sgs.RecoverStruct(player, nil, damage.damage))

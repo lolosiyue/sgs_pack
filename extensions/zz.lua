@@ -91,11 +91,11 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
         end
         if t.Record[package][name] then
             t.Record[package][name][2] = t.Record[package][name][2] + 1
-            t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
+            --t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][2] = t.Record[package2][name2][2] + 1
-            t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
+            --t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
         end
     end
 

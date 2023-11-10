@@ -586,14 +586,14 @@ f_mobile_chat_normal = sgs.CreateTriggerSkill{
 			end
 		elseif event == sgs.Dying then
 			local dying = data:toDying()
-			if dying.who:objectName() == player:objectName() and player:getHp() < 0 and player:getHandCardNum() < 3
+			if dying.who:objectName() == player:objectName() and player:getHp() < 0 and player:getHandcardNum() < 3
 			and math.random() > 0.95 then
 				p:speak("完了，芭比Q了")
 			end
 		elseif event == sgs.AskForPeachesDone then
 			local dying = data:toDying()
 			if dying.who:objectName() == player:objectName() and player:getHp() <= 0
-			and dying.damage.from and dying.damage.from:objectName() ~= player:objectName() then
+			and dying.damage and dying.damage.from and dying.damage.from:objectName() ~= player:objectName() then
 				if dying.damage.from:getMark("nglmy_" .. player:objectName()) >= 3 then
 					room:removePlayerMark(dying.damage.from, "nglmy_" .. player:objectName(), 3)
 					dying.damage.from:speak("闹够了没有")
@@ -783,8 +783,10 @@ f_mobile_chat_general = sgs.CreateTriggerSkill{
 							table.insert(zhangjiaos, p)
 						end
 					end
-					local zhangjiao = zhangjiaos[math.random(1, #zhangjiaos)]
-					zhangjiao:speak("杀我")
+					if #zhangjiaos > 0 then
+						local zhangjiao = zhangjiaos[math.random(1, #zhangjiaos)]
+						zhangjiao:speak("杀我")
+					end
 				end
 				if (player:getGeneralName() == "machao" or player:getGeneral2Name() == "machao") and player:getMark("mtx_tqwx") == 0 then
 					local xzc = player:getNextAlive()
@@ -828,8 +830,8 @@ f_mobile_chat_general = sgs.CreateTriggerSkill{
 					end
 					room:addPlayerMark(player, "ojwy_scqzd")
 				end
-				if (player:getGeneralName() == "yuanshao" or player:getGeneral2Name() == "yuanshao") and player:getHandCardNum() >= 6 then
-					local ys = player:getHandCardNum()
+				if (player:getGeneralName() == "yuanshao" or player:getGeneral2Name() == "yuanshao") and player:getHandcardNum() >= 6 then
+					local ys = player:getHandcardNum()
 					if math.random() <= ys/30 then
 						player:speak("袁神，启动！")
 					end
@@ -846,7 +848,7 @@ f_mobile_chat_general = sgs.CreateTriggerSkill{
 					end
 				end
 				if isSpecialOne(player, "神刘备") and player:hasSkill("longnu") then
-					if player:getHandCardNum() > 6 and math.random() > 0.8 then
+					if player:getHandcardNum() > 6 and math.random() > 0.8 then
 						player:speak("准备收场了我")
 					end
 				end
@@ -918,7 +920,7 @@ f_mobile_chat_general = sgs.CreateTriggerSkill{
 				end
 				if ((player:getGeneralName() == "lvmeng" or player:getGeneral2Name() == "lvmeng")
 				or (player:getGeneralName() == "ol_lvmeng" or player:getGeneral2Name() == "ol_lvmeng"))
-				and player:getHandCardNum() >= 10 and player:getMark("jlm_kjmw") == 0 then
+				and player:getHandcardNum() >= 10 and player:getMark("jlm_kjmw") == 0 then
 					player:speak("知道什么叫后期英雄吗")
 					room:getThread():delay()
 					local chenlin = 0

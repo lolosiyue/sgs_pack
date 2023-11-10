@@ -10,8 +10,9 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "jikang"
+choose_general = "quancong"
 debug = 0
+wait = 1
 
 user_input = ""
 #1920*1080 125%
@@ -200,7 +201,7 @@ for run in range(num_test_runs):
             print(f"Test run {run+1} completed.")
             time.sleep(2)
             # Ask the user to press any key to continue or '0' to exit
-            if debug == 1:
+            if debug == 1 or wait == 1:
                 user_input = input("Press any key to continue or '0' to exit: ")
             time.sleep(1)
             cmd_title = "CMD"

@@ -6651,7 +6651,7 @@ OlSanshows = sgs.CreateTriggerSkill{
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:getArmor():isKindOf("OlSanshou") and ArmorNotNullified(player)
+		return player and player:getArmor() and player:getArmor():isKindOf("OlSanshou") and ArmorNotNullified(player)
 	end,
 }
 olsanshouCardUsed = sgs.CreateTriggerSkill{
@@ -9803,7 +9803,7 @@ by_guanghan = sgs.CreateTriggerSkill{
 			end
 		end
 		local q = player:getNextAlive()
-		if q:objectName() ~= last:objectName() and not isSpecialOne(q, "嫦娥") then
+		if last and q:objectName() ~= last:objectName() and not isSpecialOne(q, "嫦娥") then
 			naxt = q
 		end
 		if last == nil and naxt == nil then return false end

@@ -3580,7 +3580,7 @@ f_xingyuans = sgs.CreateTriggerSkill{ --解锁特殊形态
 			end
 		elseif event == sgs.DamageCaused then --判定蓝色妖姬
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
+			if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName()
 			and player:hasFlag("f_xingyuan_bluck-slash") then
 			room:setPlayerFlag(damage.to, "f_xingyuan_bluckTarget") end
 		elseif event == sgs.Dying then --暴风赤红
@@ -3916,7 +3916,7 @@ red_jufengBuff = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.ConfirmDamage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and damage.card:isRed() and damage.card:isKindOf("TrickCard") then
+			if damage.from and damage.card and damage.from:objectName() == player:objectName() and damage.card:isRed() and damage.card:isKindOf("TrickCard") then
 				room:sendCompulsoryTriggerLog(player, "red_jufeng")
 				room:broadcastSkillInvoke("red_jufeng")
 				damage.damage = damage.damage + 1
@@ -4054,8 +4054,8 @@ bfch_xdlyzAMX = sgs.CreateTriggerSkill{
 		local room = player:getRoom()
 		if event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and player:hasSkill("bfch_xdlyz")
-			and damage.card:isKindOf("Slash") and damage.card:getSkillName() == "bfch_xdlyz" then
+			if damage.from and damage.from:objectName() == player:objectName() and player:hasSkill("bfch_xdlyz")
+			and damage.card and damage.card:isKindOf("Slash") and damage.card:getSkillName() == "bfch_xdlyz" then
 				room:addPlayerMark(player, "&bfch_xdlyz", damage.damage)
 			end
 		elseif event == sgs.EventPhaseEnd then
@@ -7034,8 +7034,8 @@ f_mouliegong = sgs.CreateTriggerSkill{
 		    local damage = data:toDamage()
 			local xhy = damage.damage
 			local n = player:getMark("f_mouliegong_MoreDamage")
-			if damage.to:hasFlag("f_mouliegongTarget") and damage.card:isKindOf("Slash") then
-				if player:objectName() == damage.from:objectName() and player:getMark("f_mouliegong_MoreDamage") > 0 then
+			if damage.card and damage.to:hasFlag("f_mouliegongTarget") and damage.card:isKindOf("Slash") then
+				if damage.from and player:objectName() == damage.from:objectName() and player:getMark("f_mouliegong_MoreDamage") > 0 then
 					local log = sgs.LogMessage()
 					log.type = "$f_mouliegongBUFF"
 					log.from = player
@@ -7374,7 +7374,7 @@ Fchixierens = sgs.CreateTriggerSkill{
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
-		if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:isWounded() then
+		if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and player:isWounded() then
 			if room:askForSkillInvoke(player, self:objectName(), data) then
 				local recover = damage.damage
 				room:recover(player, sgs.RecoverStruct(player, nil, recover))
@@ -7410,7 +7410,7 @@ Fmorigongs = sgs.CreateTriggerSkill{
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local damage = data:toDamage()
-		if damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and damage.to then
+		if damage.card and damage.card:isKindOf("Slash") and damage.from:objectName() == player:objectName() and damage.to then
 			if room:askForSkillInvoke(player, self:objectName(), data) then
 				room:loseHp(damage.to, damage.damage)
 				return true
