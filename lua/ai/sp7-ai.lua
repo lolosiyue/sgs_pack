@@ -1088,17 +1088,19 @@ end
 sgs.ai_skill_choice.zhanmeng = function(self,choices,data)
 	local items = choices:split("+")
 	local use = data:toCardUse()
-	if table.contains(items,"last")
-	then return "last"
-	elseif table.contains(items,"next")
-	then
-		if self.player:getMark("@extra_turn")>0
+	if use.card then 
+		if table.contains(items,"last")
+		then return "last"
+		elseif table.contains(items,"next")
 		then
-			if self:getCardsNum(use.card:getClassName())>0
-			then return "next" end
-		else
-			if getCardsNum(use.card:getClassName(),self.room:getCurrent():getNextAlive(),self.player)>0
-			then return "next" end
+			if self.player:getMark("@extra_turn")>0
+			then
+				if self:getCardsNum(use.card:getClassName())>0
+				then return "next" end
+			else
+				if getCardsNum(use.card:getClassName(),self.room:getCurrent():getNextAlive(),self.player)>0
+				then return "next" end
+			end
 		end
 	end
 	if table.contains(items,"discard")

@@ -1,5 +1,5 @@
 extension = sgs.Package("zz")
-local debug = false
+local debug = true
 savedata = "save.json" --存档
 readData = function()
     local json = require "json"

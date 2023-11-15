@@ -10,6 +10,7 @@ plusRende
 PlusGuidao --pindian
 SevenWeiYuan
 ZhouYu_Four
+keshengzhaoyun
 
 test:
 sheng
@@ -37,6 +38,8 @@ hasHeavyDamage(from, card, to, nature)
 changeTranslation
 needToLoseHp
 evaluatePlayerRole
+SlashMissed  -> sgs.CardOffset sgs.CardOnEffect 
+
 
 p:hasSkills(sgs.recover_skill)
 

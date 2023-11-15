@@ -10,8 +10,8 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "quancong"
-debug = 0
+choose_general = "kejieshenggongsunzan"
+debug = 1
 wait = 1
 
 user_input = ""

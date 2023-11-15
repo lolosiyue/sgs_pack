@@ -8695,7 +8695,11 @@ meizlmengshilongclear = sgs.CreateTriggerSkill {
 			end
 		end
 		for _, p in sgs.qlist(room:getAllPlayers()) do
-			room:detachSkillFromPlayer(p, "meizlmengshilongmaxcard")
+			if p:getMark("&meizlmengshilong+to+#" .. player:objectName()) > 0 then
+				room:setPlayerMark(p, "&meizlmengshilong+to+#" .. player:objectName(), 0)
+				room:setPlayerMark(p, "@meizlmengshilong", 0)
+				room:detachSkillFromPlayer(p, "meizlmengshilongmaxcard")
+			end
 		end
 	end,
 	can_trigger = function(self, target)

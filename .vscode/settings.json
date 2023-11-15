@@ -1,0 +1,9 @@
+{
+    "Lua.diagnostics.globals": [
+        "sgs"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "lowercase-global"
+    ]
+}
