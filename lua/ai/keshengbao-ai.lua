@@ -47,7 +47,7 @@ sgs.ai_skill_invoke.kejieshengganen = function(self, data)
 end
 
 sgs.ai_skill_choice.kejieshengganen = function(self, choices, data)
-	if self.player:isWeak() or self.player:getHp() < getBestHp(self.player) then return "huixue" end
+	if self:isWeak() or self.player:getHp() < getBestHp(self.player) then return "huixue" end
 	return "mopai"
 end
 

@@ -2,14 +2,14 @@
 
 --电脑有一定概率更换皮肤
 sgs.ai_skill_invoke.mobileGOD_SkinChange = function(self, data)
-    if math.random() > 0.5 then return true end
+	if math.random() > 0.5 then return true end
 	return false
 end
 ----
 
 --==手杀神武将AI==--
 --界神郭嘉
-  --“慧识”AI
+--“慧识”AI
 local f_huishi_skill = {}
 f_huishi_skill.name = "f_huishi"
 table.insert(sgs.ai_skills, f_huishi_skill)
@@ -19,48 +19,48 @@ f_huishi_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#f_huishiCard"] = function(card, use, self)
-    if not self.player:hasUsed("#f_huishiCard") and self.player:getMaxHp() < 10 then
-        use.card = card
-	    return
+	if not self.player:hasUsed("#f_huishiCard") and self.player:getMaxHp() < 10 then
+		use.card = card
+		return
 	end
 end
 
 sgs.ai_skill_choice["@f_huishiAdd"] = function(self, choices, data)
-    if self.player:isWounded() then return "hp" end
+	if self.player:isWounded() then return "hp" end
 	return "mhp"
 end
 
 sgs.ai_skill_choice["@f_huishiLose"] = function(self, choices, data)
-    if self.player:getMaxHp() <= 1 then return "hp" end
+	if self.player:getMaxHp() <= 1 then return "hp" end
 	if self.player:isWounded() and self.player:getMaxHp() > 2 then return "mhp" end
 	return "hp"
 end
 
 sgs.ai_skill_invoke["@f_huishi_continue"] = true
 
-    --“慧识”给牌
+--“慧识”给牌
 sgs.ai_skill_playerchosen["f_huishi"] = function(self, targets)
-    local targets = sgs.QList2Table(targets)
+	local targets = sgs.QList2Table(targets)
 	self:sort(self.friends_noself)
 	for _, p in ipairs(self.friends_noself) do --如果自己手牌足够又有队友手牌不够，给队友
 		if self:isFriend(p) and p:getHandcardNum() < 3 and self.player:getHandcardNum() > self.player:getMaxHp() then
 			return p
 		end
 	end
-    return self.player
+	return self.player
 end
 
 sgs.ai_use_value.f_huishiCard = 8.5
 sgs.ai_use_priority.f_huishiCard = 9.5
 sgs.ai_card_intention.f_huishiCard = -80
 
-  --“天翊”AI（印卡就不写了，影响到玩家体验也不好）
+--“天翊”AI（印卡就不写了，影响到玩家体验也不好）
 sgs.ai_skill_playerchosen["@f_tianyi"] = function(self, targets)
-    targets = sgs.QList2Table(targets)
+	targets = sgs.QList2Table(targets)
 	return self.player
 end
 
-  --“辉逝”AI
+--“辉逝”AI
 local f_huishii_skill = {}
 f_huishii_skill.name = "f_huishii"
 table.insert(sgs.ai_skills, f_huishii_skill)
@@ -70,8 +70,8 @@ f_huishii_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#f_huishiiCard"] = function(card, use, self)
-    if self.player:getMark("@f_huishii") > 0 and self.player:getMaxHp() >= 5 and self.player:getMark("f_tianyi") > 0 then
-        use.card = card
+	if self.player:getMark("@f_huishii") > 0 and self.player:getMaxHp() >= 5 and self.player:getMark("f_tianyi") > 0 then
+		use.card = card
 		if use.to then use.to:append(self.player) end
 		return
 	end
@@ -88,14 +88,14 @@ sgs.ai_card_intention.f_huishiiCard = -99
 --
 
 --界神荀彧
-  --锦囊【奇正相生】（正兵与奇兵的智能用法已写进锦囊里，但也不够智能；无懈AI在smart-ai.lua里）
-    --使用AI
+--锦囊【奇正相生】（正兵与奇兵的智能用法已写进锦囊里，但也不够智能；无懈AI在smart-ai.lua里）
+--使用AI
 function SmartAI:useCardFqizhengxiangsheng(card, use)
 	for _, enemy in ipairs(self.enemies) do
 		if self:objectiveLevel(enemy) > 0 and not self.player:isProhibited(enemy, card) then
 			use.card = card
 			if use.to then use.to:append(enemy) end
-		    return
+			return
 		end
 	end
 end
@@ -105,42 +105,46 @@ sgs.ai_use_value.Fqizhengxiangsheng = 8.5
 sgs.ai_use_priority.Fqizhengxiangsheng = 9.5
 sgs.ai_card_intention.Fqizhengxiangsheng = 80
 
-  --“天佐”AI（无脑）
+--“天佐”AI（无脑）
 sgs.ai_skill_invoke.f_tianzuo = true
 
-  --“定汉”AI（仅主动增加对自己有益锦囊的记录）
+--“定汉”AI（仅主动增加对自己有益锦囊的记录）
 sgs.ai_skill_invoke.f_dinghanMR = function(self, data)
-    if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return false end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return false end
 	return true
 end
 
 sgs.ai_skill_choice.f_dinghan = function(self, choices, data)
-    if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return "cancel" end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return
+		"cancel" end
 	return "addtrickcard"
 end
 
 sgs.ai_skill_choice["@f_dinghan1"] = function(self, choices, data) --不包括“无懈可击”，因为本身具有挡锦囊的能力
-    if self.player:getMark("dzxj") > 0 or (self:getCardsNum("ExNihilo") > 0 and self:getCardsNum("Dongzhuxianji") == 0) then return "wzsy" end
+	if self.player:getMark("dzxj") > 0 or (self:getCardsNum("ExNihilo") > 0 and self:getCardsNum("Dongzhuxianji") == 0) then return
+		"wzsy" end
 	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 then return "wgfd" end
-	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 then return "tyjy" end
-	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return "cancel" end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 then return
+		"tyjy" end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return
+		"cancel" end
 	return "dzxj"
 end
 
 --神太史慈-第二版
-  --“破围”AI
+--“破围”AI
 sgs.ai_skill_choice.f_poweii = function(self, choices, data)
 	return "2"
 end
 
-  --“神著”AI
+--“神著”AI
 sgs.ai_skill_choice.f_shenzhuoo = function(self, choices, data)
 	if self:getCardsNum("Slash") == 0 then return "2" end
 	return "1"
 end
 
 --界神孙策
-  --“英霸”AI
+--“英霸”AI
 local imba_skill = {}
 imba_skill.name = "imba"
 table.insert(sgs.ai_skills, imba_skill)
@@ -150,14 +154,14 @@ imba_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#imbaCard"] = function(card, use, self)
-    if not self.player:hasUsed("#imbaCard") and self.player:getMaxHp() > 2 then
+	if not self.player:hasUsed("#imbaCard") and self.player:getMaxHp() > 2 then
 		self:sort(self.enemies)
-	    self.enemies = sgs.reverse(self.enemies)
+		self.enemies = sgs.reverse(self.enemies)
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 and enemy:getMaxHp() > 1 then
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 and enemy:getMaxHp() > 1 then
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 	end
@@ -167,21 +171,21 @@ sgs.ai_use_value.imbaCard = 8.5
 sgs.ai_use_priority.imbaCard = 9.5
 sgs.ai_card_intention.imbaCard = 80
 
-  --“冯河”AI（鉴定为：春春的芝长）
+--“冯河”AI（鉴定为：春春的芝长）
 sgs.ai_skill_playerchosen.f_pingheDefuseDamage = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isFriend(p) then
-		    return p
+		if self:isFriend(p) then
+			return p
 		end
 	end
 end
 
 --张仲景-测试初版
-  --“疗疫”AI
-    --待补充。
+--“疗疫”AI
+--待补充。
 
-  --“病论”AI
+--“病论”AI
 --[[local f_binglun_skill = {}
 f_binglun_skill.name = "f_binglun"
 table.insert(sgs.ai_skills, f_binglun_skill)
@@ -218,14 +222,14 @@ sgs.ai_skill_choice.f_binglun = function(self, choices, data)
 end
 
 --海外服神吕蒙
-  --“涉猎”AI
+--“涉猎”AI
 sgs.ai_skill_invoke.osshelie = true
 
 sgs.ai_skill_choice.osshelie = function(self, choices, data)
 	return "1"
 end
 
-  --“攻心”AI
+--“攻心”AI
 local osgongxin_skill = {}
 osgongxin_skill.name = "osgongxin"
 table.insert(sgs.ai_skills, osgongxin_skill)
@@ -258,7 +262,7 @@ sgs.ai_skill_askforag.osgongxin = function(self, card_ids)
 	repeat
 		nextAlive = nextAlive:getNextAlive()
 	until nextAlive:faceUp()
-	
+
 	local peach, ex_nihilo, jink, nullification, slash
 	local valuable
 	for _, id in ipairs(card_ids) do
@@ -334,9 +338,12 @@ sgs.ai_skill_askforag.osgongxin = function(self, card_ids)
 	if not tricks:isEmpty() and not nextAlive:containsTrick("YanxiaoCard") then
 		local trick = tricks:at(tricks:length() - 1)
 		if self:hasTrickEffective(trick, nextAlive) then
-			if trick:isKindOf("Lightning") then hasLightning = true
-			elseif trick:isKindOf("Indulgence") then hasIndulgence = true
-			elseif trick:isKindOf("SupplyShortage") then hasSupplyShortage = true
+			if trick:isKindOf("Lightning") then
+				hasLightning = true
+			elseif trick:isKindOf("Indulgence") then
+				hasIndulgence = true
+			elseif trick:isKindOf("SupplyShortage") then
+				hasSupplyShortage = true
 			end
 		end
 	end
@@ -419,7 +426,7 @@ sgs.ai_card_intention.osgongxinCard = 80
 
 --==十周年神武将AI==--
 --神张飞
-  --“神裁”AI
+--“神裁”AI
 local tyshencai_skill = {}
 tyshencai_skill.name = "tyshencai"
 table.insert(sgs.ai_skills, tyshencai_skill)
@@ -429,22 +436,22 @@ tyshencai_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#tyshencaiCard"] = function(card, use, self)
-    if self.player:getMark("tyshencai") <= self.player:getMark("&tyshencaiAdd") then
-        self:sort(self.enemies)
-	    self.enemies = sgs.reverse(self.enemies)
+	if self.player:getMark("tyshencai") <= self.player:getMark("&tyshencaiAdd") then
+		self:sort(self.enemies)
+		self.enemies = sgs.reverse(self.enemies)
 		for _, enemy in ipairs(self.enemies) do --优先找没有“神裁”相关标记的(“死”标记除外)
-		    if self:objectiveLevel(enemy) > 0 and (enemy:getMark("&tyscCHI") == 0 and enemy:getMark("&tyscZHANG") == 0
-			and enemy:getMark("&tyscTU") == 0 and enemy:getMark("&tyscLIU") == 0) then
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 and (enemy:getMark("&tyscCHI") == 0 and enemy:getMark("&tyscZHANG") == 0
+					and enemy:getMark("&tyscTU") == 0 and enemy:getMark("&tyscLIU") == 0) then
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 then
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 then
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 	end
@@ -458,23 +465,23 @@ sgs.ai_card_intention.tyshencaiCard = 80
 --
 
 --神张角
-  --“三首”AI
+--“三首”AI
 sgs.ai_skill_invoke.tysanshou = function(self, data)
 	local damage = data:toDamage()
 	return not self:isFriend(damage.from)
 end
 ---
-  --“三首(装备)”AI
+--“三首(装备)”AI
 sgs.ai_use_priority.OlSanshou = 0.66
 sgs.ai_skill_invoke["OlSanshow"] = function(self, data)
 	local damage = data:toDamage()
 	return not self:isFriend(damage.from)
 end
 
-  --“肆军”AI
+--“肆军”AI
 sgs.ai_skill_invoke.tysijun = true
 ----
-  --“肆军(OL版)”AI
+--“肆军(OL版)”AI
 sgs.ai_skill_invoke.olsijun = true
 
 --神邓艾（“摧心”AI已在lua里体现，原则是确保是在上下家都是敌人的情况下发动；其余无）
@@ -489,25 +496,28 @@ sgs.ai_skill_invoke.olsijun = true
 
 --==OL神武将AI==--
 --神曹丕
-  --“储元”AI
+--“储元”AI
 sgs.ai_skill_invoke.olchuyuan = function(self, data)
 	local player = data:toPlayer()
 	if self.player:getPile("powerful"):length() == 2 then
-		if self.player:hasSkill("oldengji") and self.player:getMark("oldengji") <= 0 then return self.player:getMaxHp() > 1 end
-		if self.player:hasSkill("oltianxing") and self.player:getMark("oltianxing") <= 0 then return self.player:getMaxHp() > 1 end
+		if self.player:hasSkill("oldengji") and self.player:getMark("oldengji") <= 0 then return self.player:getMaxHp() >
+			1 end
+		if self.player:hasSkill("oltianxing") and self.player:getMark("oltianxing") <= 0 then return self.player
+			:getMaxHp() > 1 end
 	end
 	if self:doNotDiscard(player, "h") then
-	return false end
+		return false
+	end
 	return true
 end
 
 sgs.ai_skill_discard.olchuyuan = function(self, discard_num, min_num, optional, include_equip)
 	local cards = sgs.QList2Table(self.player:getCards("h"))
 	self:sortByKeepValue(cards)
-	return {cards[1]:getEffectiveId()}
+	return { cards[1]:getEffectiveId() }
 end
 
-  --“天行”AI
+--“天行”AI
 sgs.ai_skill_choice.oltianxing = function(self, choices, data)
 	local skills = choices:split("+")
 	local skillss = {}
@@ -520,20 +530,21 @@ sgs.ai_skill_choice.oltianxing = function(self, choices, data)
 end
 
 --神甄姬
-  --“神赋”AI
+--“神赋”AI
 function isOddInteger(int)
-	return math.ceil(int/2) - math.floor(int/2) == 1
+	return math.ceil(int / 2) - math.floor(int / 2) == 1
 end
 
 function isEvenInteger(int)
-	return math.ceil(int/2) - math.floor(int/2) == 0
+	return math.ceil(int / 2) - math.floor(int / 2) == 0
 end
 
 sgs.ai_skill_playerchosen.olshenfu = function(self, targets)
 	if isOddInteger(self.player:getHandcardNum()) then
 		local enemies = {}
 		for _, target in sgs.qlist(targets) do
-			if target:isAlive() and self:isEnemy(target) and self:damageIsEffective(target, sgs.DamageStruct_Thunder) then table.insert(enemies, target) end
+			if target:isAlive() and self:isEnemy(target) and self:damageIsEffective(target, sgs.DamageStruct_Thunder) then
+				table.insert(enemies, target) end
 		end
 		self:sort(enemies, "hp")
 		return enemies[1]
@@ -545,7 +556,7 @@ sgs.ai_skill_playerchosen.olshenfu = function(self, targets)
 				table.insert(firstpriority, target)
 			else
 				if target:isAlive() and self:isFriend(target) or (self:isEnemy(target) and not target:isKongcheng())
-				or (self:isEnemy(target) and target:hasSkill("kongcheng") and target:isKongcheng()) then
+					or (self:isEnemy(target) and target:hasSkill("kongcheng") and target:isKongcheng()) then
 					table.insert(tos, target)
 				end
 			end
@@ -589,20 +600,21 @@ end
 
 --==欢乐杀神武将AI==--
 --神孙权
-  --“劝学”AI（给标记的部分写在武将技能里，但仅限于斗地主模式）
+--“劝学”AI（给标记的部分写在武将技能里，但仅限于斗地主模式）
 sgs.ai_skill_invoke.joyquanxue = true
 
-  --AI应对移除“学”标记的智能选择
+--AI应对移除“学”标记的智能选择
 sgs.ai_skill_choice.joyquanxue = function(self, choices, data)
-    if self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and self:getCardsNum("Analeptic") == 0 then return "1" end
-	if self:getCardsNum("Slash") == 0 and self:getCardsNum("Peach") == 0 and self:getCardsNum("TrickCard") == 0 and self:getCardsNum("EquipCard") == 0 then return "1" end
+	if self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and self:getCardsNum("Analeptic") == 0 then return "1" end
+	if self:getCardsNum("Slash") == 0 and self:getCardsNum("Peach") == 0 and self:getCardsNum("TrickCard") == 0 and self:getCardsNum("EquipCard") == 0 then return
+		"1" end
 	return "2"
 end
 
-  --“鼎立”AI
+--“鼎立”AI
 sgs.ai_skill_use["@@joydingliSK"] = function(self, prompt)
 	local card = sgs.Card_Parse("#joydingliSKCard:.:")
-	local dummy_use = {isDummy = true}
+	local dummy_use = { isDummy = true }
 	self:useSkillCard(card, dummy_use)
 	if dummy_use.card then return (dummy_use.card):toString() .. "->." end
 	return "."
@@ -617,7 +629,7 @@ joydingliSK_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#joydingliSKCard"] = function(card, use, self)
-    use.card = card
+	use.card = card
 	return
 end
 
@@ -628,14 +640,14 @@ sgs.ai_card_intention.joydingliSKCard = -100
 --
 
 --神张辽
-  --“夺锐”AI
+--“夺锐”AI
 sgs.ai_skill_invoke.joyduorui = true
 
 sgs.ai_skill_playerchosen.joyduorui = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
@@ -648,7 +660,7 @@ end
 --
 
 --神典韦
-  --“神卫”AI（无脑给自己套盾）
+--“神卫”AI（无脑给自己套盾）
 --sgs.ai_skill_invoke.joyshenwei = true
 sgs.ai_skill_invoke.joyshenwei = function(self, data)
 	if self.player:getMark("&joyWEI") > 0 then return false end
@@ -657,17 +669,17 @@ end
 
 sgs.ai_skill_invoke["@joyshenweiMoveDamage"] = true --无脑转移
 
-  --“恶来”AI
+--“恶来”AI
 sgs.ai_skill_choice.joyelai = function(self, choices, data)
-    if self.player:getHp() <= 1 then return "1" end
+	if self.player:getHp() <= 1 then return "1" end
 	return "2"
 end
 
 sgs.ai_skill_playerchosen.joyelai = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) and self:inMyAttackRange(p) then
-		    return p 
+		if self:isEnemy(p) and self:inMyAttackRange(p) then
+			return p
 		end
 	end
 	return nil
@@ -678,19 +690,19 @@ end
 --
 
 --神华佗
-  --“济世”AI（单救自己，要是能救别人属实是太ex人了）
+--“济世”AI（单救自己，要是能救别人属实是太ex人了）
 sgs.ai_skill_invoke.joyjishi = function(self, data)
 	if self.player:getMark("&joyMedicine") > 0 and self.player:hasFlag("Global_Dying") then return true end
 	return false
 end
 
-  --“桃仙”AI
+--“桃仙”AI
 sgs.ai_view_as.joytaoxian = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
 	if card_place ~= sgs.Player_PlaceSpecial and card:getSuit() == sgs.Card_Heart
-	and player:getMark("Global_PreventPeach") == 0 then
+		and player:getMark("Global_PreventPeach") == 0 then
 		return ("peach:joytaoxian[%s:%s]=%d"):format(suit, number, card_id)
 	end
 end
@@ -708,29 +720,30 @@ end
 --
 
 --神貂蝉
-  --“魅魂”AI
+--“魅魂”AI
 sgs.ai_skill_invoke.joymeihun = true
 
 sgs.ai_skill_playerchosen.joymeihun = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do --先找牌多的
-	    if self:isEnemy(p) and not p:isNude() and p:getHandcardNum() + p:getEquips():length() > 4 then
-		    return p 
+		if self:isEnemy(p) and not p:isNude() and p:getHandcardNum() + p:getEquips():length() > 4 then
+			return p
 		end
 	end
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) and not p:isNude() then
-		    return p 
+		if self:isEnemy(p) and not p:isNude() then
+			return p
 		end
 	end
 	return nil
 end
 
-  --“惑心”AI
-    --AI应对
+--“惑心”AI
+--AI应对
 sgs.ai_skill_choice.joyhuoxin = function(self, choices, data)
-    if self.player:getHandcardNum() + self.player:getEquips():length() > 4 then return "lh" or "ld" or "lc" or "ls" end
-	return "gh=" .. jsdc:objectName() or "gd=" .. jsdc:objectName() or "gc=" .. jsdc:objectName() or "gs=" .. jsdc:objectName()
+	if self.player:getHandcardNum() + self.player:getEquips():length() > 4 then return "lh" or "ld" or "lc" or "ls" end
+	return "gh=" .. jsdc:objectName() or "gd=" .. jsdc:objectName() or "gc=" .. jsdc:objectName() or
+	"gs=" .. jsdc:objectName()
 end
 
 
@@ -738,17 +751,17 @@ end
 --
 
 --神-大乔&小乔
-  --“双姝”AI
+--“双姝”AI
 sgs.ai_skill_invoke.joyshuangshu = true
 
-  --“娉婷”AI
+--“娉婷”AI
 sgs.ai_skill_invoke.joypinting = true
 
 sgs.ai_skill_choice.joypinting = function(self, choices, data)
 	return not "cancel"
 end
 
-  --“移筝”AI
+--“移筝”AI
 sgs.ai_skill_invoke.joyyizheng = false
 
 
@@ -758,13 +771,13 @@ sgs.ai_skill_invoke.joyyizheng = false
 --
 
 --神关羽
-  --“武神”AI
+--“武神”AI
 sgs.ai_view_as.joywushen = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
 	local card_id = card:getEffectiveId()
 	if card_place ~= sgs.Player_PlaceSpecial and card_place ~= sgs.Player_PlaceEquip
-	and card:getSuit() == sgs.Card_Heart and not card:isKindOf("Peach") and not card:hasFlag("using") then
+		and card:getSuit() == sgs.Card_Heart and not card:isKindOf("Peach") and not card:hasFlag("using") then
 		return ("slash:joywushen[%s:%s]=%d"):format(suit, number, card_id)
 	end
 end
@@ -809,7 +822,7 @@ function sgs.ai_cardneed.joywushen(to, card)
 	return card:getSuit() == sgs.Card_Heart
 end
 
-  --“武魂”AI
+--“武魂”AI
 --sgs.ai_chaofeng.joy_shenguanyu = -5
 
 sgs.ai_skill_playerchosen.joywuhun = function(self, targets)
@@ -830,7 +843,7 @@ sgs.ai_skill_playerchosen.joywuhun = function(self, targets)
 end
 
 --神吕蒙
-  --“攻心”AI
+--“攻心”AI
 sgs.ai_skill_invoke.joygongxin = function(self, data)
 	local target = data:toPlayer()
 	return not self:isFriend(target)
@@ -844,7 +857,7 @@ sgs.ai_skill_askforag.joygongxin = function(self, card_ids)
 	repeat
 		nextAlive = nextAlive:getNextAlive()
 	until nextAlive:faceUp()
-	
+
 	local peach, ex_nihilo, jink, nullification, slash
 	local valuable
 	for _, id in ipairs(card_ids) do
@@ -920,9 +933,12 @@ sgs.ai_skill_askforag.joygongxin = function(self, card_ids)
 	if not tricks:isEmpty() and not nextAlive:containsTrick("YanxiaoCard") then
 		local trick = tricks:at(tricks:length() - 1)
 		if self:hasTrickEffective(trick, nextAlive) then
-			if trick:isKindOf("Lightning") then hasLightning = true
-			elseif trick:isKindOf("Indulgence") then hasIndulgence = true
-			elseif trick:isKindOf("SupplyShortage") then hasSupplyShortage = true
+			if trick:isKindOf("Lightning") then
+				hasLightning = true
+			elseif trick:isKindOf("Indulgence") then
+				hasIndulgence = true
+			elseif trick:isKindOf("SupplyShortage") then
+				hasSupplyShortage = true
 			end
 		end
 	end
@@ -998,7 +1014,7 @@ end
 --
 
 --嫦娥
-  --“捣药”AI
+--“捣药”AI
 local joydaoyao_skill = {}
 joydaoyao_skill.name = "joydaoyao"
 table.insert(sgs.ai_skills, joydaoyao_skill)
@@ -1024,10 +1040,14 @@ joydaoyao_skill.getTurnUseCard = function(self)
 		end
 	elseif not self.player:getEquips():isEmpty() then
 		local player = self.player
-		if player:getWeapon() then card_id = player:getWeapon():getId()
-		elseif player:getOffensiveHorse() then card_id = player:getOffensiveHorse():getId()
-		elseif player:getDefensiveHorse() then card_id = player:getDefensiveHorse():getId()
-		elseif player:getArmor() and player:getHandcardNum() <= 1 then card_id = player:getArmor():getId()
+		if player:getWeapon() then
+			card_id = player:getWeapon():getId()
+		elseif player:getOffensiveHorse() then
+			card_id = player:getOffensiveHorse():getId()
+		elseif player:getDefensiveHorse() then
+			card_id = player:getDefensiveHorse():getId()
+		elseif player:getArmor() and player:getHandcardNum() <= 1 then
+			card_id = player:getArmor():getId()
 		end
 	end
 	if not card_id then
@@ -1043,14 +1063,14 @@ joydaoyao_skill.getTurnUseCard = function(self)
 		end
 	end
 	if not card_id then
-	    return nil
+		return nil
 	else
-	    return sgs.Card_Parse("#joydaoyaoCard:"..card_id..":")
+		return sgs.Card_Parse("#joydaoyaoCard:" .. card_id .. ":")
 	end
 end
 
 sgs.ai_skill_use_func["#joydaoyaoCard"] = function(card, use, self)
-    if not self.player:hasUsed("#joydaoyaoCard") and not self.player:isKongcheng() then
+	if not self.player:hasUsed("#joydaoyaoCard") and not self.player:isKongcheng() then
 		use.card = card
 		return
 	end
@@ -1061,9 +1081,9 @@ sgs.ai_use_priority.joydaoyaoCard = 9.5
 sgs.ai_card_intention.joydaoyaoCard = -80
 
 --神周瑜
-  --“琴音”AI
+--“琴音”AI
 sgs.ai_skill_invoke.joyqinyin = function(self, data)
-    self:sort(self.friends, "hp")
+	self:sort(self.friends, "hp")
 	self:sort(self.enemies, "hp")
 	local up = 0
 	local down = 0
@@ -1103,7 +1123,7 @@ sgs.ai_skill_invoke.joyqinyin = function(self, data)
 		end
 	end
 	if self:isWeak() and self.player:getCards("he"):length() >= 2 then
-	    sgs.ai_skill_choice.joyqinyin = "r"
+		sgs.ai_skill_choice.joyqinyin = "r"
 		return true
 	end
 	if down > 0 then
@@ -1113,42 +1133,42 @@ sgs.ai_skill_invoke.joyqinyin = function(self, data)
 		sgs.ai_skill_choice.joyqinyin = "r"
 		return true
 	else
-	    if not self:isWeak() then
-	        sgs.ai_skill_choice.joyqinyin = "l" --SK神周瑜：我要报复社会！欢乐神周瑜：老哥，加我一个呗。
-		    return true
+		if not self:isWeak() then
+			sgs.ai_skill_choice.joyqinyin = "l" --SK神周瑜：我要报复社会！欢乐神周瑜：老哥，加我一个呗。
+			return true
 		end
-	--else sgs.ai_skill_choice.joyqinyin = "cancel"
+		--else sgs.ai_skill_choice.joyqinyin = "cancel"
 	end
 	return false
 end
 
-  --“业炎”AI
+--“业炎”AI
 sgs.ai_skill_invoke.joyyeyan = true
 
 sgs.ai_skill_playerchosen.joyyeyan = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) and (p:getHp() <= 1 or (p:hasSkill("kongcheng") or p:hasSkill("bazhen"))) then
-		    return p 
+		if self:isEnemy(p) and (p:getHp() <= 1 or (p:hasSkill("kongcheng") or p:hasSkill("bazhen"))) then
+			return p
 		end
 	end
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 end
 --
 
 --神诸葛亮
-  --“狂风”AI
+--“狂风”AI
 sgs.ai_skill_use["@@joykuangfeng"] = function(self, prompt)
 	local targets, stars = {}, self.player:getPile("stars"):length()
 	if #self.enemies == 0 or stars == 0 then return "." end
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if stars > 0 and self:objectiveLevel(enemy) > 0 --[[and self:isWeak(enemy)]] and not enemy:hasSkill("buqu")
-		and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码
+			and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码
 			table.insert(targets, enemy:objectName())
 			stars = stars - 1
 		end
@@ -1166,7 +1186,7 @@ end
 
 sgs.ai_card_intention["#joykuangfengCard"] = 100
 
-  --“大雾”AI
+--“大雾”AI
 sgs.ai_skill_use["@@joydawu"] = function(self, prompt)
 	if self.player:getPile("stars"):isEmpty() then return "." end
 	if self.player:getHp() + self.player:getHandcardNum() < 3 or self.player:getHp() <= 1 or self.player:isKongcheng() then
@@ -1182,7 +1202,7 @@ sgs.ai_card_intention["#joydawuCard"] = -99
 
 --==小程序神武将AI==--
 --神关羽
-  --“武神”AI
+--“武神”AI
 sgs.ai_view_as.wxwushen = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
@@ -1218,8 +1238,8 @@ wxwushen_skill.getTurnUseCard = function(self, inclusive)
 	self:sort(self.enemies, "defense")
 	if self.player:hasSkill("nuzhan") then
 		for _, enemy in ipairs(self.enemies) do
-			if  not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange()
-			and getCardsNum("Jink", enemy) < 1 then
+			if not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange()
+				and getCardsNum("Jink", enemy) < 1 then
 				nuzhan_equip_e = true
 				break
 			end
@@ -1236,7 +1256,7 @@ wxwushen_skill.getTurnUseCard = function(self, inclusive)
 	self:sort(self.enemies, "defense")
 	if self.player:hasSkill("nuzhan") and not self.player:hasFlag("hasUsedSlash") and self:getCardsNum("Slash") > 1 then
 		for _, enemy in ipairs(self.enemies) do
-			if  not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() then
+			if not enemy:hasArmorEffect("EightDiagram") and self.player:distanceTo(enemy) <= self.player:getAttackRange() then
 				nuzhan_trick_e = true
 				break
 			end
@@ -1291,7 +1311,7 @@ end
 --
 
 --神吕蒙
-  --“攻心”AI
+--“攻心”AI
 local wxgongxin_skill = {}
 wxgongxin_skill.name = "wxgongxin"
 table.insert(sgs.ai_skills, wxgongxin_skill)
@@ -1324,7 +1344,7 @@ sgs.ai_skill_askforag.wxgongxin = function(self, card_ids)
 	repeat
 		nextAlive = nextAlive:getNextAlive()
 	until nextAlive:faceUp()
-	
+
 	local peach, ex_nihilo, jink, nullification, slash
 	local valuable
 	for _, id in ipairs(card_ids) do
@@ -1400,9 +1420,12 @@ sgs.ai_skill_askforag.wxgongxin = function(self, card_ids)
 	if not tricks:isEmpty() and not nextAlive:containsTrick("YanxiaoCard") then
 		local trick = tricks:at(tricks:length() - 1)
 		if self:hasTrickEffective(trick, nextAlive) then
-			if trick:isKindOf("Lightning") then hasLightning = true
-			elseif trick:isKindOf("Indulgence") then hasIndulgence = true
-			elseif trick:isKindOf("SupplyShortage") then hasSupplyShortage = true
+			if trick:isKindOf("Lightning") then
+				hasLightning = true
+			elseif trick:isKindOf("Indulgence") then
+				hasIndulgence = true
+			elseif trick:isKindOf("SupplyShortage") then
+				hasSupplyShortage = true
 			end
 		end
 	end
@@ -1481,11 +1504,11 @@ sgs.ai_card_intention.wxgongxinCard = 80
 --
 
 --神诸葛亮
- --原版
-  --“七星”AI
+--原版
+--“七星”AI
 sgs.ai_skill_invoke.wxqixing = true
 
-  --“祭风”AI
+--“祭风”AI
 local wxjifeng_skill = {}
 wxjifeng_skill.name = "wxjifeng"
 table.insert(sgs.ai_skills, wxjifeng_skill)
@@ -1507,14 +1530,14 @@ wxjifeng_skill.getTurnUseCard = function(self)
 		end
 	end
 	if not card_id then
-	    return nil
+		return nil
 	else
-	    return sgs.Card_Parse("#wxjifengCard:"..card_id..":")
+		return sgs.Card_Parse("#wxjifengCard:" .. card_id .. ":")
 	end
 end
 
 sgs.ai_skill_use_func["#wxjifengCard"] = function(card, use, self)
-    if not self.player:hasUsed("#wxjifengCard") and not self.player:isKongcheng() then
+	if not self.player:hasUsed("#wxjifengCard") and not self.player:isKongcheng() then
 		use.card = card
 		return
 	end
@@ -1524,14 +1547,14 @@ sgs.ai_use_value.wxjifengCard = 8.5
 sgs.ai_use_priority.wxjifengCard = 9.5
 sgs.ai_card_intention.wxjifengCard = -80
 
-  --“天罚”AI
+--“天罚”AI
 sgs.ai_skill_use["@@wxtianfa"] = function(self, prompt)
 	local targets, wxFA = {}, self.player:getMark("&wxFA")
 	if #self.enemies == 0 or wxFA == 0 then return "." end
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if wxFA > 0 and self:objectiveLevel(enemy) > 0 and not enemy:hasSkill("buqu")
-		and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码X2
+			and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码X2
 			table.insert(targets, enemy:objectName())
 			wxFA = wxFA - 1
 			break
@@ -1545,11 +1568,11 @@ end
 
 sgs.ai_card_intention["#wxtianfaCard"] = 110
 
- --威力加强版
-  --“七星”AI
+--威力加强版
+--“七星”AI
 sgs.ai_skill_invoke.wxqixingEX = true
 
-  --“祭风”AI
+--“祭风”AI
 local wxjifengEX_skill = {}
 wxjifengEX_skill.name = "wxjifengEX"
 table.insert(sgs.ai_skills, wxjifengEX_skill)
@@ -1571,14 +1594,14 @@ wxjifengEX_skill.getTurnUseCard = function(self)
 		end
 	end
 	if not card_id then
-	    return nil
+		return nil
 	else
-	    return sgs.Card_Parse("#wxjifengEXCard:"..card_id..":")
+		return sgs.Card_Parse("#wxjifengEXCard:" .. card_id .. ":")
 	end
 end
 
 sgs.ai_skill_use_func["#wxjifengEXCard"] = function(card, use, self)
-    if self.player:getMark("wxjifengEX_zuiandfa") > 0 and not self.player:isKongcheng() then
+	if self.player:getMark("wxjifengEX_zuiandfa") > 0 and not self.player:isKongcheng() then
 		use.card = card
 		return
 	end
@@ -1588,7 +1611,7 @@ sgs.ai_use_value.wxjifengEXCard = 8.5
 sgs.ai_use_priority.wxjifengEXCard = 9.5
 sgs.ai_card_intention.wxjifengEXCard = -80
 
-  --“天罪”AI
+--“天罪”AI
 sgs.ai_skill_use["@@wxtianzuiEX"] = function(self, prompt)
 	local targets, exZUI = {}, self.player:getMark("&exZUI")
 	if exZUI == 0 then return "." end
@@ -1617,14 +1640,14 @@ end
 
 sgs.ai_card_intention["#wxtianzuiEXCard"] = 120
 
-  --“天罚”AI
+--“天罚”AI
 sgs.ai_skill_use["@@wxtianfaEX"] = function(self, prompt)
 	local targets, exFA = {}, self.player:getMark("&exFA")
 	if #self.enemies == 0 or exFA == 0 then return "." end
 	self:sort(self.enemies, "hp")
 	for _, enemy in ipairs(self.enemies) do
 		if exFA > 0 and self:objectiveLevel(enemy) > 0 and not enemy:hasSkill("buqu")
-		and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码X3
+			and not (enemy:hasSkill("hunzi") and enemy:getMark("hunzi") == 0 and enemy:getHp() > 1) then --江东小白板：村夫我**测你码X3
 			table.insert(targets, enemy:objectName())
 			exFA = exFA - 1
 		end
@@ -1642,7 +1665,7 @@ sgs.ai_card_intention["#wxtianfaEXCard"] = 120
 
 --==极略三国神武将AI==--
 --神黄忠
-  --“烈弓”AI
+--“烈弓”AI
 sgs.ai_view_as.jlsgliegong = function(card, player, card_place)
 	local suit = card:getSuitString()
 	local number = card:getNumberString()
@@ -1657,8 +1680,10 @@ jlsgliegong_skill.name = "jlsgliegong"
 table.insert(sgs.ai_skills, jlsgliegong_skill)
 jlsgliegong_skill.getTurnUseCard = function(self, inclusive)
 	if (not self.player:isWounded() and self.player:getMark("jlsgliegong") >= 1)
-	or (self.player:isWounded() and self.player:getMark("jlsgliegong") >= 2)
-	or self.player:isKongcheng() then return false end
+		or (self.player:isWounded() and self.player:getMark("jlsgliegong") >= 2)
+		or self.player:isKongcheng() then
+		return false
+	end
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards)
 	local lg_card
@@ -1694,14 +1719,10 @@ function sgs.ai_cardneed.jlsgliegong(to, card)
 	return card
 end
 
-
-
-
-
 --
 
 --神华佗
-  --“归元”AI
+--“归元”AI
 local jlsgguiyuan_skill = {}
 jlsgguiyuan_skill.name = "jlsgguiyuan"
 table.insert(sgs.ai_skills, jlsgguiyuan_skill)
@@ -1711,7 +1732,7 @@ jlsgguiyuan_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#jlsgguiyuanCard"] = function(card, use, self)
-    if not self.player:hasUsed("#jlsgguiyuanCard") then
+	if not self.player:hasUsed("#jlsgguiyuanCard") then
 		local cansave = 1 - self.player:getHp()
 		local mark = self.player:getMark("@jlsgchongsheng")
 		if self:getCardsNum("Peach") + self:getCardsNum("Analeptic") + mark >= cansave then
@@ -1725,7 +1746,7 @@ sgs.ai_use_value.jlsgguiyuanCard = 8.5
 sgs.ai_use_priority.jlsgguiyuanCard = 9.5
 sgs.ai_card_intention.jlsgguiyuanCard = -80
 
-  --“重生”AI
+--“重生”AI
 sgs.ai_skill_invoke.jlsgchongsheng = function(self, data)
 	local dying = data:toDying()
 	if dying.who:objectName() == self.player:objectName() then
@@ -1742,7 +1763,7 @@ sgs.ai_skill_invoke["@jlsgchongsheng-generalChanged"] = true
 
 --==线下神武将AI==--
 --神姜维
-  --“九伐”AI（部分内容已写进lua里）
+--“九伐”AI（部分内容已写进lua里）
 sgs.ai_skill_invoke.ofljiufa = true
 
 
@@ -1751,7 +1772,7 @@ sgs.ai_skill_invoke.ofljiufa = true
 --
 
 --神郭嘉
-  --“慧识”AI
+--“慧识”AI
 local oflhuishi_skill = {}
 oflhuishi_skill.name = "oflhuishi"
 table.insert(sgs.ai_skills, oflhuishi_skill)
@@ -1761,41 +1782,41 @@ oflhuishi_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#oflhuishiCard"] = function(card, use, self)
-    if not self.player:hasUsed("#oflhuishiCard") then
-        use.card = card
-	    return
+	if not self.player:hasUsed("#oflhuishiCard") then
+		use.card = card
+		return
 	end
 end
 
 sgs.ai_skill_invoke.oflhuishi = true
 
-    --“慧识”给牌
+--“慧识”给牌
 sgs.ai_skill_playerchosen["oflhuishi"] = function(self, targets)
-    local targets = sgs.QList2Table(targets)
+	local targets = sgs.QList2Table(targets)
 	self:sort(self.friends_noself)
 	for _, p in ipairs(self.friends_noself) do --如果自己手牌足够又有队友手牌不够，给队友
 		if self:isFriend(p) and p:getHandcardNum() < 3 and self.player:getHandcardNum() > self.player:getMaxHp() then
 			return p
 		end
 	end
-    return self.player
+	return self.player
 end
 
 sgs.ai_use_value.oflhuishiCard = 8.5
 sgs.ai_use_priority.oflhuishiCard = 9.5
 sgs.ai_card_intention.oflhuishiCard = -80
 
-  --“天翊”AI
+--“天翊”AI
 sgs.ai_skill_playerchosen["@ofltianyi"] = function(self, targets)
-    targets = sgs.QList2Table(targets)
+	targets = sgs.QList2Table(targets)
 	return self.player
 end
 
-  --“辉逝”AI
+--“辉逝”AI
 sgs.ai_skill_invoke.oflhuishii = true
 
 sgs.ai_skill_playerchosen["oflhuishii"] = function(self, targets)
-    local targets = sgs.QList2Table(targets)
+	local targets = sgs.QList2Table(targets)
 	self:sort(self.friends_noself)
 	for _, p in ipairs(self.friends_noself) do --优先帮牌少的队友补牌
 		if self:isFriend(p) and p:getHandcardNum() < 3 then
@@ -1807,12 +1828,12 @@ sgs.ai_skill_playerchosen["oflhuishii"] = function(self, targets)
 			return p
 		end
 	end
-    return self.player
+	return self.player
 end
 
 --长坂坡模式·神赵云
- --原版
-  --“青釭”AI
+--原版
+--“青釭”AI
 sgs.ai_skill_invoke.oflqinggang = function(self, data)
 	local target = data:toPlayer()
 	return not self:isFriend(target)
@@ -1822,14 +1843,16 @@ sgs.ai_skill_choice.oflqinggang = function(self, choices, data)
 	return "1"
 end
 
-  --“龙怒”AI
+--“龙怒”AI
 local ofllongnu_skill = {}
 ofllongnu_skill.name = "ofllongnu"
 table.insert(sgs.ai_skills, ofllongnu_skill)
 ofllongnu_skill.getTurnUseCard = function(self)
 	local slash = sgs.Sanguosha:cloneCard("slash")
 	if self.player:getPile("oflAngry"):length() < 2 or self.player:getMark("&ofllongnu") > 0
-	or self:getCardsNum("Slash") == 0 or not slash:isAvailable(self.player) then return end
+		or self:getCardsNum("Slash") == 0 or not slash:isAvailable(self.player) then
+		return
+	end
 	local AGY = self.player:getPile("oflAngry")
 	local AGYids, AGYids_club, AGYids_spade = {}, {}, {} --仅限于黑色牌
 	for _, id in sgs.qlist(AGY) do
@@ -1843,7 +1866,7 @@ ofllongnu_skill.getTurnUseCard = function(self)
 			table.insert(AGYids, card:getEffectiveId())
 		else --第二张
 			if (card:getSuit() == sgs.Card_Club and #AGYids_club > 0)
-			or (card:getSuit() == sgs.Card_Spade and #AGYids_spade > 0) then
+				or (card:getSuit() == sgs.Card_Spade and #AGYids_spade > 0) then
 				table.insert(AGYids, card:getEffectiveId())
 			end
 		end
@@ -1857,9 +1880,9 @@ end
 sgs.ai_skill_use_func["#ofllongnuCard"] = function(card, use, self)
 	local slash = sgs.Sanguosha:cloneCard("slash")
 	if self.player:getPile("oflAngry"):length() >= 2 and self.player:getMark("&ofllongnu") == 0
-	and self:getCardsNum("Slash") > 0 and slash:isAvailable(self.player) then
-        use.card = card
-	    return
+		and self:getCardsNum("Slash") > 0 and slash:isAvailable(self.player) then
+		use.card = card
+		return
 	end
 end
 
@@ -1867,7 +1890,7 @@ sgs.ai_use_value.ofllongnuCard = 8.5
 sgs.ai_use_priority.ofllongnuCard = 9.5
 sgs.ai_card_intention.ofllongnuCard = -80
 
-  --“浴血”AI
+--“浴血”AI
 local oflyuxue_skill = {}
 oflyuxue_skill.name = "oflyuxue"
 table.insert(sgs.ai_skills, oflyuxue_skill)
@@ -1902,24 +1925,26 @@ sgs.ai_view_as["oflyuxue"] = function(card, player, card_place)
 	for _, id in sgs.qlist(AGY) do
 		local card = sgs.Sanguosha:getCard(id)
 		if card:getSuit() == sgs.Card_Heart or card:getSuit() == sgs.Card_Diamond then
-			table.insert(AGYids, card:getEffectiveId()) suit = card:getSuit() number = card:getNumber()
+			table.insert(AGYids, card:getEffectiveId())
+			suit = card:getSuit()
+			number = card:getNumber()
 		end
 		if #AGYids == 1 then break end
 	end
 	if #AGYids == 1 then return ("peach:oflyuxue[%s:%s]=%d"):format(suit, number, AGYids[1]) end
 end
 
-  --“龙吟”AI
+--“龙吟”AI
 sgs.ai_skill_invoke.ofllongyin = true
 
- --威力加强版
-  --“青釭”AI
+--威力加强版
+--“青釭”AI
 sgs.ai_skill_invoke.oflqinggangEX = function(self, data)
 	local target = data:toPlayer()
 	return not self:isFriend(target)
 end
 
-  --“龙怒”AI
+--“龙怒”AI
 local ofllongnuEX_skill = {}
 ofllongnuEX_skill.name = "ofllongnuEX"
 table.insert(sgs.ai_skills, ofllongnuEX_skill)
@@ -1942,7 +1967,7 @@ ofllongnuEX_skill.getTurnUseCard = function(self)
 			table.insert(AGYids, card:getEffectiveId())
 		else --第二张
 			if (card:getSuit() == sgs.Card_Heart and #AGYids_heart > 0) or (card:getSuit() == sgs.Card_Diamond and #AGYids_diamond > 0)
-			or (card:getSuit() == sgs.Card_Club and #AGYids_club > 0) or (card:getSuit() == sgs.Card_Spade and #AGYids_spade > 0) then
+				or (card:getSuit() == sgs.Card_Club and #AGYids_club > 0) or (card:getSuit() == sgs.Card_Spade and #AGYids_spade > 0) then
 				table.insert(AGYids, card:getEffectiveId())
 			end
 		end
@@ -1954,9 +1979,9 @@ ofllongnuEX_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#ofllongnuEXCard"] = function(card, use, self)
-    if self.player:getPile("oflAngry"):length() >= 2 and self.player:getMark("&ofllongnuEX") == 0 then
-        use.card = card
-	    return
+	if self.player:getPile("oflAngry"):length() >= 2 and self.player:getMark("&ofllongnuEX") == 0 then
+		use.card = card
+		return
 	end
 end
 
@@ -1970,7 +1995,7 @@ sgs.ai_use_value.ofllongnuEXCard = 8.5
 sgs.ai_use_priority.ofllongnuEXCard = 9.5
 sgs.ai_card_intention.ofllongnuEXCard = -80
 
-  --“浴血”AI
+--“浴血”AI
 local oflyuxueEX_skill = {}
 oflyuxueEX_skill.name = "oflyuxueEX"
 table.insert(sgs.ai_skills, oflyuxueEX_skill)
@@ -2018,24 +2043,29 @@ sgs.ai_view_as["oflyuxueEX"] = function(card, player, card_place)
 		elseif card:isBlack() then
 			table.insert(AGYids_black, card:getEffectiveId())
 		end
-		table.insert(AGYids, card:getEffectiveId()) suit = card:getSuit() number = card:getNumber()
+		table.insert(AGYids, card:getEffectiveId())
+		suit = card:getSuit()
+		number = card:getNumber()
 		if #AGYids == 1 then break end
 	end
 	if #AGYids == 1 then
-		if #AGYids_red == 1 then return ("peach:oflyuxueEX[%s:%s]=%d"):format(suit, number, AGYids[1])
-		elseif #AGYids_black == 1 then return ("analeptic:oflyuxueEX[%s:%s]=%d"):format(suit, number, AGYids[1]) end
+		if #AGYids_red == 1 then
+			return ("peach:oflyuxueEX[%s:%s]=%d"):format(suit, number, AGYids[1])
+		elseif #AGYids_black == 1 then
+			return ("analeptic:oflyuxueEX[%s:%s]=%d"):format(suit, number, AGYids[1])
+		end
 	end
 end
 
-  --“龙吟”AI
+--“龙吟”AI
 sgs.ai_skill_invoke.ofllongyinEX = true
 
 --长坂坡模式·神张飞
- --原版
-  --“缠蛇”AI
-    --暂不写。
+--原版
+--“缠蛇”AI
+--暂不写。
 
-  --“弑神”AI
+--“弑神”AI
 local oflshishen_skill = {}
 oflshishen_skill.name = "oflshishen"
 table.insert(sgs.ai_skills, oflshishen_skill)
@@ -2067,19 +2097,19 @@ end
 sgs.ai_skill_use_func["#oflshishenCard"] = function(card, use, self)
 	if self.player:getPile("oflAngry"):length() >= 2 then
 		self:sort(self.enemies)
-	    self.enemies = sgs.reverse(self.enemies)
+		self.enemies = sgs.reverse(self.enemies)
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 and enemy:getHp() == 1 then --趁ta病，要ta命
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 and enemy:getHp() == 1 then --趁ta病，要ta命
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 then
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 then
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 	end
@@ -2089,17 +2119,17 @@ sgs.ai_use_value.oflshishenCard = 8.5
 sgs.ai_use_priority.oflshishenCard = 9.5
 sgs.ai_card_intention.oflshishenCard = 80
 
-    --“弑神”[聚气]AI
+--“弑神”[聚气]AI
 sgs.ai_skill_invoke["oflshishenJQ"] = true
 
- --威力加强版
-  --“备粮”AI
+--威力加强版
+--“备粮”AI
 sgs.ai_skill_invoke.oflbeiliangEX = true
 
-  --“缠蛇”AI
-    --暂不写。
+--“缠蛇”AI
+--暂不写。
 
-  --“弑神”AI
+--“弑神”AI
 local oflshishenEX_skill = {}
 oflshishenEX_skill.name = "oflshishenEX"
 table.insert(sgs.ai_skills, oflshishenEX_skill)
@@ -2120,19 +2150,19 @@ end
 sgs.ai_skill_use_func["#oflshishenEXCard"] = function(card, use, self)
 	if self.player:getPile("oflAngry"):length() >= 2 then
 		self:sort(self.enemies)
-	    self.enemies = sgs.reverse(self.enemies)
+		self.enemies = sgs.reverse(self.enemies)
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 and enemy:getHp() <= 1 then --趁ta病，要ta命
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 and enemy:getHp() <= 1 then --趁ta病，要ta命
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 		for _, enemy in ipairs(self.enemies) do
-		    if self:objectiveLevel(enemy) > 0 then
-			    use.card = card
-			    if use.to then use.to:append(enemy) end
-		        return
+			if self:objectiveLevel(enemy) > 0 then
+				use.card = card
+				if use.to then use.to:append(enemy) end
+				return
 			end
 		end
 	end
@@ -2142,7 +2172,7 @@ sgs.ai_use_value.oflshishenEXCard = 8.5
 sgs.ai_use_priority.oflshishenEXCard = 9.5
 sgs.ai_card_intention.oflshishenEXCard = 80
 
-    --“弑神”[聚气]AI
+--“弑神”[聚气]AI
 sgs.ai_skill_invoke["oflshishenEXJQ"] = true
 
 
@@ -2154,7 +2184,7 @@ sgs.ai_skill_invoke["oflshishenEXJQ"] = true
 --神刘备-威力加强版（要是ai能管住这家伙，我也不至于要隐藏他了）
 
 --神董卓
-  --“凶宴”AI
+--“凶宴”AI
 sgs.ai_skill_invoke.f_xiongyan = true
 
 sgs.ai_skill_choice.f_xiongyan = function(self, choices, data)
@@ -2190,7 +2220,7 @@ sgs.ai_skill_invoke["@f_xiongyanDraw"] = function(self, data)
 	self.enemies = sgs.reverse(self.enemies)
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasFlag("f_sdzForE") and self:objectiveLevel(enemy) > 0 then --直接反向思考，若是敌人就不给，否则就给（学会了仁德的董太师）
-		    return false
+			return false
 		end
 	end
 	return true
@@ -2201,7 +2231,7 @@ end
 --
 
 --神刘禅
-  --“单杀”AI
+--“单杀”AI
 sgs.ai_skill_invoke.f_dansha = function(self, data)
 	return self.player:hasLordSkill("f_dansha")
 end
@@ -2209,8 +2239,8 @@ end
 sgs.ai_skill_playerchosen.f_dansha = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
@@ -2221,13 +2251,13 @@ end
 --
 
 --神曹仁
-  --“奇阵”AI
+--“奇阵”AI
 sgs.ai_skill_invoke.f_qizhen = function(self, data)
 	local use = data:toCardUse()
 	return not self:isFriend(use.from)
 end
 
-  --“励军”AI
+--“励军”AI
 sgs.ai_skill_invoke.f_lijun = true
 
 sgs.ai_skill_choice.f_lijun = function(self, choices, data)
@@ -2259,7 +2289,7 @@ sgs.ai_skill_playerchosen.f_lijun = function(self, targets)
 				return p
 			end
 		end
-		return self.player --若没有队友，就给自己用
+		return self.player                           --若没有队友，就给自己用
 	elseif self.player:hasFlag("f_lijunChooseTwo") then --2选项，选择敌方
 		self:sort(targets, "defense")
 		for _, p in ipairs(targets) do
@@ -2281,7 +2311,7 @@ end]]
 --
 
 --神赵云&陈到
-  --“勇魂”AI（如果单纯是“摸牌数+2”＋“手牌上限+2”，强度如何？）
+--“勇魂”AI（如果单纯是“摸牌数+2”＋“手牌上限+2”，强度如何？）
 local f_yonghun_skill = {}
 f_yonghun_skill.name = "f_yonghun"
 table.insert(sgs.ai_skills, f_yonghun_skill)
@@ -2290,9 +2320,9 @@ f_yonghun_skill.getTurnUseCard = function(self)
 end
 
 sgs.ai_skill_use_func["#f_yonghunCard"] = function(card, use, self)
-    if not self.player:hasUsed("#f_yonghunCard") then
-        use.card = card
-	    return
+	if not self.player:hasUsed("#f_yonghunCard") then
+		use.card = card
+		return
 	end
 end
 
@@ -2301,16 +2331,14 @@ sgs.ai_use_priority.f_yonghunCard = 9.5
 sgs.ai_card_intention.f_yonghunCard = -80
 
 --神于吉
-  --“回生”AI
+--“回生”AI
 sgs.ai_skill_invoke.f_huisheng = function(self, data)
-	--[[if self.player:getCardsNum("Peach") > 0 or self.player:getCardsNum("Analeptic") > 0 then return false end
-	return true]]
 	local dying = data:toDying()
 	local peaches = 1 - dying.who:getHp()
 	return self:getCardsNum("Peach") + self:getCardsNum("Analeptic") < peaches
 end
 
-  --“妙道”AI
+--“妙道”AI
 sgs.ai_skill_invoke.f_miaodao = function(self, data)
 	if self.player:getPile("f_syjDao"):length() >= 4 or self.player:getHandcardNum() <= 2 then return false end
 	return true
@@ -2321,10 +2349,13 @@ end
 --
 
 --神庞统
-  --“凤雏”AI
+--“凤雏”AI
 sgs.ai_skill_choice.f_fengchu = function(self, choices, data)
-	if self.player:isWounded() then return "2"
-	else return "1" end --受伤回复，满血加槽
+	if self.player:isWounded() then
+		return "2"
+	else
+		return "1"
+	end              --受伤回复，满血加槽
 	return "3" or "4" --为求稳必选这两个选项，摸牌收益高（不考虑被乐了、左慈等）、封印“落凤”保证不发生意外
 end
 
@@ -2385,27 +2416,27 @@ sgs.ai_use_priority.Fqimenbazhen = 0.72
 sgs.ai_skill_playerchosen["Fshufazijinguan"] = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) and p:getHp() <= 1 and not p:hasSkill("newjuejing") and not p:hasSkill("mrds_juejing") then --神赵云：tnnd，针对我是吧
-		    return p 
+		if self:isEnemy(p) and p:getHp() <= 1 and not p:hasSkill("newjuejing") and not p:hasSkill("mrds_juejing") then --神赵云：tnnd，针对我是吧
+			return p
 		end
 	end
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
 end
 --18.虚妄之冕
-  --（无）
+--（无）
 --19.天机图(已有,不用写)
 ----
 --20.太公阴符(已有,不用写)
 ----
 --21.三略
-  --（无）
+--（无）
 --22.照骨镜
-  --（无）
+--（无）
 ----------------------
 ----
 sgs.weapon_range.XyruyijingubangOne = 1
@@ -2421,28 +2452,28 @@ sgs.ai_use_priority.XyruyijingubangFour = 2.64
 --
 
 --神司马炎
-  --“征灭(初版)”AI
+--“征灭(初版)”AI
 sgs.ai_skill_playerchosen.f_zhengmie = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
 end
-  --“征灭(正式版)”AI
+--“征灭(正式版)”AI
 sgs.ai_skill_playerchosen.f_zhengmie_f = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
 end
 
-  --“奢靡”AI
+--“奢靡”AI
 sgs.ai_skill_choice.dy_shemi = function(self, choices, data)
 	return not "cancel"
 end
@@ -2451,10 +2482,10 @@ end
 --
 
 --神刘协
-  --“天子”AI（代替出【闪】的部分）
+--“天子”AI（代替出【闪】的部分）
 sgs.ai_skill_invoke.f_skysson = true
 
-  --“傀儡”AI
+--“傀儡”AI
 sgs.ai_skill_invoke.f_kuilei = true
 
 sgs.ai_skill_playerchosen.f_kuilei = function(self, targets)
@@ -2462,7 +2493,7 @@ sgs.ai_skill_playerchosen.f_kuilei = function(self, targets)
 	self:sort(self.friends_noself)
 	for _, p in ipairs(self.friends_noself) do
 		if self:isFriend(p) and not p:isNude() and (p:hasSkill("jijiu") or p:hasSkill("longhun") or p:hasSkill("newlonghun")
-		or p:hasSkill("mrds_longhun") or p:hasSkill("sgkgodlonghun")) then --先找靠谱的队友
+				or p:hasSkill("mrds_longhun") or p:hasSkill("sgkgodlonghun")) then --先找靠谱的队友
 			return p
 		end
 	end
@@ -2481,14 +2512,14 @@ end
 --
 
 --新神刘禅
-  --“单杀”AI
+--“单杀”AI
 sgs.ai_skill_invoke.f_dansha_new = true
 
 sgs.ai_skill_playerchosen.f_dansha_new = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) then
-		    return p 
+		if self:isEnemy(p) then
+			return p
 		end
 	end
 	return nil
@@ -2501,7 +2532,7 @@ end
 --
 
 --神-曹丕&甄姬
-  --“洛殇”AI
+--“洛殇”AI
 sgs.ai_skill_invoke.diy_k_luoshang = true
 
 
@@ -2511,7 +2542,7 @@ sgs.ai_skill_invoke.diy_k_luoshang = true
 --
 
 --十长逝
-  --韩悝-“巧思”AI
+--韩悝-“巧思”AI
 local hl_qiaosi_skill = {}
 hl_qiaosi_skill.name = "hl_qiaosi"
 table.insert(sgs.ai_skills, hl_qiaosi_skill)
@@ -2559,7 +2590,7 @@ end
 
 sgs.ai_playerchosen_intention.hl_qiaosi = -80
 
-  --高望-“安弱”AI
+--高望-“安弱”AI
 local dg_anruo_skill = {}
 dg_anruo_skill.name = "dg_anruo"
 table.insert(sgs.ai_skills, dg_anruo_skill)
@@ -2568,7 +2599,8 @@ dg_anruo_skill.getTurnUseCard = function(self)
 	self:sortByUseValue(cards, true)
 	for _, card in ipairs(cards) do
 		if card:getSuit() == sgs.Card_Diamond and self:slashIsAvailable() then
-			return sgs.Card_Parse(("fire_slash:dg_anruo[%s:%s]=%d"):format(card:getSuitString(), card:getNumberString(), card:getId()))
+			return sgs.Card_Parse(("fire_slash:dg_anruo[%s:%s]=%d"):format(card:getSuitString(), card:getNumberString(),
+				card:getId()))
 		end
 	end
 end
@@ -2609,8 +2641,8 @@ end
 sgs.ai_skill_playerchosen.dg_anruo = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-	    if self:isEnemy(p) and not p:isNude() then
-		    return p 
+		if self:isEnemy(p) and not p:isNude() then
+			return p
 		end
 	end
 	return nil
@@ -2621,13 +2653,13 @@ end
 --
 
 --神袁绍
-  --“名望”AI
+--“名望”AI
 sgs.ai_skill_choice.f_mingwang = function(self, choices, data)
 	return "1"
 end
 
-  --“非势”AI（“势”角色的抉择）
+--“非势”AI（“势”角色的抉择）
 sgs.ai_skill_invoke.f_feishi = function(self, data)
 	local target = data:toPlayer()
 	return not self:isFriend(target)
-end 
+end

@@ -5343,14 +5343,14 @@ function SmartAI:getRetrialCardId(cards, judge, self_card, exchange)
 	if next(can_use)
 	then
 		for i, c in sgs.list(can_use) do
-			i = c:getEffectiveId()
+			i = c
 			if self:doDisCard(self.player, i)
 			then
 				return i
 			end
 		end
 		self:sortByKeepValue(can_use)
-		return can_use[1]:getEffectiveId()
+		return can_use[1]
 	end
 	return -1
 end
@@ -7338,6 +7338,10 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 	if player:getMark("@meizlsepoxiao") > 0 then
 		return true
 	end
+	if player:getMark("&kejiexianmabicp") > 0 then
+		return true
+	end
+
 
 
 	return false
@@ -7387,6 +7391,12 @@ function SmartAI:willSkipDrawPhase(player, NotContains_Null)
 		end
 		return true
 	end
+
+	--add
+	if player:getMark("&kejiexianmabimp") > 0 then
+		return true
+	end
+
 	return false
 end
 
@@ -8180,6 +8190,13 @@ function SmartAI:dontHurt(to, from) --针对队友
 	if to:hasSkill("kejieguiqideng") and to:getMark("@kedeng") > 0 then
 		return true
 	end
+	if to:hasSkill("kexianfenshen") and to:getMark("&kexianfenshen") > 0 then
+		return true
+	end
+	if to:hasSkill("kejiexianfenshen") and to:getMark("&kexianfenshen") > 0 then
+		return true
+	end
+
 
 	return false
 end

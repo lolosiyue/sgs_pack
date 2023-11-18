@@ -8066,60 +8066,7 @@ meizlshyuguo = sgs.CreateTriggerSkill {
 		end
 	end
 }
---[[
-meizlshrongzhuang=sgs.CreateTriggerSkill{
-	name="meizlshrongzhuang",
-	frequency=sgs.Skill_Frequent,
-	events={sgs.Damage, sgs.EventPhaseChanging},
-	on_trigger=function(self,event,player,data)
-		local room = player:getRoom()
-		local splayer = room:findPlayerBySkillName(self:objectName())
-		if event == sgs.Damage then
-		 local damage = data:toDamage()
-		 if damage.card and damage.card:isKindOf("Slash") and (not damage.chain) and (not damage.transfer) then
-		if not room:askForSkillInvoke(splayer, self:objectName()) then return false end
-		if splayer:hasFlag("meizlshrongzhuangUsed") then return false end
-		room:setPlayerFlag(splayer, "meizlshrongzhuangUsed")
-		splayer:gainMark("@meizlmayunlumark")
-					local card = sgs.Sanguosha:getCard(room:drawCard())
-				splayer:obtainCard(card)
-				room:showCard(splayer, card:getId())
-				if not card:isKindOf("Slash") then return false end
-				local targets = sgs.SPlayerList()
-		for _,p in sgs.qlist(room:getOtherPlayers(splayer)) do
-			if splayer:canSlash(p, card, false) then
-				targets:append(p)
-			end
-		end
-		if not targets:isEmpty() then
-		local choice = room:askForChoice(splayer, self:objectName(), "usesl+cancel")
-		if choice == "usesl" then
-		local target = room:askForPlayerChosen(splayer, targets, self:objectName())
-					local use = sgs.CardUseStruct()
-					use.card = card
-					use.from = splayer
-					use.to:append(target)
-					room:useCard(use)
-end
-end
-end
-elseif event == sgs.EventPhaseChanging then
-local change = data:toPhaseChange()
-		if change.to == sgs.Player_NotActive then
-			for _, p in sgs.qlist(room:getAlivePlayers()) do
-				if p:hasFlag("meizlshrongzhuangUsed") then
-					room:setPlayerFlag(p, "-meizlshrongzhuangUsed")
-				end
-			end
-		end
-end
-return false
-	end,
-	can_trigger=function(self,target)
-		return true
-	end,
-}
-]]
+
 meizlshrongzhuangVS = sgs.CreateOneCardViewAsSkill {
 	name = "meizlshrongzhuang",
 	view_filter = function(self, card)

@@ -1512,7 +1512,8 @@ n_bianjie = sgs.CreateTriggerSkill {
 					p:drawCards(1)
 					room:broadcastSkillInvoke(self:objectName())
 					room:throwCard(
-					room:askForCardChosen(p, use.from, "he", self:objectName(), false, sgs.Card_MethodDiscard), use.from,
+						room:askForCardChosen(p, use.from, "he", self:objectName(), false, sgs.Card_MethodDiscard),
+						use.from,
 						p)
 				end
 			end
@@ -2727,7 +2728,7 @@ n_leyou = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.Damaged then
 			local invoke = self:getFrequency(player) == sgs.Skill_Compulsory and true or
-			player:askForSkillInvoke(self:objectName(), data)
+				player:askForSkillInvoke(self:objectName(), data)
 			if invoke then
 				room:broadcastSkillInvoke(self:objectName(), 1)
 				room:addPlayerMark(player, "leyounodamage")
@@ -2772,7 +2773,7 @@ n_leyoux = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.Damaged then
 			local invoke = self:getFrequency(player) == sgs.Skill_Compulsory and true or
-			player:askForSkillInvoke("n_leyou", data)
+				player:askForSkillInvoke("n_leyou", data)
 			if invoke then
 				room:broadcastSkillInvoke("n_leyou", 1)
 				room:addPlayerMark(player, "leyounodamage")
@@ -3214,7 +3215,9 @@ n_jijiang = sgs.CreateTriggerSkill {
 			n_CompulsorySkill(room, player, self:objectName())
 			damage.from:drawCards(1)
 			if not room:askForUseSlashTo(damage.from, player, "@senxia-slash:" .. player:objectName(), false) then
-				room:recover(player, sgs.RecoverStruct())
+				local recover = sgs.RecoverStruct()
+				recover.who = player
+				room:recover(player, recover)
 			end
 		end
 	end
@@ -3236,7 +3239,8 @@ n_tiaoxincard = sgs.CreateSkillCard {
 		if (not use_slash) and effect.from:canDiscard(effect.to, "he") then
 			room:broadcastSkillInvoke("n_tiaoxin", 2)
 			room:throwCard(
-			room:askForCardChosen(effect.from, effect.to, "he", "n_tiaoxin", false, sgs.Card_MethodDiscard), effect.to,
+				room:askForCardChosen(effect.from, effect.to, "he", "n_tiaoxin", false, sgs.Card_MethodDiscard),
+				effect.to,
 				effect.from)
 		end
 	end
@@ -3401,7 +3405,7 @@ n_anyanzhizhu:addSkill(n_juedi)
 	drowing:setNumber(7)
 	drowing:setParent(extension)
 end]]
-      --
+--
 sgs.LoadTranslationTable {
 	["n_anyanzhizhu"] = "暗炎之主",
 	["#n_anyanzhizhu"] = "滗",
@@ -4977,17 +4981,17 @@ n_chaoxivs = sgs.CreateViewAsSkill {
 	enabled_at_response = function(self, player, pattern)
 		local ocd = sgs.Sanguosha:cloneCard(sgs.Sanguosha:getCard(sgs.Self:getMark("chaoxiid")):objectName())
 		return pattern == ocd:objectName() and player:getMark("chaoxienable") == 1 and (player:getMark("chaoxiusd") < 3) and
-		not player:isNude()
+			not player:isNude()
 	end,
 	enabled_at_play = function(self, player)
 		local ocd = sgs.Sanguosha:cloneCard(sgs.Sanguosha:getCard(sgs.Self:getMark("chaoxiid")):objectName())
 		return ocd:isAvailable(player) and not player:isNude() and (player:getMark("chaoxiusd") < 3) and
-		player:getMark("chaoxienable") == 1
+			player:getMark("chaoxienable") == 1
 	end,
 	enabled_at_nullification = function(self, player)
 		local ocd = sgs.Sanguosha:cloneCard(sgs.Sanguosha:getCard(player:getMark("chaoxiid")):objectName())
 		return ocd:objectName() == "nullification" and not player:isNude() and (player:getMark("chaoxiusd") < 3) and
-		player:getMark("chaoxienable") == 1
+			player:getMark("chaoxienable") == 1
 	end
 
 }
@@ -5687,7 +5691,7 @@ n_qunzhiCard = sgs.CreateSkillCard {
 				return false
 			else
 				return card and card:targetFilter(plist, to_select, sgs.Self) and
-				not sgs.Self:isProhibited(to_select, card, plist)
+					not sgs.Self:isProhibited(to_select, card, plist)
 			end
 		end
 		return true
@@ -5895,7 +5899,7 @@ n_junengvs = sgs.CreateViewAsSkill {
 	n = 1,
 	view_filter = function(self, selected, to_select)
 		return to_select:isAvailable(sgs.Self) and not to_select:isKindOf("EquipCard") and
-		not to_select:isKindOf("DelayedTrick")
+			not to_select:isKindOf("DelayedTrick")
 	end,
 	view_as = function(self, cards)
 		if #cards == 0 then return nil end
@@ -6769,7 +6773,7 @@ n_sizui = sgs.CreateTriggerSkill {
 		room:drawCards(player, 2)
 		if not player:isNude() then
 			local card_id = room:askForExchange(player, self:objectName(), 1, 1, true, "#n_sizuipush"):getSubcards()
-			:first()
+				:first()
 			player:addToPile("n_crime", card_id)
 		end
 	end
@@ -6787,7 +6791,7 @@ n_xiaoshicard = sgs.CreateSkillCard {
 				card = sgs.Sanguosha:cloneCard(self:getUserString():split("+")[1])
 			end
 			return card and card:targetFilter(targets, to_select, sgs.Self) and
-			not sgs.Self:isProhibited(to_select, card, targets)
+				not sgs.Self:isProhibited(to_select, card, targets)
 		elseif (sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_RESPONSE) then
 			return false
 		end
@@ -6801,7 +6805,7 @@ n_xiaoshicard = sgs.CreateSkillCard {
 		card:setCanRecast(false)
 		card:deleteLater()
 		return card and card:targetFilter(targets, to_select, sgs.Self) and
-		not sgs.Self:isProhibited(to_select, card, targets)
+			not sgs.Self:isProhibited(to_select, card, targets)
 	end,
 	target_fixed = function(self)
 		if (sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE) then
@@ -7741,8 +7745,8 @@ n_guici = sgs.CreateTriggerSkill {
 			local x = player:getMark("n_guicimem")
 			local id = room:drawCard()
 			room:moveCardsAtomic(
-			sgs.CardsMoveStruct(id, nil, nil, sgs.Player_DrawPile, sgs.Player_PlaceTable,
-				sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_TURNOVER, player:objectName(), self:objectName(), "")),
+				sgs.CardsMoveStruct(id, nil, nil, sgs.Player_DrawPile, sgs.Player_PlaceTable,
+					sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_TURNOVER, player:objectName(), self:objectName(), "")),
 				true);
 			local t = n_guici_typeTable[sgs.Sanguosha:getCard(id):getTypeId()]
 			if bit32.band(x, t) == 0 then
@@ -8385,7 +8389,7 @@ do --挑战八废
 				local death = data:toDeath()
 				local who = death.who
 				--local killer = death.damage.from
-				who:bury()       --做出埋葬工作，比如把牌弃掉之类的
+				who:bury()         --做出埋葬工作，比如把牌弃掉之类的
 				local lord = room:getLord()
 				lord:gainMark("@bf_killed", 1) --控制型语句
 				--if killer and killer == lord then	--小奖励
@@ -8500,7 +8504,9 @@ do --弹窗之战
 		elseif str == "draw2card" then
 			player:drawCards(2)
 		elseif str == "rcv1hp" then
-			room:recover(player, sgs.RecoverStruct())
+			local recover = sgs.RecoverStruct()
+			recover.who = player
+			room:recover(player, recover)
 		elseif str == "dis1cd" then
 			room:askForDiscard(player, "popupwar", 1, 1, false, true)
 		elseif str == "dis2cd" then
@@ -9168,9 +9174,9 @@ do
 		on_trigger = function(self, event, player, data)
 			local room = player:getRoom()
 			-- 游戏开始的部分放在另外的地方写
-			player:throwAllHandCardsAndEquips()  -- 你弃置手牌区及装备区所有牌
+			player:throwAllHandCardsAndEquips()   -- 你弃置手牌区及装备区所有牌
 			room:removePlayerMark(player, "@n_huashen", 1) -- 移去一枚“化神”标记
-			n_longshen_enternextstage(player)    -- 进入下一形态
+			n_longshen_enternextstage(player)     -- 进入下一形态
 			player:drawCards(4)
 			-- 进入下一形态是自定义函数，待会写
 
@@ -9178,7 +9184,7 @@ do
 			for _, p in sgs.list(room:getOtherPlayers(player)) do
 				--n_gainMhp(p, 1)
 				room:recover(p, sgs.RecoverStruct()) -- 回复一点体力
-				p:drawCards(1)          -- 摸一张牌
+				p:drawCards(1)           -- 摸一张牌
 
 				-- 抽取三张武将获得一个技能
 				-- 我之前恰好写过
@@ -9260,7 +9266,7 @@ do
 				-- 必须是普通伤害才触发
 				-- 每收到一点伤害
 				for i = 1, damage.damage do
-					player:drawCards(2)            -- 摸2
+					player:drawCards(2)             -- 摸2
 					local cards = room:askForExchange(player, self:objectName(), 1, 1, true, "@n_chaiyue")
 					player:addToPile("n_bei", cards:getSubcards()) -- 将一张牌放在武将牌上称为“碑”
 				end
@@ -9308,7 +9314,7 @@ do
 				-- 必须是普通伤害才触发
 				-- 每收到一点伤害
 				for i = 1, damage.damage do
-					player:drawCards(1)            -- 摸1
+					player:drawCards(1)             -- 摸1
 					local cards = room:askForExchange(player, self:objectName(), 1, 1, true, "@n_chaiyue")
 					player:addToPile("n_bei", cards:getSubcards()) -- 将一张牌放在武将牌上称为“碑”
 				end
@@ -9344,7 +9350,8 @@ do
 					p:drawCards(1)
 					room:broadcastSkillInvoke(self:objectName())
 					room:throwCard(
-					room:askForCardChosen(p, use.from, "he", self:objectName(), false, sgs.Card_MethodDiscard), use.from,
+						room:askForCardChosen(p, use.from, "he", self:objectName(), false, sgs.Card_MethodDiscard),
+						use.from,
 						p)
 				end
 			end
@@ -9358,7 +9365,9 @@ do
 		events = { sgs.DamageCaused, sgs.DamageInflicted },
 		on_trigger = function(self, event, player, data)
 			local room = player:getRoom()
-			room:recover(player, sgs.RecoverStruct())
+			local recover = sgs.RecoverStruct()
+			recover.who = player
+			room:recover(player, recover)
 			local damage = data:toDamage()
 			damage.damage = damage.damage + 1
 			player:drawCards(damage.damage)
@@ -9434,8 +9443,10 @@ do
 			if player:getPhase() == sgs.Player_Finish then
 				for _, p in sgs.list(room:findPlayersBySkillName(self:objectName())) do
 					-- 各回复一点体力
-					room:recover(player, sgs.RecoverStruct())
-					room:recover(p, sgs.RecoverStruct())
+					local recover = sgs.RecoverStruct()
+					recover.who = player
+					room:recover(player, recover)
+					room:recover(p, recover)
 					local x = math.floor(player:getMaxHp() / 2)
 					-- 若你仍然受伤
 					if p:isWounded() then
@@ -9457,7 +9468,9 @@ do
 			if event == sgs.CardUsed then
 				if data:toCardUse().card:isKindOf("EquipCard") then
 					if player:isWounded() then
-						room:recover(player, sgs.RecoverStruct())
+						local recover = sgs.RecoverStruct()
+						recover.who = player
+						room:recover(player, recover)
 						player:drawCards(1)
 					else
 						player:drawCards(3)
@@ -9937,7 +9950,7 @@ n_brick = sgs.CreateBasicCard {
 	subtype = "attack_card",
 	filter = function(self, selected, to_select, player)
 		return (#selected <= sgs.Sanguosha:correctCardTarget(sgs.TargetModSkill_ExtraTarget, sgs.Self, self)) and
-		(to_select:objectName() ~= player:objectName())
+			(to_select:objectName() ~= player:objectName())
 	end,
 	about_to_use = function(self, room, card_use)
 		local use, data = card_use, sgs.QVariant()

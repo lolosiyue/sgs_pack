@@ -2,6 +2,7 @@ crash:
 Retrial
 hasHuangenEffect
 PlusLiuli
+5.0 guidao keep using leiji
 
 not done:
 张春华 无情 lostmaxhp ai

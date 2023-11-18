@@ -1498,7 +1498,9 @@ kejieshengfuchou = sgs.CreateMasochismSkill {
 				end
 			end
 			if judge.card:getSuit() == sgs.Card_Heart then
-				room:recover(player, sgs.RecoverStruct())
+				local recover = sgs.RecoverStruct()
+				recover.who = player
+				room:recover(player, recover)
 			end
 		end
 	end
