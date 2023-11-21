@@ -13,96 +13,576 @@ end
 --张角
 
 sgs.ai_skill_invoke.keyaotuzhong = function(self, data)
-	local num = math.random(0, 1)
-	if (num == 0) then
-		return true
-	else
+	if self:isWeak() then return true end
+	if self:ImitateResult_DrawNCards(self.player, self.player:getVisibleSkillList(true)) > 2 then
 		return false
 	end
+	return true
 end
 
 sgs.ai_skill_playerchosen.keyaotuzhong = function(self, targets)
 	targets = sgs.QList2Table(targets)
-	local theweak = sgs.SPlayerList()
-	local theweaktwo = sgs.SPlayerList()
-	for _, p in ipairs(targets) do
-		if self:isFriend(p) then
-			theweak:append(p)
-		end
+	local arr1, arr2 = self:getWoundedFriend(false, true)
+	local target = nil
+	if #arr1 > 0 and (self:isWeak(arr1[1]) or self:getOverflow() >= 1) and arr1[1]:getHp() < getBestHp(arr1[1]) then
+		target =
+			arr1[1]
 	end
-	for _, qq in sgs.qlist(theweak) do
-		if theweaktwo:isEmpty() then
-			theweaktwo:append(qq)
-		else
-			local inin = 1
-			for _, pp in sgs.qlist(theweaktwo) do
-				if (pp:getHp() < qq:getHp()) then
-					inin = 0
-				end
-			end
-			if (inin == 1) then
-				theweaktwo:append(qq)
-			end
-		end
+	if target then
+		return target
 	end
-	if theweaktwo:length() > 0 then
-		return theweaktwo:at(0)
+	if #arr2 > 0 then
+		for _, friend in ipairs(arr2) do
+			return friend
+		end
 	end
 	return nil
 end
 
+sgs.ai_playerchosen_intention.keyaotuzhong = function(self, from, to)
+	sgs.updateIntention(from, to, -50)
+end
+
+
+local keyaotaiping_skill = {}
+keyaotaiping_skill.name = "keyaotaiping"
+table.insert(sgs.ai_skills, keyaotaiping_skill)
+keyaotaiping_skill.getTurnUseCard = function(self)
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+		local useAll = false
+		for _, enemy in ipairs(self.enemies) do
+			if enemy:getHp() == 1 and not enemy:hasArmorEffect("vine") and not self:hasEightDiagramEffect(enemy) and self:damageIsEffective(enemy, nil, self.player)
+				and self:isWeak(enemy) and getCardsNum("Jink", enemy, self.player) + getCardsNum("Peach", enemy, self.player) + getCardsNum("Analeptic", enemy, self.player) == 0 then
+				useAll = true
+			end
+		end
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("Peach", fcard, self.player) or isCard("ExNihilo", fcard, self.player) or isCard("ArcheryAttack", fcard, self.player))
+			if useAll then fvalueCard = isCard("ArcheryAttack", fcard, self.player) end
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Heart then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("Peach", scard, self.player) or isCard("ExNihilo", scard, self.player) or isCard("ArcheryAttack", scard, self.player))
+					if useAll then svalueCard = (isCard("ArcheryAttack", scard, self.player)) end
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("archery_attack:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("archery_attack:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("SavageAssault", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Spade then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("SavageAssault", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("savage_assault:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("savage_assault:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("GodSalvation", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Diamond then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("GodSalvation", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("god_salvation:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("god_salvation:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("AmazingGrace", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Club then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("AmazingGrace", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("amazing_grace:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("amazing_grace:keyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+end
+
+
 --界张角
 
+
 sgs.ai_skill_invoke.kejieyaotuzhong = function(self, data)
-	return (math.random(0, 2) ~= 1)
+	if self:isWeak() then return true end
+	if self:ImitateResult_DrawNCards(self.player, self.player:getVisibleSkillList(true)) > 2 then
+		return false
+	end
+	return true
 end
 
 sgs.ai_skill_playerchosen.kejieyaotuzhong = function(self, targets)
 	targets = sgs.QList2Table(targets)
-	local theweak = sgs.SPlayerList()
-	local theweaktwo = sgs.SPlayerList()
-	for _, p in ipairs(targets) do
-		if self:isFriend(p) then
-			theweak:append(p)
-		end
+	local arr1, arr2 = self:getWoundedFriend(false, true)
+	local target = nil
+	if #arr1 > 0 and (self:isWeak(arr1[1]) or self:getOverflow() >= 1) and arr1[1]:getHp() < getBestHp(arr1[1]) then
+		target =
+			arr1[1]
 	end
-	for _, qq in sgs.qlist(theweak) do
-		if theweaktwo:isEmpty() then
-			theweaktwo:append(qq)
-		else
-			local inin = 1
-			for _, pp in sgs.qlist(theweaktwo) do
-				if (pp:getHp() < qq:getHp()) then
-					inin = 0
-				end
-			end
-			if (inin == 1) then
-				theweaktwo:append(qq)
-			end
-		end
+	if target then
+		return target
 	end
-	if theweaktwo:length() > 0 then
-		return theweaktwo:at(0)
+	if #arr2 > 0 then
+		for _, friend in ipairs(arr2) do
+			return friend
+		end
 	end
 	return nil
 end
 
+sgs.ai_playerchosen_intention.kejieyaotuzhong = function(self, from, to)
+	sgs.updateIntention(from, to, -50)
+end
+
+
+local kejieyaotaiping_skill = {}
+kejieyaotaiping_skill.name = "kejieyaotaiping"
+table.insert(sgs.ai_skills, kejieyaotaiping_skill)
+kejieyaotaiping_skill.getTurnUseCard = function(self)
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+		local useAll = false
+		for _, enemy in ipairs(self.enemies) do
+			if enemy:getHp() == 1 and not enemy:hasArmorEffect("vine") and not self:hasEightDiagramEffect(enemy) and self:damageIsEffective(enemy, nil, self.player)
+				and self:isWeak(enemy) and getCardsNum("Jink", enemy, self.player) + getCardsNum("Peach", enemy, self.player) + getCardsNum("Analeptic", enemy, self.player) == 0 then
+				useAll = true
+			end
+		end
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("Peach", fcard, self.player) or isCard("ExNihilo", fcard, self.player) or isCard("ArcheryAttack", fcard, self.player))
+			if useAll then fvalueCard = isCard("ArcheryAttack", fcard, self.player) end
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Heart then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("Peach", scard, self.player) or isCard("ExNihilo", scard, self.player) or isCard("ArcheryAttack", scard, self.player))
+					if useAll then svalueCard = (isCard("ArcheryAttack", scard, self.player)) end
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("archery_attack:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("archery_attack:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("SavageAssault", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Spade then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("SavageAssault", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("savage_assault:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("savage_assault:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("GodSalvation", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Diamond then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("GodSalvation", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("god_salvation:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("god_salvation:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() + self.player:getPile("wooden_ox"):length() >= 2 and not self.player:hasFlag("useyaotaiping") then
+		local cards = self.player:getHandcards()
+		local same_suit = false
+		cards = sgs.QList2Table(cards)
+
+		if self.player:getPile("wooden_ox"):length() > 0 then
+			for _, id in sgs.qlist(self.player:getPile("wooden_ox")) do
+				table.insert(cards, sgs.Sanguosha:getCard(id))
+			end
+		end
+
+		self:sortByKeepValue(cards)
+
+		for _, fcard in ipairs(cards) do
+			local fvalueCard = (isCard("AmazingGrace", fcard, self.player))
+			if not fvalueCard and fcard:getSuit() == sgs.Card_Club then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					local svalueCard = (isCard("AmazingGrace", scard, self.player))
+					if first_card ~= scard and scard:getSuit() == first_card:getSuit()
+						and not svalueCard then
+						local card_str = ("amazing_grace:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0,
+							first_card:getId(), scard:getId())
+						local archeryattack = sgs.Card_Parse(card_str)
+
+						assert(archeryattack)
+
+						local dummy_use = { isDummy = true }
+						self:useTrickCard(archeryattack, dummy_use)
+						if dummy_use.card then
+							second_card = scard
+							second_found = true
+							break
+						end
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
+	if first_found and second_found then
+		local first_id = first_card:getId()
+		local second_id = second_card:getId()
+		local card_str = ("amazing_grace:kejieyaotaiping[%s:%s]=%d+%d"):format("to_be_decided", 0, first_id, second_id)
+		local archeryattack = sgs.Card_Parse(card_str)
+		assert(archeryattack)
+		return archeryattack
+	end
+end
+
+
+
 --司马懿
 
 sgs.ai_skill_invoke.keyaozhabing = function(self, data)
-	return (self.player:getHp() > 1)
-		or (self:getCardsNum("Peach") > 0)
-		or (self:getCardsNum("Analeptic") > 0)
+	if self:isWeak() and self:getAllPeachNum() > 0 then
+		return true
+	end
+	if self.player:getHp() > getBestHp(self.player) then
+		return true
+	end
+	return false
+end
+
+sgs.ai_ajustdamage_to["&keyaozhabing"] = function(self, from, to, card, nature)
+	return -99
 end
 
 --界司马懿
 
 sgs.ai_skill_invoke.kejieyaozhabing = function(self, data)
-	return (self.player:getHp() > 1)
-		or (self:getCardsNum("Peach") > 0)
-		or (self:getCardsNum("Analeptic") > 0)
+	if self:isWeak() and self:getAllPeachNum() > 0 then
+		return true
+	end
+	if self.player:getHp() > getBestHp(self.player) then
+		return true
+	end
+	return false
 end
 
+--周泰
+sgs.ai_skill_invoke.kejieyaofenwei = function(self, data)
+	return sgs.ai_skill_playerchosen.kejieyaofenwei(self.room:getOtherPlayers(self.player)) ~= nil
+end
+sgs.ai_skill_playerchosen.kejieyaofenwei = function(self, targets)
+	targets = sgs.QList2Table(targets)
+	self:sort(targets, "defense")
+	for _, friend in ipairs(targets) do
+		if self:isFriend(friend) and not friend:hasSkill("kejieyaobuhui") then
+			return friend
+		end
+	end
+	return nil
+end
+
+sgs.ai_playerchosen_intention.kejieyaofenwei = function(self, from, to)
+	sgs.updateIntention(from, to, -50)
+end
+
+sgs.ai_skill_invoke.kejieyaofenwei_shouhui = function(self, data)
+	return true
+end
+sgs.ai_skill_invoke.kejieyaofenwei_mopai = function(self, data)
+	local target = data:toPlayer()
+	if target and self:isEnemy(tartget) then
+		return false
+	end
+	return true
+end
 
 --小乔
 
@@ -110,7 +590,7 @@ local keyaoquwu_skill = {}
 keyaoquwu_skill.name = "keyaoquwu"
 table.insert(sgs.ai_skills, keyaoquwu_skill)
 keyaoquwu_skill.getTurnUseCard = function(self)
-	if self.player:hasUsed("keyaoquwuCard") then return end
+	if self.player:hasUsed("#keyaoquwuCard") then return end
 	return sgs.Card_Parse("#keyaoquwuCard:.:")
 end
 
@@ -118,83 +598,61 @@ sgs.ai_skill_use_func["#keyaoquwuCard"] = function(card, use, self)
 	if not self.player:hasUsed("#keyaoquwuCard") then
 		self:sort(self.enemies)
 		self.enemies = sgs.reverse(self.enemies)
-		local enys = sgs.SPlayerList()
 		for _, enemy in ipairs(self.enemies) do
 			if self.player:inMyAttackRange(enemy) then
-				if enys:isEmpty() then
-					enys:append(enemy)
-				else
-					local yes = 1
-					for _, p in sgs.qlist(enys) do
-						if (enemy:getHp() + enemy:getHp() + enemy:getHandcardNum()) >= (p:getHp() + p:getHp() + p:getHandcardNum()) then
-							yes = 0
-						end
-					end
-					if (yes == 1) then
-						enys:removeOne(enys:at(0))
-						enys:append(enemy)
-					end
+				if enemy:getMark("&keyaoquwu") == 0 then
+					use.card = sgs.Card_Parse("#keyaoquwuCard:.:")
+					if use.to then use.to:append(enemy) end
+					return
 				end
-			end
-		end
-		for _, enemy in sgs.qlist(enys) do
-			if self:objectiveLevel(enemy) > 0 then
-				use.card = card
-				if use.to then use.to:append(enemy) end
-				return
 			end
 		end
 	end
 end
-
---[[sgs.ai_use_value.keyaoquwuCard = 8.5
+sgs.ai_use_value.keyaoquwuCard = 8.5
 sgs.ai_use_priority.keyaoquwuCard = 9.5
-sgs.ai_card_intention.keyaoquwuCard = 80]]
+sgs.ai_card_intention.keyaoquwuCard = 80
+
+sgs.ai_use_revises.keyaotongque = function(self, card, use)
+	if card:isKindOf("Analeptic")
+	then
+		return false
+	end
+end
+
+sgs.ai_target_revises.keyaotongque = function(to, card, self, use)
+	if card:isKindOf("IronChain") then return true end
+end
 
 local kejieyaoquwu_skill = {}
 kejieyaoquwu_skill.name = "kejieyaoquwu"
 table.insert(sgs.ai_skills, kejieyaoquwu_skill)
 kejieyaoquwu_skill.getTurnUseCard = function(self)
 	if (self.player:getMark("canusequwucishu") <= 0) then return end
+	--if self.player:usedTimes("#kejieyaoquwuCard") < self.player:getMark("canusequwucishu") then
 	return sgs.Card_Parse("#kejieyaoquwuCard:.:")
 end
 
 sgs.ai_skill_use_func["#kejieyaoquwuCard"] = function(card, use, self)
-	if (self.player:getMark("canusequwucishu") > 0) then
-		self:sort(self.enemies)
-		self.enemies = sgs.reverse(self.enemies)
-		local enys = sgs.SPlayerList()
-		for _, enemy in ipairs(self.enemies) do
-			if self.player:inMyAttackRange(enemy) and (enemy:getMark("&keyaoquwu") == 0) then
-				if enys:isEmpty() then
-					enys:append(enemy)
-				else
-					local yes = 1
-					for _, p in sgs.qlist(enys) do
-						if (enemy:getHp() + enemy:getHp() + enemy:getHandcardNum()) >= (p:getHp() + p:getHp() + p:getHandcardNum()) then
-							yes = 0
-						end
-					end
-					if (yes == 1) then
-						enys:removeOne(enys:at(0))
-						enys:append(enemy)
-					end
-				end
-			end
-		end
-		for _, enemy in sgs.qlist(enys) do
-			if self:objectiveLevel(enemy) > 0 then
-				use.card = card
-				if use.to then use.to:append(enemy) end
-				return
-			end
+	self:sort(self.enemies)
+	self.enemies = sgs.reverse(self.enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if enemy:getMark("&kejieyaoquwu") == 0 then
+			use.card = sgs.Card_Parse("#kejieyaoquwuCard:.:")
+			if use.to then use.to:append(enemy) end
+			return
 		end
 	end
 end
 
---[[sgs.ai_use_value.kejieyaoquwuCard = 8.5
+sgs.ai_use_value.kejieyaoquwuCard = 8.5
 sgs.ai_use_priority.kejieyaoquwuCard = 9.5
-sgs.ai_card_intention.kejieyaoquwuCard = 80]]
+sgs.ai_card_intention.kejieyaoquwuCard = 80
+
+sgs.ai_target_revises.kejieyaotongque = function(to, card, self, use)
+	if card:isKindOf("IronChain") then return true end
+end
+
 
 sgs.ai_skill_invoke.kejieyaoquwutwo = function(self, data)
 	return true
@@ -215,23 +673,47 @@ end
 
 --卞氏
 
-sgs.ai_view_as.keyaojiahuo = function(card, player, card_place)
-	local suit = card:getSuitString()
-	local number = card:getNumberString()
-	local card_id = card:getEffectiveId()
-	if card:isBlack() then
-		return ("collateral:keyaojiahuo[%s:%s]=%d"):format(suit, number, card_id)
+local keyaojiahuo_skill = {}
+keyaojiahuo_skill.name = "keyaojiahuo"
+table.insert(sgs.ai_skills, keyaojiahuo_skill)
+
+keyaojiahuo_skill.getTurnUseCard = function(self)
+	if self.player:getHandcardNum() < 1 then return end
+	if self.player:hasFlag("usedyaojiahuo") then return end
+	local cards = sgs.QList2Table(self.player:getCards("h"))
+	local subcards = {}
+	self:sortByUseValue(cards, true)
+	local cardsq = {}
+	for _, card in ipairs(cards) do
+		if card:isBlack() then table.insert(cardsq, card) end
 	end
+	if #cardsq == 0 then return end
+	if self:getKeepValue(cardsq[1]) > 18 then return end
+	if self:getUseValue(cardsq[1]) > 12 then return end
+	table.insert(subcards, cardsq[1]:getId())
+	local card_str = "Collateral:keyaojiahuo[to_be_decided:0]=" .. table.concat(subcards, "+")
+	local AsCard = sgs.Card_Parse(card_str)
+	assert(AsCard)
+	return AsCard
 end
+
+
 
 sgs.ai_cardneed.keyaojiahuo = function(to, card, self)
-	return card:isBlack()
+	return card:isBlack() and to:getHandcardNum() <= 3
 end
 
-sgs.ai_skill_choice.keyaoyaohou = function(self, choices, data)
-	if self.player:hasFlag("wantusekeyaoyaohou") and self.player:hasFlag("wantusekeyaoyaohoutwo") then return "huode" end
+sgs.ai_skill_choice.keyaojiahuo = function(self, choices, data)
+	local items = choices:split("+")
+	local damage = data:toDamage()
+	if self:isEnemy(damage.to) then
+		return "huode"
+	else
+		return "mopai"
+	end
 	return "mopai"
 end
+
 
 --吉平
 
@@ -239,55 +721,29 @@ local keyaoshidu_skill = {}
 keyaoshidu_skill.name = "keyaoshidu"
 table.insert(sgs.ai_skills, keyaoshidu_skill)
 keyaoshidu_skill.getTurnUseCard = function(self)
-	if self.player:hasUsed("keyaoshiduCard") then return end
-	local card_id
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	self:sortByKeepValue(cards)
-	local to_throw = sgs.IntList()
-	for _, acard in ipairs(cards) do
-		if (acard:getSuit() == sgs.Card_Spade) and
-			(acard:isKindOf("BasicCard")
-				or acard:isKindOf("EquipCard")) then
-			to_throw:append(acard:getEffectiveId())
-		end
-	end
-	card_id = to_throw:at(0)
-	if not card_id then
-		return nil
-	else
-		return sgs.Card_Parse("#keyaoshiduCard:" .. card_id .. ":")
+	if not self.player:isNude() then
+		return sgs.Card_Parse("#keyaoshiduCard:.:")
 	end
 end
 
 sgs.ai_skill_use_func["#keyaoshiduCard"] = function(card, use, self)
-	if not self.player:hasUsed("#keyaoshiduCard") then
-		self:sort(self.enemies)
-		self.enemies = sgs.reverse(self.enemies)
-		local enys = sgs.SPlayerList()
-		for _, enemy in ipairs(self.enemies) do
-			if (enemy:getMark("&keyaoshidu") == 0) then
-				if enys:isEmpty() then
-					enys:append(enemy)
-				else
-					local yes = 1
-					for _, p in sgs.qlist(enys) do
-						if (enemy:getHp() + enemy:getHp() + enemy:getHandcardNum()) >= (p:getHp() + p:getHp() + p:getHandcardNum()) then
-							yes = 0
-						end
-					end
-					if (yes == 1) then
-						enys:removeOne(enys:at(0))
-						enys:append(enemy)
-					end
-				end
-			end
+	local hand_weapon, cards
+	cards = self.player:getHandcards()
+	for _, card in sgs.qlist(cards) do
+		if card:getSuit() == sgs.Card_Spade and (card:isKindOf("BasicCard") or card:isKindOf("EquipCard")) then
+			hand_weapon = card
+			break
 		end
-		for _, enemy in sgs.qlist(enys) do
-			if self:objectiveLevel(enemy) > 0 then
-				use.card = card
-				if use.to then use.to:append(enemy) end
-				return
+	end
+	self:sort(self.enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy) and enemy:getMark("keyaoshidu" .. self.player:objectName()) == 0 then
+			if hand_weapon then
+				use.card = sgs.Card_Parse("#keyaoshiduCard:" .. hand_weapon:getId() .. ":")
+				if use.to then
+					use.to:append(enemy)
+				end
+				break
 			end
 		end
 	end
@@ -326,55 +782,30 @@ local kejieyaoshidu_skill = {}
 kejieyaoshidu_skill.name = "kejieyaoshidu"
 table.insert(sgs.ai_skills, kejieyaoshidu_skill)
 kejieyaoshidu_skill.getTurnUseCard = function(self)
-	if self.player:hasUsed("kejieyaoshiduCard") then return end
-	local card_id
-	local cards = self.player:getHandcards()
-	cards = sgs.QList2Table(cards)
-	self:sortByKeepValue(cards)
-	local to_throw = sgs.IntList()
-	for _, acard in ipairs(cards) do
-		if
-			(acard:isKindOf("BasicCard")
-				or acard:isKindOf("EquipCard")) then
-			to_throw:append(acard:getEffectiveId())
-		end
-	end
-	card_id = to_throw:at(0)
-	if not card_id then
-		return nil
-	else
-		return sgs.Card_Parse("#kejieyaoshiduCard:" .. card_id .. ":")
+	if self.player:canDiscard(self.player, "he") then
+		return sgs.Card_Parse("#kejieyaoshiduCard:.:")
 	end
 end
 
 sgs.ai_skill_use_func["#kejieyaoshiduCard"] = function(card, use, self)
-	if not self.player:hasUsed("#kejieyaoshiduCard") then
-		self:sort(self.enemies)
-		self.enemies = sgs.reverse(self.enemies)
-		local enys = sgs.SPlayerList()
-		for _, enemy in ipairs(self.enemies) do
-			if (enemy:getMark("&keyaoshidu") == 0) then
-				if enys:isEmpty() then
-					enys:append(enemy)
-				else
-					local yes = 1
-					for _, p in sgs.qlist(enys) do
-						if (enemy:getHp() + enemy:getHp() + enemy:getHandcardNum()) >= (p:getHp() + p:getHp() + p:getHandcardNum()) then
-							yes = 0
-						end
-					end
-					if (yes == 1) then
-						enys:removeOne(enys:at(0))
-						enys:append(enemy)
-					end
-				end
-			end
+	local hand_weapon, cards
+	cards = self.player:getHandcards()
+	for _, card in sgs.qlist(cards) do
+		if (card:isKindOf("BasicCard") or card:isKindOf("EquipCard")) then
+			hand_weapon = card
+			break
 		end
-		for _, enemy in sgs.qlist(enys) do
-			if self:objectiveLevel(enemy) > 0 then
-				use.card = card
-				if use.to then use.to:append(enemy) end
-				return
+	end
+	self:sort(self.enemies)
+	for _, enemy in ipairs(self.enemies) do
+		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy)
+			and enemy:getMark("kejieyaoshidu" .. self.player:objectName()) == 0 then
+			if hand_weapon then
+				use.card = sgs.Card_Parse("#kejieyaoshiduCard:" .. hand_weapon:getId() .. ":")
+				if use.to then
+					use.to:append(enemy)
+				end
+				break
 			end
 		end
 	end
@@ -416,79 +847,77 @@ end
 
 --程昱
 
-sgs.ai_skill_invoke.keyaoxieqin = function(self, data)
-	return self.player:hasFlag("wantusekeyaoxieqin")
-end
+
+
+sgs.ai_choicemade_filter.cardChosen.keyaoxieqin = sgs.ai_choicemade_filter.cardChosen.snatch
 
 sgs.ai_skill_playerchosen.keyaoxieqin = function(self, targets)
 	targets = sgs.QList2Table(targets)
-	local theweak = sgs.SPlayerList()
-	local theweaktwo = sgs.SPlayerList()
-	for _, p in ipairs(targets) do
-		if self:isEnemy(p) then
-			theweak:append(p)
+
+	for _, enemy in ipairs(self.enemies) do
+		if self:isEnemy(enemy) and (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and table.contains(targets, enemy) then
+			return enemy
 		end
 	end
-	for _, qq in sgs.qlist(theweak) do
-		if theweaktwo:isEmpty() then
-			theweaktwo:append(qq)
-		else
-			local inin = 1
-			for _, pp in sgs.qlist(theweaktwo) do
-				if (pp:getHp() < qq:getHp()) then
-					inin = 0
-				end
-			end
-			if (inin == 1) then
-				theweaktwo:append(qq)
-			end
+	for _, friend in ipairs(self.friends) do
+		if table.contains(targets, friend) and (self:hasSkills(sgs.lose_equip_skill, friend) and not friend:getEquips():isEmpty())
+			or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+			return self:isFriend(friend)
 		end
 	end
-	if theweaktwo:length() > 0 then
-		return theweaktwo:at(0)
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if self:isEnemy(p) and self.player:canDiscard(p, "he") and table.contains(targets, p) then
+			return p
+		end
 	end
-	return nil
+	return targets[1]
 end
+
+sgs.ai_playerchosen_intention.keyaoxieqin = 80
+
+sgs.ai_skill_choice["keyaoshiwei"] = function(self, choices, data)
+	local items = choices:split("+")
+	return items[math.random(1, #items)]
+end
+
+
 
 sgs.ai_skill_invoke.keyaoshiwei = function(self, data)
 	return true
 end
 
 
-sgs.ai_skill_invoke.keyaoxieqin = function(self, data)
-	return self.player:hasFlag("wantusekejieyaoxieqin")
+sgs.ai_choicemade_filter.cardChosen.kejieyaoxieqin = sgs.ai_choicemade_filter.cardChosen.snatch
+
+sgs.ai_skill_playerchosen.kejieyaoxieqin = function(self, targets)
+	targets = sgs.QList2Table(targets)
+
+	for _, enemy in ipairs(self.enemies) do
+		if self:isEnemy(enemy) and (not self:doNotDiscard(enemy) or self:getDangerousCard(enemy) or self:getValuableCard(enemy)) and not enemy:isNude() and table.contains(targets, enemy) then
+			return enemy
+		end
+	end
+	for _, friend in ipairs(self.friends) do
+		if table.contains(targets, friend) and (self:hasSkills(sgs.lose_equip_skill, friend) and not friend:getEquips():isEmpty())
+			or (self:needToThrowArmor(friend) and friend:getArmor()) or self:doNotDiscard(friend) then
+			return self:isFriend(friend)
+		end
+	end
+	for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+		if self:isEnemy(p) and self.player:canDiscard(p, "he") and table.contains(targets, p) then
+			return p
+		end
+	end
+	return targets[1]
 end
 
-sgs.ai_skill_playerchosen.wantusekejieyaoxieqin = function(self, targets)
-	targets = sgs.QList2Table(targets)
-	local theweak = sgs.SPlayerList()
-	local theweaktwo = sgs.SPlayerList()
-	for _, p in ipairs(targets) do
-		if self:isEnemy(p) then
-			theweak:append(p)
-		end
-	end
-	for _, qq in sgs.qlist(theweak) do
-		if theweaktwo:isEmpty() then
-			theweaktwo:append(qq)
-		else
-			local inin = 1
-			for _, pp in sgs.qlist(theweaktwo) do
-				if (pp:getHp() < qq:getHp()) then
-					inin = 0
-				end
-			end
-			if (inin == 1) then
-				theweaktwo:append(qq)
-			end
-		end
-	end
-	if theweaktwo:length() > 0 then
-		return theweaktwo:at(0)
-	end
-	return nil
-end
+sgs.ai_playerchosen_intention.kejieyaoxieqin = 80
 
 sgs.ai_skill_invoke.kejieyaoshiwei = function(self, data)
 	return true
+end
+
+sgs.ai_skill_choice["kejieyaoshiwei"] = function(self, choices, data)
+	local items = choices:split("+")
+	return items[math.random(1, #items)]
 end

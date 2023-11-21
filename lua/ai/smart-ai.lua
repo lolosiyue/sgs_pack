@@ -105,7 +105,8 @@ do
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng" ..
 		"|FourQixiB" --add
 
-	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng"
+	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng" ..
+		"|keyaozhongyi" --add
 
 	sgs.masochism_skill = "guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|" ..
 		"fangzhu|nosenyuan|langgu|quanji|zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
@@ -4133,6 +4134,10 @@ function SmartAI:getLeastHandcardNum(player)
 	then
 		least = 1
 	end
+	if player:hasSkill("keyaozhongyi") and least < 1
+	then
+		least = player:getHp()
+	end
 
 	return least
 end
@@ -6529,6 +6534,7 @@ function getBestHp(owner)
 	end
 	if owner:hasSkill("keshengxionglve") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("kejieshengxionglve") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("keyaoguimou") then return owner:getMaxHp() - 1 end
 
 
 	return owner:getMaxHp()
@@ -7945,6 +7951,10 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 		if hasWulingEffect("@wind") then dmg = dmg + 1 end
 		if hasWulingEffect("@earth") and not to:hasSkill("ranshang") then return 1 end
 	end
+	--add
+	if from:hasSkill("keyaoleimu") then
+		nature = "T"
+	end
 	if to:getMark("&shouli_debuff-Clear") > 0
 	then
 		nature = "T"
@@ -8003,6 +8013,14 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 			ad = ad(self, from, to, card, nature)
 			if type(ad) == "number" then dmg = dmg + ad end
 		end
+	end
+
+	--add
+	if to:hasSkill("keyaoliandu") and dmg > 1 then
+		dmg = 1
+	end
+	if to:hasSkill("kejieyaoliandu") and dmg > 1 then
+		dmg = 1
 	end
 	return dmg < -10 and 0 or dmg
 end
