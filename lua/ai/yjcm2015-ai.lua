@@ -509,9 +509,9 @@ sgs.ai_skill_invoke.jigong = function(self)
     for _,c in sgs.qlist(self.player:getHandcards())do
         local x = nil
         if isCard("ArcheryAttack",c,self.player) then
-            x = sgs.Sanguosha:cloneCard("ArcheryAttack")
+            x = dummyCard("ArcheryAttack")
         elseif isCard("SavageAssault",c,self.player) then
-            x = sgs.Sanguosha:cloneCard("SavageAssault")
+            x = dummyCard("SavageAssault")
         else continue end
 
         local du = { isDummy = true }
@@ -523,34 +523,34 @@ sgs.ai_skill_invoke.jigong = function(self)
 end
 
 sgs.ai_skill_invoke.shifei = function(self)
-    local l = {}
+    local sf = {}
     for _,p in sgs.qlist(self.room:getAlivePlayers())do
-        l[p:objectName()] = p:getHandcardNum()
-        if (p:objectName()==self.room:getCurrent():objectName()) then
-            l[p:objectName()] = p:getHandcardNum()+1
+        sf[p:objectName()] = p:getHandcardNum()
+        if p==self.room:getCurrent() then
+            sf[p:objectName()] = p:getHandcardNum()+1
         end
     end
 
     local most = {}
-    for k,t in pairs(l)do
+    for k,t in pairs(sf)do
         if #most==0 then
             table.insert(most,k)
             continue
         end
 
-        if (t>l[most[1]]) then
+        if t>sf[most[1]] then
             most = {}
         end
 
         table.insert(most,k)
     end
 
-    if (table.contains(most,self.room:getCurrent():objectName())) then
+    if table.contains(most,self.room:getCurrent():objectName()) then
         return table.contains(self.friends,self.room:getCurrent(),true)
     end
 
     for _,p in ipairs(most)do
-        if (table.contains(self.enemies,p,true)) then return true end
+        if table.contains(self.enemies,BeMan(self.room,p)) then return true end
     end
     return false
 end
@@ -570,7 +570,7 @@ table.insert(sgs.ai_skills,zhanjue_skill)
 zhanjue_skill.getTurnUseCard = function(self)
     if self.player:getHandcardNum()>self.player:getHp()
 	or self.player:isKongcheng() then return end
-	local duel = sgs.Sanguosha:cloneCard("duel")
+	local duel = dummyCard("duel")
     duel:addSubcards(self.player:getHandcards())
     duel:setSkillName("zhanjue")
 	return duel
@@ -645,7 +645,7 @@ table.insert(sgs.ai_skills,olzhanjue_skill)
 olzhanjue_skill.getTurnUseCard = function(self)
     if self.player:getHandcardNum()>self.player:getHp()
 	or self.player:isKongcheng() then return end
-	local duel = sgs.Sanguosha:cloneCard("duel")
+	local duel = dummyCard("duel")
     duel:addSubcards(self.player:getHandcards())
     duel:setSkillName("olzhanjue")
 	return duel
@@ -683,7 +683,7 @@ end
 
 sgs.ai_guhuo_card.zhenshan = function(self,toname,class_name)
 	local can
-   	local poi = sgs.Sanguosha:cloneCard(toname)
+   	local poi = dummyCard(toname)
 	if not poi then return end
 	poi:deleteLater()
     self.player:speak("zhenshan1")
@@ -1113,7 +1113,7 @@ sgs.ai_skill_use_func.WurongCard = function(card,use,self)
         end
         
         if not target and #enemies>0 then
-            self:sort(enemies,"defense")
+            self:sort(enemies,"defense",true)
             need_slash,target = (math.random(0,1)==0),enemies[1]
         end
     end

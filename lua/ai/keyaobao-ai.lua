@@ -703,7 +703,7 @@ sgs.ai_cardneed.keyaojiahuo = function(to, card, self)
 	return card:isBlack() and to:getHandcardNum() <= 3
 end
 
-sgs.ai_skill_choice.keyaojiahuo = function(self, choices, data)
+sgs.ai_skill_choice.keyaoyaohou = function(self, choices, data)
 	local items = choices:split("+")
 	local damage = data:toDamage()
 	if self:isEnemy(damage.to) then

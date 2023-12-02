@@ -2130,13 +2130,12 @@ gdlonghun_skill.getTurnUseCard = function(self)
 	local cards = self:addHandPile("he")
 	self:sortByKeepValue(cards)
    	for _,c in sgs.list(cards)do
-	   	local fs = sgs.Sanguosha:cloneCard("fire_slash")
+	   	local fs = dummyCard("fire_slash")
 		fs:setSkillName("gdlonghun")
 		fs:addSubcard(c)
 		if c:getSuit()==3
 		and fs:isAvailable(self.player)
 	   	then return fs end
-		fs:deleteLater()
 	end
 end
 

@@ -102,6 +102,11 @@ luanixi_tr = sgs.CreateTriggerSkill {
 					player:drawCards(x)
 				end
 			end
+			for _, skill in sgs.qlist(player:getVisibleSkillList()) do
+				if skill:getFrequency(player) == sgs.Skill_Wake then
+					player:setCanWake(skill:objectName(), skill:objectName())
+				end
+			end
 		elseif event == sgs.DrawNCards then
 			if player:isWounded() then
 				room:sendCompulsoryTriggerLog(player, "luanixi", true)

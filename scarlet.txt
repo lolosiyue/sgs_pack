@@ -26,6 +26,7 @@ woft
 emjr
 meizl
 leo
+xiake
 
 ai:
 
@@ -40,6 +41,8 @@ changeTranslation
 needToLoseHp
 evaluatePlayerRole
 SlashMissed  -> sgs.CardOffset sgs.CardOnEffect 
+toSlashEffect toCardEffect
+effect.card:isKindOf("Slash")
 
 
 p:hasSkills(sgs.recover_skill)

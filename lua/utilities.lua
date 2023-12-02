@@ -1,76 +1,74 @@
--- utilities, i.e: convert QList<const Card *> to Lua's native table
-function sgs.QList2Table(qlist)
-	local t = {}
-	for i = 0, qlist:length() - 1 do
-		table.insert(t, qlist:at(i))
-	end
-
-	return t
-end
 
 -- the iterator of QList object
-local qlist_iterator = function(list, n)
-	if n < list:length() - 1 then
-		return n + 1, list:at(n + 1) -- the next element of list
+local qlist_iterator = function(list,n)
+--	if type(list)~="userdata" then return end
+	if n<list:length()-1 then
+		return n+1,list:at(n+1) -- the next element of list
 	end
 end
 
 function sgs.qlist(list)
-	return qlist_iterator, list, -1
+	return qlist_iterator,list,-1
 end
 
 -- more general iterator
 function sgs.list(list)
-	if type(list) == "table" then
-		return ipairs(list)
-	else
-		return sgs.qlist(list)
+	if type(list)=="table" then return ipairs(list)
+	else return sgs.qlist(list) end
+end
+
+-- utilities,i.e: convert QList<const Card *> to Lua's native table
+function sgs.QList2Table(list)
+	local t = {}
+	for _,a in sgs.list(list)do
+		table.insert(t,a)
 	end
+	return t
 end
 
 function sgs.reverse(list)
 	local new = {}
-	for i = #list, 1, -1 do
-		table.insert(new, list[i])
+	for i=#list,1,-1 do
+		table.insert(new,list[i])
 	end
 	return new
 end
 
 -- copied from "Well House Consultants"
--- used to split string into a table, similar with php' explode function
+-- used to split string into a table,similar with php' explode function
 function string:split(delimiter)
-	if #self == 0 then return {} end
-	local result = {}
-	local from = 1
-	local delim_from, delim_to = string.find(self, delimiter, from)
+	if #self<1 then return {} end
+	local result,from = {},1
+	local delim_from,delim_to = string.find(self,delimiter,from)
 	while delim_from do
-		table.insert(result, string.sub(self, from, delim_from - 1))
-		from  = delim_to + 1
-		delim_from, delim_to = string.find(self, delimiter, from)
+		table.insert(result,string.sub(self,from,delim_from-1))
+		from = delim_to+1
+		delim_from,delim_to = string.find(self,delimiter,from)
 	end
-	table.insert(result, string.sub(self, from))
+	table.insert(result,string.sub(self,from))
 	return result
 end
 
-function table:contains(element, compare_objectName)
-	if #self == 0 or type(self[1]) ~= type(element) then return false end
+function table:contains(element,compare_objectName)
+	if #self<1 then return false end
 	if compare_objectName then
-		for _, e in ipairs(self) do
-			if e:objectName() == element:objectName() then return true end
+		for _,e in ipairs(self)do
+			if e:objectName()==element:objectName()
+			then return true end
 		end
 	else
-		for _, e in ipairs(self) do
-			if e == element then return true end
+		for _,e in ipairs(self)do
+			if e==element then return true end
 		end
 	end
+	return false
 end
 
 function table:removeOne(element)
-	if #self == 0 or type(self[1]) ~= type(element) then return false end
-
-	for i = 1, #self do
-		if self[i] == element then
-			table.remove(self, i)
+	if #self<1 then return false end
+	for i=1,#self do
+		if self[i]==element then
+			table.remove(self,i)
 			return true
 		end
 	end
@@ -78,63 +76,63 @@ function table:removeOne(element)
 end
 
 function table:removeAll(element)
-	if #self == 0 or type(self[1]) ~= type(element) then return 0 end
+	if #self<1 then return 0 end
 	local n = 0
-	for i = 1, #self do
-		if self[i] == element then
-			table.remove(self, i)
-			n = n + 1
+	for i=1,#self do
+		if self[i]==element then
+			table.remove(self,i)
+			n = n+1
 		end
 	end
 	return n
 end
 
 function table:insertTable(list)
-	for _, e in ipairs(list) do
-		table.insert(self, e)
+	for _,e in ipairs(list)do
+		table.insert(self,e)
 	end
 end
 
 function table:removeTable(list)
-	for _, e in ipairs(list) do
-		table.removeAll(self, e)
+	for _,e in ipairs(list)do
+		table.removeAll(self,e)
 	end
 end
 
 function table.copyFrom(list)
 	local l = {}
-	for _, e in ipairs(list) do
-		table.insert(l, e)
+	for _,e in ipairs(list)do
+		table.insert(l,e)
 	end
 	return l
 end
 
-function table:indexOf(value, from)
+function table:indexOf(value,from)
 	from = from or 1
-	for i = from, #self do
-		if self[i] == value then return i end
+	for i=from,#self do
+		if self[i]==value then return i end
 	end
 	return -1
 end
 
 function string:matchOne(option)
-	return self:match("^" .. option .. "%p") or self:match("%p" .. option .. "%p") or self:match("%p" .. option .. "$")
+	return self:match("^"..option.."%p") or self:match("%p"..option.."%p") or self:match("%p"..option.."$")
 end
 
 function string:startsWith(substr)
 	local len = string.len(substr)
-	if len == 0 or len > string.len(self) then return false end
-	return string.sub(self, 1, len) == substr
+	if len==0 or len>string.len(self) then return false end
+	return string.sub(self,1,len)==substr
 end
 
 function string:endsWith(substr)
 	local len = string.len(substr)
-	if len == 0 or len > string.len(self) then return false end
-	return string.sub(self, -len, -1) == substr
+	if len==0 or len>string.len(self) then return false end
+	return string.sub(self,-len,-1)==substr
 end
 
 function math:mod(num)
-	return math.fmod(self, num)
+	return math.fmod(self,num)
 end
 
 sgs.CommandType = {
@@ -193,7 +191,7 @@ sgs.CommandType = {
 	"S_COMMAND_REVIVE_PLAYER",
 	"S_COMMAND_ATTACH_SKILL",
 	"S_COMMAND_NULLIFICATION_ASKED",
-	"S_COMMAND_EXCHANGE_KNOWN_CARDS", -- For Dimeng only
+	"S_COMMAND_EXCHANGE_KNOWN_CARDS",-- For Dimeng only
 	"S_COMMAND_SET_KNOWN_CARDS",
 	"S_COMMAND_UPDATE_PILE",
 	"S_COMMAND_RESET_PILE",
@@ -201,7 +199,7 @@ sgs.CommandType = {
 	"S_COMMAND_UPDATE_STATE_ITEM",
 	"S_COMMAND_UPDATE_BOSS_LEVEL",
 	"S_COMMAND_SPEAK",
-	"S_COMMAND_ASK_GENERAL", -- the following 6 for 1v1 and 3v3
+	"S_COMMAND_ASK_GENERAL",-- the following 6 for 1v1 and 3v3
 	"S_COMMAND_ARRANGE_GENERAL",
 	"S_COMMAND_FILL_GENERAL",
 	"S_COMMAND_TAKE_GENERAL",
@@ -228,10 +226,8 @@ sgs.CommandType = {
 	"S_COMMAND_ADD_ROUND"
 }
 
-local i = 0
-for _, command in ipairs(sgs.CommandType) do
-	sgs.CommandType[command] = i
-	i = i + 1
+for i,command in ipairs(sgs.CommandType)do
+	sgs.CommandType[command] = i-1
 end
 
 json = require("json")

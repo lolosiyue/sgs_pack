@@ -65,7 +65,7 @@ fan_skill.getTurnUseCard=function(self)
 		if card:isKindOf("Slash")
 		and not card:isKindOf("NatureSlash")
 		then
-			d = sgs.Sanguosha:cloneCard("fire_slash")
+			d = dummyCard("fire_slash")
 			d:setSkillName("fan")
 			d:addSubcard(card)
 			if d:isAvailable(self.player)
@@ -151,7 +151,6 @@ function SmartAI:useCardAnaleptic(card,use)
 		end
 		use.card = card
 	elseif #self.toUse>0
-	and sgs.Sanguosha:getCurrentCardUseReason()~=sgs.CardUseStruct_CARD_USE_REASON_PLAY
 	then
 		for _,c in ipairs(self.toUse)do
 			if c:isKindOf("Slash")

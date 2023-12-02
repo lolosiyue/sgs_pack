@@ -4963,17 +4963,17 @@ return {
 --[[
 	鲁芝（额外）
 ]]--
-    ["$qingzhong1-luzhi_1"] = "坚贞气节，不改本心。", 
-	["$qingzhong2-luzhi_1"] = "宁战不和，忠魏国之恩。", 
-	["$weijing1-luzhi_1"] = "有我一日镇守，断不让蜀军来犯！",
-	["$weijing2-luzhi_1"] = "镇边防卫，吾之本分。",
-	["~luzhi-luzhi_1"] = "司马掌权，魏气已尽……",
+    ["$qingzhong1-sp_luzhi_1"] = "坚贞气节，不改本心。", 
+	["$qingzhong2-sp_luzhi_1"] = "宁战不和，忠魏国之恩。", 
+	["$weijing1-sp_luzhi_1"] = "有我一日镇守，断不让蜀军来犯！",
+	["$weijing2-sp_luzhi_1"] = "镇边防卫，吾之本分。",
+	["~sp_luzhi-sp_luzhi_1"] = "司马掌权，魏气已尽……",
     
-	["$qingzhong1-luzhi_2"] = "坚贞气节，不改本心。", 
-	["$qingzhong2-luzhi_2"] = "宁战不和，忠魏国之恩。", 
-	["$weijing1-luzhi_2"] = "有我一日镇守，断不让蜀军来犯！",
-	["$weijing2-luzhi_2"] = "镇边防卫，吾之本分。",
-	["~luzhi-luzhi_2"] = "司马掌权，魏气已尽……",
+	["$qingzhong1-sp_luzhi_2"] = "坚贞气节，不改本心。", 
+	["$qingzhong2-sp_luzhi_2"] = "宁战不和，忠魏国之恩。", 
+	["$weijing1-sp_luzhi_2"] = "有我一日镇守，断不让蜀军来犯！",
+	["$weijing2-sp_luzhi_2"] = "镇边防卫，吾之本分。",
+	["~sp_luzhi-sp_luzhi_2"] = "司马掌权，魏气已尽……",
 
 --[[
 	司马徽（额外）
@@ -7284,11 +7284,11 @@ return {
 --[[	
     卢植（阴包）
 ]]--
-    ["$mingren1-luzhiy_1"] = "吾之任，君之明举。",
-	["$mingren2-luzhiy_1"] = "得义真所救，吾任之必尽瘁以报。",
-	["$zhenliang1-luzhiy_1"] = "贞节贤良，吾之本心。",
-	["$zhenliang2-luzhiy_1"] = "风霜以别草木之性，危乱而见贞良之节。",
-    ["~luzhiy-luzhiy_1"] = "泓泓眸子宿渊亭，不见蛾眉只见经........",
+    ["$mingren1-luzhi_1"] = "吾之任，君之明举。",
+	["$mingren2-luzhi_1"] = "得义真所救，吾任之必尽瘁以报。",
+	["$zhenliang1-luzhi_1"] = "贞节贤良，吾之本心。",
+	["$zhenliang2-luzhi_1"] = "风霜以别草木之性，危乱而见贞良之节。",
+    ["~luzhiy-luzhi_1"] = "泓泓眸子宿渊亭，不见蛾眉只见经........",
 
 --[[
 	神刘备（阴包）

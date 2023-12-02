@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "kejieshenggongsunzan"
+choose_general = "guanyuzy"
 debug = 1
 wait = 1
 
@@ -200,6 +200,8 @@ for run in range(num_test_runs):
         if end_game_location is not None  or not psutil.pid_exists(game_process.pid):
             print(f"Test run {run+1} completed.")
             time.sleep(2)
+            vscode_title = "Visual Studio Code"
+            bring_window_to_front(vscode_title)
             # Ask the user to press any key to continue or '0' to exit
             if debug == 1 or wait == 1:
                 user_input = input("Press any key to continue or '0' to exit: ")

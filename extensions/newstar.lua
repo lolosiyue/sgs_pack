@@ -317,7 +317,7 @@ LuaGuizha = sgs.CreateTriggerSkill {
 		if player:isNude() then return false end
 		local judge = data:toJudge()
 		local prompt_list = {
-			"@guicai-card",
+			"@LuaGuizha-card",
 			judge.who:objectName(),
 			self:objectName(),
 			judge.reason,
@@ -1315,6 +1315,7 @@ sgs.LoadTranslationTable {
 	["$LuaGuizha2"] = "吾乃天命之子",
 	[":LuaGuizha"] = "在一名角色的判定牌生效前，你可以打出一张牌替换之。 ",
 	["~LuaGuizha"] = "请选择一张牌，替换当前判定牌",
+	["@LuaGuizha-card"] = "请发动“%dest”来修改 %src 的 %arg 判定",
 	["LuaQuanbian"] = "权变",
 	[":LuaQuanbian"] = "当你受到一点伤害后，你可以获得伤害来源一张牌。当你造成伤害后，你可以获得伤害目标装备区里一张牌。",
 	["$LuaQuanbian1"] = "下次注意点儿",

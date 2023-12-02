@@ -5286,12 +5286,12 @@ function SmartAI:getRetrialCardId(cards, judge, self_card, exchange)
 					then
 						if judge.card:getSuit() == sgs.Card_Heart and judge.who:isWounded() and self:isFriend(judge.who)
 							or judge.card:getSuit() == sgs.Card_Diamond and self:isEnemy(judge.who) and hasManjuanEffect(judge.who)
-							or judge.card:getSuit() == sgs.Card_Club and self:needToThrowArmor(damage.from) then
+							or (judge.card:getSuit() == sgs.Card_Club and damage.from and self:needToThrowArmor(damage.from)) then
 						elseif (self:isFriend(judge.who) and x:getSuit() == sgs.Card_Heart and judge.who:isWounded()
 								or x:getSuit() == sgs.Card_Diamond and self:isEnemy(judge.who) and hasManjuanEffect(judge.who)
 								or x:getSuit() == sgs.Card_Diamond and self:isFriend(judge.who) and not hasManjuanEffect(judge.who)
-								or x:getSuit() == sgs.Card_Club and (self:needToThrowArmor(damage.from) or damage.from:isNude()))
-							or judge.card:getSuit() == sgs.Card_Spade and self:toTurnOver(damage.from, 0)
+								or (x:getSuit() == sgs.Card_Club and damage.from and (self:needToThrowArmor(damage.from) or damage.from:isNude())))
+							or (judge.card:getSuit() == sgs.Card_Spade and damage.from and self:toTurnOver(damage.from, 0))
 						then
 							table.insert(other_suit, c)
 						end
@@ -5349,9 +5349,9 @@ function SmartAI:getRetrialCardId(cards, judge, self_card, exchange)
 	then
 		for i, c in sgs.list(can_use) do
 			i = c
-			if self:doDisCard(self.player, i)
+			if self:doDisCard(self.player, c)
 			then
-				return i
+				return c
 			end
 		end
 		self:sortByKeepValue(can_use)

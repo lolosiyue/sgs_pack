@@ -1336,25 +1336,6 @@ sgs.ai_skill_use["@@tunan2!"] = function(self,prompt)
 		end
 		return slash:toString().."->"..table.concat(targets,"+")
 	end
-	for _,p in sgs.qlist(self.room:getAlivePlayers())do
-		if CanToCard(slash,self.player,tos)
-		and not self:isFriend(p)
-		then
-			table.insert(tos,p)
-			table.insert(targets,p:objectName())
-		end
-	end
-	for _,p in sgs.qlist(self.room:getAlivePlayers())do
-		if CanToCard(slash,self.player,tos)
-		then
-			table.insert(tos,p)
-			table.insert(targets,p:objectName())
-		end
-	end
-	if #targets>0
-	then
-		return slash:toString().."->"..table.concat(targets,"+")
-	end
 	return "."
 end
 
@@ -1500,7 +1481,7 @@ yizan_skill.getTurnUseCard = function(self)
 	local name = self:ZhanyiUseBasic()
 	if name and #basic>0
 	then
-		local c = sgs.Sanguosha:cloneCard(name)
+		local c = dummyCard(name)
 		c:setSkillName("yizan")
 		c:addSubcard(basic[1])
 		if self.player:property("yizan_level"):toInt()<=0

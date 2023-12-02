@@ -74,10 +74,9 @@ function sgs.CreateScenarioRule(spec)
 			rule:addEvent(event)
 		end
 	end
-	if type(spec.global)=="boolean" then rule:setGlobal(spec.global) end
-	if spec.can_trigger then
-		rule.can_trigger = spec.can_trigger
-	end
+	if spec.can_trigger then rule.can_trigger = spec.can_trigger end
+	if type(spec.global)=="boolean" then rule:setGlobal(spec.global)
+	else rule:setGlobal(true) end
 	rule.on_trigger = spec.on_trigger
 	spec.priority = spec.priority or 1
 	if type(spec.priority)=="number" then
@@ -98,7 +97,7 @@ end
 function sgs.CreateScenario(spec)
 	assert(type(spec.name)=="string")
 	assert(spec.roles)
-	local scenario = sgs.Scenario(spec.name)
+	local scenario = sgs.LuaScenario(spec.name)
 	if type(spec.expose)=="boolean"
 	then scenario:setExposeRoles(spec.expose) end
 	if spec.rule then
@@ -161,7 +160,13 @@ function sgs.CreateDistanceSkill(spec)
 	local frequency = spec.frequency or sgs.Skill_Compulsory
 	local skill = sgs.LuaDistanceSkill(spec.name,frequency)
 	if type(spec.correct_func)=="function" then skill.correct_func = spec.correct_func end
-	if type(spec.fixed_func)=="function" then skill.fixed_func = spec.fixed_func end
+	if type(spec.fixed_func)=="function"
+	then
+		function skill:fixed_func(...)
+			return spec.fixed_func(self,...) or -1
+		end
+		--skill.fixed_func = spec.fixed_func
+	end
 	return skill
 end
 
@@ -173,8 +178,13 @@ function sgs.CreateMaxCardsSkill(spec)
 	local skill = sgs.LuaMaxCardsSkill(spec.name,frequency)
 	if spec.extra_func then
 		skill.extra_func = spec.extra_func
-	else
-		skill.fixed_func = spec.fixed_func
+	end
+	if type(spec.fixed_func)=="function"
+	then
+		function skill:fixed_func(...)
+			return spec.fixed_func(self,...) or -1
+		end
+		--skill.fixed_func = spec.fixed_func
 	end
 	return skill
 end
@@ -215,10 +225,14 @@ function sgs.CreateAttackRangeSkill(spec)
 	local frequency = spec.frequency or sgs.Skill_Compulsory
 	local skill = sgs.LuaAttackRangeSkill(spec.name,frequency)
 	if spec.extra_func then
-		skill.extra_func = spec.extra_func or 0
+		skill.extra_func = spec.extra_func
 	end
-	if spec.fixed_func then
-		skill.fixed_func = spec.fixed_func or 0
+	if type(spec.fixed_func)=="function"
+	then
+		function skill:fixed_func(...)
+			return spec.fixed_func(self,...) or -1
+		end
+		--skill.fixed_func = spec.fixed_func
 	end
 	return skill
 end
@@ -230,7 +244,7 @@ function sgs.CreateViewAsEquipSkill(spec)
 	local frequency = spec.frequency or sgs.Skill_Compulsory
 	local skill = sgs.LuaViewAsEquipSkill(spec.name,frequency)
 	if spec.view_as_equip then
-		skill.view_as_equip = spec.view_as_equip or ""
+		skill.view_as_equip = spec.view_as_equip
 	end
 	return skill
 end
@@ -502,9 +516,7 @@ function onUse_GlobalEffect(self,room,card_use,tos)
 	self:cardOnUse(room,card_use)
 end
 
-function onUse_DelayedTrick(self,room,card_use)
-	card_use.card = sgs.Sanguosha:getWrappedCard(self:getEffectiveId())
-	
+function onUse_DelayedTrick(self,room,card_use)	
 	local data = sgs.QVariant()
 	data:setValue(card_use)
 	local thread = room:getThread()
@@ -529,52 +541,30 @@ function onUse_DelayedTrick(self,room,card_use)
 	thread:trigger(sgs.CardFinished,room,card_use.from,data)
 end
 
-function use_DelayedTrick(self,room,source,targets_table)
+function use_DelayedTrick(self,room,source,targets)
 	if not room:CardInTable(self) then return end
-	
-	local nullified_list = room:getTag("CardUseNullifiedList"):toStringList()
-	
-	local targets = sgs.SPlayerList()
-	for _,p in ipairs(targets_table)do
-		if table.contains(nullified_list,"_ALL_TARGETS")
-		or table.contains(nullified_list,p:objectName())
-		or p:containsTrick(self:objectName()) or p:isDead()
-		then elseif p:hasJudgeArea() then targets:append(p) end
+	local use = room:getTag("cardUseStruct"..self:toString()):toCardUse()
+	for _,p in ipairs(targets)do
+		if table.contains(use.nullified_list,"_ALL_TARGETS")
+		or table.contains(use.nullified_list,p:objectName())
+		or p:containsTrick(self:objectName()) or p:isDead() then
+		elseif p:hasJudgeArea()
+		then
+			local wrapped = sgs.Sanguosha:getWrappedCard(self:getEffectiveId())
+			if self:isVirtualCard() then
+				wrapped:takeOver(sgs.Sanguosha:cloneCard(self))
+				room:broadcastUpdateCard(room:getPlayers(), wrapped:getId(), wrapped)
+			end
+			local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),p:objectName(),self:getSkillName(),"")
+			reason.m_extraData:setValue(self:getRealCard())
+			reason.m_useStruct = sgs.CardUseStruct(self,source,use.to)
+			room:moveCardTo(wrapped,p,sgs.Player_PlaceDelayedTrick,reason,true)
+			return
+		end
 	end
-	
-	for _,target in sgs.qlist(targets)do
-		local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),target:objectName(),self:getSkillName(),"")
-		reason.m_extraData:setValue(self:getRealCard())
-		reason.m_useStruct = sgs.CardUseStruct(self,source,targets)
-		room:moveCardTo(self,target,sgs.Player_PlaceDelayedTrick,reason,true)
-		return
-	end
-	local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),"",self:getSkillName(),"")
+	local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),self:getSkillName(),"")
 	reason.m_extraData:setValue(self:getRealCard())
-	reason.m_useStruct = sgs.CardUseStruct(self,source,targets)
-	room:moveCardTo(self,nil,sgs.Player_DiscardPile,reason,true)
-end
-
-function use_DelayedTrick_Movable(self,room,source,targets_table)
-	if not room:CardInTable(self) then return end
-	local nullified_list = room:getTag("CardUseNullifiedList"):toStringList()
-	local targets = sgs.SPlayerList()
-	for _,p in ipairs(targets_table)do
-		if table.contains(nullified_list,"_ALL_TARGETS")
-		or table.contains(nullified_list,p:objectName())
-		or p:containsTrick(self:objectName()) or p:isDead()
-		then elseif p:hasJudgeArea() then targets:append(p) end
-	end
-	for _,target in sgs.qlist(targets)do
-		local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),target:objectName(),self:getSkillName(),"")
-		reason.m_extraData:setValue(self:getRealCard())
-		reason.m_useStruct = sgs.CardUseStruct(self,source,targets)
-		room:moveCardTo(self,target,sgs.Player_PlaceDelayedTrick,reason,true)
-		return
-	end
-	local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_USE,source:objectName(),"",self:getSkillName(),"")
-	reason.m_extraData:setValue(self:getRealCard())
-	reason.m_useStruct = sgs.CardUseStruct(self,source,targets)
+	reason.m_useStruct = sgs.CardUseStruct(self,source,use.to)
 	room:moveCardTo(self,nil,sgs.Player_DiscardPile,reason,true)
 end
 
@@ -692,11 +682,7 @@ function sgs.CreateTrickCard(spec)
 		if spec.subclass==sgs.LuaTrickCard_TypeDelayedTrick
 		then
 			if not spec.about_to_use then spec.about_to_use = onUse_DelayedTrick end
-			if not spec.on_use
-			then 
-				if spec.movable then spec.on_use = use_DelayedTrick_Movable
-				else spec.on_use = use_DelayedTrick end
-			end
+			if not spec.on_use then spec.on_use = use_DelayedTrick end
 			if not spec.on_nullified then
 				if spec.movable then spec.on_nullified = onNullified_DelayedTrick_movable
 				else spec.on_nullified = onNullified_DelayedTrick_unmovable end
@@ -904,7 +890,10 @@ function sgs.CreateEquipCard(spec)
 	card.available = spec.available
 	card.on_install = spec.on_install
 	card.on_uninstall = spec.on_uninstall
-	
+	if spec.equip_skill
+	then
+		addToSkills(spec.equip_skill)
+	end
 	return card
 end
 

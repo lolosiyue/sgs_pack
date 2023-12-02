@@ -82,18 +82,18 @@ function getCardDamageNature(from, to, card)
 end
 
 function ChoiceLog(player, choice, to)
-	local log = sgs.LogMessage()
-	log.type = "#choice"
-	log.from = player
-	log.arg = choice
-	if to then
-		log.to:append(to)
-	end
-	player:getRoom():sendLog(log)
+    local log = sgs.LogMessage()
+    log.type = "#choice"
+    log.from = player
+    log.arg = choice
+    if to then
+        log.to:append(to)
+    end
+    player:getRoom():sendLog(log)
 end
 
 function GetColor(card)
-	if card:isRed() then return "red" elseif card:isBlack() then return "black" else return "nosuitcolor" end
+    if card:isRed() then return "red" elseif card:isBlack() then return "black" else return "nosuitcolor" end
 end
 
 -- common prompt
@@ -729,7 +729,7 @@ s4_jiwu = sgs.CreateTriggerSkill {
 }
 s4_jiwuClear = sgs.CreateTriggerSkill {
     name = "#s4_jiwuClear",
-    events = { sgs.CardUsed, sgs.CardResponded, sgs.EventPhaseStart, sgs.SlashMissed },
+    events = { sgs.CardUsed, sgs.CardResponded, sgs.EventPhaseStart, sgs.CardOffset },
     can_trigger = function(self, target)
         return target
     end,
@@ -765,12 +765,12 @@ s4_jiwuClear = sgs.CreateTriggerSkill {
                     room:setPlayerMark(player, "&s4_jiwu_used+analeptic", 0)
                 end
             end
-        elseif event == sgs.SlashMissed then
-            local effect = data:toSlashEffect()
-            if effect.slash and effect.slash:hasFlag("s4_jiwu") then
+        elseif event == sgs.CardOffset then
+            local effect = data:toCardEffect()
+            if effect.card and effect.card:isKindOf("Slash") and effect.card:hasFlag("s4_jiwu") then
                 for _, lubu in sgs.qlist(room:findPlayersBySkillName("s4_jiwu")) do
-                    if lubu and lubu:getMark("s4_jiwu_" .. effect.slash:getEffectiveId()) > 0 then
-                        room:setPlayerMark(lubu, "s4_jiwu_" .. effect.slash:getEffectiveId(), 0)
+                    if lubu and lubu:getMark("s4_jiwu_" .. effect.card:getEffectiveId()) > 0 then
+                        room:setPlayerMark(lubu, "s4_jiwu_" .. effect.card:getEffectiveId(), 0)
                         room:sendCompulsoryTriggerLog(lubu, "s4_jiwu")
                         room:askForDiscard(lubu, "s4_jiwu", 2, 2, false, true)
                         room:broadcastSkillInvoke("s4_jiwu", 4)
@@ -1756,10 +1756,10 @@ s4_txbw_yujin = sgs.General(extension, "s4_txbw_yujin", "wei", 4, true)
 s4_txbw_yizhong = sgs.CreateTriggerSkill {
     name = "s4_txbw_yizhong",
     frequency = sgs.Skill_Compulsory,
-    events = { sgs.SlashEffected },
+    events = { sgs.CardEffected },
     on_trigger = function(self, event, player, data)
-        local effect = data:toSlashEffect()
-        if effect.slash:isBlack() then
+        local effect = data:toCardEffect()
+        if effect.card and effect.card:isKindOf("Slash") and effect.card:isBlack() then
             player:getRoom():notifySkillInvoked(player, self:objectName())
             return true
         end

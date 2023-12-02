@@ -1126,13 +1126,12 @@ table.insert(sgs.ai_skills,jilve_skill)
 jilve_skill.getTurnUseCard = function(self)
 	if not(self.player:hasFlag("JilveWansha") or self.player:hasSkills("wansha|olwansha"))
 	then
-		self:sort(self.enemies,"hp")
 		for _,enemy in sgs.list(self.enemies)do
 			if self.player:canSlash(enemy) and self:isWeak(enemy)
 			and self:damageMinusHp(enemy,1)>0 and #self.enemies>1
 			then
-				sgs.ai_skill_choice.jilve = (sgs.Sanguosha:getSkill("olwansha") and "jilve_olwansha") or "wansha"
 				sgs.ai_use_priority.JilveCard = 8
+				sgs.ai_skill_choice.jilve = sgs.Sanguosha:getSkill("olwansha") and "jilve_olwansha" or "wansha"
 				return sgs.Card_Parse("@JilveCard=.")
 			end
 		end
@@ -1145,19 +1144,6 @@ jilve_skill.getTurnUseCard = function(self)
 		local dummy_use = {isDummy = true}
 		self:useSkillCard(card,dummy_use)
 		if dummy_use.card then return sgs.Card_Parse("@JilveCard=.") end
-	elseif not wanshadone and not self.player:hasSkill("wansha")
-	then
-		self:sort(self.enemies,"hp")
-		for _,enemy in sgs.list(self.enemies)do
-			if not (enemy:hasSkill("kongcheng") and enemy:isKongcheng())
-			and self:isWeak(enemy) and self:damageMinusHp(enemy,1)>0
-			and #self.enemies>1
-			then
-				sgs.ai_skill_choice.jilve = "wansha"
-				sgs.ai_use_priority.JilveCard = 8
-				return sgs.Card_Parse("@JilveCard=.")
-			end
-		end
 	end
 end
 

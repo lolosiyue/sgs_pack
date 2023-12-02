@@ -568,7 +568,7 @@ end
 
 sgs.ai_event_callback[sgs.ChoiceMade].state = function(self,player,data)
 	for _,p in sgs.list(self.room:getAlivePlayers())do
-		if math.random()>0.95 and AIChat(p)
+		if math.random()>0.97 and AIChat(p)
 		then p:speak("<#"..math.random(1,56).."#>") end
 	end
 end

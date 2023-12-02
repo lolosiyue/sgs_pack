@@ -225,7 +225,7 @@ mobileshuangxiong_skill.getTurnUseCard=function(self)
 		if not acard:isRed() and red>0
 		or not acard:isBlack() and black>0
 		then
-			dc = sgs.Sanguosha:cloneCard("duel")
+			dc = dummyCard("duel")
 			dc:setSkillName("mobileshuangxiong")
 			dc:addSubcard(acard)
 			if dc:isAvailable(self.player)
@@ -269,13 +269,12 @@ mobileluanji_skill.getTurnUseCard = function(self)
 				or isCard("Peach",scard,self.player)
 				or fcard==scard
 				then continue end
-				local archery = sgs.Sanguosha:cloneCard("archery_attack")
+				local archery = dummyCard("archery_attack")
 				archery:setSkillName("mobileluanji")
 				archery:addSubcard(fcard)
 				archery:addSubcard(scard)
 				local dummy_use = self:aiUseCard(archery)
 				if dummy_use.card then return archery end
-				archery:deleteLater()
 			end
 		end
 	end

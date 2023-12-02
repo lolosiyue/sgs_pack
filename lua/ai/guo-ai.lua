@@ -62,9 +62,6 @@ end
 sgs.ai_skill_use_func.JinChoufaCard = function(card,use,self)
 	self:sort(self.friends_noself,"handcard")
 	self.friends_noself = sgs.reverse(self.friends_noself)
-	self:sort(self.enemies,"handcard")
-	self.enemies = sgs.reverse(self.enemies)
-	
 	for _,p in sgs.list(self.friends_noself)do
 		if p:isKongcheng() then continue end
 		if self:hasCrossbowEffect(p) then
@@ -73,7 +70,8 @@ sgs.ai_skill_use_func.JinChoufaCard = function(card,use,self)
 			return
 		end
 	end
-	
+	self:sort(self.enemies,"handcard")
+	self.enemies = sgs.reverse(self.enemies)
 	for _,p in sgs.list(self.enemies)do
 		if p:isKongcheng() or self:hasCrossbowEffect(p) then continue end
 		use.card = card

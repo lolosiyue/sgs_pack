@@ -2056,7 +2056,7 @@ kejieguifuwang = sgs.CreateTriggerSkill {
 		data:setValue(damage)
 		local canuse = 0
 		for _, cjdad in sgs.qlist(room:getAllPlayers()) do
-			if (cjdad:getRole() == "lord") and (cjdad:getGender() == sgs.General_Male) and (damage.from:getGender() == sgs.General_Female) then
+			if (cjdad:getRole() == "lord") and (cjdad:getGender() == sgs.General_Male) and (damage.from and damage.from:getGender() == sgs.General_Female) then
 				canuse = 1
 			end
 		end

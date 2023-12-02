@@ -1,8 +1,7 @@
 --往烈
 sgs.ai_skill_invoke.wanglie = function(self, data)
 	local use = data:toCardUse()
-	return use.card:isKindOf("Duel") or use.card:isKindOf("SavageAssault") or use.card:isKindOf("ArcheryAttack") or
-	use.card:isKindOf("Slash") or use.card:hasFlag("drank")
+	return use.card:isKindOf("Duel") or use.card:isKindOf("SavageAssault") or use.card:isKindOf("ArcheryAttack") or use.card:isKindOf("Slash") or use.card:hasFlag("drank")
 end
 
 --罪论

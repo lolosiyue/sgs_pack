@@ -16,24 +16,19 @@ end
 
 function load_translations()
 	local lang = sgs.GetConfig("Language", "zh_CN")
-	local subdir = { "", "Audio", "Package" }
-	for _, dir in ipairs(subdir) do
+	for _, dir in ipairs({ "", "Audio", "Package" }) do
 		local lang_dir = "lang/" .. lang .. "/" .. dir
-		local lang_files = sgs.GetFileNames(lang_dir)
-		for _, file in ipairs(lang_files) do
+		for _, file in ipairs(sgs.GetFileNames(lang_dir)) do
 			load_translation(("%s/%s"):format(lang_dir, file))
 		end
 	end
 end
 
 function load_extensions()
-	local scripts = sgs.GetFileNames("extensions")
 	local package_names = {}
-	for _, script in ipairs(scripts) do
-		if script:match(".+%.lua$") then
-			local name = script:sub(script:find("%w+"))
-			local module_name = "extensions." .. name
-			local loaded = require(module_name)
+	for _, script in ipairs(sgs.GetFileNames("extensions")) do
+		if script:match(".+%.lua$") and not script:match("addFunction") then
+			local loaded = require("extensions." .. script:sub(script:find("%w+")))
 			if loaded and type(loaded) == "table" and loaded.hidden ~= true then -- need to consider the compatibility of 'module'
 				if #loaded > 0 then
 					for _, extension in ipairs(loaded) do
@@ -52,10 +47,10 @@ function load_extensions()
 			end
 		end
 	end
-	local lua_packages = ""
-	if #package_names > 0 then lua_packages = table.concat(package_names, "+") end
-	sgs.SetConfig("LuaPackages", lua_packages)
+	sgs.SetConfig("LuaPackages", table.concat(package_names, "+"))
 end
+
+dofile "extensions/addFunction.lua"
 
 if not sgs.GetConfig("DisableLua", false) then
 	load_extensions()

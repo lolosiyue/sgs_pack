@@ -276,12 +276,11 @@ addAiSkills("secondjincaiwang").getTurnUseCard = function(self)
   	for d,c in sgs.list(cards)do
 		if #cards<2
 		then
-			local slash = sgs.Sanguosha:cloneCard("Slash")
+			local slash = dummyCard("Slash")
 			slash:setSkillName("secondjincaiwang")
 			slash:addSubcard(c)
 			if slash:isAvailable(self.player)
 			then return slash end
-			slash:deleteLater()
 		end
 	end
 end

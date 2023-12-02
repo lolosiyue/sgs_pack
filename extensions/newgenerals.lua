@@ -38,10 +38,11 @@ on_effect = function(self, effect)
 	local card = nil
 	if not effect.no_respond then
 		data:setValue(effect)
-		card = room:askForCard(to, "slash,jink", "@_qizhengxiangsheng-card:", data, sgs.Card_MethodResponse, (from:isAlive() and from) or nil, false, "", false, self)
+		card = room:askForCard(to, "Slash,Jink", "@_qizhengxiangsheng-card:", data, sgs.Card_MethodResponse, from, false, "", false, self)
 	end
 	
 	if choice:startsWith("zhengbing") then
+		room:sendLog(log, room:getOtherPlayers(from,true))
 		if not(card and card:isKindOf("Jink")) then
 			if from:isDead() or to:isNude() then return end
 			local id = room:askForCardChosen(from, to, "he", self:objectName())
@@ -49,8 +50,9 @@ on_effect = function(self, effect)
 			room:obtainCard(from, sgs.Sanguosha:getCard(id), reason, false)
 		end
 	elseif choice:startsWith("qibing") then
+		room:sendLog(log, room:getOtherPlayers(from,true))
 		if not(card and card:isKindOf("Slash")) then
-			room:damage(sgs.DamageStruct(self, (from:isAlive() and from) or nil, to))
+			room:damage(sgs.DamageStruct(self, from, to))
 		end
 	end
 end
@@ -70,7 +72,7 @@ sgs.LoadTranslationTable {
 ["shenxunyu_card"] = "神荀彧专属",
 ["_qizhengxiangsheng:zhengbing"] = "为%src选择“正兵”",
 ["_qizhengxiangsheng:qibing"] = "为%src选择“奇兵”",
-["@_qizhengxiangsheng-card"] = "你可以打出一张【杀】或【闪】",
+["@_qizhengxiangsheng-card"] = "奇正相生：你可以打出一张【杀】或【闪】",
 ["#QizhengxiangshengLog"] = "%from 为 %to 选择了“%arg”",
 ["_qizhengxiangsheng_zhengbing"] = "正兵",
 ["_qizhengxiangsheng_qibing"] = "奇兵",
@@ -645,7 +647,7 @@ on_phasechange = function(self, player, room)
 		
 		while not cards:isEmpty() do
 			local move = room:askForYijiStruct(player, cards, self:objectName(), false, false, false, -1, room:getOtherPlayers(player), sgs.CardMoveReason(), "@sujian-give", false, false)
-			if move then
+			if move and move.to then
 				local ids = give[move.to:objectName()] or sgs.IntList()
 				for _,id in sgs.qlist(move.card_ids) do
 					cards:removeOne(id)

@@ -136,7 +136,7 @@ meizlchongyuan = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local effect = data:toCardEffect()
-		if not effect.from:getGeneral():isMale() then return end
+		if not effect.from or not effect.from:getGeneral():isMale() then return end
 		if effect.card:isNDTrick() then
 			local log = sgs.LogMessage()
 			log.type = "#Meizlchongyuan"

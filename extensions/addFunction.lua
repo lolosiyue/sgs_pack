@@ -168,12 +168,14 @@ function NotifySkillInvoked(self,player,tos,num)
 end
 function PlayerChosen(self,player,tos,reason,optional)
 	local room = player:getRoom()
+	optional = optional==true
 	if self and type(self)~="string" then self = self:objectName() end
 	tos = tos or room:getAlivePlayers()
-	local to_reason = "PlayerChosen0:"..self
-	optional = optional or false
-	if optional then to_reason = "PlayerChosen1:"..self end
-	to_reason = reason or to_reason
+	if not reason
+	then
+		local reason = "PlayerChosen0:"..self
+		if optional then reason = "PlayerChosen1:"..self end
+	end
 	local to = room:askForPlayerChosen(player,tos,self,to_reason,optional)
 	local msg = sgs.LogMessage()
 	msg.type = "$PlayerChosen"
@@ -456,11 +458,11 @@ function SetCloneCard(card,name)
 	then
 		local s,n = sgs.Card_NoSuit,0
      	for c,id in sgs.list(card:getSubcards())do
-			c = sgs.Sanguosha:getEngineCard(id)
+			c = sgs.Sanguosha:getCard(id)
 			if card:subcardsLength()>1
 			then
 				s = c:getColor()
-				if sgs.Sanguosha:getEngineCard(card:getSubcards():at(1)):getColor()~=s
+				if sgs.Sanguosha:getCard(card:getSubcards():at(1)):getColor()~=s
 				then s = sgs.Card_NoSuit break end
 			else
 				n = c:getNumber()
@@ -1499,8 +1501,8 @@ end
 OnSkillTrigger = sgs.CreateTriggerSkill{
     name = "OnSkillTrigger",
 	frequency = sgs.Skill_Compulsory,
-    events = {sgs.EventPhaseStart,sgs.EventPhaseProceeding,sgs.EventPhaseEnd,sgs.EventPhaseChanging,sgs.PreCardUsed,
-	sgs.GameOver,sgs.CardsMoveOneTime,sgs.Damaged},
+    events = {sgs.EventPhaseStart,sgs.EventPhaseProceeding,sgs.EventPhaseEnd,sgs.EventPhaseChanging,
+	sgs.PreCardUsed,sgs.CardsMoveOneTime,sgs.Damaged},
 	global = true,
 	priority = {9,9,9},
     on_trigger = function(self,event,player,data,room)
@@ -1664,7 +1666,8 @@ OnSkillTrigger = sgs.CreateTriggerSkill{
 				sgs.CardMoveReason(sgs.CardMoveReason_S_MASK_BASIC_REASON,player:objectName(),effect.card:objectName(),nil))
 				local moves = sgs.CardsMoveList()
 				moves:append(move)
-				room:moveCardsAtomic(moves,true)
+				room:notifyMoveCards(true,moves,true)
+				room:notifyMoveCards(false,moves,true)
 			end
 		elseif event==sgs.DrawInitialCards
 		then
@@ -1847,12 +1850,12 @@ IsProhibited = sgs.CreateProhibitSkill{
 	is_prohibited = function(self,from,to,card)
 		if card 
 		then
-			if card:getTypeId()>0 and to and to:property("aiNoTo"):toBool() then return true end
+			if card:getTypeId()>0 and to and to:property("aiNoTo"):toBool() then return true end--[[
 			if card:isKindOf("EquipCard")
 			then
 				local ec = sgs.Sanguosha:getEngineCard(card:getId())
 				if ec:getPackage()=="zhulu" then return table.contains(ec:property("CharTag"):toStringList(),"present_card") end
-			end
+			end--]]
 		end
 	end
 }

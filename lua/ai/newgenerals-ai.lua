@@ -141,7 +141,7 @@ addAiSkills("chongjian").getTurnUseCard = function(self)
 		then table.insert(toids,c) end
 	end
 	for d,cn in sgs.list(patterns)do
-	   	local fs = sgs.Sanguosha:cloneCard(cn)
+	   	local fs = dummyCard(cn)
 		if fs and self.player:getKingdom()=="wu"
 		and (fs:isKindOf("Slash") or fs:isKindOf("Analeptic"))
 		and #toids>0
@@ -153,7 +153,6 @@ addAiSkills("chongjian").getTurnUseCard = function(self)
 			and d.card and d.to
 			then return fs end
 		end
-		if fs then fs:deleteLater() end
 	end
 end
 
@@ -263,16 +262,22 @@ sgs.ai_skill_discard.zhiming = function(self)
 	then
 		local handcards = self.player:getCards("he")
 		handcards = self:sortByKeepValue(handcards) -- 按保留值排序
-		for jt,j in sgs.list(js)do
-			jt = sgs.ai_judgestring[j:objectName()]
+		local jt = sgs.ai_judgestring[js:last():objectName()]
+		if type(jt)~="table"
+		then
+			if type(jt)=="string"
+			then
+				jt = {jt,true}
+			else
+				jt = {jc:getSuitString(),true}
+			end
+		end
 			if jt
 			then
 				for _,h in sgs.list(handcards)do
+				if sgs.Sanguosha:matchExpPattern(jt[1],self.player,h)==jt[2]
+				then table.insert(cards,h:getEffectiveId()) end
 					if #cards>0 then return cards end
-					if j:isDamageCard() then if h:getSuitString()==jt then continue end
-					else if h:getSuitString()~=jt then continue end end
-					table.insert(cards,h:getEffectiveId())
-				end
 			end
 		end
 	end

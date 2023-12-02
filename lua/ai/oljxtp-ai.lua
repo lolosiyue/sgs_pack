@@ -355,7 +355,7 @@ end
 sgs.ai_suit_priority.olguidao = sgs.ai_suit_priority.guidao
 
 sgs.ai_useto_revises.olguidao = function(self,card,use,p)
-	if card:isKindOf("Indulgence")
+	if card:isKindOf("Lightning")
 	then
 		if self:isFriend(p) and p:getCardCount()>2
 		then use.card = card return end
@@ -808,13 +808,12 @@ olluanji_skill.getTurnUseCard = function(self)
 				or isCard("ArcheryAttack",scard,self.player)
 				or useAll and isCard("ArcheryAttack",scard,self.player)
 				then continue end
-				local archery = sgs.Sanguosha:cloneCard("archery_attack")
+				local archery = dummyCard("archery_attack")
 				archery:setSkillName("olluanji")
 				archery:addSubcard(fcard)
 				archery:addSubcard(scard)
 				local dummy_use = self:aiUseCard(archery)
 				if dummy_use.card then return archery end
-				archery:deleteLater()
 			end
 		end
 	end
@@ -1444,12 +1443,11 @@ addAiSkills("olduanliang").getTurnUseCard = function(self)
 	cards = self:sortByKeepValue(cards,nil,true)
   	for d,c in sgs.list(cards)do
 	   	if c:getTypeId()~=1 and c:getTypeId()~=3 then continue end
-		local fs = sgs.Sanguosha:cloneCard("SupplyShortage")
+		local fs = dummyCard("SupplyShortage")
 		fs:setSkillName("olduanliang")
 		fs:addSubcard(c)
 		if fs:isAvailable(self.player)
 		and c:isBlack() then return fs end
-		fs:deleteLater()
 	end
 end
 
@@ -1677,8 +1675,7 @@ sgs.ai_skill_discard.olbeige = function(self,max,min)
 	local to_cards = {}
 	local cards = self.player:getCards("he")
 	cards = self:sortByKeepValue(cards,nil,true)
-	local judge = self.player:getTag("OLbeigeTag"):toJudge()
-	local pattern = judge.pattern:split("+")
+	local pattern = self.player:getTag("OLbeigeTag"):toString():split("+")
    	for _,c in sgs.list(cards)do
    		if #to_cards>=min then break end
 		if c:getSuitString()==pattern[1]

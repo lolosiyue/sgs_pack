@@ -1311,7 +1311,7 @@ end
 addAiSkills("ov_sidai").getTurnUseCard = function(self)
 	local cards = self.player:getCards("h")
 	cards = self:sortByKeepValue(cards,nil,true)
-	local fs = sgs.Sanguosha:cloneCard("slash")
+	local fs = dummyCard("slash")
 	fs:setSkillName("ov_sidai")
   	for i,c in sgs.list(cards)do
 		if c:getTypeId()==1
@@ -1326,7 +1326,6 @@ addAiSkills("ov_sidai").getTurnUseCard = function(self)
 			then return fs end
 		end
 	end
-	fs:deleteLater()
 end
 
 sgs.ai_skill_cardask["ov_sidai0"] = function(self,data,pattern)
@@ -2801,13 +2800,12 @@ end
 addAiSkills("ov_lihuo").getTurnUseCard = function(self)
   	for _,c in sgs.list(self:addHandPile())do
 	   	if c:isKindOf("NatureSlash") then continue end
-		local fs = sgs.Sanguosha:cloneCard("fire_slash")
+		local fs = dummyCard("fire_slash")
 		fs:setSkillName("mobilelihuo")
 		fs:addSubcard(c)
 		if fs:isAvailable(self.player)
 		and c:isKindOf("Slash")
 	   	then return fs end
-		fs:deleteLater()
 	end
 end
 
@@ -4846,7 +4844,7 @@ sgs.ai_skill_use["@@ov_lijian"] = function(self,prompt)
 	local ids = self.player:getTag("ov_lijianForAI"):toIntList()
 	for _,id in sgs.list(ids)do
     	table.insert(valid,id)
-		if #valid>=#ids/2 then break end
+		if #valid>=ids:length()/2 then break end
 	end
 	if self:isEnemy(self.ov_lijian_to) then table.remove(valid,1) end
 	return #valid>0 and "#ov_lijianCard:"..table.concat(valid,"+")

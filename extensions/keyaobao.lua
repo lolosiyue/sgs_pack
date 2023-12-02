@@ -437,6 +437,7 @@ keyaoleimu = sgs.CreateTriggerSkill {
 			local room = player:getRoom()
 			local damage = data:toDamage()
 			if damage.from:hasSkill(self:objectName()) then
+				room:sendCompulsoryTriggerLog(player, self:objectName(), true)
 				damage.nature = sgs.DamageStruct_Thunder
 				data:setValue(damage)
 			end
@@ -462,28 +463,22 @@ keyaoyaohou = sgs.CreateTriggerSkill {
 				local bss = room:findPlayersBySkillName("keyaoyaohou")
 				if not bss:isEmpty() then
 					for _, bs in sgs.qlist(bss) do
-						if eny and not bs:isYourFriend(eny) then room:setPlayerFlag(bs, "wantusekeyaoyaohou") end
-						if eny:getCardCount(true) == 0 then
-							room:setPlayerFlag(bs, "wantusekeyaoyaohoutwo")
-							local choice = room:askForChoice(bs, self:objectName(), "mopai+cancel")
-							if choice == "mopai" then
-								bs:drawCards(1)
-							end
-							room:setPlayerFlag(bs, "-wantusekeyaoyaohoutwo")
-						end
+						local choicelist = "mopai"
 						if eny:getCardCount(true) > 0 then
-							local choice = room:askForChoice(bs, self:objectName(), "huode+mopai+cancel")
-							if choice == "huode" then
-								local card_id = room:askForCardChosen(bs, eny, "he", self:objectName())
-								local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_EXTRACTION, bs:objectName())
-								room:obtainCard(bs, sgs.Sanguosha:getCard(card_id), reason,
-									room:getCardPlace(card_id) ~= sgs.Player_PlaceHand)
-							end
-							if choice == "mopai" then
-								bs:drawCards(1)
-							end
+							choicelist = string.format("%s+%s", choicelist, "huode")
 						end
-						room:setPlayerFlag(bs, "-wantusekeyaoyaohou")
+						choicelist = string.format("%s+%s", choicelist, "cancel")
+
+						local choice = room:askForChoice(bs, self:objectName(), choicelist, data)
+						if choice == "huode" then
+							local card_id = room:askForCardChosen(bs, eny, "he", self:objectName())
+							local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_EXTRACTION, bs:objectName())
+							room:obtainCard(bs, sgs.Sanguosha:getCard(card_id), reason,
+								room:getCardPlace(card_id) ~= sgs.Player_PlaceHand)
+						end
+						if choice == "mopai" then
+							bs:drawCards(1)
+						end
 					end
 				end
 			end

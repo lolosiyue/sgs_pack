@@ -3733,7 +3733,7 @@ addAiSkills("tenyearjiaozhao").getTurnUseCard = function(self)
 		if c:getEffectiveId()~=basic
 		and c:getEffectiveId()~=trick
 		then continue end
-		local bn = sgs.Sanguosha:cloneCard(bname)
+		local bn = dummyCard(bname)
 		if bn and bn:isAvailable(self.player)
 		then
 			bn:setSkillName("tenyearjiaozhao")
@@ -4465,7 +4465,7 @@ sgs.ai_skill_use_func["TenyearFenchengCard"] = function(card,use,self)
 		if self:isEnemy(ep:getNextAlive())
 		then
 			use.card = card
-			if use.to then use.to:append(fp) end
+			if use.to then use.to:append(ep) end
 			return
 		end
 	end
@@ -4473,7 +4473,7 @@ sgs.ai_skill_use_func["TenyearFenchengCard"] = function(card,use,self)
 		if not self:isEnemy(ep) and self:isEnemy(ep:getNextAlive())
 		then
 			use.card = card
-			if use.to then use.to:append(fp) end
+			if use.to then use.to:append(ep) end
 			return
 		end
 	end

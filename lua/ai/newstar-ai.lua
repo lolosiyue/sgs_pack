@@ -160,7 +160,7 @@ sgs.ai_skill_use["@@LuaJuece"] = function(self, prompt)
 end
 
 --星司马懿
-sgs.ai_skill_cardask["@guicai-card"] = function(self, data)
+sgs.ai_skill_cardask["@LuaGuizha-card"] = function(self, data)
 	local judge = data:toJudge()
 	local all_cards = self.player:getCards("he")
 	if all_cards:isEmpty() then return "." end
