@@ -14,9 +14,6 @@ ZhouYu_Four
 keshengzhaoyun
 
 test:
-sheng
-yao
-leo
 
 
 audio:

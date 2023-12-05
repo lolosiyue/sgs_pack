@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "guanyuzy"
+choose_general = "SwordGirl"
 debug = 1
 wait = 1
 

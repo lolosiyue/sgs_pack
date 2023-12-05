@@ -6535,6 +6535,8 @@ function getBestHp(owner)
 	if owner:hasSkill("keshengxionglve") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("kejieshengxionglve") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("keyaoguimou") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("dj") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("pj") then return owner:getMaxHp() - 1 end
 
 
 	return owner:getMaxHp()
