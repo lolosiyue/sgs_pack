@@ -6169,7 +6169,7 @@ sp_hengsaoqianjunBUFF = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("sp_hengsaoqianjun")
+		return player and player:hasSkill("sp_hengsaoqianjun")
 	end,
 }
 if not sgs.Sanguosha:getSkill("sp_hengsaoqianjun") then skills:append(sp_hengsaoqianjun) end
@@ -7238,7 +7238,7 @@ sp_yinyangSSJQ = sgs.CreateTriggerSkill {
 		return true
 	end,
 	can_trigger = function(self, player)
-		return player:getPile("sp_ss"):length() > 0
+		return player and player:getPile("sp_ss"):length() > 0
 	end,
 }
 --“死士”技能按钮（出牌阶段可以失去1点体力并获得所有“死士”牌）

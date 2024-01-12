@@ -33,13 +33,13 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
         end
     end
 
     local name = player:getGeneralName()
     local package = player:getGeneral():getPackage()
-    local list = {"lord", "loyalist", "rebel", "renegade"}
+    local list = { "lord", "loyalist", "rebel", "renegade" }
     local role = player:getRole()
     local roleIndex = nil
 
@@ -56,46 +56,46 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
         name2 = player:getGeneral2Name()
         package2 = player:getGeneral2():getPackage()
     end
-    if record_type ~= 0 then -- record_type 1 or 2
+    if record_type ~= 0 then -- record_type 1 or 2 +win
         if t.Record[package] == nil then
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0}
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package][name] then
-            t.Record[package][name][1] = t.Record[package][name][1] + 1   
+            t.Record[package][name][1] = t.Record[package][name][1] + 1
+            t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][1] = t.Record[package2][name2][1] + 1
+            t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
         end
     end
-    if record_type ~= 1 then -- record_type 0 or 2
+    if record_type ~= 1 then -- record_type 0 or 2 +win
         if t.Record[package] == nil then
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0}
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0}
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package][name] then
             t.Record[package][name][2] = t.Record[package][name][2] + 1
-            --t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][2] = t.Record[package2][name2][2] + 1
-            --t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
         end
     end
 

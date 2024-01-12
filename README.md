@@ -11,7 +11,6 @@ https://tieba.baidu.com/p/8691577183
 https://tieba.baidu.com/p/8670131759
 # 已知bug:
 各種閃退問題
-使用皮膚時特別大
 =======
 # 0705
  qsgs
@@ -29,11 +28,9 @@ autotest
 
 
 # To-do List
-xks的擴展改寫
-進度:聖包
+進度:?
 
 把slash effect 之類改到oneffect offset已經足夠大工程了
-leo
 shadow
 動漫
 htms

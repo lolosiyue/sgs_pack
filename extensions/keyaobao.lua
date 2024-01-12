@@ -1379,7 +1379,7 @@ kejieyaoshidu = sgs.CreateTriggerSkill {
 			return false
 		end
 		for _, mark in sgs.list(player:getMarkNames()) do
-			if string.find(mark, "kejieyaoshidu") and p:getMark(mark) > 0 then
+			if string.find(mark, "kejieyaoshidu") and player:getMark(mark) > 0 then
 				local target
 				room:removePlayerMark(player, mark)
 				local jipings = room:findPlayersBySkillName("keyaoshidu")

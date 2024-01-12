@@ -467,8 +467,10 @@ sgs.ai_skill_choice.PlusGanglie = function(self, choices, data)
 					"PlusGanglie_choice1"
 				end
 				if sj_num == 0 and friend_null <= 0 then
-					if self:isEnemy(from) and hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card)) then return
-						"PlusGanglie_choice1" end
+					if self:isEnemy(from) and hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card)) then
+						return
+						"PlusGanglie_choice1"
+					end
 					if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not hasJueqingEffect(from, self.player, getCardDamageNature(from, self.player, use.card)) then
 						return
 						"PlusGanglie_choice1"
@@ -6612,7 +6614,7 @@ function sgs.ai_skill_invoke.SevenTaoHui(self, data)
 	end
 	local current = self.room:getCurrent()
 	return self:isWeak() or
-	not (current:getNextAlive():objectName() == self.player:objectName() and self.player:faceUp())
+		not (current:getNextAlive():objectName() == self.player:objectName() and self.player:faceUp())
 end
 
 function sgs.ai_skill_invoke.SevenLangMou(self, data)
@@ -6910,24 +6912,24 @@ sgs.ai_choicemade_filter.skillInvoke.SevenPingPan = function(self, player, promp
 	if #promptlist == "yes" then
 		local target = self.room:getCurrentDyingPlayer()
 		if target then
-			sgs.role_evaluation[target:objectName()]["renegade"] = 0
-			sgs.role_evaluation[target:objectName()]["loyalist"] = 0
+			sgs.roleValue[target:objectName()]["renegade"] = 0
+			sgs.roleValue[target:objectName()]["loyalist"] = 0
 			local role, value = target:getRole(), 1000
 			if role == "rebel" then
 				role = "loyalist"
 				value = -1000
 			end
-			sgs.role_evaluation[target:objectName()][role] = value
+			sgs.roleValue[target:objectName()][role] = value
 			sgs.ai_role[target:objectName()] = target:getRole()
 
-			sgs.role_evaluation[player:objectName()]["renegade"] = 0
-			sgs.role_evaluation[player:objectName()]["loyalist"] = 0
+			sgs.roleValue[player:objectName()]["renegade"] = 0
+			sgs.roleValue[player:objectName()]["loyalist"] = 0
 			local role, value = player:getRole(), 1000
 			if role == "rebel" then
 				role = "loyalist"
 				value = -1000
 			end
-			sgs.role_evaluation[player:objectName()][role] = value
+			sgs.roleValue[player:objectName()][role] = value
 			sgs.ai_role[player:objectName()] = player:getRole()
 		end
 	end
@@ -7263,8 +7265,10 @@ sgs.ai_skill_cardask["@SevenQuGao-discard"] = function(self, data)
 									"$" .. card_id
 							end
 							if sj_num == 0 and friend_null <= 0 then
-								if self:isEnemy(from) and hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card)) then return
-									"$" .. card_id end
+								if self:isEnemy(from) and hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card)) then
+									return
+										"$" .. card_id
+								end
 								if self:isFriend(from) and self.role == "loyalist" and from:isLord() and self.player:getHp() == 1 and not hasJueqingEffect(from, use.to:first(), getCardDamageNature(from, use.to:first(), use.card)) then
 									return
 										"$" .. card_id

@@ -703,7 +703,7 @@ fcmouliegong_threemore = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("fcmouliegong")
+		return player and player:hasSkill("fcmouliegong")
 	end,
 }
 ----
@@ -2339,7 +2339,7 @@ moupaoxiaooooo = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("moupaoxiaoo")
+		return player and player:hasSkill("moupaoxiaoo")
 	end,
 }
 mou_zhangfeii:addSkill(moupaoxiaoo)
@@ -2583,7 +2583,7 @@ fcmouwushengHeart = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("fcmouwusheng")
+		return player and player:hasSkill("fcmouwusheng")
 	end,
 }
 fc_mou_guanyu:addSkill(fcmouwusheng)
@@ -4423,7 +4423,7 @@ dabao_GuDing = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasFlag(self:objectName())
+		return player and player:hasFlag(self:objectName())
 	end,
 }
 dabao_Nature = sgs.CreateTriggerSkill {

@@ -103,7 +103,7 @@ do
 	sgs.ai_type_name = { "SkillCard", "BasicCard", "TrickCard", "EquipCard" }
 
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng" ..
-		"|FourQixiB" --add
+		"|FourQixiB|Zhudao" --add
 
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng" ..
 		"|keyaozhongyi" --add
@@ -121,7 +121,8 @@ do
 		"xiansi|junxing|bifa|yanyu|shenxian|jgtianyun" ..
 		"|luamouce|eqiehu" --add
 
-	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun"
+	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun" ..
+		"|zhuchang|dai"
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
 		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh" --add
@@ -413,6 +414,31 @@ function sgs.getDefense(player, start) --状态值
 		for _, p in sgs.qlist(player:getAliveSiblings()) do
 			if p:getMark("hate_" .. player:objectName()) > 0 and p:getMark("@hate_to") > 0
 			then
+				defense = defense + p:getHp()
+				break
+			end
+		end
+	end
+	--add dongmanbao
+	if player:hasSkill("Shouyang_ed") and player:getMark("@Tomoyo") > 0 then
+		for _, p in sgs.qlist(global_room:getOtherPlayers(player)) do
+			if p:hasSkill("Shouyang") then
+				defense = defense + p:getHp()
+				break
+			end
+		end
+	end
+	if player:hasSkill("se_Fanshe") then defense = defense + player:getCards("he"):length() end
+	if player:hasSkills("SE_Zhihui") then
+		for _, p in sgs.qlist(global_room:getOtherPlayers(player)) do
+			if p:getMark("@Geass") > 0 then
+				defense = defense + 1
+			end
+		end
+	end
+	if player:getMark("@s2_huzhu") > 0 then
+		for _, p in sgs.qlist(global_room:getOtherPlayers(player)) do
+			if p:hasSkill("s2_huzhu") then
 				defense = defense + p:getHp()
 				break
 			end
@@ -5348,14 +5374,13 @@ function SmartAI:getRetrialCardId(cards, judge, self_card, exchange)
 	if next(can_use)
 	then
 		for i, c in sgs.list(can_use) do
-			i = c
-			if self:doDisCard(self.player, c)
+			if self:doDisCard(self.player, c:getEffectiveId())
 			then
-				return c
+				return c:getEffectiveId()
 			end
 		end
 		self:sortByKeepValue(can_use)
-		return can_use[1]
+		return can_use[1]:getEffectiveId()
 	end
 	return -1
 end
@@ -6598,6 +6623,7 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		end
 	end
 	if self:ajustDamage(from, to, 1, card) >= to:getHp() then return end
+	if self:isFriend(to, from) and self:dontHurt(to, from) then return end
 	local bh = getBestHp(to)
 	if not passive and to:getMaxHp() > 2
 	then
@@ -6654,6 +6680,14 @@ function IgnoreArmor(from, to)
 		or not to:hasArmorEffect(nil)
 		--add
 		or from:hasSkill("keshengqinggang")
+		--add dongmanbao
+		or (from:hasSkill("SE_Wuwei") and from:getMark("@Wuwei") > 2)
+		--add leo
+		or (from:hasSkill("luaqiangwang") and from:distanceTo(to) > 1)
+		--add scarlet
+		or (from:hasSkill("s3_xiaoyong") and from:distanceTo(to) == 1)
+		--add yy
+		or (from:hasSkill("Qinggang"))
 end
 
 function SmartAI:needToThrowArmor(player, reason)
@@ -8024,6 +8058,11 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 	if to:hasSkill("kejieyaoliandu") and dmg > 1 then
 		dmg = 1
 	end
+	if to:hasSkill("Sixu") and dmg == 1 and not to:faceUp() then
+		dmg = 0
+	end
+
+
 	return dmg < -10 and 0 or dmg
 end
 
@@ -8214,6 +8253,9 @@ function SmartAI:dontHurt(to, from) --针对队友
 		return true
 	end
 	if to:hasSkill("kejiexianfenshen") and to:getMark("&kexianfenshen") > 0 then
+		return true
+	end
+	if to:hasSkill("Jianqiao") then
 		return true
 	end
 

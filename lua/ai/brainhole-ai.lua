@@ -396,7 +396,7 @@ table.insert(sgs.ai_skills, n_juanlao_skill)
 n_juanlao_skill.getTurnUseCard = function(self)
 	if self.player:getMark("n_juanlaoused") == 0 and self.player:getPhase() == sgs.Player_Play and self.player:getMark("n_juanlao") > 0 then
 		local card_str = ("%s:n_juanlao[no_suit:0]=."):format(sgs.Sanguosha:getCard(self.player:getMark("n_juanlao"))
-		:objectName())
+			:objectName())
 		local archeryattack = sgs.Card_Parse(card_str)
 		if archeryattack:isKindOf("IronChain") then return end
 		assert(archeryattack)
@@ -691,7 +691,7 @@ n_chaoxi_skill.getTurnUseCard = function(self)
 		local number = red_card:getNumberString()
 		local card_id = red_card:getEffectiveId()
 		local card_str = ("%s:n_chaoxi[%s:%s]=%d"):format(
-		sgs.Sanguosha:getCard(self.player:getMark("chaoxiid")):objectName(), suit, number, card_id)
+			sgs.Sanguosha:getCard(self.player:getMark("chaoxiid")):objectName(), suit, number, card_id)
 		local archeryattack = sgs.Card_Parse(card_str)
 		assert(archeryattack)
 		return archeryattack
@@ -1380,7 +1380,7 @@ sgs.ai_skill_choice["n_zhuiwent"] = function(self, choices, data)
 	end
 end
 
-local function generateAllCardObjectNameTablePatterns()
+function generateAllCardObjectNameTablePatterns()
 	local patterns = {}
 	for i = 0, 10000 do
 		local card = sgs.Sanguosha:getEngineCard(i)

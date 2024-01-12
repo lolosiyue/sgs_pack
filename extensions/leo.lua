@@ -1788,7 +1788,7 @@ luaxiaomeng = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		if event == sgs.TargetConfirmed then
 			local use = data:toCardUse()
-			if (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
+			if not use.from or (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
 			local jink_table = sgs.QList2Table(player:getTag("Jink_" .. use.card:toString()):toIntList())
 			local index = 1
 			for _, p in sgs.qlist(use.to) do

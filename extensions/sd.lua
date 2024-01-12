@@ -24,7 +24,7 @@ dy_zuoxingCard = sgs.CreateSkillCard {
 			qtargets:append(p)
 		end
 		return card and card:targetFilter(qtargets, to_select, sgs.Self) and
-		not sgs.Self:isProhibited(to_select, card, qtargets)
+			not sgs.Self:isProhibited(to_select, card, qtargets)
 	end,
 	feasible = function(self, targets)
 		local card = sgs.Self:getTag("dy_zuoxing"):toCard()
@@ -295,7 +295,7 @@ f_shenxianshizu_fire = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("f_shenxianshizu")
+		return player and player:hasSkill("f_shenxianshizu")
 	end,
 }
 if not sgs.Sanguosha:getSkill("f_shenxianshizuA") then skills:append(f_shenxianshizuA) end
@@ -805,7 +805,7 @@ f_ruya = sgs.CreateTriggerSkill {
 		_data:setValue(damage.to)
 		if not player:askForSkillInvoke(self:objectName(), _data) then return false end
 		local card = room:askForExchange(damage.to, self:objectName(), 999, 1, true, "#f_ruya:" ..
-		player:getGeneralName())
+			player:getGeneralName())
 		if card then
 			room:broadcastSkillInvoke(self:objectName())
 			room:obtainCard(player, card,
@@ -1015,8 +1015,8 @@ f_huigui = sgs.CreateTriggerSkill {
 		end
 		room:detachSkillFromPlayer(player, "f_longwang", true)
 		room:changeHero(player, "f_guanyunpengg", true, false,
-			player:getGeneral2Name() and player:getGeneral2Name() == "f_guanyunpeng", false)                                              --同时获得“龙王”
-		local log = sgs.LogMessage()                                                                                                      --嗯造一个获得技能的信息
+			player:getGeneral2Name() and player:getGeneral2Name() == "f_guanyunpeng", false) --同时获得“龙王”
+		local log = sgs.LogMessage()                                                --嗯造一个获得技能的信息
 		log.type = "$f_huigui_getSkill"
 		log.from = player
 		room:sendLog(log)
@@ -2052,7 +2052,7 @@ j_ruya = sgs.CreateTriggerSkill {
 		_data:setValue(damage.to)
 		if not player:askForSkillInvoke(self:objectName(), _data) then return false end
 		local card = room:askForExchange(damage.to, self:objectName(), 999, 1, true, "#j_ruya:" ..
-		player:getGeneralName())
+			player:getGeneralName())
 		if card then
 			room:broadcastSkillInvoke(self:objectName())
 			room:obtainCard(player, card,
@@ -3396,8 +3396,10 @@ f_ikuns = sgs.CreateTriggerSkill {
 					room:obtainCard(player, lizhi,
 						sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_GIVE, player:objectName(), cxk:objectName(),
 							"f_ikun", ""), false)
-					if not player:hasFlag("f_ikunDrawNCardsCancel") then room:setPlayerFlag(player,
-							"f_ikunDrawNCardsCancel") end
+					if not player:hasFlag("f_ikunDrawNCardsCancel") then
+						room:setPlayerFlag(player,
+							"f_ikunDrawNCardsCancel")
+					end
 					lizhi:deleteLater()
 				end
 			end
@@ -3964,7 +3966,7 @@ red_jufengBuff = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("red_jufeng")
+		return player and player:hasSkill("red_jufeng")
 	end,
 }
 CP_Red:addSkill("f_xingyuan")
@@ -5742,70 +5744,130 @@ f_dingzheng_equipEnd = sgs.CreateTriggerSkill {
 				local equips = sgs.Sanguosha:getCard(e)
 				-----
 				if equips:isKindOf("Weapon") then
-					if player:hasSkill("f_dingzhengCrossbow") then room:detachSkillFromPlayer(player,
-							"f_dingzhengCrossbow", false, true) end
-					if player:hasSkill("f_dingzhengQinggangSword") then room:detachSkillFromPlayer(player,
-							"f_dingzhengQinggangSword", false, true) end
-					if player:hasSkill("f_dingzhengDoubleSword") then room:detachSkillFromPlayer(player,
-							"f_dingzhengDoubleSword", false, true) end
-					if player:hasSkill("f_dingzhengIceSword") then room:detachSkillFromPlayer(player,
-							"f_dingzhengIceSword", false, true) end
-					if player:hasSkill("f_dingzhengBlade") then room:detachSkillFromPlayer(player, "f_dingzhengBlade",
-							false, true) end
-					if player:hasSkill("f_dingzhengSpear") then room:detachSkillFromPlayer(player, "f_dingzhengSpear",
-							false, true) end
-					if player:hasSkill("f_dingzhengAxe") then room:detachSkillFromPlayer(player, "f_dingzhengAxe", false,
-							true) end
-					if player:hasSkill("f_dingzhengHalberd") then room:detachSkillFromPlayer(player, "f_dingzhengHalberd",
-							false, true) end
-					if player:hasSkill("f_dingzhengKylinBow") then room:detachSkillFromPlayer(player,
-							"f_dingzhengKylinBow", false, true) end
-					if player:hasSkill("f_dingzhengGudingBlade") then room:detachSkillFromPlayer(player,
-							"f_dingzhengGudingBlade", false, true) end
-					if player:hasSkill("f_dingzhengFan") then room:detachSkillFromPlayer(player, "f_dingzhengFan", false,
-							true) end
-					if player:hasSkill("f_dingzhengWutiesuolian") then room:detachSkillFromPlayer(player,
-							"f_dingzhengWutiesuolian", false, true) end
-					if player:hasSkill("f_dingzhengWuxinghelingshan") then room:detachSkillFromPlayer(player,
-							"f_dingzhengWuxinghelingshan", false, true) end
+					if player:hasSkill("f_dingzhengCrossbow") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengCrossbow", false, true)
+					end
+					if player:hasSkill("f_dingzhengQinggangSword") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengQinggangSword", false, true)
+					end
+					if player:hasSkill("f_dingzhengDoubleSword") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengDoubleSword", false, true)
+					end
+					if player:hasSkill("f_dingzhengIceSword") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengIceSword", false, true)
+					end
+					if player:hasSkill("f_dingzhengBlade") then
+						room:detachSkillFromPlayer(player, "f_dingzhengBlade",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengSpear") then
+						room:detachSkillFromPlayer(player, "f_dingzhengSpear",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengAxe") then
+						room:detachSkillFromPlayer(player, "f_dingzhengAxe", false,
+							true)
+					end
+					if player:hasSkill("f_dingzhengHalberd") then
+						room:detachSkillFromPlayer(player, "f_dingzhengHalberd",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengKylinBow") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengKylinBow", false, true)
+					end
+					if player:hasSkill("f_dingzhengGudingBlade") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengGudingBlade", false, true)
+					end
+					if player:hasSkill("f_dingzhengFan") then
+						room:detachSkillFromPlayer(player, "f_dingzhengFan", false,
+							true)
+					end
+					if player:hasSkill("f_dingzhengWutiesuolian") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengWutiesuolian", false, true)
+					end
+					if player:hasSkill("f_dingzhengWuxinghelingshan") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengWuxinghelingshan", false, true)
+					end
 				elseif equips:isKindOf("Armor") then
-					if player:hasSkill("f_dingzhengEightDiagram") then room:detachSkillFromPlayer(player,
-							"f_dingzhengEightDiagram", false, true) end
-					if player:hasSkill("f_dingzhengRenwangShield") then room:detachSkillFromPlayer(player,
-							"f_dingzhengRenwangShield", false, true) end
-					if player:hasSkill("f_dingzhengVine") then room:detachSkillFromPlayer(player, "f_dingzhengVine",
-							false, true) end
-					if player:hasSkill("f_dingzhengSilverLion") then room:detachSkillFromPlayer(player,
-							"f_dingzhengSilverLion", false, true) end
-					if player:hasSkill("f_dingzhengHeiguangkai") then room:detachSkillFromPlayer(player,
-							"f_dingzhengHeiguangkai", false, true) end
-					if player:hasSkill("f_dingzhengHuxinjing") then room:detachSkillFromPlayer(player,
-							"f_dingzhengHuxinjing", false, true) end
+					if player:hasSkill("f_dingzhengEightDiagram") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengEightDiagram", false, true)
+					end
+					if player:hasSkill("f_dingzhengRenwangShield") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengRenwangShield", false, true)
+					end
+					if player:hasSkill("f_dingzhengVine") then
+						room:detachSkillFromPlayer(player, "f_dingzhengVine",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengSilverLion") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengSilverLion", false, true)
+					end
+					if player:hasSkill("f_dingzhengHeiguangkai") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengHeiguangkai", false, true)
+					end
+					if player:hasSkill("f_dingzhengHuxinjing") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengHuxinjing", false, true)
+					end
 				elseif equips:isKindOf("DefensiveHorse") then
-					if player:hasSkill("f_dingzhengDilu") then room:detachSkillFromPlayer(player, "f_dingzhengDilu",
-							false, true) end
-					if player:hasSkill("f_dingzhengJueying") then room:detachSkillFromPlayer(player, "f_dingzhengJueying",
-							false, true) end
-					if player:hasSkill("f_dingzhengZhuahuangfeidian") then room:detachSkillFromPlayer(player,
-							"f_dingzhengZhuahuangfeidian", false, true) end
-					if player:hasSkill("f_dingzhengHualiu") then room:detachSkillFromPlayer(player, "f_dingzhengHualiu",
-							false, true) end
+					if player:hasSkill("f_dingzhengDilu") then
+						room:detachSkillFromPlayer(player, "f_dingzhengDilu",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengJueying") then
+						room:detachSkillFromPlayer(player, "f_dingzhengJueying",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengZhuahuangfeidian") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengZhuahuangfeidian", false, true)
+					end
+					if player:hasSkill("f_dingzhengHualiu") then
+						room:detachSkillFromPlayer(player, "f_dingzhengHualiu",
+							false, true)
+					end
 				elseif equips:isKindOf("OffensiveHorse") then
-					if player:hasSkill("f_dingzhengChitu") then room:detachSkillFromPlayer(player, "f_dingzhengChitu",
-							false, true) end
-					if player:hasSkill("f_dingzhengDayuan") then room:detachSkillFromPlayer(player, "f_dingzhengDayuan",
-							false, true) end
-					if player:hasSkill("f_dingzhengZixing") then room:detachSkillFromPlayer(player, "f_dingzhengZixing",
-							false, true) end
+					if player:hasSkill("f_dingzhengChitu") then
+						room:detachSkillFromPlayer(player, "f_dingzhengChitu",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengDayuan") then
+						room:detachSkillFromPlayer(player, "f_dingzhengDayuan",
+							false, true)
+					end
+					if player:hasSkill("f_dingzhengZixing") then
+						room:detachSkillFromPlayer(player, "f_dingzhengZixing",
+							false, true)
+					end
 				elseif equips:isKindOf("Treasure") then
-					if player:hasSkill("f_dingzhengWoodenOx") then room:detachSkillFromPlayer(player,
-							"f_dingzhengWoodenOx", false, true) end
-					if player:hasSkill("f_dingzhengTianjitu") then room:detachSkillFromPlayer(player,
-							"f_dingzhengTianjitu", false, true) end
-					if player:hasSkill("f_dingzhengTaigongyinfu") then room:detachSkillFromPlayer(player,
-							"f_dingzhengTaigongyinfu", false, true) end
-					if player:hasSkill("f_dingzhengTongque") then room:detachSkillFromPlayer(player, "f_dingzhengTongque",
-							false, true) end
+					if player:hasSkill("f_dingzhengWoodenOx") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengWoodenOx", false, true)
+					end
+					if player:hasSkill("f_dingzhengTianjitu") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengTianjitu", false, true)
+					end
+					if player:hasSkill("f_dingzhengTaigongyinfu") then
+						room:detachSkillFromPlayer(player,
+							"f_dingzhengTaigongyinfu", false, true)
+					end
+					if player:hasSkill("f_dingzhengTongque") then
+						room:detachSkillFromPlayer(player, "f_dingzhengTongque",
+							false, true)
+					end
 				end
 				-----
 			end
@@ -5961,7 +6023,7 @@ f_lingyuangouVS = sgs.CreateZeroCardViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return player:getMark("@f_lingyuangou") > 0 and player:hasEquipArea() and
-		not player:hasFlag("f_lingyuangou_limited")
+			not player:hasFlag("f_lingyuangou_limited")
 	end,
 	response_pattern = "@@f_lingyuangou",
 }
@@ -7668,7 +7730,7 @@ f_mieshiSBCard = sgs.CreateSkillCard {
 		local mssb = sgs.Sanguosha:getCard(self:getSubcards():first())
 		if mssb:isKindOf("Fchixieren") then
 			return #targets == 0 and to_select:objectName() ~= sgs.Self:objectName() and
-			sgs.Self:distanceTo(to_select) == 1
+				sgs.Self:distanceTo(to_select) == 1
 		elseif mssb:isKindOf("Fmorigong") then
 			return #targets == 0 and to_select:objectName() ~= sgs.Self:objectName()
 		end

@@ -221,6 +221,12 @@ function SmartAI:canLiegong(to, from)
 	--add leo
 	if from:hasSkill("luaxiaomeng") and to:distanceTo(from) <= 1 then return true end
 
+	--add dongmanbao
+	if from:hasSkill("SE_Juji") and from:getPhase() == sgs.Player_Play and not to:inMyAttackRange(from) then return true end
+	if from:hasSkill("SE_Juji_Reki") and from:getPhase() == sgs.Player_Play and not to:inMyAttackRange(from) then return true end
+	if from:hasSkill("SE_Wuwei") and from:getMark("@Wuwei") > self.room:getAlivePlayers():length() and from:getMark("@Wuwei") > 4 then return true end
+	if from:hasSkill("SE_Tiansuo") and to:isChained() and to:isKongcheng() then return true end
+
 	return false
 end
 
@@ -280,7 +286,7 @@ function sgs.ai_cardneed.guidao(to, card, self)
 		if self:getFinalRetrial(to) == 1 then
 			if player:containsTrick("lightning") and not player:containsTrick("YanxiaoCard") then
 				return card:getSuit() == sgs.Card_Spade and card:getNumber() >= 2 and card:getNumber() <= 9 and
-				not self:hasSkills("hongyan|olhongyan|wuyan")
+					not self:hasSkills("hongyan|olhongyan|wuyan")
 			end
 			if self:isFriend(player) and self:willSkipDrawPhase(player) then
 				return card:getSuit() == sgs.Card_Club and self:hasSuit("club", true, to)
@@ -300,7 +306,7 @@ end
 function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 	if not latest_version then
 		return self:findLeijiTarget(player, leiji_value, slasher, 1) or
-		self:findLeijiTarget(player, leiji_value, slasher, -1)
+			self:findLeijiTarget(player, leiji_value, slasher, -1)
 	end
 	--if not player:hasSkills(latest_version==1 and "leiji|olleiji|tenyearleiji" or "nosleiji") then return end
 	if not player:hasSkills(latest_version == 1 and "leiji|olleiji|tenyearleiji" or "nosleiji|luafan|PlusLeiji") then return end --add
@@ -351,8 +357,10 @@ function SmartAI:findLeijiTarget(player, leiji_value, slasher, latest_version)
 		if not latest_version and enemy:hasArmorEffect("silver_lion") then value = value + 20 end
 		if enemy:hasSkills(sgs.exclusive_skill) then value = value + 10 end
 		if enemy:hasSkills(sgs.masochism_skill) then value = value + 5 end
-		if enemy:isChained() and self:isGoodChainTarget(enemy, sgs.DamageStruct_Thunder, player, latest_version == 1 and 1 or 2) and #(self:getChainedEnemies(player)) > 1 then value =
-			value - 25 end
+		if enemy:isChained() and self:isGoodChainTarget(enemy, sgs.DamageStruct_Thunder, player, latest_version == 1 and 1 or 2) and #(self:getChainedEnemies(player)) > 1 then
+			value =
+				value - 25
+		end
 		if enemy:isLord() then value = value - 5 end
 		value = value + enemy:getHp() + sgs.getDefenseSlash(enemy, self) * 0.01
 		if latest_version and player:isWounded() and not self:needToLoseHp(player) then value = value + 15 end
@@ -674,8 +682,10 @@ sgs.ai_skill_choice.guhuo = function(self, choices)
 	local guhuotype = guhuocard:getClassName()
 	if guhuotype and self:getRestCardsNum(guhuotype, yuji) == 0 and self.player:getHp() > 0 then return "question" end
 	if guhuotype and guhuotype == "AmazingGrace" then return "noquestion" end
-	if self.player:hasSkill("hunzi") and self.player:getMark("hunzi") == 0 and math.random(1, 15) ~= 1 then return
-		"noquestion" end
+	if self.player:hasSkill("hunzi") and self.player:getMark("hunzi") == 0 and math.random(1, 15) ~= 1 then
+		return
+		"noquestion"
+	end
 	if guhuotype:match("Slash") then
 		if yuji:getState() ~= "robot" and math.random(1, 8) == 1 then return "question" end
 		if not self:hasCrossbowEffect(yuji) then return "noquestion" end
@@ -853,5 +863,5 @@ end
 
 function sgs.ai_cardneed.kuanggu(to, card, self)
 	return card:isKindOf("OffensiveHorse") and
-	not (to:getOffensiveHorse() or getKnownCard(to, self.player, "OffensiveHorse", false) > 0)
+		not (to:getOffensiveHorse() or getKnownCard(to, self.player, "OffensiveHorse", false) > 0)
 end

@@ -101,7 +101,7 @@ end
 sgs.ai_skill_invoke["Tohnozhisi"] = function(self, data)
 	self:sort(self.enemies, "defense")
 	for _, enemy in ipairs(self.enemies) do
-		if not self:slashProhibit(slash, enemy) and self.player:canSlash(enemy, slash, false) and sgs.isGoodTarget(enemy, self.enemies, self, true)
+		if not self:slashProhibit(slash, enemy) and self.player:canSlash(enemy, slash, false) and self:isGoodTarget(enemy, self.enemies, nil)
 			and sgs.Self:distanceTo(enemy) <= sgs.Self:getAttackRange() and not self:isWeak(self.player) then
 			return true
 		end

@@ -2664,7 +2664,7 @@ XiaHouDun_Plus:addSkill(PlusGanglie)
 	技能设计：小A
 	状态：验证通过
 ]]
-   --
+--
 
 ----------------------------------------------------------------------------------------------------
 
@@ -14139,6 +14139,11 @@ SevenChuaiYi = sgs.CreateTriggerSkill {
 					room:sendLog(log)
 					damage.damage = damage.damage - 1
 					data:setValue(damage)
+					if damage.damage <= 0 then
+						damage.prevented = true
+						data:setValue(damage)
+						return true
+					end
 				else
 					room:throwCard(carda, damage.to, damage.to)
 				end
