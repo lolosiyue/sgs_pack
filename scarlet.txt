@@ -124,6 +124,8 @@ for _, enemy in ipairs(self.enemies) do
 		return true
 	end
 end
+find to damage enemy
+self:damageIsEffective(enemy, sgs.DamageStruct_Thunder) and not self:cantbeHurt(enemy)
 
 
 
@@ -146,3 +148,6 @@ table.insert(sgs.ai_choicemade_filter.cardUsed,quhu_filter)
 被動傷害intention?
 
 filterEvent
+
+sgs.current_mode_players.rebel == 0
+sgs.playerRoles["rebel"] == 0 

@@ -2566,13 +2566,16 @@ s4_txbw_hongwuClear = sgs.CreateTriggerSkill {
                     for _, p in sgs.qlist(room:findPlayersBySkillName("s4_txbw_hongwu")) do
                         if player:getMark("&s4_txbw_hongwu+to+#" .. p:objectName()) > 0 then
                             room:sendCompulsoryTriggerLog(p, "s4_txbw_hongwu")
+
+                            room:addPlayerMark(player, "s4_txbw_general_duel",
+                                player:getMark("&s4_txbw_hongwu+to+#" .. p:objectName()))
+                            room:setPlayerMark(player, "&s4_txbw_hongwu+to+#" .. p:objectName(), 0)
                             local msg = sgs.LogMessage()
                             msg.type = "#s4_txbw_general_duel_cal_point_add"
                             msg.from = player
                             msg.arg = self:objectName()
                             msg.arg2 = player:getMark("s4_txbw_general_duel")
-                            room:addPlayerMark(player, "s4_txbw_general_duel", player:getHp())
-                            room:setPlayerMark(player, "&s4_txbw_hongwu+to+#" .. p:objectName(), 0)
+                            room:sendLog(msg)
                         end
                     end
                 end
@@ -2588,7 +2591,7 @@ s4_txbw_hongwuClear = sgs.CreateTriggerSkill {
 
 s4_txbw_xiaoguo = sgs.CreatePhaseChangeSkill {
     name = "s4_txbw_xiaoguo",
-    frequency = sgs.Skill_Frequent,
+    frequency = sgs.Skill_NotFrequent,
     on_phasechange = function(self, player)
         if player:getPhase() == sgs.Player_Finish then
             local room = player:getRoom()
@@ -2639,8 +2642,8 @@ sgs.LoadTranslationTable {
 
 s4_txbw_wei_guanyu = sgs.General(extension, "s4_txbw_wei_guanyu", "wei", 5, true)
 
-s4_txbw_yishi = sgs.CreateTriggerSkill {
-    name = "s4_txbw_yishi",
+s4_txbw_shenwei = sgs.CreateTriggerSkill {
+    name = "s4_txbw_shenwei",
     frequency = sgs.Skill_NotFrequent,
     events = { sgs.PreCardUsed, sgs.CardFinished },
     priority = -1,
@@ -2656,7 +2659,7 @@ s4_txbw_yishi = sgs.CreateTriggerSkill {
                     dest:setValue(target)
                     local choice = room:askForChoice(player, self:objectName(), "red+black+cancel", dest)
                     if choice ~= "cancel" then
-                        room:setPlayerMark(player, "&" .. self:objectName() .. "+" .. chioce, 1)
+                        room:setPlayerMark(player, "&" .. self:objectName() .. "+" .. choice, 1)
                     end
                 end
             end
@@ -2678,6 +2681,8 @@ s4_txbw_yishi = sgs.CreateTriggerSkill {
                                 (card:isBlack() and player:getMark("&" .. self:objectName() .. "+black")) then
                                 room:sendCompulsoryTriggerLog(player, self:objectName())
                                 room:setPlayerFlag(player, "s4_txbw_general_duel_force_win")
+                                room:setPlayerMark(player, "&" .. self:objectName() .. "+red", 0)
+                                room:setPlayerMark(player, "&" .. self:objectName() .. "+black", 0)
                             end
                         end
                     end
@@ -2713,6 +2718,9 @@ s4_txbw_tianjian = sgs.CreateTriggerSkill {
                             else
                                 room:loseMaxHp(target)
                             end
+                            room:removeTag("s4_txbw_general_duel_wincard")
+                            room:removeTag("s4_txbw_general_duel_winner")
+                            room:removeTag("s4_txbw_general_duel_loser")
                         end
                     end
                 end
@@ -2824,7 +2832,7 @@ s4_txbw_zhangfei = sgs.General(extension, "s4_txbw_zhangfei", "shu", 4, true)
 
 s4_txbw_paoxiao = sgs.CreateTriggerSkill {
     name = "s4_txbw_paoxiao",
-    frequency = sgs.Skill_Frequent,
+    frequency = sgs.Skill_Compulsory,
     events = { sgs.CardsMoveOneTime },
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
@@ -2851,7 +2859,7 @@ s4_txbw_paoxiao = sgs.CreateTriggerSkill {
 
 s4_txbw_duanhe = sgs.CreateTriggerSkill {
     name = "s4_txbw_duanhe",
-    frequency = sgs.Skill_NotFrequent,
+    frequency = sgs.Skill_Compulsory,
     events = { sgs.CardFinished, sgs.EventLoseSkill, sgs.CardsMoveOneTime },
     priority = -1,
     on_trigger = function(self, event, player, data)
@@ -2874,7 +2882,8 @@ s4_txbw_duanhe = sgs.CreateTriggerSkill {
                                 room:setPlayerCardLimitation(p, "use,response", ".|" .. card:getSuitString() .. "|.|.|",
                                     true)
                             end
-                            room:setPlayerMark(player, "&" .. self:objectName() .. "+" .. card:getSuitString())
+                            room:setPlayerMark(player, "&" .. self:objectName() .. "+" .. card:getSuitString() ..
+                                "+-Clear", 1)
                         end
                     end
                 end
@@ -2948,8 +2957,8 @@ s4_txbw_duanhe = sgs.CreateTriggerSkill {
 }
 
 s4_txbw_zhangfei:addSkill("s4_txbw_general_gain")
-s4_txbw_zhangfei:addSubcard(s4_txbw_paoxiao)
-s4_txbw_zhangfei:addSubcard(s4_txbw_duanhe)
+--s4_txbw_zhangfei:addSkill(s4_txbw_paoxiao)
+--s4_txbw_zhangfei:addSkill(s4_txbw_duanhe)
 
 
 sgs.LoadTranslationTable {
@@ -2992,7 +3001,7 @@ s4_txbw_wusheng = sgs.CreateTriggerSkill {
                     elseif player:hasFlag("s4_txbw_general_duel_start") then
                         card = card_s
                     end
-                    local target = room:getTag("s4_txbw_general_duel"):toPlayer()
+                    local target = player:getTag("s4_txbw_general_duel"):toPlayer()
                     if card and card:isRed() and target then
                         room:addPlayerMark(player, "s4_txbw_general_duel", target:getHp())
                         local msg = sgs.LogMessage()
@@ -3260,7 +3269,7 @@ s4_txbw_nilin = sgs.CreateTriggerSkill {
         if event == sgs.TargetSpecified then
             local use = data:toCardUse()
             if use.card and not use.card:isKindOf("SkillCard") and use.from:objectName() == player:objectName() and player:hasSkill(self:objectName()) then
-                if use.from:getMark("us-Clear") == player:getMaxHp() then
+                if use.from:getMark("used-Clear") == player:getMaxHp() then
                     if not use.from:isAllNude() then
                         if room:askForSkillInvoke(player, self:objectName()) then
                             local card_id = room:askForCardChosen(player, use.from, "hej", self:objectName())

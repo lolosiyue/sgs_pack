@@ -217,6 +217,7 @@ function sgs.getDefenseSlash(to, self)
 		end
 	end
 
+
 	if to:getMark("@tied") > 0 and not hasJueqingEffect(self.player, to) then defense = defense + 1 end
 	if self.player:canSlashWithoutCrossbow() and self.player:getPhase() == sgs.Player_Play
 	then
@@ -238,6 +239,11 @@ function sgs.getDefenseSlash(to, self)
 		defense = 0
 	end
 	if to:isCardLimited(dummyCard("jink"), sgs.Card_MethodUse) then defense = 0 end
+
+	if to:getMark("@juren") > 0 and self.player:hasSkill("SE_Qixin") then
+		defense = -10
+	end
+
 	if to:hasFlag("QianxiTarget")
 	then
 		if to:getMark("@qianxi_red") > 0
@@ -2851,10 +2857,15 @@ function SmartAI:useCardIndulgence(card, use)
 		and (getKnownCard(sb_daqiao, self.player, "diamond", nil, "he") > 0
 			or sb_daqiao:getHandcardNum() + self:ImitateResult_DrawNCards(sb_daqiao, sb_daqiao:getVisibleSkillList(true)) > 3
 			or sb_daqiao:containsTrick("YanxiaoCard"))
+	--add
+	local Tukasa = self.room:findPlayerBySkillName("se_liaoli")
+	local se_liaoli = Tukasa and not self:isFriend(Tukasa) and Tukasa:faceUp()
+		and Tukasa:getHandcardNum() + self:ImitateResult_DrawNCards(Tukasa, Tukasa:getVisibleSkillList(true)) > 0
 	local getvalue = function(enemy)
 		if type(enemy) ~= "userdata"
 			or enemy:containsTrick("YanxiaoCard")
 			or enemy:hasSkill("qiaobian") and enemy:getJudgingArea():isEmpty() and enemy:getHandcardNum() > 0
+			or se_liaoli and (self:playerGetRound(Tukasa) <= self:playerGetRound(enemy) and self:enemiesContainsTrick(true) <= 1 or not enemy:faceUp())
 			or yanxiao and (self:playerGetRound(sb_daqiao) <= self:playerGetRound(enemy) and self:enemiesContainsTrick(true) <= 1 or not enemy:faceUp())
 			or zhanghe_seat and (self:playerGetRound(zhanghe) <= self:playerGetRound(enemy) and self:enemiesContainsTrick() <= 1 or not enemy:faceUp())
 		then

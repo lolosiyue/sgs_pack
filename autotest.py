@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "s4_txbw_xuchu"
+choose_general = "Ayase"
 debug = 1
 wait = 1
 

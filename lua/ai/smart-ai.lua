@@ -103,18 +103,18 @@ do
 	sgs.ai_type_name = { "SkillCard", "BasicCard", "TrickCard", "EquipCard" }
 
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng" ..
-		"|FourQixiB|Zhudao" --add
+		"|FourQixiB|Zhudao|SE_Zhuzhen" --add dongmaobao
 
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng" ..
-		"|keyaozhongyi" --add
+		"|keyaozhongyi" --add keyao
 
 	sgs.masochism_skill = "guixin|yiji|fankui|jieming|xuehen|neoganglie|ganglie|vsganglie|enyuan|" ..
 		"fangzhu|nosenyuan|langgu|quanji|zhiyu|renjie|tanlan|tongxin|huashen|duodao|chengxiang|benyu"
 
 	sgs.wizard_skill = "nosguicai|guicai|guidao|olguidao|jilve|tiandu|luoying|noszhenlie|huanshi|jinshenpin" ..
-		"|LuaGuizha|luaguidao" --add
+		"|LuaGuizha|luaguidao|se_qidian" --add newstar
 	sgs.wizard_harm_skill = "nosguicai|guicai|guidao|olguidao|jilve|jinshenpin|midao|zhenyi" ..
-		"|LuaGuizha|luaguidao" --add
+		"|LuaGuizha|luaguidao|se_qidian" --add newstar
 	sgs.priority_skill = "dimeng|haoshi|qingnang|nosjizhi|jizhi|guzheng|qixi|jieyin|guose|duanliang|jujian|fanjian|" ..
 		"neofanjian|lijian|noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|" ..
 		"mingce|wansha|gongxin|jilve|anxu|qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|" ..
@@ -122,67 +122,71 @@ do
 		"|luamouce|eqiehu" --add
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun" ..
-		"|zhuchang|dai"
+		"|zhuchang|dai|se_jiushu|Haixing" --add dongmaobao
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh" --add
+		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh" --add meizi
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
 		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
-		"|s4_cloud_tuxi|luafan|meizlcimin|keguishouye" --add
+		"|s4_cloud_tuxi|luafan|meizlcimin|keguishouye" --add meizi kegui new scarlet
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
 		"qiaobian|lirang|mingce|fuhun|spzhenwei|nosfuhun|nosluoyi|yinbing|jieyue|sanyao|xinzhan" ..
-		"|luaxiongfeng|eqiehu" --add
+		"|luaxiongfeng|eqiehu" --add blood emjr
 
 	sgs.notActive_cardneed_skill = "kanpo|guicai|guidao|beige|xiaoguo|liuli|tianxiang|jijiu|leiji|nosleiji" ..
 		"qingjian|zhuhai|qinxue|jspdanqi|" .. sgs.dont_kongcheng_skill ..
-		"|LuaGuizha|luaguidao" --add
+		"|LuaGuizha|luaguidao|se_qidian" --add newstar
 
 	sgs.cardneed_skill = sgs.Active_cardneed_skill .. "|" .. sgs.notActive_cardneed_skill
 
 	sgs.drawpeach_skill = "tuxi|qiaobian" ..
-		"|duYinling|luajiejiang" --add
+		"|duYinling|luajiejiang|SE_Shanguang" --add du new
 
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong" ..
-		"|meizlchongyuan|etushou" --add
+		"|meizlchongyuan|etushou|SE_Qiehuan_K|SE_Qiehuan_A|se_kanhu|zhuchang|dai|SE_Huifu|SE_Chizuru" .. --add meizi empty
+		"|SE_Zibi|se_chengling"
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
-		"buqu|miji|" .. sgs.recover_hp_skill
+		"buqu|miji|" .. sgs.recover_hp_skill ..
+		"|jinghua|se_huanyuan" --add dongmanbao
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
-		"|LuaGuizha|luaguidao|eqiehu" --add
+		"|LuaGuizha|luaguidao|eqiehu|Zhudao|se_qidian|SE_Zhuzhen" --add newstar emjr dongmanbao
 
 
 	sgs.need_equip_skill = "shensu|tenyearshensu|mingce|jujian|beige|yuanhu|huyuan|gongqi|nosgongqi|yanzheng|qingcheng|" ..
 		"neoluoyi|longhun|newlonghun|shuijian|yinbing" ..
-		"|meizljinguo|meizlshwuji|meizlshmashu" --add
+		"|meizljinguo|meizlshwuji|meizlshmashu|Zhudao|se_shengjian|SE_Zhuzhen" --add meizi dongmanbao
 
 	sgs.judge_reason = "bazhen|EightDiagram|wuhun|supply_shortage|tuntian|nosqianxi|nosmiji|indulgence|lightning|baonue" ..
 		"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
 
-	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou"
+	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou" ..
+		"|se_paoji|se_hengsao|se_erdao_old|se_shengjian" --add dongmanbao
 
 	sgs.double_slash_skill =
 		"paoxiao|tenyearpaoxiao|olpaoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|" ..
 		"qiangwu|luanji" ..
-		"|luajuao|s4_xianfeng|luazhenshe|blood_hj" --add
+		"|luajuao|s4_xianfeng|luazhenshe|blood_hj|se_erdao|se_jianyu|Kuroyukihime" --add guanyu blood scarlet new
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe" ..
-		"|eweicheng|echinei" --add
+		"|eweicheng|echinei" --add emjr
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
-		"du_jiyu|meizlhunshidistance|meizlkuijiu|meizlshhunshidistance" --add
+		"|du_jiyu|meizlhunshidistance|meizlkuijiu|meizlshhunshidistance" --add du meizi
 
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
-		"conqueror|zhaxiang|tenyearyijue|yijue|xiongluan|xiying|"
+		"conqueror|zhaxiang|tenyearyijue|yijue|xiongluan|xiying|" ..
+		"|SE_Juji" --add
 
 	sgs.Friend_All = 0
 	sgs.Friend_Draw = 1
@@ -2497,6 +2501,10 @@ function SmartAI:filterEvent(event, player, data)
 		elseif from and (from:hasFlag("ShenfenUsing") or from:hasFlag("FenchengUsing") or reason:match("zhendu"))
 		then
 			intention = damage.damage * 10
+		end
+		--add
+		if reason == "SE_Feiti" then
+			intention = 0
 		end
 		if damage.transfer or damage.chain then intention = damage.damage * 20 end
 		if from then sgs.updateIntention(from, damage.to, intention) end
@@ -6562,6 +6570,7 @@ function getBestHp(owner)
 	if owner:hasSkill("keyaoguimou") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("dj") then return owner:getMaxHp() - 1 end
 	if owner:hasSkill("pj") then return owner:getMaxHp() - 1 end
+	if owner:hasSkill("Dianci") and owner:getMark("@ying") >= 1 then return owner:getMaxHp() - 1 end
 
 
 	return owner:getMaxHp()
@@ -7383,6 +7392,12 @@ function SmartAI:willSkipPlayPhase(player, NotContains_Null)
 	if player:getMark("&kejiexianmabicp") > 0 then
 		return true
 	end
+	if player:getMark("@SE_Mafuyu") > 0 then
+		return true
+	end
+	if player:hasSkill("SE_Qizhuang") then
+		return true
+	end
 
 
 
@@ -7486,6 +7501,16 @@ function canNiepan(player)
 		or player:hasSkill("mobileniepan") and player:getMark("@mobileniepanMark") > 0
 		or player:hasSkill("olniepan") and player:getMark("@olniepanMark") > 0
 		or player:hasSkill("fuli") and player:getMark("@laoji") > 0
+		or (player:hasSkill("SE_Boming") and player:getMark("@HIMIKO") > 0
+			and (
+				player:hasSkill("yingzi") or
+				player:hasSkill("shensu") or
+				player:hasSkill("fankui") or
+				player:hasSkill("longdan") or
+				player:hasSkill("paoxiao") or
+				player:hasSkill("guicao")
+			)
+		) --add
 end
 
 function SmartAI:adjustAIRole()
@@ -7562,6 +7587,22 @@ function hasTuntianEffect(to, need_zaoxian)
 		return true
 	end
 	if to:hasSkill("kejieshengliufeng") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("SE_Kurimu") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("SE_Minatsu") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("SE_Chizuru") and to:getPhase() == sgs.Player_NotActive
+	then
+		return true
+	end
+	if to:hasSkill("SE_Mafuyu") and to:getPhase() == sgs.Player_NotActive
 	then
 		return true
 	end
@@ -7988,6 +8029,16 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 		if hasWulingEffect("@earth") and not to:hasSkill("ranshang") then return 1 end
 	end
 	--add
+	if from:hasSkill("Zhena") then
+		if from:getWeapon() and not beFriend(to, from) then
+			if not self:cantDamageMore(from, to) and
+				((self:isWeak(from) or from:getHp() == 1) or
+					(from:getHp() <= to:getHp() and self:getCardsNum("Peach") > 0) or to:isLord()) then
+				nature = "F"
+				dmg = to:getHp()
+			end
+		end
+	end
 	if from:hasSkill("keyaoleimu") then
 		nature = "T"
 	end
@@ -8256,6 +8307,12 @@ function SmartAI:dontHurt(to, from) --针对队友
 		return true
 	end
 	if to:hasSkill("Jianqiao") then
+		return true
+	end
+	if to:hasSkill("se_Fanshe") then
+		return true
+	end
+	if to:getMark("@Kekkai") > 0 then
 		return true
 	end
 
