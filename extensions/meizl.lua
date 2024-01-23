@@ -8049,7 +8049,7 @@ meizlshyuguo = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.DamageCaused then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("Slash") then
+			if damage.card and damage.card:isKindOf("Slash") then
 				room:getThread():delay(100)
 				damage.damage = damage.damage + damage.from:getMark("@meizlshyuguo")
 				local log = sgs.LogMessage()

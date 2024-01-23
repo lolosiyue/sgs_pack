@@ -1,34 +1,34 @@
 module("extensions.erciyuan", package.seeall)
 extension = sgs.Package("erciyuan")
 ------------------------------------------------------------------------武将登陆区
-yj = sgs.General(extension, "yj", "Erciyuan", 9, true, true, true)      --完全隐藏武将
-itomakoto = sgs.General(extension, "itomakoto", "real", 3, true, false) --伊藤誠
-ayanami = sgs.General(extension, "ayanami", "science", 3, false, false) --綾波レイ
-keima = sgs.General(extension, "keima", "real", 3, true, false)         --桂馬
-SPkirito = sgs.General(extension, "SPkirito", "science", 4, true, false) --キリト
-odanobuna = sgs.General(extension, "odanobuna", "magic", 3, false, false) --織田信奈
-yuuta = sgs.General(extension, "yuuta", "real", 4, true, false)         --勇太
-tsukushi = sgs.General(extension, "tsukushi", "real", 3, false, false)  --筑紫
-batora = sgs.General(extension, "batora", "magic", 3, true, true)       --バトラ
-mao_maoyu = sgs.General(extension, "mao_maoyu", "magic", 4, false, false) --まお
-sheryl = sgs.General(extension, "sheryl", "science", 3, false, false)   --シェリル
-aoitori = sgs.General(extension, "aoitori", "magic", 4, true, false)    --葵‘トリ
-kyouko = sgs.General(extension, "kyouko", "magic", 4, false, false)     --きょうこ
-diarmuid = sgs.General(extension, "diarmuid", "magic", 4, true, false)  --迪卢木多
+yj = sgs.General(extension, "yj", "Erciyuan", 9, true, true, true)             --完全隐藏武将
+itomakoto = sgs.General(extension, "itomakoto", "real", 3, true, false)        --伊藤誠
+ayanami = sgs.General(extension, "ayanami", "science", 3, false, false)        --綾波レイ
+keima = sgs.General(extension, "keima", "real", 3, true, false)                --桂馬
+SPkirito = sgs.General(extension, "SPkirito", "science", 4, true, false)       --キリト
+odanobuna = sgs.General(extension, "odanobuna", "magic", 3, false, false)      --織田信奈
+yuuta = sgs.General(extension, "yuuta", "real", 4, true, false)                --勇太
+tsukushi = sgs.General(extension, "tsukushi", "real", 3, false, false)         --筑紫
+batora = sgs.General(extension, "batora", "magic", 3, true, true)              --バトラ
+mao_maoyu = sgs.General(extension, "mao_maoyu", "magic", 4, false, false)      --まお
+sheryl = sgs.General(extension, "sheryl", "science", 3, false, false)          --シェリル
+aoitori = sgs.General(extension, "aoitori", "magic", 4, true, false)           --葵‘トリ
+kyouko = sgs.General(extension, "kyouko", "magic", 4, false, false)            --きょうこ
+diarmuid = sgs.General(extension, "diarmuid", "magic", 4, true, false)         --迪卢木多
 ikarishinji = sgs.General(extension, "ikarishinji", "science", 3, true, false) --碇シンジ
-runaria = sgs.General(extension, "runaria", "magic", 3, false, false)   --ルナリア
-redarcher = sgs.General(extension, "redarcher", "magic", 4, true, false) --红Archer
-redo = sgs.General(extension, "redo", "science", 3, true, false)        --レド
-fuwaaika = sgs.General(extension, "fuwaaika", "magic", 3, false, false) --不破愛花
-slsty = sgs.General(extension, "slsty", "real", 3, false, false)        --塞蕾丝缇雅
-rokushikimei = sgs.General(extension, "rokushikimei", "real", 3, true, true) --六識命
-bernkastel = sgs.General(extension, "bernkastel", "magic", 3, false, true) --贝伦卡斯泰露
-hibiki = sgs.General(extension, "hibiki", "magic", 3, false, false)     --立花響
-kntsubasa = sgs.General(extension, "kntsubasa", "magic", 4, false, false) --風鳴翼
-khntmiku = sgs.General(extension, "khntmiku", "magic", 3, false, false) --小日向未来
-yukinechris = sgs.General(extension, "yukinechris", "magic", 3, false, false) --雪音クリス
+runaria = sgs.General(extension, "runaria", "magic", 3, false, false)          --ルナリア
+redarcher = sgs.General(extension, "redarcher", "magic", 4, true, false)       --红Archer
+redo = sgs.General(extension, "redo", "science", 3, true, false)               --レド
+fuwaaika = sgs.General(extension, "fuwaaika", "magic", 3, false, false)        --不破愛花
+slsty = sgs.General(extension, "slsty", "real", 3, false, false)               --塞蕾丝缇雅
+rokushikimei = sgs.General(extension, "rokushikimei", "real", 3, true, true)   --六識命
+bernkastel = sgs.General(extension, "bernkastel", "magic", 3, false, true)     --贝伦卡斯泰露
+hibiki = sgs.General(extension, "hibiki", "magic", 3, false, false)            --立花響
+kntsubasa = sgs.General(extension, "kntsubasa", "magic", 4, false, false)      --風鳴翼
+khntmiku = sgs.General(extension, "khntmiku", "magic", 3, false, false)        --小日向未来
+yukinechris = sgs.General(extension, "yukinechris", "magic", 3, false, false)  --雪音クリス
 ------------------------------------------------------------------------特殊代码区
-getmoesenlist = function(room, player, taipu)                           --OmnisReen --作用：萌战技通用、得出参战角色list
+getmoesenlist = function(room, player, taipu)                                  --OmnisReen --作用：萌战技通用、得出参战角色list
 	local ResPlayers = sgs.SPlayerList()
 	local targets = room:getAlivePlayers()
 	local newdata = sgs.QVariant()
@@ -535,7 +535,7 @@ ak_renzha = sgs.CreateTriggerSkill {
 					card_id = player:handCards():first()
 				else
 					card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "ak_renzhaPush"):getSubcards()
-					:first()
+						:first()
 				end
 				player:addToPile("zha", card_id)
 			end
@@ -829,12 +829,14 @@ LuaBuwu = sgs.CreateTriggerSkill {
 LuaTianmo = sgs.CreateTriggerSkill {
 	name = "#LuaTianmo",
 	frequency = sgs.Skill_Frequent,
-	events = { sgs.SlashMissed },
+	events = { sgs.CardOffset },
 	on_trigger = function(self, event, player, data)
-		local effect = data:toSlashEffect()
+		local effect = data:toCardEffect()
 		local room = player:getRoom()
-		player:gainMark("@tianmo", 1)
-		return false
+		if effect.card and effect.card:isKindOf("Slash") then
+			player:gainMark("@tianmo", 1)
+			return false
+		end
 	end
 }
 LuaTianmoDefense = sgs.CreateTriggerSkill {
@@ -852,6 +854,9 @@ LuaTianmoDefense = sgs.CreateTriggerSkill {
 				msg.from = player
 				room:sendLog(msg)
 				room:broadcastSkillInvoke("LuaTianmoDefense")
+				local damage = data:toDamage()
+				damage.prevented = true
+				data:setValue(damage)
 				return true
 			end
 		end
@@ -1291,6 +1296,7 @@ LuaLuoshen = sgs.CreateTriggerSkill {
 			if player:getPhase() == sgs.Player_Start then
 				while player:askForSkillInvoke(self:objectName()) do
 					local judge = sgs.JudgeStruct()
+					judge.pattern = "Slash"
 					judge.who = player
 					judge.negative = false
 					judge.play_animation = false
@@ -1298,7 +1304,7 @@ LuaLuoshen = sgs.CreateTriggerSkill {
 					judge.reason = self:objectName()
 					room:judge(judge)
 					room:broadcastSkillInvoke("LuaLuoshen")
-					if judge.card:isKindOf("Slash") then
+					if judge:isBad() then
 						break
 					end
 				end
@@ -1779,7 +1785,7 @@ LuaJianyong = sgs.CreateTriggerSkill {
 						card_id = player:handCards():first()
 					else
 						card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
-						:first()
+							:first()
 					end
 					player:addToPile("yong", card_id)
 					room:broadcastSkillInvoke("LuaJianyong")
@@ -1814,19 +1820,19 @@ LuaJianzhi = sgs.CreateTriggerSkill {
 			room:setTag("LuaJianzhiTarget", playerdata)
 		end
 	end,
-	can_trigger = function(self, target)
-		if target then
-			if target:isAlive() and target:hasSkill(self:objectName()) then
-				if target:getMark("LuaJianzhi") == 0 then
-					if target:getPhase() == sgs.Player_Finish then
-						local yong = target:getPile("yong")
-						return (yong:length() >= 2)
-					end
-				end
-			end
+	can_wake = function(self, event, player, data, room)
+		if player:getPhase() ~= sgs.Player_Finish or player:getMark(self:objectName()) > 0 then
+			return false
+		end
+		if player:canWake(self:objectName()) then
+			return true
+		end
+		if player:getPile("yong"):length() >= 2 then
+			return true
 		end
 		return false
-	end
+	end,
+
 }
 LuaJianzhiGive = sgs.CreateTriggerSkill {
 	name = "#LuaJianzhiGive",
@@ -1962,15 +1968,15 @@ LuaRedoWake = sgs.CreateTriggerSkill {
 			room:detachSkillFromPlayer(player, "LuaJiguangAsk")
 		end
 	end,
-	can_trigger = function(self, target)
-		if target then
-			if target:isAlive() and target:hasSkill(self:objectName()) then
-				if target:getMark("LuaRedoWake") == 0 then
-					if target:getPhase() == sgs.Player_Play then
-						return target:getHp() == 1
-					end
-				end
-			end
+	can_wake = function(self, event, player, data, room)
+		if player:getPhase() ~= sgs.Player_Play or player:getMark(self:objectName()) > 0 then
+			return false
+		end
+		if player:canWake(self:objectName()) then
+			return true
+		end
+		if player:getHp() == 1 then
+			return true
 		end
 		return false
 	end
@@ -2483,7 +2489,7 @@ yanhuoacquirecard = sgs.CreateSkillCard
 		name = "yanhuoacquirecard",
 		filter = function(self, selected, to_select)
 			return #selected == 0 and to_select:hasSkill("slyanhuo") and not to_select:getPile("confuse"):isEmpty() and
-			to_select:objectName() ~= sgs.Self:objectName()
+				to_select:objectName() ~= sgs.Self:objectName()
 		end,
 		on_effect = function(self, effect)
 			local room = effect.from:getRoom()
@@ -2547,7 +2553,7 @@ yanhuovs = sgs.CreateViewAsSkill
 		end,
 		enabled_at_play = function(self, player)
 			return player:getPile("confuse"):length() < 5 and
-			(player:getPile("confuse"):length() < player:getAliveSiblings():length() + 1)
+				(player:getPile("confuse"):length() < player:getAliveSiblings():length() + 1)
 		end
 	}
 

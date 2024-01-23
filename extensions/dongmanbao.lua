@@ -11034,6 +11034,7 @@ se_chenyan = sgs.CreateTriggerSkill {
 		if event == sgs.EventPhaseEnd then
 			for _, mygod in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 				room:setPlayerMark(mygod, "se_chenyan-Clear", 0)
+				room:setPlayerMark(mygod, "&se_chenyan-Clear", 0)
 			end
 		end
 		if event == sgs.PreCardUsed then
@@ -11043,6 +11044,7 @@ se_chenyan = sgs.CreateTriggerSkill {
 					room:loseHp(player)
 				end
 				room:addPlayerMark(player, "se_chenyan-Clear")
+				room:addPlayerMark(player, "&se_chenyan-Clear")
 			end
 		end
 	end,
@@ -11719,31 +11721,31 @@ SE_Shengmu = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local victim = damage.to
 		for _, Setsuna in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-		if math.ceil(Setsuna:getHandcardNum() / 2) * 2 ~= Setsuna:getHandcardNum() then
-			if not victim:isAlive() then return end
-			if not Setsuna:canDiscard(Setsuna, "he") then return end
-			room:setTag("CurrentDamageStruct", data)
-			local prompt = string.format("@SE_Shengmu:%s:%s", Setsuna:getGeneralName(), victim:getGeneralName())
-			local card = room:askForCard(Setsuna, ".|.|.", prompt, data, sgs.CardDiscarded)
-			room:removeTag("CurrentDamageStruct")
-			if card then
-				room:broadcastSkillInvoke("SE_Shengmu")
-				local re = sgs.RecoverStruct()
-				re.who = victim
-				room:recover(victim, re, true)
-				if card:isRed() then
-					room:doLightbox("SE_Shengmu$", 1000)
-					if victim:getMaxHp() - victim:getHandcardNum() > 0 then
-						if victim:getMaxHp() - victim:getHandcardNum() > 5 then
-							victim:drawCards(5)
-						else
-							victim:drawCards(victim:getMaxHp() - victim:getHandcardNum())
+			if math.ceil(Setsuna:getHandcardNum() / 2) * 2 ~= Setsuna:getHandcardNum() then
+				if not victim:isAlive() then return end
+				if not Setsuna:canDiscard(Setsuna, "he") then return end
+				room:setTag("CurrentDamageStruct", data)
+				local prompt = string.format("@SE_Shengmu:%s:%s", Setsuna:getGeneralName(), victim:getGeneralName())
+				local card = room:askForCard(Setsuna, ".|.|.", prompt, data, sgs.CardDiscarded)
+				room:removeTag("CurrentDamageStruct")
+				if card then
+					room:broadcastSkillInvoke("SE_Shengmu")
+					local re = sgs.RecoverStruct()
+					re.who = victim
+					room:recover(victim, re, true)
+					if card:isRed() then
+						room:doLightbox("SE_Shengmu$", 1000)
+						if victim:getMaxHp() - victim:getHandcardNum() > 0 then
+							if victim:getMaxHp() - victim:getHandcardNum() > 5 then
+								victim:drawCards(5)
+							else
+								victim:drawCards(victim:getMaxHp() - victim:getHandcardNum())
+							end
 						end
 					end
 				end
 			end
 		end
-	end
 		return false
 	end,
 	can_trigger = function(self, target)
@@ -11841,9 +11843,10 @@ SE_JianshiTr = sgs.CreateTriggerSkill {
 			if Ou:getMark("@surveillance") > 0 then
 				room:broadcastSkillInvoke("se_jianshi", 3)
 				for _, p in sgs.qlist(room:getOtherPlayers(Ou)) do
-					if p:getMark("@surveillance") > 0 and not p:hasSkill("se_jianshi") then
+					if p:getMark("@surveillance") > 0 and not p:hasSkill("se_jianshi") and p:getMark("&se_jianshi+to+#" .. Ou:objectName()) > 0 then
 						p:loseMark("@surveillance", 1)
 						room:setPlayerMark(p, "se_jianshi", 0)
+						room:setPlayerMark(p, "&se_jianshi+to+#" .. Ou:objectName(), 0)
 					end
 				end
 			end
@@ -11866,9 +11869,26 @@ SE_JianshiTrAll = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.CardUsed then
 			local use = data:toCardUse()
-			if use.from:getMark("@surveillance") > 0 then
+
+			if use.from and use.from:getMark("@surveillance") > 0 then
 				if math.random(1, 100) < 18 then --
-					for _, Yukina in sgs.qlist(room:findPlayersBySkillName("SE_Jianshi")) do
+					for _, Yukina in sgs.qlist(room:findPlayersBySkillName("se_jianshi")) do
+						--if not room:askForSkillInvoke(Yukina,"se_jianshi",data) then return end
+						local dest = room:askForPlayerChosen(Yukina, room:getAlivePlayers(), "SE_JianshiTr",
+							"se_jianshi-invoke", true)
+						if dest then
+							local da = sgs.DamageStruct()
+							da.from = Yukina
+							da.to = dest
+							da.nature = sgs.DamageStruct_Thunder
+							room:damage(da)
+						end
+					end
+				end
+			elseif event == sgs.CardResponded then
+				local use = data:toCardResponse()
+				if not use.to then return end
+				if use.to:getMark("@surveillance") > 0 then
 					--if not room:askForSkillInvoke(Yukina,"se_jianshi",data) then return end
 					local dest = room:askForPlayerChosen(Yukina, room:getAlivePlayers(), "SE_JianshiTr",
 						"se_jianshi-invoke", true)
@@ -11880,24 +11900,6 @@ SE_JianshiTrAll = sgs.CreateTriggerSkill {
 						room:damage(da)
 					end
 				end
-			end
-		elseif event == sgs.CardResponded then
-			local use = data:toCardResponse()
-			if not use.to then return end
-			if use.to:getMark("@surveillance") > 0 then
-				if math.random(1, 100) < 18 then --
-					for _, Yukina in sgs.qlist(room:findPlayersBySkillName("SE_Jianshi")) do
-					--if not room:askForSkillInvoke(Yukina,"se_jianshi",data) then return end
-					local dest = room:askForPlayerChosen(Yukina, room:getAlivePlayers(), "SE_JianshiTr",
-						"se_jianshi-invoke", true)
-					if dest then
-						local da = sgs.DamageStruct()
-						da.from = Yukina
-						da.to = dest
-						da.nature = sgs.DamageStruct_Thunder
-						room:damage(da)
-					end
-				end end
 			end
 		end
 	end,
@@ -11936,6 +11938,7 @@ se_jianshicard = sgs.CreateSkillCard {
 		end
 		if dest:isAlive() then
 			dest:gainMark("@surveillance")
+			room:setPlayerMark(dest, "&se_jianshi+to+#" .. source:objectName(), 1)
 			if math.random(1, 2) == 1 then
 				room:broadcastSkillInvoke("se_jianshi", 1)
 			else
@@ -12166,10 +12169,12 @@ SE_Heimu = sgs.CreateTriggerSkill {
 				end
 				local da = sgs.DamageStruct()
 				for _, p in sgs.qlist(room:getOtherPlayers(junko)) do
-					da.from = junko
-					da.to = p
-					da.nature = sgs.DamageStruct_Thunder
-					room:damage(da)
+					if p:isAlive() then
+						da.from = junko
+						da.to = p
+						da.nature = sgs.DamageStruct_Thunder
+						room:damage(da)
+					end
 				end
 			end
 			junko:gainMark("SE_Heimu_done")
@@ -12401,36 +12406,36 @@ SE_Zhandan = sgs.CreateTriggerSkill {
 			local source = damage.from
 			if not source then return end
 			for _, mygod in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if  mygod:inMyAttackRange(source)  and  mygod:inMyAttackRange(damage.to) then 
-			if  room:askForSkillInvoke(mygod, self:objectName(), data) then 
-			local card
-			if source:getHandcardNum() == 0 then
-				local log = sgs.LogMessage()
-				log.type = "#TriggerSkill"
-				log.from = mygod
-				log.arg = self:objectName()
-				room:doLightbox("SE_Zhandan$", 1000)
-				room:broadcastSkillInvoke(self:objectName())
-				return true
-			else
-				card = room:askForCardShow(source, mygod, self:objectName())
-				room:showCard(source, card:getEffectiveId())
-				local suit = card:getSuitString()
-				local pattern = string.format(".|%s|.|.", suit)
-				if room:askForCard(mygod, pattern, string.format("@SE_Zhandan" .. suit), data, sgs.CardDiscarded) then
-					local log = sgs.LogMessage()
-					log.type = "#TriggerSkill"
-					log.from = mygod
-					log.arg = self:objectName()
-					room:doLightbox("SE_Zhandan$", 1000)
-					room:broadcastSkillInvoke(self:objectName())
-					sgs.SE_Jiawu_broad = true
-					return true
+				if mygod:inMyAttackRange(source) and mygod:inMyAttackRange(damage.to) then
+					if room:askForSkillInvoke(mygod, self:objectName(), data) then
+						local card
+						if source:getHandcardNum() == 0 then
+							local log = sgs.LogMessage()
+							log.type = "#TriggerSkill"
+							log.from = mygod
+							log.arg = self:objectName()
+							room:doLightbox("SE_Zhandan$", 1000)
+							room:broadcastSkillInvoke(self:objectName())
+							return true
+						else
+							card = room:askForCardShow(source, mygod, self:objectName())
+							room:showCard(source, card:getEffectiveId())
+							local suit = card:getSuitString()
+							local pattern = string.format(".|%s|.|.", suit)
+							if room:askForCard(mygod, pattern, string.format("@SE_Zhandan" .. suit), data, sgs.CardDiscarded) then
+								local log = sgs.LogMessage()
+								log.type = "#TriggerSkill"
+								log.from = mygod
+								log.arg = self:objectName()
+								room:doLightbox("SE_Zhandan$", 1000)
+								room:broadcastSkillInvoke(self:objectName())
+								sgs.SE_Jiawu_broad = true
+								return true
+							end
+						end
+					end
 				end
 			end
-		end
-			end
-		end
 		end
 		return false
 	end,
@@ -12729,25 +12734,28 @@ SE_Wuwei = sgs.CreateTriggerSkill {
 		elseif event == sgs.TargetConfirmed then
 			local use = data:toCardUse()
 			if use.from and use.from:hasSkill(self:objectName()) and use.from:getMark("@Wuwei") > 2 then
-				if use.card:isKindOf("Slash") then
+				if use.card and use.card:isKindOf("Slash") then
 					if use.from:objectName() == player:objectName() then
 						room:setPlayerFlag(use.from, "WuweiArmor")
 						easyTalk(room, "#SE_Wuwei_Armor")
 						room:setEmotion(use.from, "weapon/qinggang_sword")
 						for _, p in sgs.qlist(use.to) do
-							room:setPlayerMark(p, "Armor_Nullified", 1)
+							if (p:getMark("Equips_of_Others_Nullified_to_You") == 0) then
+								p:addQinggangTag(use.card)
+							end
+							-- room:setPlayerMark(p, "Armor_Nullified", 1)
 						end
 					end
 				end
 			end
 			return false
-		elseif event == sgs.CardFinished then
-			local use = data:toCardUse()
-			if use.card:isKindOf("Slash") and use.from:hasFlag("WuweiArmor") then
-				for _, p in sgs.qlist(use.to) do
-					room:setPlayerMark(p, "Armor_Nullified", 0)
-				end
-			end
+			-- elseif event == sgs.CardFinished then
+			-- 	local use = data:toCardUse()
+			-- 	if use.card:isKindOf("Slash") and use.from:hasFlag("WuweiArmor") then
+			-- 		for _, p in sgs.qlist(use.to) do
+			-- 			room:setPlayerMark(p, "Armor_Nullified", 0)
+			-- 		end
+			-- 	end
 		elseif event == sgs.TargetSpecified then
 			if player:getMark("@Wuwei") > room:getAlivePlayers():length() and player:getMark("@Wuwei") > 4 then
 				local use = data:toCardUse()
@@ -12940,6 +12948,7 @@ se_gatevs = sgs.CreateViewAsSkill {
 	enabled_at_play = function(self, player)
 		if player:getPile("pika_gob"):length() > 0 then
 			local newanal = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+			newanal:deleteLater()
 			if not (player:isCardLimited(newanal, sgs.Card_MethodUse) or player:isProhibited(player, newanal)) then
 				return true
 			end
@@ -13206,6 +13215,8 @@ se_biling_tg = sgs.CreateTriggerSkill {
 			if damage.from:hasSkill("se_biling") and damage.to:getMark("@Biling_target") > 0 then
 				doLog("#se_biling_nodamage", damage.to)
 				damage.to:getRoom():broadcastSkillInvoke("se_biling", 6)
+				damage.prevented = true
+				data:setValue(damage)
 				return true
 			end
 		elseif event == sgs.GameStart or (event == sgs.EventAcquireSkill and data:toString() == "se_biling") then
@@ -13225,19 +13236,21 @@ se_jianqiao = sgs.CreateTriggerSkill {
 			local damage = data:toDamage()
 			if damage.to:getHp() - damage.damage <= 0 then
 				for _, kiri in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-				if kiri:getMark("@kiri_jianqiao") > 0 then 
-				if  kiri:askForSkillInvoke(self:objectName(), data) then 
-				kiri:loseMark("@kiri_jianqiao")
-				room:broadcastSkillInvoke("se_jianqiao")
-				room:doLightbox("se_jianqiao$", 3000)
-				local re = sgs.RecoverStruct()
-				re.who = damage.to
-				room:recover(damage.to, re, true)
-				return true
+					if kiri:getMark("@kiri_jianqiao") > 0 then
+						if kiri:askForSkillInvoke(self:objectName(), data) then
+							kiri:loseMark("@kiri_jianqiao")
+							room:broadcastSkillInvoke("se_jianqiao")
+							room:doLightbox("se_jianqiao$", 3000)
+							local re = sgs.RecoverStruct()
+							re.who = damage.to
+							room:recover(damage.to, re, true)
+							damage.prevented = true
+							data:setValue(damage)
+							return true
+						end
+					end
 				end
 			end
-			end
-		end
 		end
 	end,
 	can_trigger = function(self, target)
@@ -13472,21 +13485,21 @@ se_shifeng = sgs.CreateTriggerSkill {
 			local source = damage.from
 			if not source then return end
 			for _, mygod in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if mygod:getMark("@Yukino_shifeng") <= math.floor(room:getAlivePlayers():length() / 5) then
-			room:setTag("CurrentDamageStruct", data)
-			if mygod:askForSkillInvoke(self:objectName(), data) then
-				room:broadcastSkillInvoke(self:objectName())
-				room:doLightbox("se_shifeng$", 800)
-				damage.damage = damage.damage - 1
-				data:setValue(damage)
-				mygod:gainMark("@Yukino_shifeng")
-				if damage.damage == 0 then
-					return true
+				if mygod:getMark("@Yukino_shifeng") <= math.floor(room:getAlivePlayers():length() / 5) then
+					room:setTag("CurrentDamageStruct", data)
+					if mygod:askForSkillInvoke(self:objectName(), data) then
+						room:broadcastSkillInvoke(self:objectName())
+						room:doLightbox("se_shifeng$", 800)
+						damage.damage = damage.damage - 1
+						data:setValue(damage)
+						mygod:gainMark("@Yukino_shifeng")
+						if damage.damage == 0 then
+							return true
+						end
+					end
 				end
+				room:removeTag("CurrentDamageStruct")
 			end
-			end
-			room:removeTag("CurrentDamageStruct")
-		end
 		end
 		return false
 	end,
@@ -13557,26 +13570,26 @@ se_wenchang = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local damage = data:toDamage()
 		if event == sgs.Damaged then
-			if not damage.to:isAlive() or damage.from:isNude() then return end
+			if not damage.to:isAlive() or not damage.from or damage.from:isNude() then return end
 			for _, Yyui in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if Yyui:isNude() then continue end
-			room:setTag("CurrentDamageStruct", data)
-			if Yyui:askForSkillInvoke(self:objectName(), data) then
-				if not room:askForDiscard(Yyui, self:objectName(), 1, 1, false, true) then continue end
-				local cardid = room:askForCardChosen(damage.to, damage.from, "he", self:objectName())
-				if cardid == -1 then continue end
-				room:broadcastSkillInvoke(self:objectName())
-				room:obtainCard(damage.to, cardid)
-				local card = sgs.Sanguosha:getCard(cardid)
-				if not card then continue end
-				if card:isRed() then
-					local re = sgs.RecoverStruct()
-					re.who = damage.to
-					room:recover(damage.to, re, true)
+				if Yyui:isNude() then continue end
+				room:setTag("CurrentDamageStruct", data)
+				if Yyui:askForSkillInvoke(self:objectName(), data) then
+					if not room:askForDiscard(Yyui, self:objectName(), 1, 1, false, true) then continue end
+					local cardid = room:askForCardChosen(damage.to, damage.from, "he", self:objectName())
+					if cardid == -1 then continue end
+					room:broadcastSkillInvoke(self:objectName())
+					room:obtainCard(damage.to, cardid)
+					local card = sgs.Sanguosha:getCard(cardid)
+					if not card then continue end
+					if card:isRed() then
+						local re = sgs.RecoverStruct()
+						re.who = damage.to
+						room:recover(damage.to, re, true)
+					end
 				end
+				room:removeTag("CurrentDamageStruct")
 			end
-			room:removeTag("CurrentDamageStruct")
-		end
 		end
 		return false
 	end,
@@ -13596,22 +13609,22 @@ se_yuanxin = sgs.CreateTriggerSkill {
 		if event == sgs.DamageInflicted then
 			if damage.damage < 2 then return end
 			for _, Yyui in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if Yyui:objectName() == damage.to:objectName() then return end
-			room:setTag("CurrentDamageStruct", data)
-			if Yyui:askForSkillInvoke(self:objectName(), data) then
-				room:broadcastSkillInvoke(self:objectName())
-				room:doLightbox("se_yuanxin$", 1500)
-				local da = sgs.DamageStruct()
-				da.from = damage.from
-				da.to = Yyui
-				room:damage(da)
-				damage.damage = damage.damage - 1
-				data:setValue(damage)
-				room:showAllCards(Yyui, damage.to)
-				room:showAllCards(damage.to, Yyui)
+				if Yyui:objectName() == damage.to:objectName() then return end
+				room:setTag("CurrentDamageStruct", data)
+				if Yyui:askForSkillInvoke(self:objectName(), data) then
+					room:broadcastSkillInvoke(self:objectName())
+					room:doLightbox("se_yuanxin$", 1500)
+					local da = sgs.DamageStruct()
+					da.from = damage.from
+					da.to = Yyui
+					room:damage(da)
+					damage.damage = damage.damage - 1
+					data:setValue(damage)
+					room:showAllCards(Yyui, damage.to)
+					room:showAllCards(damage.to, Yyui)
+				end
+				room:removeTag("CurrentDamageStruct")
 			end
-			room:removeTag("CurrentDamageStruct")
-		end
 		end
 		return false
 	end,

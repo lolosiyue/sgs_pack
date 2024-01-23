@@ -1324,7 +1324,7 @@ luajuesheng = sgs.CreateTriggerSkill
 		frequency = sgs.Skill_NotFrequent,
 
 		can_trigger = function(self, target)
-			return true
+			return target
 		end,
 
 		on_trigger = function(self, event, player, data)

@@ -459,7 +459,7 @@ keyaoyaohou = sgs.CreateTriggerSkill {
 			local damage = data:toDamage()
 			local eny = damage.to
 			local from = damage.from
-			if (from:getRole() == "lord") and (from:getGender() == sgs.General_Male) then
+			if from and (from:getRole() == "lord") and (from:getGender() == sgs.General_Male) then
 				local bss = room:findPlayersBySkillName("keyaoyaohou")
 				if not bss:isEmpty() then
 					for _, bs in sgs.qlist(bss) do

@@ -150,11 +150,11 @@ do
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong" ..
 		"|meizlchongyuan|etushou|SE_Qiehuan_K|SE_Qiehuan_A|se_kanhu|zhuchang|dai|SE_Huifu|SE_Chizuru" .. --add meizi empty
-		"|SE_Zibi|se_chengling"
+		"|SE_Zibi|se_chengling|SE_Shengmu"
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill ..
-		"|jinghua|se_huanyuan" --add dongmanbao
+		"|jinghua|se_huanyuan|SE_Wuwei" --add dongmanbao
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
@@ -169,16 +169,16 @@ do
 		"|nosleiji|leiji|caizhaoji_hujia|tieji|luoshen|ganglie|neoganglie|vsganglie|kofkuanggu"
 
 	sgs.straight_damage_skill = "qiangxi|nosxuanfeng|duwu|danshou" ..
-		"|se_paoji|se_hengsao|se_erdao_old|se_shengjian" --add dongmanbao
+		"|se_paoji|se_hengsao|se_erdao_old|se_shengjian|se_banyun|luablackflame" --add dongmanbao
 
 	sgs.double_slash_skill =
 		"paoxiao|tenyearpaoxiao|olpaoxiao|fuhun|tianyi|xianzhen|zhaxiang|lihuo|jiangchi|shuangxiong|" ..
 		"qiangwu|luanji" ..
-		"|luajuao|s4_xianfeng|luazhenshe|blood_hj|se_erdao|se_jianyu|Kuroyukihime" --add guanyu blood scarlet new
+		"|luajuao|s4_xianfeng|luazhenshe|blood_hj|se_erdao|se_jianyu|Kuroyukihime|SE_Wuwei" --add guanyu blood scarlet new
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe" ..
-		"|eweicheng|echinei" --add emjr
+		"|eweicheng|echinei|se_origin " --add emjr
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
 		"|du_jiyu|meizlhunshidistance|meizlkuijiu|meizlshhunshidistance" --add du meizi
@@ -186,7 +186,7 @@ do
 	sgs.hit_skill = "wushuang|fuqi|tenyearfuqi|zhuandui|tieji|nostieji|dahe|olqianxi|qianxi|tenyearjianchu|oljianchu|" ..
 		"wenji|tenyearbenxi|mobileliyong|olwushen|tenyearliegong|liegong|kofliegong|tenyearqingxi|wanglie|" ..
 		"conqueror|zhaxiang|tenyearyijue|yijue|xiongluan|xiying|" ..
-		"|SE_Juji" --add
+		"|SE_Juji|SE_Wuwei" --add
 
 	sgs.Friend_All = 0
 	sgs.Friend_Draw = 1
@@ -2504,6 +2504,9 @@ function SmartAI:filterEvent(event, player, data)
 		end
 		--add
 		if reason == "SE_Feiti" then
+			intention = 0
+		end
+		if reason == "SE_Guiyin" then
 			intention = 0
 		end
 		if damage.transfer or damage.chain then intention = damage.damage * 20 end
@@ -6595,6 +6598,13 @@ end
 function SmartAI:needToLoseHp(to, from, card, passive, recover)
 	from = from or self.room:getCurrent() or self.player
 	to = to or self.player
+	--add
+	if from:hasSkill("se_origin") and from:getMark("@origin_bullet") > 0 and card and card:isKindOf("Slash") then
+		return
+	end
+	if from:hasSkill("LuaBimie") and card and card:isKindOf("Slash") then
+		return
+	end
 	if hasJueqingEffect(from, to)
 	then
 		if to:hasSkills(sgs.masochism_skill)
@@ -8128,6 +8138,7 @@ function hasYinshiEffect(to, hasArmor)
 end
 
 function hasJueqingEffect(from, to, nature)
+	--global_room:writeToConsole(debug.traceback())
 	if from and from:hasSkills("jueqing|gangzhi") then return true end
 	if from and from:hasSkill("tenyearjueqing") and from:getMark("tenyearjueqing") > 0 then return true end
 	if to and to:hasSkill("gangzhi") then return true end
@@ -8313,6 +8324,15 @@ function SmartAI:dontHurt(to, from) --针对队友
 		return true
 	end
 	if to:getMark("@Kekkai") > 0 then
+		return true
+	end
+	if to:hasSkill("SE_Wuwei") and to:getMark("@Wuwei") >= 2 then
+		return true
+	end
+	if to:hasSkill("LuaTianmoDefense") and to:getMark("@tianmo") > 0 then
+		return true
+	end
+	if to:hasSkill("se_shenglong") then
 		return true
 	end
 

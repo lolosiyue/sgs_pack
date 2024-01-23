@@ -6925,6 +6925,14 @@ sgs.ai_skill_invoke["SE_Wumai"] = function(self, data)
 	if self:isFriend(damage.from) and self.player:getPile("Fragments"):length() > 4 then return false end
 	return true
 end
+sgs.ai_can_damagehp.SE_Wumai = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return self:isEnemy(from) and self:isWeak(from) and from:getCardCount() > 0
+	end
+end
+
 --??...
 se_mipa_skill = {}
 se_mipa_skill.name = "se_mipa"
@@ -7034,6 +7042,7 @@ se_chenyan_skill.getTurnUseCard = function(self, inclusive)
 	if self.player:isNude() and self:isWeak() then return end
 	if sgs.ai_role[self.player:objectName()] == "neutral" then return end
 	if sgs.playerRoles["rebel"] == 0 then return end
+	if self.player:getMark("AI_do_not_invoke_se_chenyan-Clear") > 0 then return end
 
 	if next(choices) and self.player:getMark("se_chenyan-Clear") == 0 then
 		return sgs.Card_Parse("#se_chenyan:.:")
@@ -7079,16 +7088,15 @@ sgs.ai_skill_use_func["#se_chenyan"] = function(card, use, self)
 		self.room:setTag("ai_se_chenyan_card_id2", sgs.QVariant(useable_cards[2]:getEffectiveId()))
 		acard:addSubcard(useable_cards[1]:getEffectiveId())
 		acard:addSubcard(useable_cards[2]:getEffectiveId())
+		use.card = acard
 		self.room:setPlayerMark(self.player, "AI_do_not_invoke_se_chenyan_nocard-Clear", 0)
 	else
 		self.room:setPlayerMark(self.player, "AI_do_not_invoke_se_chenyan_nocard-Clear", 1)
-		if self:isWeak() then
-			return
+		if not self:isWeak() then
+			use.card = acard
 		end
 	end
 	--local card_str = string.format("#se_chenyan:%s:", useable_cards[1]:getEffectiveId())
-
-	use.card = acard
 end
 
 sgs.ai_use_priority["se_chenyan"] = 3
@@ -7119,7 +7127,7 @@ sgs.ai_skill_choice["se_chenyan"] = function(self, choices, data)
 				if c:isKindOf("Peach") and self.player:isWounded() and self.player:getHp() <= 2 and self.player:getMark("AI_do_not_invoke_se_chenyan_nocard-Clear") == 0 then
 					return c:objectName()
 				end
-				if c:isKindOf("ExNihilo") and self.player:getHandcardNum() <= 2 and self.player:getOverflow() > 0 then
+				if c:isKindOf("ExNihilo") and self.player:getHandcardNum() <= 2 and self:getOverflow() > 0 then
 					return c:objectName()
 				end
 				if c:isKindOf("SavageAssault") then
@@ -7241,7 +7249,6 @@ sgs.ai_skill_use["@@se_chenyan"] = function(self, prompt, method)
 end
 
 sgs.ai_cardsview["se_chenyan"] = function(self, class_name, player)
-	if sgs.ai_role[self.player:objectName()] == "neutral" then return end
 	if sgs.Sanguosha:getCurrentCardUseReason() ~= sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then return end
 	local classname2objectname = {
 		["Slash"] = "slash",
@@ -7276,7 +7283,6 @@ sgs.ai_cardsview["se_chenyan"] = function(self, class_name, player)
 			end
 		end
 	end
-	if #cards == 0 then return end
 	if #cards >= 2 then
 		--if cards[1]:isKindOf("Peach") or cards[1]:isKindOf("Analeptic") then return end
 		if cards[1]:isKindOf("Peach")
@@ -7318,6 +7324,7 @@ sgs.ai_cardsview["se_chenyan"] = function(self, class_name, player)
 			return string.format(name .. ":se_chenyan[%s:%s]=.", sgs.Card_NoSuit, 0)
 		end
 	end
+	return
 end
 
 
@@ -7359,7 +7366,13 @@ sgs.ai_skill_playerchosen["se_tongling_k"] = function(self, targets)
 	return self.enemies[1]
 end
 
-
+sgs.ai_ajustdamage_to.SE_Juyang = function(self, from, to, card, nature)
+	if nature == sgs.DamageStruct_Fire then
+		return 1
+	elseif nature == sgs.DamageStruct_Normal then
+		return -99
+	end
+end
 
 --由理
 sgs.ai_skill_invoke["SE_Zuozhan"] = true
@@ -7502,13 +7515,18 @@ sgs.ai_skill_playerchosen["SE_JianshiTr"] = function(self, targets)
 			"@se_qiyuan", "@shenmin", "@shouhu", "@Tianming", "@tianmo", "@Yuzorano" }
 		if self:damageIsEffective(p, sgs.DamageStruct_Thunder, self.player) and self:isGoodTarget(p, self.enemies, nil) then
 			for i = 1, #GoodMark do
-				if p:getMark(GoodMark[i]) > 1 then return p end
-				if p:getMark(GoodMark[i]) > 0 then target = p end
+				if p:getMark(GoodMark[i]) > 0 then return p end
 			end
 		end
 	end
 	for _, p in ipairs(self.enemies) do
 		if self:damageIsEffective(p, sgs.DamageStruct_Thunder, self.player) and self:isGoodTarget(p, self.enemies, nil) then
+			target = p
+		end
+	end
+	if target and self:damageIsEffective(target, sgs.DamageStruct_Thunder, self.player) then return target end
+	for _, p in ipairs(self.enemies) do
+		if self:damageIsEffective(p, sgs.DamageStruct_Thunder, self.player) and not self:cantbeHurt(target) then
 			target = p
 		end
 	end
@@ -7666,11 +7684,41 @@ sgs.ai_skill_invoke["SE_Wuwei"] = function(self, data)
 	return math.random(1, 5) == 1
 end
 
+
+sgs.ai_ajustdamage_from.SE_Wuwei = function(self, from, to, card, nature)
+	if (card and card:isKindOf("Slash")) and (card:hasFlag("wuwei_used") or not beFriend(to, from))
+	then
+		return 1
+	end
+end
+
+sgs.ai_use_revises.SE_Wuwei = function(self, card, use)
+	if card:isKindOf("Slash") and self.player:getMark("@Wuwei") > 2
+	then
+		card:setFlags("Qinggang")
+	end
+end
+sgs.ai_can_damagehp.SE_Wuwei = function(self, from, card, to)
+	return to:getMark("@Wuwei") == 0
+end
+
+
 --tiansuo
 sgs.ai_skill_invoke["SE_Tiansuo"] = function(self, data)
 	local use = data:toCardUse()
-	if self:isEnemy(use.to:at(0)) then return true end
+	if self:isEnemy(use.to:at(0)) and self:isGoodChainTarget(use.to:at(0), use.card, use.from) then return true end
 	return false
+end
+
+sgs.ai_use_revises.se_gate = function(self, card, use)
+	if card:isKindOf("Weapon")
+	then
+		same = self:getSameEquip(card)
+		if same
+		then
+			return false
+		end
+	end
 end
 
 sgs.ai_skill_invoke["se_gate"] = true
@@ -7749,10 +7797,10 @@ sgs.ai_skill_use_func["#se_gatecard"] = function(card, use, self)
 		local fire_slash = sgs.Sanguosha:cloneCard("fire_slash", card:getSuit(), card:getNumber())
 		for _, enemy in ipairs(self.enemies) do
 			if self:isGoodTarget(enemy, self.enemies, nil) then
-				if self:slashIsEffective(thunder_slash, enemy, self.player) and self:isGoodChainTarget(enemy, self.player, sgs.DamageStruct_Thunder, nil, thunder_slash) and self.player:canSlash(enemy, thunder_slash, false) then
+				if self:slashIsEffective(thunder_slash, enemy, self.player) and self:isGoodChainTarget(enemy, thunder_slash, self.player) and self.player:canSlash(enemy, thunder_slash, false) then
 					target = enemy
 					sgs.GateNatural = "thunder_slash"
-				elseif self:slashIsEffective(fire_slash, enemy, self.player) and self:isGoodChainTarget(enemy, self.player, sgs.DamageStruct_Thunder, nil, fire_slash) and self.player:canSlash(enemy, fire_slash, false) then
+				elseif self:slashIsEffective(fire_slash, enemy, self.player) and self:isGoodChainTarget(enemy, fire_slash, self.player) and self.player:canSlash(enemy, fire_slash, false) then
 					target = enemy
 					sgs.GateNatural = "fire_slash"
 				elseif self:slashIsEffective(normal_slash, enemy, self.player) and self.player:canSlash(enemy, normal_slash, false) then
@@ -7800,7 +7848,7 @@ sgs.ai_skill_cardask["@SE_Tiansuo-discard"] = function(self, data, pattern)
 	local use = data:toCardUse()
 	if not self:slashIsEffective(use.card, self.player, use.from)
 		or (not self:hasHeavyDamage(use.from, use.card, use.to:first())
-			and (self:canAttack(self.player, use.from, true) or self:needToLoseHp(self.player, use.from, true))) then
+			and (self:canAttack(self.player, use.from, true) or self:needToLoseHp(self.player, use.from, nil))) then
 		return "."
 	end
 	if not self:hasHeavyDamage(use.from, use.card, use.to:first()) and self:getCardsNum("Peach") > 0 then return "." end
@@ -7947,8 +7995,15 @@ sgs.ai_use_value["se_bilingvscard"]       = 8
 sgs.ai_use_priority["se_bilingvscard"]    = 1.8
 sgs.ai_card_intention.se_bilingvscard     = 100
 
+sgs.ai_ajustdamage_from.se_biling         = function(self, from, to, card, nature)
+	if to:getMark("@Biling_target") > 0 then
+		return -99
+	end
+end
+
 sgs.ai_skill_invoke["se_jianqiao"]        = function(self, data)
 	local damage = data:toDamage()
+	if self.player:getRole() == "loyalist" and self:isWeak(self.room:getLord()) then return false end
 	if self:isFriend(damage.to) and (self:getCardsNum("Peach") == 0 or damage.damage > 1) and (self:damageIsEffective(damage.to, damage.nature, damage.from)) then return true end
 	return false
 end
@@ -8108,6 +8163,15 @@ function sgs.ai_slash_prohibit.se_shenglong(self, from, to)
 	return from:getHp() + from:getEquips():length() < 4 or from:getHp() < 2 or
 		(from:getHandcardNum() > 3 and from:getHp() <= 3)
 end
+
+sgs.ai_can_damagehp.se_shenglong = function(self, from, card, to)
+	if from and to:getHp() + self:getAllPeachNum() - self:ajustDamage(from, to, 1, card) > 0
+		and self:canLoseHp(from, card, to)
+	then
+		return self:isEnemy(from) and not self:cantbeHurt(from)
+	end
+end
+
 
 --se_shifeng
 sgs.ai_skill_invoke["se_shifeng"] = function(self, data)
