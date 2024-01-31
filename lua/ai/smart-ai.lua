@@ -119,19 +119,19 @@ do
 		"neofanjian|lijian|noslijian|manjuan|tuxi|qiaobian|yongsi|zhiheng|luoshen|nosrende|rende|" ..
 		"mingce|wansha|gongxin|jilve|anxu|qice|yinling|qingcheng|houyuan|zhaoxin|shuangren|zhaxiang|" ..
 		"xiansi|junxing|bifa|yanyu|shenxian|jgtianyun" ..
-		"|luamouce|eqiehu" --add
+		"|luamouce|eqiehu|LuaBimie" --add
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun" ..
 		"|zhuchang|dai|se_jiushu|Haixing" --add dongmaobao
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh" --add meizi
+		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh|LuaYinguo" --add meizi
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
 		"nosrenxin|taoluan|tenyeartaoluan|huisheng|zhendu|newzhendu|kongsheng|zhuandui|longhun|" ..
 		"newlonghun|fanghun|olfanghun|mobilefanghun|zhenshan|jijiu|daigong|yinshicai" ..
-		"|s4_cloud_tuxi|luafan|meizlcimin|keguishouye" --add meizi kegui new scarlet
+		"|s4_cloud_tuxi|luafan|meizlcimin|keguishouye|weixiao|LuaLuowang|LuaGaokang" --add meizi kegui new scarlet
 
 	sgs.Active_cardneed_skill = "paoxiao|tenyearpaoxiao|olpaoxiao|tianyi|xianzhen|shuangxiong|nosjizhi|jizhi|guose|" ..
 		"duanliang|qixi|qingnang|luoyi|guhuo|nosguhuo|jieyin|zhiheng|rende|nosrende|nosjujian|luanji|" ..
@@ -150,11 +150,11 @@ do
 	sgs.recover_hp_skill = "nosrende|rende|tenyearrende|kofkuanggu|kuanggu|tenyearkuanggu|zaiqi|mobilezaiqi|jieyin|" ..
 		"qingnang|shenzhi|longhun|newlonghun|ytchengxiang|quji|dev_zhiyu|dev_pinghe|dev_qiliao|dev_saodong" ..
 		"|meizlchongyuan|etushou|SE_Qiehuan_K|SE_Qiehuan_A|se_kanhu|zhuchang|dai|SE_Huifu|SE_Chizuru" .. --add meizi empty
-		"|SE_Zibi|se_chengling|SE_Shengmu"
+		"|SE_Zibi|se_chengling|SE_Shengmu|LuaYaojing"
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill ..
-		"|jinghua|se_huanyuan|SE_Wuwei" --add dongmanbao
+		"|jinghua|se_huanyuan|SE_Wuwei|LuaGongming" --add dongmanbao
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
@@ -178,7 +178,7 @@ do
 
 	sgs.need_maxhp_skill = "yingzi|zaiqi|yinghun|hunzi|juejing|ganlu|zishou|miji|chizhong|xueji|quji|xuehen|shude|" ..
 		"neojushou|tannang|fangzhu|nosshangshi|nosmiji|yisuan|xuhe" ..
-		"|eweicheng|echinei|se_origin " --add emjr
+		"|eweicheng|echinei|se_origin|LuaWangxiang " --add emjr
 
 	sgs.bad_skills = "benghuai|wumou|shiyong|yaowu|zaoyao|chanyuan|chouhai|tenyearchouhai|lianhuo|ranshang" ..
 		"|du_jiyu|meizlhunshidistance|meizlkuijiu|meizlshhunshidistance" --add du meizi
@@ -4839,17 +4839,17 @@ function SmartAI:askForSinglePeach(dying)
 				return "."
 			end
 		end
-		if self.role == "rebel"
-			or self.role == "renegade"
-		then
-			if sgs.playerRoles.rebel + sgs.playerRoles.renegade - 1 >= sgs.playerRoles.loyalist + 1
-				or sgs.gameProcess() == "rebelish"
-				or sgs.gameProcess() == "dilemma"
-				or sgs.gameProcess() == "rebel"
-			then
-				return "."
-			end
-		end
+		-- if self.role == "rebel"
+		-- 	or self.role == "renegade"
+		-- then
+		-- 	if sgs.playerRoles.rebel + sgs.playerRoles.renegade - 1 >= sgs.playerRoles.loyalist + 1
+		-- 		or sgs.gameProcess() == "rebelish"
+		-- 		or sgs.gameProcess() == "dilemma"
+		-- 		or sgs.gameProcess() == "rebel"
+		-- 	then
+		-- 		return "."
+		-- 	end
+		-- end
 	end
 	if self:isFriend(dying)
 	then
@@ -6643,6 +6643,13 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 	end
 	if self:ajustDamage(from, to, 1, card) >= to:getHp() then return end
 	if self:isFriend(to, from) and self:dontHurt(to, from) then return end
+	--add
+	if self:isFriend(to, from) and to:hasSkill("LuaGaokang") and to:canDiscard(to, "he")
+	then
+		if card and getCardDamageNature(from, to, card) == sgs.DamageStruct_Normal then
+			return
+		end
+	end
 	local bh = getBestHp(to)
 	if not passive and to:getMaxHp() > 2
 	then
@@ -8329,12 +8336,10 @@ function SmartAI:dontHurt(to, from) --针对队友
 	if to:hasSkill("SE_Wuwei") and to:getMark("@Wuwei") >= 2 then
 		return true
 	end
-	if to:hasSkill("LuaTianmoDefense") and to:getMark("@tianmo") > 0 then
-		return true
-	end
 	if to:hasSkill("se_shenglong") then
 		return true
 	end
+
 
 
 	return false
@@ -8715,6 +8720,11 @@ function SmartAI:canLoseHp(from, card, to)
 	then
 		return
 	end
+	--add
+	if from:hasSkill("LuaBimie") and card and card:isKindOf("Slash") then
+		return
+	end
+
 	return true
 end
 

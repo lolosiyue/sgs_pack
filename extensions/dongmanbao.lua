@@ -8313,6 +8313,7 @@ se_jiejiecard = sgs.CreateSkillCard {
 		source:loseMark("@MagicEquip")
 		room:doLightbox("se_jiejie$", 800)
 		targets[1]:gainMark("@Kekkai")
+		--room:addPlayerMark(targets[1], "&se_jiejie+to+#"..source:objectName())
 	end,
 }
 
@@ -8329,6 +8330,9 @@ se_jiejieEffect = sgs.CreateTriggerSkill {
 			if pld:getMark("@Kekkai") > 0 then
 				room:broadcastSkillInvoke("se_jiejie")
 				room:doLightbox("se_jiejie$", 800)
+				-- for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				-- 	if damage.damage <= 0 then break end
+				-- end
 				damage.damage = damage.damage - 1
 				if Hakaze and Hakaze:isAlive() then
 					room:sendCompulsoryTriggerLog(Hakaze, "se_jiejie", true)
@@ -8338,6 +8342,8 @@ se_jiejieEffect = sgs.CreateTriggerSkill {
 				data:setValue(damage)
 				pld:loseMark("@Kekkai")
 				if damage.damage <= 0 then
+					damage.prevented = true
+					data:setValue(damage)
 					return true
 				end
 			end
@@ -13715,17 +13721,18 @@ se_linmo_trigger = sgs.CreateTriggerSkill {
 			if use.from:getPhase() ~= sgs.Player_Play then return end
 			if not use.card:isKindOf("BasicCard") and not use.card:isKindOf("TrickCard") then return end
 			if use.card:getNumber() == 0 or use.card:getSuit() == sgs.Card_NoSuit then return end
-			local chi = room:findPlayerBySkillName("se_linmo")
-			if not chi then return end
-			if chi:isNude() then return end
-			if chi:objectName() == use.from:objectName() then return end
-			if chi:getPile("drawing"):length() > 0 then return end
-			if not room:askForSkillInvoke(chi, "se_linmo", data) then return end
-			room:broadcastSkillInvoke("se_linmo")
-			room:doLightbox("se_linmo$", 800)
-			chi:addToPile("drawing", use.card:getEffectiveId())
-			local new_card = room:askForCardChosen(chi, chi, "he", self:objectName())
-			chi:addToPile("copying", new_card)
+			for _, p in sgs.qlist(room:findPlayersBySkillName("se_linmo")) do
+				if not p:isNude() and p:objectName() ~= use.from:objectName() and p:getPile("drawing"):length() == 0 then
+					if room:askForSkillInvoke(p, "se_linmo", data) then
+						room:broadcastSkillInvoke("se_linmo")
+						room:doLightbox("se_linmo$", 800)
+						p:addToPile("drawing", use.card:getEffectiveId())
+						local new_card = room:askForCardChosen(p, p, "he", self:objectName())
+						p:addToPile("copying", new_card)
+						break
+					end
+				end
+			end
 		elseif event == sgs.EventPhaseChanging then
 			local change = data:toPhaseChange()
 			if change.to == sgs.Player_NotActive and player:hasSkill("se_linmo") then
@@ -13870,41 +13877,53 @@ se_fupao = sgs.CreateTriggerSkill {
 			local use = data:toCardUse()
 			local card = use.card
 			if not card:isKindOf("Slash") then return end
-			local eu = room:findPlayerBySkillName(self:objectName())
-			if not eu then return end
-			if not use.from or use.from:objectName() == eu:objectName() then return end
-			if use.to:length() == 0 then return end
-			if not eu:askForSkillInvoke(self:objectName(), data) then return end
-			room:broadcastSkillInvoke("se_fupao")
-			room:doLightbox("se_fupao$", 800)
-			local ap = sgs.QVariant()
-			ap:setValue(use.from)
-			room:setTag("se_fupao_tag", ap)
-			local ncard = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-			ncard:setSkillName("se_fupao")
-			local nuse = sgs.CardUseStruct()
-			nuse.from = eu
-			nuse.to = use.to
-			nuse.card = ncard
-			room:useCard(nuse, false)
+			if use.from and use.from:hasFlag("se_fupao_using") then return end
+			for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if use.to:length() > 0 and p:objectName() ~= use.from:objectName() and p:getPile("drawing"):length() == 0 then
+					if room:askForSkillInvoke(p, self:objectName(), data) then
+						room:broadcastSkillInvoke("se_fupao")
+						room:doLightbox("se_fupao$", 800)
+						local ap = sgs.QVariant()
+						ap:setValue(use.from)
+						room:setTag("se_fupao_tag", ap)
+						local ncard = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+						ncard:setSkillName("se_fupao")
+						ncard:deleteLater()
+						room:setPlayerFlag(p, "se_fupao_using")
+						local nuse = sgs.CardUseStruct()
+						nuse.from = eu
+						nuse.to = use.to
+						nuse.card = ncard
+						room:useCard(nuse, false)
+						room:setPlayerFlag(p, "-se_fupao_using")
+						for _, q in sgs.qlist(use.to) do
+							if q:isDead() then
+								use.to:removeOne(q)
+							end
+						end
+					end
+				end
+			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
 			if not damage.card then return end
 			if not damage.card:isKindOf("Slash") or damage.card:getSkillName() ~= "se_fupao" then return end
-			if damage.card:getSuit() ~= sgs.Card_NoSuit or damage.card:getNumber() ~= 0 then return end
-			local eu = room:findPlayerBySkillName(self:objectName())
-			if not eu then return end
-			eu:drawCards(1)
-			if eu:getGeneralName() == "Eugen" then
-				room:changeHero(eu, "Chiyo", false, false, false, true)
-			else
-				room:changeHero(eu, "Chiyo", false, false, true, true)
+			for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if p:hasFlag("se_fupao_using") then
+					p:drawCards(1)
+					if p:getGeneralName() == "Eugen" then
+						room:changeHero(p, "Chiyo", false, false, false, true)
+					elseif p:getGeneral2Name() == "Eugen" then
+						room:changeHero(p, "Chiyo", false, false, true, true)
+					end
+					if not damage.to:getWeapon() then return end
+					local to = room:getTag("se_fupao_tag"):toPlayer()
+					local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_TRANSFER, p:objectName(),
+						self:objectName(),
+						"")
+					room:moveCardTo(damage.to:getWeapon(), damage.to, to, Player_PlaceEquip, reason)
+				end
 			end
-			if not damage.to:getWeapon() then return end
-			local to = room:getTag("se_fupao_tag"):toPlayer()
-			local reason = sgs.CardMoveReason(sgs.CardMoveReason_S_REASON_TRANSFER, eu:objectName(), self:objectName(),
-				"")
-			room:moveCardTo(damage.to:getWeapon(), damage.to, to, Player_PlaceEquip, reason)
 		end
 		return false
 	end,
@@ -13923,13 +13942,13 @@ se_tuodui = sgs.CreateTriggerSkill {
 			local use = data:toCardUse()
 			local card = use.card
 			if card:isKindOf("AOE") then
-				local eu = room:findPlayerBySkillName(self:objectName())
-				if not eu then return end
-				if use.to:contains(eu) then
-					use.to:removeOne(eu)
-					data:setValue(use)
-					room:broadcastSkillInvoke("se_tuodui", 1)
-					room:sendCompulsoryTriggerLog(eu, self:objectName(), true)
+				for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+					if use.to:contains(p) then
+						use.to:removeOne(p)
+						data:setValue(use)
+						room:broadcastSkillInvoke("se_tuodui", 1)
+						room:sendCompulsoryTriggerLog(p, self:objectName(), true)
+					end
 				end
 			end
 		elseif event == sgs.DamageInflicted then
