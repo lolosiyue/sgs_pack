@@ -3150,7 +3150,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 	end
 
 	for _, friend in ipairs(self.friends_noself) do
-		if self:needToLoseHp(friend, source, true) then
+		if self:needToLoseHp(friend, source, nil) then
 			if not (source and source:objectName() == friend:objectName()) then
 				local ret = doLiuli(friend)
 				if ret ~= "." then return ret end
@@ -3546,7 +3546,7 @@ sgs.ai_skill_use["@PlusJiahuo"] = function(self, prompt, method)
 	end
 
 	for _, friend in ipairs(self.friends_noself) do
-		if self:needToLoseHp(friend, source, true) then
+		if self:needToLoseHp(friend, source, nil) then
 			if not (source and source:objectName() == friend:objectName()) then
 				local ret = doLiuli(friend)
 				if ret ~= "." then return ret end
@@ -5312,7 +5312,7 @@ sgs.ai_card_intention["#SixChouzuanCard"] = -80
 
 sgs.ai_skill_choice["SixChouzuan"] = function(self, choices, data)
 	local current = self.room:getCurrent()
-	if (self:needToLoseHp(self.player, nil, false)) and not self:isWeak() then
+	if (self:needToLoseHp(self.player, nil, nil)) and not self:isWeak() then
 		return "SixChouzuanDamage"
 	end
 	return "SixChouzuanDraw"

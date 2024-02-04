@@ -951,38 +951,39 @@ sgs.ai_use_priority["luatouyingcard"]    = 10
 sgs.ai_card_intention["luatouyingcard"]  = 0
 
 sgs.ai_skill_choice.luatouying           = function(self, choices)
-	if self.player:getWeapon() then return "crossbow" end
-	local slashNum = self:getCardsNum("Slash")
-	local cardNum = self.player:getHandcardNum()
-	if slashNum == 0 then
-		return "spear"
-	end
-	if slashNum > 2 then
-		return "crossbow"
-	end
-	if cardNum >= 5 and slashNum > 0 then
-		return "axe"
-	end
-	if #self.enemies > 0 then
-		self:sort(self.enemies, "chaofeng")
-		for _, p in ipairs(self.enemies) do
-			if p:getArmor() and p:getArmor():isKindOf("Vine") then
-				return "fan"
-			end
-			if not p:getArmor() and p:getHandcardNum() == 0 then
-				return "guding_blade"
-			end
-			if not p:isMale() and not p:getArmor() then
-				return "double_sword"
-			end
-			if p:getArmor() and p:getArmor() then
-				return "qinggang_sword"
-			end
-		end
-	else
-		return "qinggang_sword"
-	end
-	return "double_sword"
+	-- if self.player:getWeapon() then return "crossbow" end
+	-- local slashNum = self:getCardsNum("Slash")
+	-- local cardNum = self.player:getHandcardNum()
+	-- if slashNum == 0 then
+	-- 	return "spear"
+	-- end
+	-- if slashNum > 2 then
+	-- 	return "crossbow"
+	-- end
+	-- if cardNum >= 5 and slashNum > 0 then
+	-- 	return "axe"
+	-- end
+	-- if #self.enemies > 0 then
+	-- 	self:sort(self.enemies, "chaofeng")
+	-- 	for _, p in ipairs(self.enemies) do
+	-- 		if p:getArmor() and p:getArmor():isKindOf("Vine") then
+	-- 			return "fan"
+	-- 		end
+	-- 		if not p:getArmor() and p:getHandcardNum() == 0 then
+	-- 			return "guding_blade"
+	-- 		end
+	-- 		if not p:isMale() and not p:getArmor() then
+	-- 			return "double_sword"
+	-- 		end
+	-- 		if p:getArmor() and p:getArmor() then
+	-- 			return "qinggang_sword"
+	-- 		end
+	-- 	end
+	-- else
+	-- 	return "qinggang_sword"
+	-- end
+	local items = choices:split("+")
+	return items[math.random(1, #items)]
 end
 
 
@@ -1207,10 +1208,9 @@ sgs.ai_skill_invoke.LuaChamberMove = function(self, data)
 end
 
 sgs.ai_skill_playerchosen.LuaRedoWake = function(self, targets)
-	local target
 	if #self.enemies > 0 then
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:isAlive() and self:isGoodTarget(enemy) and self:isWeak(enemy) and self:damageIsEffective(enemy, sgs.DamageStruct_Thunder, self.player) and not enemy:hasArmorEffect("SilverLion") then
+			if enemy:isAlive() and self:isGoodTarget(enemy) and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy, sgs.DamageStruct_Thunder, self.player) and not self:cantDamageMore(self.player, enemy) then
 				return enemy
 			end
 		end
@@ -1228,7 +1228,7 @@ sgs.ai_skill_cardask["@jiguang"] = function(self, data, pattern)
 	if self:needToThrowArmor() then return "$" .. self.player:getArmor():getEffectiveId() end
 	if not self:slashIsEffective(effect.card, self.player, effect.from)
 		or (not self:hasHeavyDamage(effect.from, effect.card, self.player)
-			and (self:getDamagedEffects(self.player, effect.from, true) or self:needToLoseHp(self.player, effect.from, true))) then
+			and self:needToLoseHp(self.player, effect.from, nil)) then
 		return "."
 	end
 	if not self:hasHeavyDamage(effect.from, effect.card, self.player) and self:getCardsNum("Peach") > 0 then return "." end
@@ -1244,7 +1244,7 @@ sgs.ai_skill_cardask["@jiguang"] = function(self, data, pattern)
 	self:sortByKeepValue(cards)
 	for _, card in ipairs(cards) do
 		if (not self:isWeak() and (self:getKeepValue(card) > 8 or self:isValuableCard(card))) then continue end
-		if cards:isKindOf("BasicCard") then continue end
+		if card:isKindOf("BasicCard") then continue end
 		return "$" .. card:getEffectiveId()
 	end
 
@@ -1690,7 +1690,7 @@ sgs.ai_skill_invoke["qiji"]            = function(self, data)
 end
 sgs.ai_skill_invoke["suipian"]         = function(self, data)
 	local judge = data:toJudge()
-	if self:needRetrial(judge) then return true end
+	if self:needRetrial(judge) and (judge.pattern ~= ".") then return true end
 	return false
 end
 
@@ -2021,8 +2021,8 @@ local luayingxian_skill = {}
 luayingxian_skill.name = "luayingxian"
 table.insert(sgs.ai_skills, luayingxian_skill)
 luayingxian_skill.getTurnUseCard = function(self, inclusive)
-	if self.player:hasUsed("#luayingxian") then return end
-	if #self.friends < 2 then return end
+	if self.player:hasUsed("#luayingxiancard") then return end
+	--if #self.friends < 2 then return end
 	return sgs.Card_Parse("#luayingxiancard:.:")
 end
 
@@ -2116,7 +2116,7 @@ sgs.ai_card_intention["luasaoshecard"]  = 80
 sgs.ai_skill_invoke.LuaDikai            = function(self, data)
 	local damage = data:toDamage()
 	if damage.from and self:isEnemy(damage.from) then
-		if self:doDisCard(effect.to) then
+		if self:doDisCard(damage.from) then
 			return true
 		end
 	end

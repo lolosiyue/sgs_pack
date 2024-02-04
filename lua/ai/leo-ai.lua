@@ -286,7 +286,7 @@ sgs.ai_skill_choice["luaqingqi"] = function(self, choices, data)
 				end
 			else
 				if self.player:canSlash(target, slash) and not self:slashProhibit(slash, target)
-					and self:slashIsEffective(slash, target) and self:needToLoseHp(target, self.player, true) then
+					and self:slashIsEffective(slash, target) and self:needToLoseHp(target, self.player, slash) then
 					return "luaqingqi1"
 				end
 			end

@@ -154,7 +154,7 @@ do
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill ..
-		"|jinghua|se_huanyuan|SE_Wuwei|LuaGongming" --add dongmanbao
+		"|jinghua|se_huanyuan|SE_Wuwei|LuaGongming|se_chicheng" --add dongmanbao
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..
@@ -585,7 +585,7 @@ function SmartAI:assignKeep(start)
 			self.keepdata.Jink = 4.5
 		end
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:hasSkill("nosqianxi")
+			if (enemy:hasSkill("nosqianxi") or enemy:hasSkill("se_kuangquan"))
 				and enemy:distanceTo(self.player) == 1
 			then
 				self.keepdata.Jink = 6
@@ -6616,6 +6616,7 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		then
 			if from:hasWeapon("ice_sword") and to:getCardCount() > 1 and not self:isFriend(from, to)
 				or from:hasSkill("nosqianxi") and from:distanceTo(to) == 1 and not self:isFriend(from, to)
+				or from:hasSkill("se_kuangquan") and from:distanceTo(to) == 1 and not self:isFriend(from, to)
 				or self:ajustDamage(from, to, 1, card) > 1
 				or to:hasSkill("sizhan")
 			then
@@ -7527,7 +7528,8 @@ function canNiepan(player)
 				player:hasSkill("paoxiao") or
 				player:hasSkill("guicao")
 			)
-		) --add
+		)
+		or (player:hasSkill("se_mowang") and player:getMaxHp() > 2) --add
 end
 
 function SmartAI:adjustAIRole()
@@ -7924,7 +7926,7 @@ function SmartAI:findPlayerToLoseHp(must)
 	local second
 	self:sort(self.enemies, "hp")
 	for _, enemy in sgs.list(self.enemies) do
-		if not hasZhaxiangEffect(enemy) and not self:needToLoseHp(enemy, self.player, false, true) then return enemy end
+		if not hasZhaxiangEffect(enemy) and not self:needToLoseHp(enemy, self.player, nil, false, true) then return enemy end
 		if must and not second then second = enemy end
 	end
 	if must then
@@ -7932,7 +7934,7 @@ function SmartAI:findPlayerToLoseHp(must)
 		self.friends_noself = sgs.reverse(self.friends_noself)
 		for _, friend in sgs.list(self.friends_noself) do
 			if hasZhaxiangEffect(friend) and not self:isWeak(friend)
-				or self:needToLoseHp(friend, self.player, false, true)
+				or self:needToLoseHp(friend, self.player, nil, false, true)
 			then
 				return friend
 			end
@@ -8110,6 +8112,12 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 		if card:hasFlag("cuijinAddDamage_2") then dmg = dmg + 2 end
 	end
 	dmg = dmg + getSpecialMark("&tiansuan4", to) + getSpecialMark("&tiansuan5", to)
+
+	--add
+	if from:hasSkill("se_yezhan") and dmg >= to:getHp() then
+		dmg = dmg + 1
+	end
+
 	for ad, s in sgs.list(aiConnect(to)) do
 		ad = sgs.ai_ajustdamage_to[s]
 		if type(ad) == "function"
@@ -8129,6 +8137,7 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 	if to:hasSkill("Sixu") and dmg == 1 and not to:faceUp() then
 		dmg = 0
 	end
+
 
 
 	return dmg < -10 and 0 or dmg

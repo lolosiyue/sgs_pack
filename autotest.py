@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "redarcher"
+choose_general = "yukinechris"
 debug = 1
 wait = 1
 

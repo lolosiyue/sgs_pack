@@ -12,6 +12,7 @@ PlusGuidao --pindian
 SevenWeiYuan
 ZhouYu_Four
 keshengzhaoyun
+luatouying
 
 test:
 
@@ -96,7 +97,7 @@ canNiepan(player) not yet use
 enyuan?
 
 
-cantDamageMore 
+cantDamageMore(from, to) 
 
 getCardDamageNature
 

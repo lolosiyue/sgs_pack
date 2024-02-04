@@ -8,7 +8,7 @@ function SmartAI:canAttack(enemy, attacker, nature)
 		if enemy:getMark("&kuangfeng") > 0 then damage = damage + 1 end
 	end
 	if #self.enemies == 1 or hasJueqingEffect(enemy, attacker, nature) then return true end
-	if self:needToLoseHp(enemy, attacker, false, true) and #self.enemies > 1
+	if self:needToLoseHp(enemy, attacker, nil, false, true) and #self.enemies > 1
 		or not self:isGoodTarget(enemy, self.enemies)
 		or self:objectiveLevel(enemy) <= 2
 		or self:cantbeHurt(enemy, self.player, damage)

@@ -3320,7 +3320,7 @@ PlusYizhongVS = sgs.CreateViewAsSkill {
 }
 PlusYizhong = sgs.CreateTriggerSkill {
 	name = "PlusYizhong",
-	events = { sgs.TargetConfirmed, sgs.SlashEffected, sgs.CardFinished },
+	events = { sgs.TargetConfirmed, sgs.CardEffected, sgs.CardFinished },
 	view_as_skill = PlusYizhongVS,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
@@ -3346,10 +3346,10 @@ PlusYizhong = sgs.CreateTriggerSkill {
 					end
 				end
 			end
-		elseif event == sgs.SlashEffected then
+		elseif event == sgs.CardEffected then
 			local effect = data:toSlashEffect()
-			local card = effect.slash
-			if card:hasFlag("PlusYizhong") then
+			local card = effect.card
+			if card and card:isKindOf("Slash") and card:hasFlag("PlusYizhong") then
 				if card:isKindOf("Slash") and player:getMark("PlusYizhong_Slash") > 0 then
 					local count = player:getMark("PlusYizhong_Slash") - 1
 					player:setMark("PlusYizhong_Slash", count)
@@ -3705,6 +3705,8 @@ PlusDanji = sgs.CreateTriggerSkill {
 										msg.to:append(target)
 										room:sendLog(msg)
 										room:setPlayerFlag(target, "-PlusDanji_Target")
+										damage.prevented = true
+										data:setValue(damage)
 										return true
 									end
 								end
@@ -7137,6 +7139,7 @@ PlusLiangyuan_Card = sgs.CreateSkillCard {
 			source:loseMark("@love")
 			local target = targets[1]
 			target:gainMark("@match")
+			room:addPlayerMark(target, "&PlusLiangyuan+to+#" .. source:objectName())
 			room:loseMaxHp(source)
 			room:drawCards(source, 2, "PlusLiangyuan")
 			local kingdom = target:getKingdom()
@@ -7268,7 +7271,7 @@ PlusJieyin_Card = sgs.CreateSkillCard {
 		room:recover(player, recover, true)
 		local players = room:getAllPlayers()
 		for _, dest in sgs.qlist(players) do
-			if dest:isMale() and dest:getMark("@match") > 0 then
+			if dest:isMale() and dest:getMark("@match") > 0 and dest:getMark("&PlusLiangyuan+to+#" .. player:objectName()) > 0 then
 				room:recover(dest, recover, true)
 			end
 		end
@@ -7943,6 +7946,7 @@ PlusHuzhu = sgs.CreateTriggerSkill {
 					if player:isAlive() then
 						local peach = sgs.Sanguosha:cloneCard("peach", sgs.Card_NoSuit, 0)
 						peach:setSkillName(self:objectName())
+						peach:deleteLater()
 						local use = sgs.CardUseStruct()
 						use.card = peach
 						use.from = player

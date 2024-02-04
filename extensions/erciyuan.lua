@@ -1640,14 +1640,18 @@ luatouyingClear = sgs.CreateTriggerSkill {
 			if phase == sgs.Player_Finish then
 				local lose = player:property("weaponskilltoget"):toString()
 				if lose ~= "" then
-					room:detachSkillFromPlayer(player, lose)
+					room:setPlayerProperty(player, "weaponskilltoget", sgs.QVariant())
+					room:setPlayerMark(player, "&luatouying+" .. lose, 0)
+					--room:detachSkillFromPlayer(player, lose)
 				end
 			end
 		elseif event == sgs.EventLoseSkill then
 			if data:toString() == self:objectName() then
 				local lose = player:property("weaponskilltoget"):toString()
 				if lose ~= "" then
-					room:detachSkillFromPlayer(player, lose)
+					room:setPlayerProperty(player, "weaponskilltoget", sgs.QVariant())
+					room:setPlayerMark(player, "&luatouying+" .. lose, 0)
+					--room:detachSkillFromPlayer(player, lose)
 				end
 			end
 		end
@@ -1658,76 +1662,24 @@ luatouyingcard = sgs.CreateSkillCard {
 	target_fixed = true,
 	will_throw = true,
 	on_use = function(self, room, source, targets)
-		local choices = { "qinggang_sword", "axe", "blade", "crossbow", "double_sword", "fan", "spear", "kylin_bow",
-			"guding_blade", "ice_sword", "halberd", }
-		local weaponname = room:askForChoice(source, "luatouying", table.concat(choices, "+"))
-		if weaponname == "qinggang_sword" then
-			if not source:hasSkill("LuaPomo") then
-				room:handleAcquireDetachSkills(source, "LuaPomo")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("LuaPomo"))
+		local choices = {}
+		for i = 0, 10000 do
+			local card = sgs.Sanguosha:getEngineCard(i)
+			if card == nil then break end
+			if card:isKindOf("Weapon") and not table.contains(choices, card:objectName()) then
+				table.insert(choices, card:objectName())
 			end
 		end
-		if weaponname == "axe" then
-			if not source:hasSkill("GuanchuanSkill") then
-				room:handleAcquireDetachSkills(source, "GuanchuanSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("GuanchuanSkill"))
-			end
+		table.insert(choices, "cancel")
+		local choice = room:askForChoice(source, "luatouying", table.concat(choices, "+"))
+		if choice ~= "cancel" then
+			local old = source:property("weaponskilltoget"):toString()
+			room:setPlayerMark(source, "&luatouying+" .. old, 0)
+			room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant(choice))
+			room:setPlayerMark(source, "&luatouying+" .. choice, 1)
 		end
-		if weaponname == "Blade" then
-			if not source:hasSkill("ZhuishaSkill") then
-				room:handleAcquireDetachSkills(source, "ZhuishaSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("ZhuishaSkill"))
-			end
-		end
-		if weaponname == "crossbow" then
-			if not source:hasSkill("paoxiao") then
-				room:handleAcquireDetachSkills(source, "paoxiao")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("paoxiao"))
-			end
-		end
-		if weaponname == "double_sword" then
-			if not source:hasSkill("CixiongSkill") then
-				room:handleAcquireDetachSkills(source, "CixiongSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("CixiongSkill"))
-			end
-		end
-		if weaponname == "fan" then
-			if not source:hasSkill("HuoshanSkill") then
-				room:handleAcquireDetachSkills(source, "HuoshanSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("HuoshanSkill"))
-			end
-		end
-		if weaponname == "spear" then
-			if not source:hasSkill("ZhangbaSkill") then
-				room:handleAcquireDetachSkills(source, "ZhangbaSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("ZhangbaSkill"))
-			end
-		end
-		if weaponname == "kylin_bow" then
-			if not source:hasSkill("ShemaSkill") then
-				room:handleAcquireDetachSkills(source, "ShemaSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("ShemaSkill"))
-			end
-		end
-		if weaponname == "guding_blade" then
-			if not source:hasSkill("BaojiSkill") then
-				room:handleAcquireDetachSkills(source, "BaojiSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("BaojiSkill"))
-			end
-		end
-		if weaponname == "ice_sword" then
-			if not source:hasSkill("HanbingSkill") then
-				room:handleAcquireDetachSkills(source, "HanbingSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("HanbingSkill"))
-			end
-		end
-		if weaponname == "halberd" then
-			if not source:hasSkill("HuajiSkill") then
-				room:handleAcquireDetachSkills(source, "HuajiSkill")
-				room:setPlayerProperty(source, "weaponskilltoget", sgs.QVariant("HuajiSkill"))
-			end
-		end
-		--room:broadcastSkillInvoke("luatouying")
+
+		room:broadcastSkillInvoke("luatouying")
 	end,
 }
 luatouying = sgs.CreateViewAsSkill {
@@ -1743,6 +1695,12 @@ luatouying = sgs.CreateViewAsSkill {
 		end
 		return false
 	end
+}
+luatouying_equip = sgs.CreateViewAsEquipSkill {
+	name = "#luatouying_equip",
+	view_as_equip = function(self, player)
+		return "" .. player:property("weaponskilltoget"):toString()
+	end,
 }
 --------------------------------------------------------------崩坏@redarcher
 LuaGongqi = sgs.CreateViewAsSkill {
@@ -2120,29 +2078,6 @@ LuaJiguangMod = sgs.CreateTargetModSkill {
 		end
 	end,
 }
--- LuaJiguangAsk = sgs.CreateTriggerSkill {
--- 	name = "LuaJiguangAsk",
--- 	frequency = sgs.Skill_Compulsory,
--- 	events = { sgs.SlashProceed },
--- 	on_trigger = function(self, event, player, data)
--- 		local room = player:getRoom()
--- 		local effect = data:toSlashEffect()
--- 		local dest = effect.to
--- 		local source = effect.from
--- 		if source:hasSkill(self:objectName()) then
--- 			room:notifySkillInvoked(source, self:objectName())
--- 			local prompt = string.format("@jiguang:%s:%s", source:getGeneralName(), dest:getGeneralName())
--- 			if room:askForCard(dest, "TrickCard,EquipCard|.|.", prompt, data, sgs.CardDiscarded) then
--- 				return true
--- 			else
--- 				room:broadcastSkillInvoke("LuaJiguangAsk")
--- 				room:slashResult(effect, nil)
--- 				return true
--- 			end
--- 		end
--- 		return false
--- 	end,
--- }
 LuaJiguangAsk = sgs.CreateTriggerSkill {
 	name = "LuaJiguangAsk",
 	frequency = sgs.Skill_Compulsory,
@@ -2169,6 +2104,9 @@ LuaJiguangAsk = sgs.CreateTriggerSkill {
 			end
 		end
 		return false
+	end,
+	can_trigger = function(self, target)
+		return target
 	end,
 }
 --------------------------------------------------------------无杀@redo
@@ -2836,11 +2774,16 @@ suipian = sgs.CreateTriggerSkill
 			local room = player:getRoom()
 			local judge = data:toJudge()
 			local invoked = false
+			local x = 0
 			while room:askForSkillInvoke(player, self:objectName(), data) do
 				room:broadcastSkillInvoke("suipian")
 				invoked = true
 				local card = sgs.Sanguosha:getCard(room:drawCard())
 				room:retrial(card, player, judge, self:objectName())
+				x = x + 1
+				if x > 50 then
+					break
+				end
 			end
 			return invoked
 		end
@@ -3181,7 +3124,7 @@ luayingxian = sgs.CreateViewAsSkill {
 		return luayingxiancard:clone()
 	end,
 	enabled_at_play = function(self, player)
-		return not player:hasUsed("#luayingxian")
+		return not player:hasUsed("#luayingxiancard")
 	end
 }
 luayingxiancard = sgs.CreateSkillCard {
@@ -3298,7 +3241,7 @@ luasaoshe = sgs.CreateTriggerSkill {
 	can_trigger = function(self, target)
 		if target then
 			if target:isAlive() then
-				if target:getPhase() == sgs.Player_NotActive then
+				if target:getPhase() == sgs.Player_Play then
 					return true
 				end
 			end
@@ -3318,7 +3261,7 @@ LuaDikai = sgs.CreateTriggerSkill {
 			if room:askForSkillInvoke(yukine, self:objectName(), data) then
 				room:broadcastSkillInvoke("LuaJingming", math.random(1, 2))
 				room:drawCards(yukine, 1)
-				if yukine:canDiscard(damage.from, "he") then
+				if damage.from and yukine:canDiscard(damage.from, "he") then
 					local card_id = room:askForCardChosen(yukine, damage.from, "he", self:objectName())
 					room:throwCard(card_id, damage.from, yukine)
 				end
@@ -3362,7 +3305,6 @@ yj:addSkill(LuaWushuang)
 yj:addSkill(LuaPaoxiao)
 yj:addSkill(LuaKuangshi)
 yj:addSkill(LuaXiuluo)
-yj:addSkill(luaposhi_Clear)
 itomakoto:addSkill(luarenzha)
 itomakoto:addSkill(ak_renzha)
 ayanami:addSkill(weixiao)
@@ -3414,6 +3356,8 @@ redarcher:addSkill(LuaGongqiTargetMod)
 extension:insertRelatedSkills("LuaGongqi", "#LuaGongqi-target")
 redarcher:addSkill(luatouyingClear)
 extension:insertRelatedSkills("luatouying", "#luatouyingClear")
+redarcher:addSkill(luatouying_equip)
+extension:insertRelatedSkills("luatouying", "#luatouying_equip")
 redarcher:addSkill(LuaJianyong)
 redarcher:addSkill(LuaJianzhi)
 redarcher:addSkill(LuaJianzhiGive)
@@ -3435,6 +3379,7 @@ runaria:addSkill(luayukong)
 runaria:addSkill(LuaWenle)
 runaria:addSkill(LuaQisi)
 fuwaaika:addSkill(luaposhi)
+fuwaaika:addSkill(luaposhi_Clear)
 fuwaaika:addSkill(luaposhiTMS)
 extension:insertRelatedSkills("luaposhi", "#luaposhiTMS")
 extension:insertRelatedSkills("luaposhi", "#luaposhi_Clear")

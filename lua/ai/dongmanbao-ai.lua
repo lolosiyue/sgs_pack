@@ -711,12 +711,12 @@ sgs.ai_skill_playerchosen.Beizeng = function(self, targets)
 	local targets = sgs.QList2Table(targets)
 	self:sort(targets, "hp")
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) and not self:hasZhaxiangEffect(p) and p:hasSkills(sgs.need_maxhp_skill) then
+		if self:isEnemy(p) and not hasZhaxiangEffect(p) and p:hasSkills(sgs.need_maxhp_skill) then
 			return p
 		end
 	end
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) and not self:hasZhaxiangEffect(p) then
+		if self:isEnemy(p) and not hasZhaxiangEffect(p) then
 			return p
 		end
 	end
@@ -3161,7 +3161,7 @@ sgs.ai_skill_invoke.Lichang = function(self, data)
 	if self.player:hasFlag("dahe") then return false end
 	if sgs.hujiasource and (not self:isFriend(sgs.hujiasource) or sgs.hujiasource:hasFlag("dahe")) then return false end
 	if sgs.lianlisource and (not self:isFriend(sgs.lianlisource) or sgs.lianlisource:hasFlag("dahe")) then return false end
-	if self:canAttack(self.player, nil, true) or self:needToLoseHp(self.player, nil, true, true) then return false end
+	if self:canAttack(self.player, nil, true) or self:needToLoseHp(self.player, nil, nil, true) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 
 	--if self:getCardsNum("Jink") > 0 and self.player:getPile("incantation"):length() > 0 then return false end

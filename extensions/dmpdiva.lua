@@ -1,73 +1,74 @@
-module("extensions.dmpdiva",package.seeall)--游戏包
-extension=sgs.Package("dmpdiva")--增加拓展包
+module("extensions.dmpdiva", package.seeall) --游戏包
+extension = sgs.Package("dmpdiva")           --增加拓展包
 
 --势力
 
 do
-    require  "lua.config" 
+	require "lua.config"
 	local config = config
 	local kingdoms = config.kingdoms
-            table.insert(kingdoms,"diva")
+	table.insert(kingdoms, "diva")
 	config.color_de = "#EEB422"
 end
 
 --逆天
-se_nitian = sgs.CreateTriggerSkill{
+se_nitian = sgs.CreateTriggerSkill {
 	name = "se_nitian",
 	frequency = sgs.Skill_Frequent,
-	events = {sgs.FinishJudge, sgs.CardsMoveOneTime},
-	on_trigger = function(self,event,player,data)
+	events = { sgs.FinishJudge, sgs.CardsMoveOneTime },
+	on_trigger = function(self, event, player, data)
 		if event == sgs.FinishJudge then
 			local judge = data:toJudge()
 			local room = player:getRoom()
-			local honoka = room:findPlayerBySkillName(self:objectName())
-			if not honoka then return end
-			if judge.who:getHp() >= judge.who:getMaxHp() then return end
-			if honoka:canDiscard(honoka , "h") then
-			local prompt = string.format("se_nitian_dis:%s", judge.who:objectName())
-			room:setTag("se_nitian_judge",data)
-			if room:askForDiscard(honoka, self:objectName(), 1, 1, true, false, prompt) then 
-			if judge.reason ~= "se_guwu" then
-				room:broadcastSkillInvoke(self:objectName())
-			end
-			local re = sgs.RecoverStruct()
-			re.who = judge.who
-			room:recover(judge.who,re,true)
-			local msg = sgs.LogMessage()
-			msg.type = "#se_nitian_recovery"
-			msg.from = judge.who
-			msg.arg = 1
-			room:sendLog(msg)
+			for _, honoka in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if judge.who:getHp() >= judge.who:getMaxHp() then return end
+				if honoka:canDiscard(honoka, "h") then
+					local prompt = string.format("se_nitian_dis:%s", judge.who:objectName())
+					room:setTag("se_nitian_judge", data)
+					if room:askForDiscard(honoka, self:objectName(), 1, 1, true, false, prompt) then
+						if judge.reason ~= "se_guwu" then
+							room:broadcastSkillInvoke(self:objectName())
+						end
+						local re = sgs.RecoverStruct()
+						re.who = judge.who
+						room:recover(judge.who, re, true)
+						local msg = sgs.LogMessage()
+						msg.type = "#se_nitian_recovery"
+						msg.from = judge.who
+						msg.arg = 1
+						room:sendLog(msg)
+					end
 				end
 			end
 		elseif event == sgs.CardsMoveOneTime then
 			local room = player:getRoom()
-			local honoka = room:findPlayerBySkillName(self:objectName())
-			if not honoka then return end
-			if player:objectName() ~= honoka:objectName() then return end
 			local move = data:toMoveOneTime()
 			if move.to_place ~= sgs.Player_DiscardPile then return end
-			local newMove = sgs.CardsMoveStruct()
-			for _,id in sgs.qlist(move.card_ids) do
-				if sgs.Sanguosha:getCard(id):isKindOf("DelayedTrick") then
-					newMove.card_ids:append(id)
+			for _, honoka in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if player:objectName() ~= honoka:objectName() then return end
+
+				local newMove = sgs.CardsMoveStruct()
+				for _, id in sgs.qlist(move.card_ids) do
+					if sgs.Sanguosha:getCard(id):isKindOf("DelayedTrick") then
+						newMove.card_ids:append(id)
+					end
 				end
-			end
-			if newMove.card_ids:length() > 0 then
-				if honoka:getHandcardNum() >= honoka:getMaxHp() and room:askForSkillInvoke(honoka, self:objectName()) then
-					honoka:drawCards(1, self:objectName())
-					return false
-				end
-				room:setTag("se_nitian_move",data)
-				local choice = room:askForChoice(honoka,self:objectName(),"se_nitian_gain+se_nitian_draw+cancel")
-				if choice == "se_nitian_gain" then
-					newMove.to = honoka
-					newMove.to_place = sgs.Player_PlaceHand
-					newMove.reason = sgs.CardMoveReason(0x27,"","se_nitian","")
-					room:broadcastSkillInvoke(self:objectName())
-					room:moveCardsAtomic(newMove, true)
-				elseif choice == "se_nitian_draw" then
-					honoka:drawCards(1, self:objectName())
+				if newMove.card_ids:length() > 0 then
+					if honoka:getHandcardNum() >= honoka:getMaxHp() and room:askForSkillInvoke(honoka, self:objectName()) then
+						honoka:drawCards(1, self:objectName())
+						continue
+					end
+					room:setTag("se_nitian_move", data)
+					local choice = room:askForChoice(honoka, self:objectName(), "se_nitian_gain+se_nitian_draw+cancel")
+					if choice == "se_nitian_gain" then
+						newMove.to = honoka
+						newMove.to_place = sgs.Player_PlaceHand
+						newMove.reason = sgs.CardMoveReason(0x27, "", "se_nitian", "")
+						room:broadcastSkillInvoke(self:objectName())
+						room:moveCardsAtomic(newMove, true)
+					elseif choice == "se_nitian_draw" then
+						honoka:drawCards(1, self:objectName())
+					end
 				end
 			end
 			return false
@@ -79,19 +80,18 @@ se_nitian = sgs.CreateTriggerSkill{
 }
 
 --鼓舞
-se_guwu = sgs.CreateTriggerSkill{
-	name = "se_guwu", 
-	frequency = sgs.Skill_NotFrequent, 
-	events = {sgs.QuitDying},
+se_guwu = sgs.CreateTriggerSkill {
+	name = "se_guwu",
+	frequency = sgs.Skill_NotFrequent,
+	events = { sgs.QuitDying },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local dying_data = data:toDying()
 		local source = dying_data.who
-		local mygod= room:findPlayerBySkillName("se_guwu")
-		if mygod then
+		for _, mygod in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 			if mygod:isAlive() and source:isAlive() then
-			local dest = sgs.QVariant()
-			dest:setValue(source)
+				local dest = sgs.QVariant()
+				dest:setValue(source)
 				if room:askForSkillInvoke(mygod, "se_guwu", dest) then
 					room:broadcastSkillInvoke(self:objectName())
 					local judge = sgs.JudgeStruct()
@@ -104,7 +104,7 @@ se_guwu = sgs.CreateTriggerSkill{
 						room:doLightbox("se_guwu$", 3000)
 						local re = sgs.RecoverStruct()
 						re.who = judge.who
-						room:recover(judge.who,re,true)
+						room:recover(judge.who, re, true)
 					else
 						room:doLightbox("se_guwu$", 1200)
 						judge.who:drawCards(1)
@@ -120,35 +120,36 @@ se_guwu = sgs.CreateTriggerSkill{
 }
 
 --抢镜
-se_qiangjing = sgs.CreateTriggerSkill{
+se_qiangjing = sgs.CreateTriggerSkill {
 	name = "se_qiangjing",
 	frequency = sgs.Skill_Frequent,
-	events = {sgs.CardsMoveOneTime},
-	on_trigger = function(self,event,player,data)
+	events = { sgs.CardsMoveOneTime },
+	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local move = data:toMoveOneTime()
 		if not move.from_places:contains(sgs.Player_DrawPile) or move.from then return end
-		if  room:getTag("FirstRound"):toBool() then return false end 
-		local kotori = room:findPlayerBySkillName(self:objectName())
-		if move.to_place == sgs.Player_PlaceHand and move.to:objectName() ~= kotori:objectName() and move.to:getPhase() ~= sgs.Player_Draw then
-			if not kotori:askForSkillInvoke(self:objectName(), data) then return end
-			local judge = sgs.JudgeStruct()
-			judge.pattern = ".|heart"
-			judge.reason = self:objectName()
-			judge.who = kotori
-			judge.play_animation = false
-			judge.time_consuming = true
-			room:judge(judge)
-			if judge:isGood() then
-				room:broadcastSkillInvoke(self:objectName())
-				room:doLightbox("se_qiangjing$", 500)
-				local ran = math.random(1, 100)
-				local num = 1
-				if ran > 70 then num = 2 end
-				if ran > 92 then num = 4 end
-				if ran > 96 then num = 8 end
-				if ran > 99 then num = 20 end
-				kotori:drawCards(num)
+		if room:getTag("FirstRound"):toBool() then return false end
+		for _, kotori in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+			if move.to_place == sgs.Player_PlaceHand and move.to:objectName() ~= kotori:objectName() and move.to:getPhase() ~= sgs.Player_Draw then
+				if not kotori:askForSkillInvoke(self:objectName(), data) then continue end
+				local judge = sgs.JudgeStruct()
+				judge.pattern = ".|heart"
+				judge.reason = self:objectName()
+				judge.who = kotori
+				judge.play_animation = false
+				judge.time_consuming = true
+				room:judge(judge)
+				if judge:isGood() then
+					room:broadcastSkillInvoke(self:objectName())
+					room:doLightbox("se_qiangjing$", 500)
+					local ran = math.random(1, 100)
+					local num = 1
+					if ran > 70 then num = 2 end
+					if ran > 92 then num = 4 end
+					if ran > 96 then num = 8 end
+					if ran > 99 then num = 20 end
+					kotori:drawCards(num)
+				end
 			end
 		end
 		return false
@@ -158,44 +159,44 @@ se_qiangjing = sgs.CreateTriggerSkill{
 --制服
 
 
-se_zhifucard = sgs.CreateSkillCard{
-	name="se_zhifucard",
+se_zhifucard = sgs.CreateSkillCard {
+	name = "se_zhifucard",
 	will_throw = true,
 	filter = function(self, selected, to_select)
 		return #selected < 1
 	end,
-	on_use = function(self,room,source,targets)
+	on_use = function(self, room, source, targets)
 		local choices
 		local choicesDone = {}
-		for _,id in sgs.qlist(room:getDrawPile()) do
+		for _, id in sgs.qlist(room:getDrawPile()) do
 			if not choices and sgs.Sanguosha:getCard(id):isKindOf("Armor") then
 				choices = sgs.Sanguosha:getCard(id):objectName()
 				table.insert(choicesDone, sgs.Sanguosha:getCard(id):objectName())
 			else
 				if not table.contains(choicesDone, sgs.Sanguosha:getCard(id):objectName()) and sgs.Sanguosha:getCard(id):isKindOf("Armor") then
-					choices = string.format(choices.."+"..sgs.Sanguosha:getCard(id):objectName())
+					choices = string.format(choices .. "+" .. sgs.Sanguosha:getCard(id):objectName())
 					table.insert(choicesDone, sgs.Sanguosha:getCard(id):objectName())
 				end
 			end
 		end
-		for _,id in sgs.qlist(room:getDiscardPile()) do
+		for _, id in sgs.qlist(room:getDiscardPile()) do
 			if not choices and sgs.Sanguosha:getCard(id):isKindOf("Armor") then
 				choices = sgs.Sanguosha:getCard(id):objectName()
 				table.insert(choicesDone, sgs.Sanguosha:getCard(id):objectName())
 			else
 				if not table.contains(choicesDone, sgs.Sanguosha:getCard(id):objectName()) and sgs.Sanguosha:getCard(id):isKindOf("Armor") then
-					choices = string.format(choices.."+"..sgs.Sanguosha:getCard(id):objectName())
+					choices = string.format(choices .. "+" .. sgs.Sanguosha:getCard(id):objectName())
 					table.insert(choicesDone, sgs.Sanguosha:getCard(id):objectName())
 				end
 			end
 		end
 		if not choices then return end
-		local choice = room:askForChoice(source,self:objectName(),choices)
+		local choice = room:askForChoice(source, self:objectName(), choices)
 		if not choice then return end
 		room:broadcastSkillInvoke("se_zhifu")
 		local target = targets[1]
 
-		for _,id in sgs.qlist(room:getDrawPile()) do
+		for _, id in sgs.qlist(room:getDrawPile()) do
 			if sgs.Sanguosha:getCard(id):objectName() == choice then
 				local newuse = sgs.CardUseStruct()
 				newuse.from = target
@@ -205,7 +206,7 @@ se_zhifucard = sgs.CreateSkillCard{
 				return
 			end
 		end
-		for _,id in sgs.qlist(room:getDiscardPile()) do
+		for _, id in sgs.qlist(room:getDiscardPile()) do
 			if sgs.Sanguosha:getCard(id):objectName() == choice then
 				local newuse = sgs.CardUseStruct()
 				newuse.from = target
@@ -224,13 +225,13 @@ se_zhifucard = sgs.CreateSkillCard{
 	end
 }
 
-se_zhifu = sgs.CreateViewAsSkill{
+se_zhifu = sgs.CreateViewAsSkill {
 	name = "se_zhifu",
 	n = 1,
 	view_filter = function(self, selected, to_select)
 		return #selected < 1 and not to_select:isEquipped()
 	end,
-	view_as = function(self,cards)
+	view_as = function(self, cards)
 		if #cards == 1 then
 			local card = se_zhifucard:clone()
 			card:setSkillName(self:objectName())
@@ -245,34 +246,35 @@ se_zhifu = sgs.CreateViewAsSkill{
 
 
 --nico
-se_nikecard = sgs.CreateSkillCard{
+se_nikecard = sgs.CreateSkillCard {
 	name = "se_nikecard",
-	target_fixed = false, 
-	will_throw = true, 
+	target_fixed = false,
+	will_throw = true,
 	filter = function(self, targets, to_select)
-		return to_select:objectName() ~= sgs.Self:objectName() and #targets < (sgs.Self:getHandcardNum() + sgs.Self:getEquips():length()) * 2
+		return to_select:objectName() ~= sgs.Self:objectName() and
+			#targets < (sgs.Self:getHandcardNum() + sgs.Self:getEquips():length()) * 2
 	end,
 	feasible = function(self, targets)
 		return true
 	end,
 	on_use = function(self, room, source, targets)
-		table.insert(targets,source)
+		table.insert(targets, source)
 		local num = math.floor(#targets / 2)
 		--room:broadcastSkillInvoke("se_nike")
 		room:doLightbox("se_nike$", 800)
-		for _,p in ipairs(targets) do
+		for _, p in ipairs(targets) do
 			room:askForDiscard(p, self:objectName(), num, num, false, true)
 			local re = sgs.RecoverStruct()
 			re.who = p
-			room:recover(p,re,true)
+			room:recover(p, re, true)
 		end
 	end
 }
 
-se_nike = sgs.CreateViewAsSkill{
+se_nike = sgs.CreateViewAsSkill {
 	name = "se_nike",
 	n = 0,
-	view_as = function(self,cards)
+	view_as = function(self, cards)
 		local card = se_nikecard:clone()
 		card:setSkillName(self:objectName())
 		return card
@@ -283,11 +285,11 @@ se_nike = sgs.CreateViewAsSkill{
 }
 
 
-se_yanyi = sgs.CreateTriggerSkill{
-	name = "se_yanyi",  
-	frequency = sgs.Skill_Compulsory, 
-	events = {sgs.Damaged, sgs.PreHpRecover}, 
-	on_trigger = function(self, event, player, data) 
+se_yanyi = sgs.CreateTriggerSkill {
+	name = "se_yanyi",
+	frequency = sgs.Skill_Compulsory,
+	events = { sgs.Damaged, sgs.PreHpRecover },
+	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if event == sgs.Damaged then
 			local damage = data:toDamage()
@@ -298,16 +300,16 @@ se_yanyi = sgs.CreateTriggerSkill{
 					local skill_name = ""
 					local sks = {}
 					local all_generals = sgs.Sanguosha:getLimitedGeneralNames()
-					for i=1, #all_generals do
-						if all_generals[i]=="Tukasa" or all_generals[i]=="mianma" or all_generals[i]=="Sakura" or all_generals[i]=="Riko" or all_generals[i]=="Nanami" or all_generals[i]=="Koishi" or all_generals[i]=="Mikoto" or all_generals[i]=="Natsume_Rin" or all_generals[i]=="Kazehaya" or all_generals[i]=="AiAstin" or all_generals[i]=="Reimu" or all_generals[i]=="Louise" then
+					for i = 1, #all_generals do
+						if all_generals[i] == "Tukasa" or all_generals[i] == "mianma" or all_generals[i] == "Sakura" or all_generals[i] == "Riko" or all_generals[i] == "Nanami" or all_generals[i] == "Koishi" or all_generals[i] == "Mikoto" or all_generals[i] == "Natsume_Rin" or all_generals[i] == "Kazehaya" or all_generals[i] == "AiAstin" or all_generals[i] == "Reimu" or all_generals[i] == "Louise" then
 							table.remove(all_generals, i)
-							i = i - 1 
+							i = i - 1
 						end
 					end
 
-					for _,general_name in ipairs(all_generals) do
+					for _, general_name in ipairs(all_generals) do
 						local general = sgs.Sanguosha:getGeneral(general_name)
-						for _,sk in sgs.qlist(general:getVisibleSkillList()) do
+						for _, sk in sgs.qlist(general:getVisibleSkillList()) do
 							if not sk:isLordSkill() then
 								if sk:getFrequency() ~= sgs.Skill_Wake and sk:getFrequency() ~= sgs.Skill_Limited then
 									table.insert(sks, sk:objectName())
@@ -316,8 +318,8 @@ se_yanyi = sgs.CreateTriggerSkill{
 						end
 					end
 
-					for _,pl in sgs.qlist(players) do
-						for _,ske in sgs.qlist(pl:getVisibleSkillList()) do
+					for _, pl in sgs.qlist(players) do
+						for _, ske in sgs.qlist(pl:getVisibleSkillList()) do
 							if table.contains(sks, ske:objectName()) then table.removeOne(sks, ske:objectName()) end
 						end
 					end
@@ -327,7 +329,7 @@ se_yanyi = sgs.CreateTriggerSkill{
 					skill_name = sks[ran]
 					room:handleAcquireDetachSkills(damage.to, skill_name)
 					local randomYanyi = math.random(1, 10)
-					room:doLightbox("se_yanyi"..randomYanyi.."$", 800)
+					room:doLightbox("se_yanyi" .. randomYanyi .. "$", 800)
 					room:doLightbox(skill_name, 600)
 					local msg = sgs.LogMessage()
 					msg.type = "#se_yanyi_use"
@@ -340,12 +342,12 @@ se_yanyi = sgs.CreateTriggerSkill{
 			local re = data:toRecover()
 			if re.who:hasSkill(self:objectName()) then
 				choices = {}
-				for _,skill in sgs.qlist(re.who:getSkillList()) do
+				for _, skill in sgs.qlist(re.who:getSkillList()) do
 					if skill:isVisible() and skill:objectName() ~= "zhuchangClone" then
 						table.insert(choices, skill:objectName())
 					end
 				end
-				local skl = room:askForChoice(re.who,self:objectName(),table.concat(choices,"+"))
+				local skl = room:askForChoice(re.who, self:objectName(), table.concat(choices, "+"))
 				if not skl then skl = self:objectName() end
 				room:detachSkillFromPlayer(re.who, skl)
 			end
@@ -355,9 +357,9 @@ se_yanyi = sgs.CreateTriggerSkill{
 
 
 
-Honoka = sgs.General(extension, "Honoka", "diva", 3, false,false,false)
-MKotori = sgs.General(extension, "MKotori", "diva", 3, false,false,false)
-Nico = sgs.General(extension, "Nico", "diva", 3, false,false,false)
+Honoka = sgs.General(extension, "Honoka", "diva", 3, false, false, false)
+MKotori = sgs.General(extension, "MKotori", "diva", 3, false, false, false)
+Nico = sgs.General(extension, "Nico", "diva", 3, false, false, false)
 
 
 Honoka:addSkill(se_nitian)
@@ -367,7 +369,7 @@ MKotori:addSkill(se_zhifu)
 Nico:addSkill(se_nike)
 Nico:addSkill(se_yanyi)
 
-sgs.LoadTranslationTable{
+sgs.LoadTranslationTable {
 	["diva"] = "LL大法",
 	["dmpdiva"] = "动漫包-LL大法",
 
@@ -380,7 +382,7 @@ sgs.LoadTranslationTable{
 	["$se_nitian4"] = "辛苦啦！今天也努力了！！",
 	[":se_nitian"] = "一名角色判定结束时，你可以弃置一张手牌，令其回复一点体力。延时锦囊进入弃牌堆时，若你的手牌数小于你的体力上限，你可以获得之，否则你摸一张牌。",
 	["se_nitian_dis"] = "你可以弃置一张手牌，令 %src 回复一点体力。",
-	
+
 	["se_guwu"] = "鼓舞「Fightだよ」",
 	["$se_guwu1"] = "好的，就和穗乃果一起来唱歌吧！",
 	["$se_guwu2"] = "嘿，打起精神来挑战一下吧！",
@@ -388,7 +390,7 @@ sgs.LoadTranslationTable{
 	["$se_guwu4"] = "穂乃果来支援你了~",
 	["se_guwu$"] = "image=image/animate/se_guwu.png",
 	[":se_guwu"] = "每当一名角色离开濒死阶段时，你可以令其进行一次判定。若为红色，其回复一点体力，否则你和其各摸一张牌。",
-	
+
 
 	["se_qiangjing"] = "抢镜「抢镜头的大头小鸟」",
 	["$se_qiangjing1"] = "哇，吓我一跳…",
@@ -432,26 +434,26 @@ sgs.LoadTranslationTable{
 	["#se_zhifu_use"] = "小鸟给 %from 穿上了 %arg 。",
 	["#se_yanyi_use"] = "妮可获得了技能 %arg 。",
 
-	["Honoka"] = "高坂穗乃果", 
-	["&Honoka"] = "高坂穗乃果", 
-	["#Honoka"] = "果皇", 
-	["~Honoka"] = "不甘心！但是，不会放弃的！", 
+	["Honoka"] = "高坂穗乃果",
+	["&Honoka"] = "高坂穗乃果",
+	["#Honoka"] = "果皇",
+	["~Honoka"] = "不甘心！但是，不会放弃的！",
 	["designer:Honoka"] = "Sword Elucidator",
 	["cv:Honoka"] = "新田惠海",
 	["illustrator:Honoka"] = "伍長",
 
-	["MKotori"] = "南小鸟ことり", 
-	["&MKotori"] = "南小鸟", 
-	["#MKotori"] = "小鸟神教主", 
-	["~MKotori"] = "才刚开始！", 
+	["MKotori"] = "南小鸟ことり",
+	["&MKotori"] = "南小鸟",
+	["#MKotori"] = "小鸟神教主",
+	["~MKotori"] = "才刚开始！",
 	["designer:MKotori"] = "Sword Elucidator",
 	["cv:MKotori"] = "内田彩",
 	["illustrator:MKotori"] = "りも",
 
-	["Nico"] = "矢澤妮可にこ", 
-	["&Nico"] = "矢澤妮可", 
-	["#Nico"] = "妮可妮可妮", 
-	["~Nico"] = "......真不甘心", 
+	["Nico"] = "矢澤妮可にこ",
+	["&Nico"] = "矢澤妮可",
+	["#Nico"] = "妮可妮可妮",
+	["~Nico"] = "......真不甘心",
 	["designer:Nico"] = "Sword Elucidator",
 	["cv:Nico"] = "德井青空",
 	["illustrator:Nico"] = "ゆらん@C88三日目東ノ04a",
