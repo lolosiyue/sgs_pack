@@ -93,7 +93,7 @@ sgs.ai_use_revises.s4_cloud_yongyi = function(self, card, use)
         records = record:split(",")
     end
     if records and (not table.contains(records, suit) or not card:hasSuit())
-    and card and card:getClassName() and sgs.ai_use_priority[card:getClassName()]  then
+        and card and card:getClassName() and sgs.ai_use_priority[card:getClassName()] then
         sgs.ai_use_priority[card:getClassName()] = sgs.ai_use_priority[card:getClassName()] + 5
     end
 end
@@ -247,4 +247,21 @@ sgs.ai_skill_invoke.s4_weiT_xionglue = function(self, data)
 end
 sgs.ai_skill_invoke.s4_weiT_naxian = function(self, data)
     return true
+end
+
+sgs.ai_skill_invoke.s4_shiyong = function(self, data)
+    local x = self.player:getHp() - self.player:getHandcardNum()
+    if x < 2 then
+        return true
+    end
+    if self:needToLoseHp(self.player) or hasZhaxiangEffect(self.player) then
+        return true
+    end
+    if self.player:getHp() + self:getAllPeachNum() > 1 then
+        return true
+    end
+    if self.player:getMark("s4_shiyong+_biu") > 0 then
+        return true
+    end
+    return false
 end

@@ -54,7 +54,7 @@ clear_mark = sgs.CreateTriggerSkill {
 				end
 				if player:getMark("ol_huxiao-Clear") > 0 then
 					local assignee_list = room:getCurrent():property("extra_slash_specific_assignee"):toString():split(
-					"+")
+						"+")
 					table.removeOne(assignee_list, player:objectName())
 					room:setPlayerProperty(room:getCurrent(), "extra_slash_specific_assignee",
 						sgs.QVariant(table.concat(assignee_list, "+")))
@@ -292,6 +292,7 @@ sgs.LoadTranslationTable {
 	["extra"] = "ZY",
 	["-_endplay"] = "",
 	["-_flag"] = "",
+	["-_biu"] = "",
 }
 function RIGHT(self, player)
 	if player and player:isAlive() and player:hasSkill(self:objectName()) then return true else return false end

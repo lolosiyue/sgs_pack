@@ -107,6 +107,8 @@ sgs.ai_cardneed.se_mingqie = function(to, card, self)
 end
 
 
+
+
 se_mopao_skill = {}
 se_mopao_skill.name = "se_mopao"
 table.insert(sgs.ai_skills, se_mopao_skill)

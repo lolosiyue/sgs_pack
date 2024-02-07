@@ -1607,11 +1607,6 @@ LuaXinbi = sgs.CreateTriggerSkill {
 							--	local skillwhoid = move.reason.m_playerId
 							--	local who = qstring2serverplayer(room,skillwhoid)
 							local who = room:getCurrent()
-							for _, p in sgs.qlist(room:getAlivePlayers()) do
-								if p:getMark(self:objectName()) > 0 then
-									who = p:objectName()
-								end
-							end
 							local x = count / 2
 							if who and not player:hasFlag("BaozouTurn") then
 								room:sendCompulsoryTriggerLog(player, self:objectName(), true)

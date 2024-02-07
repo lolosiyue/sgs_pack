@@ -109,7 +109,7 @@ se_zhikong = sgs.CreateTriggerSkill {
 						local playerdata = sgs.QVariant()
 						playerdata:setValue(player)
 						room:setTag("se_zhikongTarget", playerdata)
-						room:setPlayerMark(player, "&se_zhikong+to+#" .. Akagi:objectName() .. "+-Clear", 1)
+						room:setPlayerMark(player, "&se_zhikong+to+#" .. Akagi:objectName(), 1)
 						for _, p in sgs.qlist(room:getOtherPlayers(player)) do
 							room:addPlayerMark(p, "Armor_Nullified", 1)
 						end
@@ -526,7 +526,7 @@ se_qianlei = sgs.CreateTriggerSkill {
 				choicelist = string.format("%s+%s", choicelist, "se_qianlei_second=" .. der:objectName())
 			end
 			if not buki:isNude() then
-				choicelist = string.format("%s+%s", choicelist, "se_qianlei_first=" .. der.from:objectName())
+				choicelist = string.format("%s+%s", choicelist, "se_qianlei_first=" .. der:objectName())
 			end
 			if choicelist == "cancel" then return end
 			local choice = room:askForChoice(buki, self:objectName(), choicelist, data)
@@ -901,6 +901,7 @@ eryu = sgs.CreateTriggerSkill {
 				return false
 			end
 			local move = data:toMoveOneTime()
+			if not move.from then return false end
 			if (move.reason.m_reason ~= sgs.CardMoveReason_S_REASON_USE) or (move.from:objectName() ~= player:objectName() and move.from:objectName() ~= linked:objectName()) then
 				return false
 			end
@@ -1630,3 +1631,5 @@ sgs.LoadTranslationTable {
 
 
 }
+
+return { extension }

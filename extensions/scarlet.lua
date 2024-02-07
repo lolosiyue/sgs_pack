@@ -3652,44 +3652,69 @@ sgs.LoadTranslationTable {
 
 }]]
 
---[[ s4_acg_canna = sgs.General(extension, "s4_acg_canna", "qun", 2, false)
 
-s4_acg_paoxiao = sgs.CreateTriggerSkill {
-    name = "s4_acg_paoxiao",
-    events = { sgs.CardUsed },
-    on_trigger = function(self, event, player, data, room)
-        if event == sgs.CardUsed then
-            local use = data:toCardUse()
-            if use.card and use.card:isKindOf("Slash") and use.card:getNumber() <= player:getMaxHp() then
-                room:addPlayerHistory(player, use.card:getClassName(), -1)
+s4_huaxiong = sgs.General(extension, "s4_huaxiong", "qun", 6, true)
+
+
+s4_shiyong = sgs.CreateTriggerSkill {
+    name = "s4_shiyong",
+    frequency = sgs.Skill_NotFrequent,
+    events = { sgs.Damage, sgs.CardsMoveOneTime },
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        if event == sgs.Damage then
+            local x = player:getHp() - player:getHandcardNum()
+            if x > 0 and room:askForSkillInvoke(player, self:objectName(), data) then
+                player:drawCards(x)
                 room:broadcastSkillInvoke(self:objectName())
-                room:sendCompulsoryTriggerLog(player, self:objectName())
-                local thunder_slash = sgs.Sanguosha:cloneCard("ThunderSlash", use.card:getSuit(), use.card:getNumber())
-                if (not use.card:isVirtualCard() or use.card:subcardsLength() > 0) then
-                    thunder_slash:addSubcard(use.card)
-
-                end
-                thunder_slash:setSkillName("s4_acg_paoxiao")
-            local can_use = true
-            for _, p in sgs.qlist(use.to) do
-                if (not player:canSlash(p, thunder_slash, false)) then
-                    can_use = false
-                    break
-                end
             end
+        elseif event == sgs.CardsMoveOneTime then
+            local move = data:toMoveOneTime()
+            local dest = move.to
+            local hand = move.to_place
+            local fromplace = move.from_places
+            local cards = move.card_ids
+            local reason = move.reason
+            local count = cards:length()
+            if player:getPhase() == sgs.Player_Draw then return end
+            if player:getMark(self:objectName() .. "+_biu") > 0 then return end
 
-            if can_use then
-                use.card = thunder_slash
-                data:setValue(use)
-                if use.card:getNumber() == player:getMaxHp() then
-                    player:drawCards(1)
+            if not room:getTag("FirstRound"):toBool() then
+                if (dest and dest:objectName() == player:objectName() and hand == sgs.Player_PlaceHand) or
+                    (move.from and move.from:objectName() == player:objectName() and
+                        (fromplace:contains(sgs.Player_PlaceEquip) or fromplace:contains(sgs.Player_PlaceHand))
+                        and not (hand:contains(sgs.Player_PlaceEquip) or hand:contains(sgs.Player_PlaceHand))) then
+                    if count >= 2 then
+                        local x = count / 2
+
+                        room:sendCompulsoryTriggerLog(player, self:objectName(), true)
+                        for i = 0, x - 1, 1 do
+                            room:loseHp(player, 1)
+                            break
+                        end
+                        room:addPlayerMark(player, self:objectName() .. "+_biu")
+
+                        room:broadcastSkillInvoke(self:objectName())
+                    end
                 end
-            end
             end
         end
-        return false
-    end
-} ]]
+    end,
+}
+--https://tieba.baidu.com/p/3472257233#61764205069l
+sgs.LoadTranslationTable {
+    ["s4_huaxiong"] = "华雄",
+    ["&s4_huaxiong"] = "华雄",
+    ["#s4_huaxiong"] = "魔将",
+    ["~s4_huaxiong"] = "",
+    ["designer:s4_huaxiong"] = "联合复兴",
+    ["cv:s4_huaxiong"] = "",
+    ["illustrator:s4_huaxiong"] = "",
+
+    ["s4_shiyong"] = "恃勇",
+    [":s4_shiyong"] = "你每造成一次伤害，可以将手牌数补充至与体力值相同的张数。锁定技，摸牌阶段以外，你每获得或失去不少于两张牌，你失去一点体力，每阶段限一次。",
+
+}
 
 
 return { extension }

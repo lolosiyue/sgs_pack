@@ -529,3 +529,5 @@ sgs.LoadTranslationTable {
 	["cv:Satori"] = "",
 	["illustrator:Satori"] = "夜华提供",
 }
+
+return { extension }

@@ -363,7 +363,7 @@ sgs.ai_skill_cardchosen["se_qianlei"] = function(self, who, flags)
 	local allcards = who:getCards(flags)
 	allcards = sgs.QList2Table(allcards)
 	self:sortByKeepValue(allcards)
-	if dest and self.isFriend(dest) then
+	if dest and self:isFriend(dest) then
 		for _, c in ipairs(allcards) do
 			if c:isKindOf("Analeptic") then
 				return c:getEffectiveId()
@@ -677,12 +677,18 @@ eryu_skill.getTurnUseCard      = function(self, inclusive)
 	if self.player:getMark("@EryuMark") == 1 then return end
 	local targets = {}
 	for _, p in sgs.list(self.room:getOtherPlayers(self.player)) do
-		if self:isFriend(p) and not p:isMale() then return sgs.Card_Parse("#eryu:.") end
+		if self:isFriend(p) and not p:isMale() then return sgs.Card_Parse("#eryu:.:") end
 	end
 end
 
 sgs.ai_skill_use_func["#eryu"] = function(card, use, self)
 	local target
+	local lord = self.room:getLord()
+	if lord and self.player:getRole() == "loyalist" and self:isFriend(lord) and lord:isFemale() then
+		use.card = sgs.Card_Parse("#eryu:.:")
+		if use.to then use.to:append(target) end
+		return
+	end
 	for _, p in sgs.list(self.room:getOtherPlayers(self.player)) do
 		if self:isFriend(p) and not p:isMale() then
 			if not target then
@@ -701,7 +707,7 @@ sgs.ai_skill_use_func["#eryu"] = function(card, use, self)
 
 
 	if target then
-		use.card = sgs.Card_Parse("#eryu:.")
+		use.card = sgs.Card_Parse("#eryu:.:")
 		if use.to then use.to:append(target) end
 		return
 	end
@@ -840,7 +846,7 @@ end
 sgs.ai_skill_invoke["BurningLove"] = function(self, data)
 	local damage = data:toDamage()
 	return self:isFriend(damage.to) and
-		not (self:getDamagedEffects(damage.to, damage.from, true) or self:needToLoseHp(damage.to, damage.from, nil, true))
+		not self:needToLoseHp(damage.to, damage.from, nil, true)
 end
 
 
