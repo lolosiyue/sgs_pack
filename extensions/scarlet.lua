@@ -821,6 +821,126 @@ sgs.LoadTranslationTable {
 ----------------------------------------------------------------
 -- https://tieba.baidu.com/p/8519622496
 ----------------------------------------------------------------
+
+s4_zhaoyun = sgs.General(extension, "s4_zhaoyun", "shu", 4)
+
+s4_jiuzhu = sgs.CreateTriggerSkill {
+    name = "s4_jiuzhu",
+    events = { sgs.CardsMoveOneTime, sgs.EventPhaseChanging },
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        if event == sgs.CardsMoveOneTime then
+            local current = room:getCurrent()
+            if not player or not player:hasSkill(self:objectName()) then return false end
+            if not current or current:getPhase() == sgs.Player_NotActive then return false end
+            local move = data:toMoveOneTime()
+            local reason = move.reason.m_reason
+            if bit32.band(move.reason.m_reason, sgs.CardMoveReason_S_MASK_BASIC_REASON) == sgs.CardMoveReason_S_REASON_DISCARD then
+                if move.to_place == sgs.Player_DiscardPile then
+                    local ids, disabled = sgs.IntList(), sgs.IntList()
+                    local all_ids = move.card_ids
+                    for _, id in sgs.qlist(move.card_ids) do
+                        local card = sgs.Sanguosha:getCard(id)
+                        if card and card:isKindOf("BasicCard") and room:getCardPlace(id) == sgs.Player_DiscardPile and player:getMark("&s4_jiuzhu-Clear") == 0 then
+                            ids:append(id)
+                        else
+                            disabled:append(id)
+                        end
+                    end
+                    if ids:isEmpty() then return false end
+                    if not ids:isEmpty() then
+                        room:fillAG(all_ids, player, disabled)
+                        local only = (all_ids:length() == 1)
+                        local card_id = -1
+                        if only then
+                            card_id = ids:first()
+                        else
+                            card_id = room:askForAG(player, ids, true, self:objectName())
+                        end
+                        room:clearAG(player)
+                        if card_id == -1 then return false end
+                        if only then
+                            player:setMark("YanyuOnlyId", card_id + 1)
+                        end
+                        local card = sgs.Sanguosha:getCard(card_id)
+                        local target = room:askForPlayerChosen(player, room:getAlivePlayers(), self:objectName(),
+                            string.format("@yanyu-give:::%s:%s\\%s", card:objectName(), card:getSuitString() .. "_char"
+                            , card:getNumberString()), only, true)
+                        player:setMark("YanyuOnlyId", 0)
+                        if target then
+                            local index = move.card_ids:indexOf(card_id)
+                            local place = move.from_places:at(index)
+                            -- move.from_places:removeAt(index)
+                            -- move.card_ids:removeOne(card_id)
+                            -- data:setValue(move)
+                            ids:removeOne(card_id)
+                            disabled:append(card_id)
+
+                            -- if move.from and move.from:objectName() == target:objectName() and place ~= sgs.Player_PlaceTable then
+                            --     local log = sgs.LogMessage()
+                            --     log.type = "$MoveCard"
+                            --     log.from = target
+                            --     log.to:append(target)
+                            --     log.card_str = tostring(card_id)
+                            --     room:sendLog(log)
+                            -- end
+                            local card = room:askForDiscard(player, "s4_jiuzhu_invoke", x, x, true, true,
+                                "@s4_jiuzhu:" .. target:objectName())
+                            if card then
+                            else
+                                room:loseHp(player, 1)
+                            end
+                            target:obtainCard(card)
+                            room:addPlayerMark(player, "&s4_jiuzhu-Clear")
+                            if player:getPhase() ~= sgs.Player_NotActive then
+                                if room:askForSkillInvoke(player, self:objectName()) then
+                                    player:drawCards(2, self:objectName())
+                                end
+                            else
+                                if not current:isNude() then
+                                    --if room:askForSkillInvoke(player, self:objectName()) then
+                                    local id = room:askForCardChosen(player, current, "he", self:objectName())
+                                    if id ~= -1 then
+                                        room:obtainCard(player, id, false)
+                                    end
+                                    --end
+                                end
+                            end
+                        else
+                            return false
+                        end
+                    end
+                end
+            end
+        end
+        return false
+    end,
+    can_trigger = function(self, target)
+        return target ~= nil
+    end
+}
+s4_zhaoyun:addSkill(s4_jiuzhu)
+
+sgs.LoadTranslationTable {
+    ["s4_zhaoyun"] = "赵云",
+    ["#s4_zhaoyun"] = "七進七出",
+    ["~s4_zhaoyun"] = "",
+    ["designer:s4_zhaoyun"] = "终极植物",
+    ["cv:s4_zhaoyun"] = "",
+    ["illustrator:s4_zhaoyun"] = "",
+
+    ["s4_jiuzhu"] = "救主",
+    [":s4_jiuzhu"] = "每回合限一次，当一张基本牌进入弃牌堆后，你可以弃置一张牌或失去1点体力，令一名角色获得此基本牌。然后若此时是你的回合，你可以摸两张牌；若不是，你可以获得当前回合角色一张牌。",
+    ["$s4_jiuzhu1"] = "",
+    ["$s4_jiuzhu2"] = "",
+
+}
+----------------------------------------------------------------
+-- https://tieba.baidu.com/p/8628062146
+----------------------------------------------------------------
+
+
+
 local s4_skillList = sgs.SkillList()
 
 s4_txbw_disgeneralCard = sgs.CreateSkillCard {
@@ -3664,7 +3784,10 @@ s4_shiyong = sgs.CreateTriggerSkill {
         local room = player:getRoom()
         if event == sgs.Damage then
             local x = player:getHp() - player:getHandcardNum()
+            if player:getMark("&" .. self:objectName() .. "damage" .. "+_biu") > 0 then return end
+
             if x > 0 and room:askForSkillInvoke(player, self:objectName(), data) then
+                room:addPlayerMark(player, "&" .. self:objectName() .. "damage" .. "+_biu")
                 player:drawCards(x)
                 room:broadcastSkillInvoke(self:objectName())
             end
@@ -3677,13 +3800,13 @@ s4_shiyong = sgs.CreateTriggerSkill {
             local reason = move.reason
             local count = cards:length()
             if player:getPhase() == sgs.Player_Draw then return end
-            if player:getMark(self:objectName() .. "+_biu") > 0 then return end
+            if player:getMark("&" .. self:objectName() .. "+_biu") > 0 then return end
 
             if not room:getTag("FirstRound"):toBool() then
                 if (dest and dest:objectName() == player:objectName() and hand == sgs.Player_PlaceHand) or
                     (move.from and move.from:objectName() == player:objectName() and
                         (fromplace:contains(sgs.Player_PlaceEquip) or fromplace:contains(sgs.Player_PlaceHand))
-                        and not (hand:contains(sgs.Player_PlaceEquip) or hand:contains(sgs.Player_PlaceHand))) then
+                        and not (hand == sgs.Player_PlaceEquip or hand == sgs.Player_PlaceHand)) then
                     if count >= 2 then
                         local x = count / 2
 
@@ -3692,7 +3815,7 @@ s4_shiyong = sgs.CreateTriggerSkill {
                             room:loseHp(player, 1)
                             break
                         end
-                        room:addPlayerMark(player, self:objectName() .. "+_biu")
+                        room:addPlayerMark(player, "&" .. self:objectName() .. "+_biu")
 
                         room:broadcastSkillInvoke(self:objectName())
                     end
@@ -3701,6 +3824,8 @@ s4_shiyong = sgs.CreateTriggerSkill {
         end
     end,
 }
+s4_huaxiong:addSkill(s4_shiyong)
+
 --https://tieba.baidu.com/p/3472257233#61764205069l
 sgs.LoadTranslationTable {
     ["s4_huaxiong"] = "华雄",
@@ -3711,8 +3836,9 @@ sgs.LoadTranslationTable {
     ["cv:s4_huaxiong"] = "",
     ["illustrator:s4_huaxiong"] = "",
 
+    ["s4_shiyongdamage"] = "恃勇:造成伤害",
     ["s4_shiyong"] = "恃勇",
-    [":s4_shiyong"] = "你每造成一次伤害，可以将手牌数补充至与体力值相同的张数。锁定技，摸牌阶段以外，你每获得或失去不少于两张牌，你失去一点体力，每阶段限一次。",
+    [":s4_shiyong"] = "每阶段各限一次，你每造成一次伤害，可以将手牌数补充至与体力值相同的张数。锁定技，摸牌阶段以外，你每获得或失去不少于两张牌，你失去一点体力。",
 
 }
 
