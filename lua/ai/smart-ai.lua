@@ -122,7 +122,7 @@ do
 		"|luamouce|eqiehu|LuaBimie" --add
 
 	sgs.save_skill = "jijiu|buyi|nosjiefan|chunlao|tenyearchunlao|secondtenyearchunlao|longhun|newlonghun" ..
-		"|zhuchang|dai|se_jiushu|Haixing" --add dongmaobao
+		"|zhuchang|dai|se_jiushu|Haixing|se_nitian" --add dongmaobao
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
 		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh|LuaYinguo" --add meizi
@@ -154,7 +154,7 @@ do
 
 	sgs.recover_skill = "yinghun|hunzi|nosmiji|zishou|newzishou|olzishou|tenyearzishou|ganlu|xueji|shangshi|nosshangshi|" ..
 		"buqu|miji|" .. sgs.recover_hp_skill ..
-		"|jinghua|se_huanyuan|SE_Wuwei|LuaGongming|se_chicheng" --add dongmanbao
+		"|jinghua|se_huanyuan|SE_Wuwei|LuaGongming|se_chicheng|se_nitian" --add dongmanbao
 
 	sgs.use_lion_skill = "longhun|newlonghun|duanliang|qixi|guidao|noslijian|lijian|jujian|nosjujian|zhiheng|mingce|" ..
 		"yongsi|fenxun|gongqi|yinling|jilve|qingcheng|neoluoyi|diyyicong" ..

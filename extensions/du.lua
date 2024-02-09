@@ -573,12 +573,13 @@ jieyou = sgs.CreateViewAsSkill {
 jiuwei = sgs.CreateTriggerSkill {
 
 	name = "jiuwei",
-	events = { sgs.SlashMissed },
+	events = { sgs.CardOffset },
 	frequency = sgs.Skill_NotFrequent,
 	on_trigger = function(self, event, player, data)
-		local effect = data:toSlashEffect()
+		local effect = data:CardOffset()
 		local killer = effect.from
-		if killer:objectName() == player:objectName() and (effect.slash:hasFlag("drank")) then
+		if killer:objectName() == player:objectName() and effect.card
+			and effect.card:isKindOf("Slash") and (effect.card:hasFlag("drank")) then
 			local target = effect.to
 			if not target:isNude() then
 				if player:askForSkillInvoke(self:objectName(), data) then

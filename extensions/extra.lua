@@ -292,7 +292,7 @@ sgs.LoadTranslationTable {
 	["extra"] = "ZY",
 	["-_endplay"] = "",
 	["-_flag"] = "",
-	["-_biu"] = "",
+	["_biu"] = "",
 }
 function RIGHT(self, player)
 	if player and player:isAlive() and player:hasSkill(self:objectName()) then return true else return false end

@@ -45,7 +45,7 @@ se_nitian = sgs.CreateTriggerSkill {
 			local move = data:toMoveOneTime()
 			if move.to_place ~= sgs.Player_DiscardPile then return end
 			for _, honoka in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-				if player:objectName() ~= honoka:objectName() then return end
+				if player:objectName() ~= honoka:objectName() then continue end
 
 				local newMove = sgs.CardsMoveStruct()
 				for _, id in sgs.qlist(move.card_ids) do
@@ -69,6 +69,7 @@ se_nitian = sgs.CreateTriggerSkill {
 					elseif choice == "se_nitian_draw" then
 						honoka:drawCards(1, self:objectName())
 					end
+					room:removeTag("se_nitian_move")
 				end
 			end
 			return false
@@ -191,7 +192,9 @@ se_zhifucard = sgs.CreateSkillCard {
 			end
 		end
 		if not choices then return end
-		local choice = room:askForChoice(source, self:objectName(), choices)
+		local dest = sgs.QVariant()
+		dest:setValue(targets[1])
+		local choice = room:askForChoice(source, self:objectName(), choices, dest)
 		if not choice then return end
 		room:broadcastSkillInvoke("se_zhifu")
 		local target = targets[1]

@@ -431,11 +431,11 @@ meizlyuxiangavoid = sgs.CreateTriggerSkill {
 meizlfeiren = sgs.CreateTriggerSkill {
 	name = "meizlfeiren",
 	frequency = sgs.Skill_NotFrequent,
-	events = { sgs.SlashMissed },
+	events = { sgs.CardOffset },
 	on_trigger = function(self, event, player, data)
-		local effect = data:toSlashEffect()
+		local effect = data:toCardEffect()
 		local dest = effect.to
-		if dest:isAlive() then
+		if dest:isAlive() and effect.card and effect.card:isKindOf("Slash") then
 			if not dest:isKongcheng() then
 				if player:askForSkillInvoke(self:objectName(), data) then
 					local room = player:getRoom()

@@ -3347,7 +3347,7 @@ PlusYizhong = sgs.CreateTriggerSkill {
 				end
 			end
 		elseif event == sgs.CardEffected then
-			local effect = data:toSlashEffect()
+			local effect = data:toCardEffect()
 			local card = effect.card
 			if card and card:isKindOf("Slash") and card:hasFlag("PlusYizhong") then
 				if card:isKindOf("Slash") and player:getMark("PlusYizhong_Slash") > 0 then
@@ -6163,15 +6163,15 @@ PlusFanjianVS = sgs.CreateViewAsSkill {
 PlusFanjian = sgs.CreateTriggerSkill {
 	name = "PlusFanjian",
 	frequency = sgs.Skill_NotFrequent,
-	events = { sgs.SlashMissed, sgs.CardFinished, sgs.CardUsed },
+	events = { sgs.CardOffset, sgs.CardFinished, sgs.CardUsed },
 	view_as_skill = PlusFanjianVS,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if event == sgs.SlashMissed then
-			local effect = data:toSlashEffect()
-			if effect.slash:hasFlag("PlusFanjian_Slash") then
-				room:setCardFlag(effect.slash, "PlusFanjian_Missed")
-				room:setCardFlag(effect.slash, "-PlusFanjian_Slash")
+		if event == sgs.CardOffset then
+			local effect = data:toCardEffect()
+			if effect.card and effect.card:isKindOf("Slash") and effect.card:hasFlag("PlusFanjian_Slash") then
+				room:setCardFlag(effect.card, "PlusFanjian_Missed")
+				room:setCardFlag(effect.card, "-PlusFanjian_Slash")
 			end
 		elseif event == sgs.CardFinished then
 			local use = data:toCardUse()
@@ -9727,15 +9727,15 @@ PlusMizhaoVS = sgs.CreateViewAsSkill {
 PlusMizhao = sgs.CreateTriggerSkill {
 	name = "PlusMizhao",
 	frequency = sgs.Skill_NotFrequent,
-	events = { sgs.SlashMissed, sgs.CardUsed },
+	events = { sgs.CardOffset, sgs.CardUsed },
 	view_as_skill = PlusMizhaoVS,
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if event == sgs.SlashMissed then
-			local effect = data:toSlashEffect()
-			if effect.slash:hasFlag("PlusMizhao_Slash") then
+		if event == sgs.CardOffset then
+			local effect = data:toCardEffect()
+			if effect.card and effect.card:isKindOf("Slash") and effect.card:hasFlag("PlusMizhao_Slash") then
 				room:loseHp(effect.from)
-				room:setCardFlag(effect.slash, "-PlusMizhao_Slash")
+				room:setCardFlag(effect.card, "-PlusMizhao_Slash")
 			end
 		elseif event == sgs.CardUsed then
 			if player:hasFlag("PlusMizhao_Used") then
@@ -12093,13 +12093,13 @@ SixLongdan = sgs.CreateTriggerSkill {
 SixLongdanProtect = sgs.CreateTriggerSkill {
 	name = "#SixLongdanProtect",
 	frequency = sgs.Skill_NotFrequent,
-	events = { sgs.SlashEffected, sgs.CardFinished },
+	events = { sgs.CardEffected, sgs.CardFinished },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if event == sgs.SlashEffected then
-			local effect = data:toSlashEffect()
-			local card = effect.slash
-			if card:hasFlag("SixLongdan") then
+		if event == sgs.CardEffected then
+			local effect = data:toCardEffect()
+			local card = effect.card
+			if card:isKindOf("Slash") and card:hasFlag("SixLongdan") then
 				if player:getMark("SixLongdan") > 0 then
 					local count = player:getMark("SixLongdan") - 1
 					player:setMark("SixLongdan", count)
@@ -14406,13 +14406,13 @@ SevenXiaoRui = sgs.CreateTargetModSkill {
 SevenXiaoRui_Tr = sgs.CreateTriggerSkill {
 	name = "#SevenXiaoRui_Tr",
 	frequency = sgs.Skill_NotFrequent,
-	events = { sgs.SlashMissed, sgs.TargetConfirmed },
+	events = { sgs.CardOffset, sgs.TargetConfirmed },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if event == sgs.SlashMissed then
-			local effect = data:toSlashEffect()
+		if event == sgs.CardOffset then
+			local effect = data:toCardEffect()
 			local dest = effect.to
-			if effect.slash:hasFlag("SevenXiaoRui") then
+			if effect.card and effect.card:isKindOf("Slash") and effect.card:hasFlag("SevenXiaoRui") then
 				room:sendCompulsoryTriggerLog(effect.from, "SevenXiaoRui")
 				effect.from:turnOver()
 			end
