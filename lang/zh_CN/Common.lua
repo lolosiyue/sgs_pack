@@ -89,7 +89,7 @@ CommonTranslationTable = {
 	["shuffle"] = "洗入",
 	["online"] = "在线",
 	["offline"] = "离线",
-	["robot"] = "",--电脑
+	["robot"] = "", --电脑
 	["trust"] = "托管",
 	["yes"] = "是",
 	["no"] = "否",
@@ -135,7 +135,7 @@ CommonTranslationTable = {
 	["wu"] = "吴",
 	["qun"] = "群",
 	["jin"] = "晋",
-	
+
 	["1_num"] = "①",
 	["2_num"] = "②",
 	["3_num"] = "③",
@@ -168,7 +168,7 @@ CommonTranslationTable = {
 	["#NullificationDetails"] = "【<font color=\"yellow\"><b>无懈可击</b></font>】的目标是 %from 对 %to 的锦囊【%arg】",
 	["#SkillAvoid"] = "%from 的“%arg”被触发，%from 不能成为此【%arg2】的目标",
 	["#NoJudgeAreaAvoid"] = "%from 没有判定区，%from 不能成为此【%arg】的目标",
-	["#SkillAvoidFrom"]= "%from 的“%arg”被触发，%to 不能成为此【%arg2】的目标",
+	["#SkillAvoidFrom"] = "%from 的“%arg”被触发，%to 不能成为此【%arg2】的目标",
 	["#CardNullified"] = "【%arg】对 %from 无效",
 	["#Transfigure"] = "%from 变身为 %arg",
 	["#TransfigureDual"] = "%from 的 %arg2 变身为 %arg",
@@ -285,7 +285,7 @@ CommonTranslationTable = {
 	["#TrickDirection"] = "%from 选择了 %arg 作为结算顺序",
 	["custom"] = "自定义模式",
 	["UnknowNick"] = "",
-	["DefaultIllustrator"] = "KayaK",
+	["DefaultIllustrator"] = "官方",
 	["hulaopass_shenlvbu"] = "选择第二阶段形态",
 	["hulaopass_shenlvbu:bnzs"] = "暴怒战神",
 	["hulaopass_shenlvbu:sgwq"] = "神鬼无前",

@@ -4444,7 +4444,7 @@ meizlxuechou = sgs.CreateTriggerSkill {
 		move.to = player
 		move.to_place = sgs.Player_PlaceHand
 		room:moveCardsAtomic(move, false)
-		if player:canSlash(current, nil, false) then
+		if current and current:isAlive() and player:canSlash(current, nil, false) then
 			local use = sgs.CardUseStruct()
 			use.from = player
 			use.to:append(current)

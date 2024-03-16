@@ -2719,6 +2719,9 @@ end
 sgs.ai_skill_invoke.meizlxuechou = function(self, data)
 	local slash = sgs.Sanguosha:cloneCard("slash")
 	local current = self.room:getCurrent()
+	if not current or current:isDead() then
+		return true
+	end
 	if current:objectName() == self.player:objectName() then
 		return true
 	end

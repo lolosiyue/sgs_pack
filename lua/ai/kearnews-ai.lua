@@ -1685,7 +1685,7 @@ end
 function sgs.ai_skill_invoke.kenewzhenlie(self, data)
 	local use = data:toCardUse()
 	if not use.from or use.from:isDead() then return false end
-	if self.role == "rebel" and sgs.evaluatePlayerRole(use.from) == "rebel" and not use.from:hasSkill("jueqing")
+	if self.role == "rebel" and sgs.ai_role[use.from:objectName()] == "rebel" and not use.from:hasSkill("jueqing")
 		and self.player:getHp() == 1 and self:getAllPeachNum() < 1 then
 		return false
 	end
