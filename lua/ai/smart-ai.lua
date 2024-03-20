@@ -6605,6 +6605,9 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 	if from:hasSkill("LuaBimie") and card and card:isKindOf("Slash") then
 		return
 	end
+	if from:hasSkill("qingyue") and card and card:isKindOf("Slash") and to:isMale() then
+		return
+	end
 	if hasJueqingEffect(from, to)
 	then
 		if to:hasSkills(sgs.masochism_skill)
