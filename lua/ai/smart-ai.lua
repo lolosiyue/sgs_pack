@@ -103,7 +103,7 @@ do
 	sgs.ai_type_name = { "SkillCard", "BasicCard", "TrickCard", "EquipCard" }
 
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng" ..
-		"|FourQixiB|Zhudao|SE_Zhuzhen" --add dongmaobao
+		"|FourQixiB|Zhudao|SE_Zhuzhen|MeowXiaoji" --add dongmaobao
 
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng" ..
 		"|keyaozhongyi" --add keyao
@@ -125,7 +125,7 @@ do
 		"|zhuchang|dai|se_jiushu|Haixing|se_nitian" --add dongmaobao
 
 	sgs.exclusive_skill = "huilei|duanchang|wuhun|buqu|dushi" ..
-		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh|LuaYinguo" --add meizi
+		"|meizlrangma|meizlhunshi|meizlyuanshi|meizlliyi|meizlshhunshi|hujiajh|LuaYinguo|MeowDuanchang" --add meizi
 
 	sgs.dont_kongcheng_skill = "yuce|tanlan|toudu|qiaobian|jieyuan|anxian|liuli|chongzhen|tianxiang|tenyeartianxiang|" ..
 		"oltianxiang|guhuo|nosguhuo|olguhuo|leiji|nosleiji|olleiji|qingguo|yajiao|chouhai|tenyearchouhai|" ..
@@ -4175,6 +4175,7 @@ function SmartAI:getLeastHandcardNum(player)
 	then
 		least = player:getHp()
 	end
+	if player:hasSkill("Meowshangshi") and least < player:getLostHp() then least = math.max(player:getLostHp(), 1) end
 
 	return least
 end
@@ -8165,6 +8166,9 @@ function hasJueqingEffect(from, to, nature)
 	--add
 	nature = nature or sgs.DamageStruct_Normal
 	if from and from:hasSkills("meizlwuqing") and from:isWounded() and nature == sgs.DamageStruct_Normal then
+		return true
+	end
+	if from and from:hasSkills("MeowJueqing") then
 		return true
 	end
 
