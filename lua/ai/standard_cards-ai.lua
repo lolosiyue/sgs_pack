@@ -64,6 +64,7 @@ function SmartAI:isGoodTarget(to, targets, card)
 		return self:compareRoleEvaluation(to, "rebel", "loyalist") == "rebel"
 	end
 
+
 	local apn = self:getAllPeachNum(to)
 	if to:hasSkill("jieming") and apn + to:getHp() > damageNum
 		and self:getJiemingChaofeng(to) > -4 then
@@ -153,7 +154,17 @@ function SmartAI:isGoodTarget(to, targets, card)
 				return
 			end
 		end
+		--add
+		if self.player:hasSkill("y_chongqi") and to:getEquips():length() > 0
+		then
+			for _, e in sgs.list(to:getEquips()) do
+				if self:doDisCard(to, e:getEffectiveId()) and card:getSuit() == e:getSuit() then
+					return true
+				end
+			end
+		end
 	end
+
 	if self:needToLoseHp(to, self.player, card) and apn + to:getHp() > damageNum
 		and math.random() < 0.66 then
 		return

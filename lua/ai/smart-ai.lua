@@ -103,7 +103,7 @@ do
 	sgs.ai_type_name = { "SkillCard", "BasicCard", "TrickCard", "EquipCard" }
 
 	sgs.lose_equip_skill = "kofxiaoji|xiaoji|xuanfeng|nosxuanfeng|tenyearxuanfeng|mobilexuanfeng" ..
-		"|FourQixiB|Zhudao|SE_Zhuzhen|MeowXiaoji" --add dongmaobao
+		"|FourQixiB|Zhudao|SE_Zhuzhen|MeowXiaoji|y_xiaoyi" --add dongmaobao
 
 	sgs.need_kongcheng = "lianying|noslianying|kongcheng|sijian|hengzheng" ..
 		"|keyaozhongyi" --add keyao
@@ -4120,6 +4120,7 @@ function SmartAI:needKongcheng(player, keep)
 	--add
 	if player:hasSkill("LuaJuejing") and player:getMark("LuaJuejing") < 1 then return true end
 	if player:hasSkill("meizlsecanhui") and player:getMark("@meizlsejidu") > 0 then return true end
+	if player:hasSkill("y_kongzhen") then return true end
 	return player:hasSkills(sgs.need_kongcheng)
 end
 
@@ -4774,6 +4775,10 @@ function SmartAI:ableToSave(saver, dying)
 	then
 		return false
 	end
+	--add
+	if dying.who and dying.who:getMark("@zhou") > 0 then
+		return false
+	end
 	return true
 end
 
@@ -4796,15 +4801,16 @@ function SmartAI:askForSinglePeach(dying)
 		peach_str = usePeachTo("Analeptic,Peach")
 		if peach_str
 		then
-			if dying:getState() == "robot"
-				and math.random() < sgs.turncount * 0.1
-				and #self.friends < dying:aliveCount() / 2
-			then
-				self:speak("no_peach", dying:isFemale())
-				self.room:getThread():delay(sgs.delay * 2)
-			else
-				return peach_str
-			end
+			-- if dying:getState() == "robot"
+			-- 	and math.random() < sgs.turncount * 0.1
+			-- 	and #self.friends < dying:aliveCount() / 2
+			-- then
+			-- 	self:speak("no_peach", dying:isFemale())
+			-- 	self.room:getThread():delay(sgs.delay * 2)
+			-- else
+			-- 	return peach_str
+			-- end
+			return peach_str
 		end
 		return "."
 	else
@@ -4876,7 +4882,7 @@ function SmartAI:askForSinglePeach(dying)
 					pn = pn + getCardsNum("Peach", friend, self.player)
 				end
 			end
-			if pn + dying:getHp() < 1 then return "." end
+			if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then return "." end
 			local CP = self.room:getCurrent()
 			if dying:objectName() ~= lord:objectName()
 				and lord:getHp() < 2 and self:isFriend(lord)
@@ -4888,10 +4894,13 @@ function SmartAI:askForSinglePeach(dying)
 			then
 				return "."
 			end
+			peach_str = usePeachTo()
 			if lord:getHp() < 2 and not hasBuquEffect(lord)
 				and (self:isFriend(lord) or self.role == "renegade")
-				or self:getAllPeachNum() + dying:getHp() > 0
+				or self:getAllPeachNum() + dying:getHp() <= 0
 			then
+				peach_str = "."
+			else
 				peach_str = usePeachTo()
 			end
 		elseif dying:hasFlag("Kurou_toDie") and getCardsNum("Crossbow", dying, self.player) < 1
