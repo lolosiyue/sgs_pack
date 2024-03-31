@@ -4121,6 +4121,7 @@ function SmartAI:needKongcheng(player, keep)
 	if player:hasSkill("LuaJuejing") and player:getMark("LuaJuejing") < 1 then return true end
 	if player:hasSkill("meizlsecanhui") and player:getMark("@meizlsejidu") > 0 then return true end
 	if player:hasSkill("y_kongzhen") then return true end
+	if player:hasSkill("kezhuanmanjuan") then return true end
 	return player:hasSkills(sgs.need_kongcheng)
 end
 

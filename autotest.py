@@ -10,9 +10,9 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "y_caifuren"
+choose_general = "kezhuanfanjiangzhangda"
 debug = 1
-wait = 1
+wait = 0
 
 user_input = ""
 #1920*1080 125%

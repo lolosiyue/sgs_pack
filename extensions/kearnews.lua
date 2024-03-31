@@ -474,7 +474,7 @@ kenewgonghuan = sgs.CreateTriggerSkill {
 		end
 		if (event == sgs.Damaged) then
 			local damage = data:toDamage()
-			if damage.card:hasFlag("gonghuancard") and damage.to:hasFlag("gonghuanliubei") then
+			if damage.card and damage.card:hasFlag("gonghuancard") and damage.to:hasFlag("gonghuanliubei") then
 				--damage.to:drawCards(1)
 				local fri = player
 				local yes = 0

@@ -386,7 +386,7 @@ ty_zuoxingCard = sgs.CreateSkillCard {
 			qtargets:append(p)
 		end
 		return card and card:targetFilter(qtargets, to_select, sgs.Self) and
-		not sgs.Self:isProhibited(to_select, card, qtargets)
+			not sgs.Self:isProhibited(to_select, card, qtargets)
 	end,
 	feasible = function(self, targets)
 		local card = sgs.Self:getTag("ty_zuoxing"):toCard()
@@ -523,7 +523,7 @@ f_qizhengxiangsheng = sgs.CreateTrickCard {
 	subclass = sgs.LuaTrickCard_TypeSingleTargetTrick,
 	filter = function(self, targets, to_select, player)
 		return #targets == 0 and to_select:objectName() ~= player:objectName() and
-		not player:isCardLimited(self, sgs.Card_MethodUse) and not player:isProhibited(to_select, self)
+			not player:isCardLimited(self, sgs.Card_MethodUse) and not player:isProhibited(to_select, self)
 	end,
 	on_effect = function(self, effect)
 		local room = effect.to:getRoom()
@@ -1138,7 +1138,7 @@ f_dinghan = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill(self:objectName())
+		return player and player:hasSkill(self:objectName())
 	end,
 }
 f_dinghanMR = sgs.CreateTriggerSkill {
@@ -3921,8 +3921,10 @@ tyshouliBuffANDClear = sgs.CreateTriggerSkill {
 			local card
 			if event == sgs.CardUsed then
 				card = data:toCardUse().card
-				if data:toCardUse().m_addHistory and card:getSkillName() == "tyshoulii" then room:addPlayerHistory(
-					player, card:getClassName(), -1) end
+				if data:toCardUse().m_addHistory and card:getSkillName() == "tyshoulii" then
+					room:addPlayerHistory(
+						player, card:getClassName(), -1)
+				end
 			else
 				card = data:toCardResponse().m_card
 			end
@@ -4038,10 +4040,11 @@ tyshencaiCard = sgs.CreateSkillCard {
 			if not source:hasFlag("tyshencaiJudge") then room:setPlayerFlag(source, "tyshencaiJudge") end
 		end
 		if judge.card:isKindOf("SavageAssault") or judge.card:isKindOf("ArcheryAttack") or judge.card:isKindOf("Duel") or judge.card:isKindOf("Spear")
-			or judge.card:isKindOf("MoonSpear") or judge.card:objectName() == "sp_moonspear" or judge.card:isKindOf("EightDiagram") or judge.card:isKindOf("Suijiyingbian") then         --徒
+			or judge.card:isKindOf("MoonSpear") or judge.card:objectName() == "sp_moonspear" or judge.card:isKindOf("EightDiagram") or judge.card:isKindOf("Suijiyingbian") then --徒
 			room:setPlayerMark(prisoner, "&tyscCHI", 0)
 			if not judge.card:isKindOf("Spear") and not judge.card:isKindOf("MoonSpear") and not judge.card:objectName() == "sp_moonspear" then
-				room:setPlayerMark(prisoner, "&tyscZHANG", 0) end                                                                                                                        --判定出【丈八蛇矛】或【银月枪】可以同时获得“杖”和“徒”标记，这里是防止把刚刚获得的“杖”标记给清了
+				room:setPlayerMark(prisoner, "&tyscZHANG", 0)
+			end                                       --判定出【丈八蛇矛】或【银月枪】可以同时获得“杖”和“徒”标记，这里是防止把刚刚获得的“杖”标记给清了
 			room:setPlayerMark(prisoner, "&tyscTU", 0)
 			room:setPlayerMark(prisoner, "&tyscLIU", 0)
 			prisoner:gainMark("&tyscTU")
@@ -4660,7 +4663,7 @@ tytianjieCard = sgs.CreateSkillCard {
 				room:broadcastSkillInvoke(self:objectName(), 1)
 			else
 				room:broadcastSkillInvoke(self:objectName(), 2)
-			end                                             --电音起来！
+			end --电音起来！
 		end
 	end,
 }
@@ -4770,7 +4773,7 @@ tytuoyuVS = sgs.CreateZeroCardViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return not player:isKongcheng() and
-		(player:getMark("@tyty_Fengtian") > 0 or player:getMark("@tyty_Qingqu") > 0 or player:getMark("@tyty_Junshan") > 0)
+			(player:getMark("@tyty_Fengtian") > 0 or player:getMark("@tyty_Qingqu") > 0 or player:getMark("@tyty_Junshan") > 0)
 	end,
 	enabled_at_response = function(self, player, pattern)
 		if player:isKongcheng() or (player:getMark("@tyty_Fengtian") == 0 or player:getMark("@tyty_Qingqu") == 0 or player:getMark("@tyty_Junshan") == 0)
@@ -6074,7 +6077,7 @@ olchuyuan = sgs.CreateMasochismSkill {
 						--room:getThread():delay()
 					else
 						card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
-						:first()
+							:first()
 					end
 					p:addToPile("powerful", card_id)
 				end
@@ -6249,7 +6252,7 @@ olqixian = sgs.CreateTriggerSkill {
 						--room:getThread():delay()
 					else
 						card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
-						:first()
+							:first()
 					end
 					player:addToPile("LingSheJi", card_id, false)
 				end
@@ -6357,11 +6360,13 @@ olyuheng = sgs.CreateTriggerSkill {
 				end
 				if #skill_names > 0 then
 					local one = skill_names[math.random(1, #skill_names)]
-					if not player:hasFlag("oldiliLocked") then room:setPlayerFlag(player, "oldiliLocked") end                      --因为我的写法不是一次性获得所有技能而且依次一个个获得，故需防止于获得技能途中就触发觉醒
-					if player:hasFlag("oldiliLocked") and player:getMark("olyuhengSCL") <= 1 then room:setPlayerFlag(
-						player, "-oldiliLocked") end                                                                               --获得最后一个技能前，可以解除限制
+					if not player:hasFlag("oldiliLocked") then room:setPlayerFlag(player, "oldiliLocked") end --因为我的写法不是一次性获得所有技能而且依次一个个获得，故需防止于获得技能途中就触发觉醒
+					if player:hasFlag("oldiliLocked") and player:getMark("olyuhengSCL") <= 1 then
+						room:setPlayerFlag(
+							player, "-oldiliLocked")
+					end                                                                        --获得最后一个技能前，可以解除限制
 					room:acquireSkill(player, one)
-					table.insert(sks, one)                                                                                         --登记为以此法获得的技能
+					table.insert(sks, one)                                                     --登记为以此法获得的技能
 					room:removePlayerMark(player, "olyuhengSCL")
 				end
 			end
@@ -8780,14 +8785,22 @@ joyyizheng = sgs.CreateTriggerSkill {
 					if player:hasFlag(self:objectName()) and n == 1 then
 						table.insert(choices, "cancel")
 					end
-					if player:hasFlag("joyyizheng_findWeapontoMove") then room:setPlayerFlag(player,
-							"-joyyizheng_findWeapontoMove") end
-					if player:hasFlag("joyyizheng_findArmortoMove") then room:setPlayerFlag(player,
-							"-joyyizheng_findArmortoMove") end
-					if player:hasFlag("joyyizheng_findDFHtoMove") then room:setPlayerFlag(player,
-							"-joyyizheng_findDFHtoMove") end
-					if player:hasFlag("joyyizheng_findOFHtoMove") then room:setPlayerFlag(player,
-							"-joyyizheng_findOFHtoMove") end
+					if player:hasFlag("joyyizheng_findWeapontoMove") then
+						room:setPlayerFlag(player,
+							"-joyyizheng_findWeapontoMove")
+					end
+					if player:hasFlag("joyyizheng_findArmortoMove") then
+						room:setPlayerFlag(player,
+							"-joyyizheng_findArmortoMove")
+					end
+					if player:hasFlag("joyyizheng_findDFHtoMove") then
+						room:setPlayerFlag(player,
+							"-joyyizheng_findDFHtoMove")
+					end
+					if player:hasFlag("joyyizheng_findOFHtoMove") then
+						room:setPlayerFlag(player,
+							"-joyyizheng_findOFHtoMove")
+					end
 				end
 				if m == 1 and player:isWounded() then
 					room:broadcastSkillInvoke(self:objectName())
@@ -9170,7 +9183,7 @@ qt_huoyanTrigger = sgs.CreateTriggerSkill { --和新杀孙悟空的“金睛”�
 			if player:hasSkill("qt_huoyan") then
 				room:setTag("Dongchaer", sgs.QVariant(player:objectName()))
 				local hyjj = room:askForPlayersChosen(player, room:getOtherPlayers(player), "qt_huoyan", 0, 999,
-					"@qt_huoyan-toseeGMS", false, true)                                                                                  --目标角色多选
+					"@qt_huoyan-toseeGMS", false, true) --目标角色多选
 				if not hyjj:isEmpty() then
 					room:sendCompulsoryTriggerLog(player, "qt_huoyan")
 					room:broadcastSkillInvoke("qt_huoyan")
@@ -9658,7 +9671,7 @@ JoyZjThree = sgs.CreateTriggerSkill { --距离为1/2/3的效果
 	end,
 	can_trigger = function(self, player)
 		return player:getWeapon() == nil and player:hasSkill("joyruyiEX_zhongji") and
-		(player:getMark("&joy_zjjingubang") >= 1 and player:getMark("&joy_zjjingubang") <= 3)
+			(player:getMark("&joy_zjjingubang") >= 1 and player:getMark("&joy_zjjingubang") <= 3)
 	end,
 }
 if not sgs.Sanguosha:getSkill("JoyZjThree") then skills:append(JoyZjThree) end
@@ -9986,7 +9999,7 @@ by_guanghan = sgs.CreateTriggerSkill {
 			if not last:isKongcheng() and last:canDiscard(last, "h") then
 				if last:getState() == "robot" and (last:getHandcardNum() > 1 or last:getHp() <= damage.damage)
 					and not (last:getHp() > damage.damage and (last:hasSkill("zhaxiang") or last:hasSkill("moukurouu"))) then --有老六
-					dis = room:askForDiscard(last, self:objectName(), 1, 1)                                   --一般情况下，AI选择风险更低的弃手牌
+					dis = room:askForDiscard(last, self:objectName(), 1, 1)                                    --一般情况下，AI选择风险更低的弃手牌
 				else
 					dis = room:askForDiscard(last, self:objectName(), 1, 1, true, false)
 				end
@@ -10001,7 +10014,7 @@ by_guanghan = sgs.CreateTriggerSkill {
 			if not naxt:isKongcheng() and naxt:canDiscard(naxt, "h") then
 				if naxt:getState() == "robot" and (naxt:getHandcardNum() > 1 or naxt:getHp() <= damage.damage)
 					and not (naxt:getHp() > damage.damage and (naxt:hasSkill("zhaxiang") or naxt:hasSkill("moukurouu"))) then --有老六
-					dis = room:askForDiscard(naxt, self:objectName(), 1, 1)                                   --一般情况下，AI选择风险更低的弃手牌
+					dis = room:askForDiscard(naxt, self:objectName(), 1, 1)                                    --一般情况下，AI选择风险更低的弃手牌
 				else
 					dis = room:askForDiscard(naxt, self:objectName(), 1, 1, true, false)
 				end
@@ -12653,7 +12666,7 @@ ofljuwuEXCard = sgs.CreateSkillCard {
 	will_throw = false,
 	filter = function(self, targets, to_select)
 		return #targets == 0 and to_select:getKingdom() == sgs.Self:getKingdom() and
-		to_select:objectName() ~= sgs.Self:objectName()
+			to_select:objectName() ~= sgs.Self:objectName()
 	end,
 	on_use = function(self, room, source, targets)
 		local n = self:subcardsLength()
@@ -12756,7 +12769,7 @@ oflshishenEXCard = sgs.CreateSkillCard {
 			elseif card:isBlack() then
 				b = b + 1
 			elseif card:getSuit() == sgs.Card_NoSuit then
-				ns = ns + 1                                  --考虑一手无色
+				ns = ns + 1 --考虑一手无色
 			end
 		end
 		room:broadcastSkillInvoke("oflshishenEX")
@@ -13245,7 +13258,7 @@ f_longnu_yang = sgs.CreateFilterSkill {
 	name = "f_longnu_yang",
 	view_filter = function(self, to_select)
 		return (to_select:isRed() or to_select:isKindOf("EquipCard")) and not to_select:isEquipped() and
-		not (to_select:isRed() and to_select:isKindOf("EquipCard"))
+			not (to_select:isRed() and to_select:isKindOf("EquipCard"))
 	end,
 	view_as = function(self, card)
 		local FireSlash = sgs.Sanguosha:cloneCard("fire_slash", card:getSuit(), card:getNumber())
@@ -13259,7 +13272,7 @@ f_longnu_yin = sgs.CreateFilterSkill {
 	name = "f_longnu_yin",
 	view_filter = function(self, to_select)
 		return (to_select:isBlack() or to_select:isKindOf("TrickCard")) and not to_select:isEquipped() and
-		not (to_select:isBlack() and to_select:isKindOf("TrickCard"))
+			not (to_select:isBlack() and to_select:isKindOf("TrickCard"))
 	end,
 	view_as = function(self, card)
 		local ThunderSlash = sgs.Sanguosha:cloneCard("thunder_slash", card:getSuit(), card:getNumber())
@@ -14146,7 +14159,7 @@ f_wuyou = sgs.CreateProhibitSkill {
 		end
 		return to:hasSkill(self:objectName()) and ((card:isKindOf("Slash") or card:isKindOf("Duel")) and not card:isVirtualCard()) and n > 0]]
 		return to:hasSkill(self:objectName()) and to:getMark(self:objectName()) > 0 and
-		((card:isKindOf("Slash") or card:isKindOf("Duel")) and not card:isVirtualCard())
+			((card:isKindOf("Slash") or card:isKindOf("Duel")) and not card:isVirtualCard())
 	end,
 }
 f_wuyouo = sgs.CreateTriggerSkill { --当【乐不思蜀】进入神刘禅的判定区时播放，就像诸葛亮的“空城”一样，代表“无忧”开始起作用了
@@ -14274,8 +14287,10 @@ f_qizhen = sgs.CreateTriggerSkill {
 						log.from = player
 						log.to:append(use.from)
 						room:sendLog(log)
-						if not player:hasFlag("f_qizhen_beipo") then room:setPlayerCardLimitation(player, "use,response",
-								".|.|.|hand", false) end
+						if not player:hasFlag("f_qizhen_beipo") then
+							room:setPlayerCardLimitation(player, "use,response",
+								".|.|.|hand", false)
+						end
 						room:setPlayerFlag(player, "f_qizhen_beipo")
 						-- ♣
 					elseif jsuit == sgs.Card_Club then
@@ -16126,7 +16141,7 @@ FzhaogujingsCard = sgs.CreateSkillCard {
 		if ZGJ_toUse:isKindOf("Jink") or ZGJ_toUse:isKindOf("Nullification")
 			or ZGJ_toUse:isKindOf("JlWuxiesy") then
 			return false
-		end                                                --这几个硬要使用等的就是闪退
+		end --这几个硬要使用等的就是闪退
 		local pattern = {}
 		for _, p in sgs.qlist(room:getOtherPlayers(source)) do
 			if not sgs.Sanguosha:isProhibited(source, p, ZGJ_toUse) and ZGJ_toUse:isAvailable(source) then
@@ -16498,8 +16513,8 @@ f_shenjiang = sgs.CreateViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return player:getPile("f_YT"):length() >= 4 and
-		((player:getMark("&fXiaJiang") > 0 and not player:isKongcheng())                                              --要保证能重铸
-			or (player:getMark("&fJuJiang") > 0 and player:getPile("spy_shenbingku"):length() > 0))                   --神兵库都没装备了还发动个锤子
+			((player:getMark("&fXiaJiang") > 0 and not player:isKongcheng())               --要保证能重铸
+				or (player:getMark("&fJuJiang") > 0 and player:getPile("spy_shenbingku"):length() > 0)) --神兵库都没装备了还发动个锤子
 	end,
 }
 f_shenjiangVAE = sgs.CreateViewAsEquipSkill {
@@ -16845,7 +16860,7 @@ f_zhengmie = sgs.CreateTriggerSkill {
 			for _, smy in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 				if smy:getMark("&f_zhengmie") >= 3 then continue end
 				local zmto = room:askForPlayerChosen(smy, room:getOtherPlayers(player), self:objectName(),
-					"f_zhengmie-invoke:" .. player:objectName(), true, true)                                                                            --默认不杀自己，总不能讨伐自己吧
+					"f_zhengmie-invoke:" .. player:objectName(), true, true) --默认不杀自己，总不能讨伐自己吧
 				if zmto then
 					--播放文字语音
 					if math.random() <= 0.5 then
@@ -17070,7 +17085,7 @@ f_zhengmie_f = sgs.CreateTriggerSkill {
 			for _, smy in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
 				if smy:getMark("&f_zhengmie_f") >= 3 then continue end
 				local zmto = room:askForPlayerChosen(smy, room:getOtherPlayers(player), self:objectName(),
-					"f_zhengmie_f-invoke:" .. player:objectName(), true, true)                                                                            --默认不杀自己，总不能讨伐自己吧
+					"f_zhengmie_f-invoke:" .. player:objectName(), true, true) --默认不杀自己，总不能讨伐自己吧
 				if zmto then
 					--播放文字语音
 					if math.random() <= 0.5 then
@@ -17343,7 +17358,7 @@ f_kuilei = sgs.CreateTriggerSkill {
 					room:broadcastSkillInvoke(self:objectName())
 					room:doSuperLightbox("f_shenliuxie_kuilei", self:objectName())
 					local bgx = room:askForPlayerChosen(player, room:getOtherPlayers(player), self:objectName(),
-						"f_kuilei_jieguo")                                                                           --默认不能选自己，总不能自己挟自己吧
+						"f_kuilei_jieguo") --默认不能选自己，总不能自己挟自己吧
 					local peach = room:askForCard(bgx, "peach", "@f_kuilei-peach:" .. player:objectName(), data,
 						sgs.Card_MethodNone)
 					if peach then
@@ -18756,48 +18771,68 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			local choice = room:askForChoice(player, self:objectName(), "sgj_hnqm+sjjoy+sgj_wxmy+sgj_zcjj+sgj_yxzy_first")
 			if choice == "sgj_hnqm" then
 				room:changeHero(player, "f_shenguojia_c", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shenguojia_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_wxmy" then
 				room:changeHero(player, "f_shenguojia_nv1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_zcjj" then
 				room:changeHero(player, "f_shenguojia_nv2", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_yxzy_first" then
 				room:changeHero(player, "f_shenguojia_d1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "f_shenguojia" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "sgj_hnqm+sjjoy+sgj_wxmy+sgj_zcjj+sgj_yxzy_first")
 			if choice == "sgj_hnqm" then
 				room:changeHero(player, "f_shenguojia_c", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shenguojia_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_wxmy" then
 				room:changeHero(player, "f_shenguojia_nv1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_zcjj" then
 				room:changeHero(player, "f_shenguojia_nv2", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sgj_yxzy_first" then
 				room:changeHero(player, "f_shenguojia_d1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--(界)神荀彧(手杀)
@@ -18805,41 +18840,57 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			local choice = room:askForChoice(player, self:objectName(), "sxy_hnqm+sjjoy+sxy_yjtw+sxy_xhry")
 			if choice == "sxy_hnqm" then
 				room:changeHero(player, "f_shenxunyu_c", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shenxunyu_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sxy_yjtw" then
 				room:changeHero(player, "f_shenxunyu_x", false, true, false, false)
 				room:broadcastSkillInvoke(self:objectName())
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sxy_xhry" then
 				room:changeHero(player, "f_shenxunyu_nv", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "f_shenxunyu" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "sxy_hnqm+sjjoy+sxy_yjtw+sxy_xhry")
 			if choice == "sxy_hnqm" then
 				room:changeHero(player, "f_shenxunyu_c", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shenxunyu_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sxy_yjtw" then
 				room:changeHero(player, "f_shenxunyu_x", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sxy_xhry" then
 				room:changeHero(player, "f_shenxunyu_nv", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--(界)神孙策(手杀)
@@ -18848,32 +18899,44 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			if choice == "ssc_yjtw" then
 				room:changeHero(player, "f_shensunce_x", false, true, false, false)
 				room:broadcastSkillInvoke(self:objectName())
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shensunce_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "ssc_bwzs" then
 				room:changeHero(player, "f_shensunce_c", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "f_shensunce" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "ssc_yjtw+sjjoy+ssc_bwzs")
 			if choice == "ssc_yjtw" then
 				room:changeHero(player, "f_shensunce_x", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "f_shensunce_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "ssc_bwzs" then
 				room:changeHero(player, "f_shensunce_c", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--神太史慈-第二版(手杀)
@@ -18881,8 +18944,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "stsc_yhry+?")
 			--if choice == "stsc_yhry" then
 			room:changeHero(player, "f_shentaishicii_c", false, false, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, false, false, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -18892,8 +18957,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "stsc_yhry+?")
 			--if choice == "stsc_yhry" then
 			room:changeHero(player, "f_shentaishicii_c", false, false, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, false, true, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -18902,45 +18969,61 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 		--神姜维-怒麟燎原
 		if (player:getGeneralName() == "ty_shenjiangweiBN" or player:getGeneralName() == "ty_shenjiangweiBN_ub") and room:askForSkillInvoke(player, self:objectName(), data) then
 			room:changeHero(player, "ty_shenjiangweiBN_1", false, false, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 		end
 		if (player:getGeneral2Name() == "ty_shenjiangweiBN" or player:getGeneral2Name() == "ty_shenjiangweiBN_ub") and room:askForSkillInvoke(player, self:objectName(), data) then
 			room:changeHero(player, "ty_shenjiangweiBN_1", false, false, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 		end
 		--(界)神姜维(新杀)
 		if player:getGeneralName() == "ty_shenjiangwei" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "sjjoy+sjw_ymlt+sjw_cjfb")
 			if choice == "sjjoy" then
 				room:changeHero(player, "ty_shenjiangwei_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjw_ymlt" then
 				room:changeHero(player, "ty_shenjiangwei_3gods", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjw_cjfb" then
 				room:changeHero(player, "ty_shenjiangwei_1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "ty_shenjiangwei" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "sjjoy+sjw_ymlt+sjw_cjfb")
 			if choice == "sjjoy" then
 				room:changeHero(player, "ty_shenjiangwei_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjw_ymlt" then
 				room:changeHero(player, "ty_shenjiangwei_3gods", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjw_cjfb" then
 				room:changeHero(player, "ty_shenjiangwei_1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--神马超(新杀)
@@ -18948,48 +19031,68 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			local choice = room:askForChoice(player, self:objectName(), "smc_xwjl+smc_xwjldt+smc_xyxc+smc_lwfc+smc_ymlt")
 			if choice == "smc_xwjl" then
 				room:changeHero(player, "ty_shenmachao_1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_xwjldt" then
 				room:changeHero(player, "ty_shenmachao_1dt", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_xyxc" then
 				room:changeHero(player, "ty_shenmachao_t", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_lwfc" then
 				room:changeHero(player, "ty_shenmachao_sp", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_ymlt" then
 				room:changeHero(player, "ty_shenmachao_3gods", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "ty_shenmachao" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "smc_xwjl+smc_xwjldt+smc_xyxc+smc_lwfc+smc_ymlt")
 			if choice == "smc_xwjl" then
 				room:changeHero(player, "ty_shenmachao_1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_xwjldt" then
 				room:changeHero(player, "ty_shenmachao_1dt", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_xyxc" then
 				room:changeHero(player, "ty_shenmachao_t", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_lwfc" then
 				room:changeHero(player, "ty_shenmachao_sp", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "smc_ymlt" then
 				room:changeHero(player, "ty_shenmachao_3gods", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--神张飞(新杀)
@@ -18997,40 +19100,56 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			local choice = room:askForChoice(player, self:objectName(), "szf_ansh+sjjoy+szf_ymlt+szf_tbzh")
 			if choice == "szf_ansh" then
 				room:changeHero(player, "ty_shenzhangfei_1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "ty_shenzhangfei_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "szf_ymlt" then
 				room:changeHero(player, "ty_shenzhangfei_3gods", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "szf_tbzh" then
 				room:changeHero(player, "ty_shenzhangfei_2", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "ty_shenzhangfei" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "szf_ansh+sjjoy+szf_ymlt+szf_tbzh")
 			if choice == "szf_ansh" then
 				room:changeHero(player, "ty_shenzhangfei_1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "sjjoy" then
 				room:changeHero(player, "ty_shenzhangfei_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "szf_ymlt" then
 				room:changeHero(player, "ty_shenzhangfei_3gods", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			elseif choice == "szf_tbzh" then
 				room:changeHero(player, "ty_shenzhangfei_2", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--神张角(新杀)
@@ -19038,24 +19157,32 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			local choice = room:askForChoice(player, self:objectName(), "szj_ydzz+sjjoy")
 			if choice == "szj_ydzz" then
 				room:changeHero(player, "ty_shenzhangjiao_1", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			else
 				room:changeHero(player, "ty_shenzhangjiao_joy", false, true, false, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		if player:getGeneral2Name() == "ty_shenzhangjiao" and room:askForSkillInvoke(player, self:objectName(), data) then
 			local choice = room:askForChoice(player, self:objectName(), "szj_ydzz+sjjoy")
 			if choice == "szj_ydzz" then
 				room:changeHero(player, "ty_shenzhangjiao_1", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			else
 				room:changeHero(player, "ty_shenzhangjiao_joy", false, true, true, false)
-				if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-						"mobileGOD_SkinChange_Button") end
+				if not player:hasSkill("mobileGOD_SkinChange_Button") then
+					room:attachSkillToPlayer(player,
+						"mobileGOD_SkinChange_Button")
+				end
 			end
 		end
 		--神邓艾(新杀)
@@ -19063,8 +19190,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "sdi_eczz+?")
 			--if choice == "sdi_eczz" then
 			room:changeHero(player, "ty_shendengai_1", false, true, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, false, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19074,8 +19203,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "sdi_eczz+?")
 			--if choice == "sdi_eczz" then
 			room:changeHero(player, "ty_shendengai_1", false, true, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, true, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19086,8 +19217,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "szj_ydzz+?")
 			--if choice == "szj_ydzz" then
 			room:changeHero(player, "ol_shenzhangjiao_1", false, true, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, false, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19097,8 +19230,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "szj_ydzz+?")
 			--if choice == "szj_ydzz" then
 			room:changeHero(player, "ol_shenzhangjiao_1", false, true, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, true, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19109,8 +19244,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "sjjoy+?")
 			--if choice == "sjjoy" then
 			room:changeHero(player, "ol_shenzhenji_joy", false, true, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, false, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19120,8 +19257,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "sjjoy+?")
 			--if choice == "sjjoy" then
 			room:changeHero(player, "ol_shenzhenji_joy", false, true, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, true, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19132,8 +19271,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "ssq_thry+?")
 			--if choice == "ssq_thry" then
 			room:changeHero(player, "ol_shensunquan_1", false, true, false, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, false, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19143,8 +19284,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			--local choice = room:askForChoice(player, self:objectName(), "ssq_thry+?")
 			--if choice == "ssq_thry" then
 			room:changeHero(player, "ol_shensunquan_1", false, true, true, false)
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 			--else
 			--room:changeHero(player, "", false, true, true, false)
 			--if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player, "mobileGOD_SkinChange_Button") end
@@ -19180,8 +19323,10 @@ mobileGOD_SkinChange = sgs.CreateTriggerSkill {
 			or player:getGeneral2Name() == "ol_shenzhenji" or player:getGeneral2Name() == "ol_shenzhangjiao" or player:getGeneral2Name() == "ol_shensunquan"
 			or player:getGeneralName() == "tc_shenzhurong"
 		then
-			if not player:hasSkill("mobileGOD_SkinChange_Button") then room:attachSkillToPlayer(player,
-					"mobileGOD_SkinChange_Button") end
+			if not player:hasSkill("mobileGOD_SkinChange_Button") then
+				room:attachSkillToPlayer(player,
+					"mobileGOD_SkinChange_Button")
+			end
 		end
 	end,
 	can_trigger = function(self, player)
@@ -23049,4 +23194,4 @@ sgs.LoadTranslationTable {
 	--------------------
 }
 return { extension, extension_t, extension_o, extension_j, extension_w, extension_jl, extension_ofl, extension_f,
-	newgodsCard }                                                                                                             --, extension_tc}
+	newgodsCard } --, extension_tc}

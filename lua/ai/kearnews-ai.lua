@@ -1307,7 +1307,7 @@ sgs.ai_skill_choice.goodsclass = function(self, choices, data)
 	local room = self.player:getRoom()
 	local yes = 0
 	for _, p in sgs.qlist(room:getOtherPlayers(self.player)) do
-		if self.player:isEnemy(p) and self.player:inMyAttackRange(p)
+		if self:isEnemy(p) and self.player:inMyAttackRange(p)
 			and (self:getCardsNum("Slash") > 0) then
 			yes = 1
 		end

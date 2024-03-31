@@ -217,7 +217,7 @@ GODReviseHp = sgs.CreateTriggerSkill { --将体力上限和体力值重置为二
 	end,
 	can_trigger = function(self, player)
 		return player:getMark("&godRule") > 0 and player:getMark("GODReviseHp_Invoked") == 0 and
-		player:getPhase() == sgs.Player_RoundStart
+			player:getPhase() == sgs.Player_RoundStart
 	end,
 }
 GODevent_down = sgs.CreateTriggerSkill { --事件2：神之覆灭
@@ -250,7 +250,7 @@ GODevent_down = sgs.CreateTriggerSkill { --事件2：神之覆灭
 	end,
 	can_trigger = function(self, player)
 		return player:getState() == "online" and player:getMark("&godRule") > 0 and
-		player:getMark("itsnotRagnarokr") == 0 and player:getMark("GODevent_down_invoked") == 0
+			player:getMark("itsnotRagnarokr") == 0 and player:getMark("GODevent_down_invoked") == 0
 	end,
 }
 GOD_Killdevil = sgs.CreateTriggerSkill { --玩家因“神之覆灭”获得的效果
@@ -317,7 +317,7 @@ GODevent_judge = sgs.CreateTriggerSkill { --事件3：神之审判
 	end,
 	can_trigger = function(self, player)
 		return player:getState() == "robot" and player:getMark("&godRule") > 0 and player:getMark("itsnotRagnarokr") == 0 and
-		not player:hasFlag("GODevent_judge_delay")
+			not player:hasFlag("GODevent_judge_delay")
 	end,
 }
 KillGOD = sgs.CreateTriggerSkill {
@@ -844,7 +844,7 @@ kwdibudong = sgs.CreateTriggerSkill {
 	end,
 	can_trigger = function(self, player)
 		return player:hasSkill("kwwanren") and player:getMark("&kwxingkong") >= 1 and
-		not player:hasFlag("banWodimeSkills")
+			not player:hasFlag("banWodimeSkills")
 	end,
 }
 if not sgs.Sanguosha:getSkill("kwdibudong") then skills:append(kwdibudong) end
@@ -1153,7 +1153,7 @@ voidkongdongCard = sgs.CreateSkillCard {
 			if self:getUserString() and self:getUserString() ~= "" then
 				card = sgs.Sanguosha:cloneCard(self:getUserString():split("+")[1])
 				return card and card:targetFilter(players, to_select, sgs.Self) and
-				not sgs.Self:isProhibited(to_select, card, players)
+					not sgs.Self:isProhibited(to_select, card, players)
 			end
 		elseif sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_RESPONSE then
 			return false
@@ -1166,7 +1166,7 @@ voidkongdongCard = sgs.CreateSkillCard {
 		card:setCanRecast(false)
 		card:deleteLater()
 		return card and card:targetFilter(players, to_select, sgs.Self) and
-		not sgs.Self:isProhibited(to_select, card, players)
+			not sgs.Self:isProhibited(to_select, card, players)
 	end,
 	feasible = function(self, targets)
 		local players = sgs.PlayerList()
@@ -1673,7 +1673,7 @@ Daybit_exchange = sgs.CreateTriggerSkill {
 	end,
 	can_trigger = function(self, player)
 		return player and player:getSeat() == 1 and player:getMark("&godRule") == 0 and
-		player:getMark("MOD_AngelsRelics") == 0
+			player:getMark("MOD_AngelsRelics") == 0
 	end,
 }
 if not sgs.Sanguosha:getSkill("Daybit_exchange") then skills:append(Daybit_exchange) end
@@ -1762,7 +1762,7 @@ voidtongxinCard = sgs.CreateSkillCard {
 	filter = function(self, targets, to_select, player)
 		local n = player:getMark("&AngelsRelics") - 1
 		return #targets < n and to_select:objectName() ~= sgs.Self:objectName() and
-		to_select:getMark("&AngelsRelics") == 0
+			to_select:getMark("&AngelsRelics") == 0
 	end,
 	feasible = function(self, targets)
 		return #targets > 0
@@ -1817,17 +1817,17 @@ voidtongxin = sgs.CreateTriggerSkill {
 			end
 			room:sendCompulsoryTriggerLog(player, self:objectName())
 			if player:getMark("voidtongxinTurn") == 1 then
-				room:broadcastSkillInvoke(self:objectName(), 3)                                       --第一个回合
+				room:broadcastSkillInvoke(self:objectName(), 3) --第一个回合
 			elseif player:getMark("voidtongxinTurn") == 2 then
-				room:broadcastSkillInvoke(self:objectName(), 4)                                       --第二个回合
+				room:broadcastSkillInvoke(self:objectName(), 4) --第二个回合
 			elseif player:getMark("voidtongxinTurn") == 3 then
-				room:broadcastSkillInvoke(self:objectName(), 5)                                       --第三个回合
+				room:broadcastSkillInvoke(self:objectName(), 5) --第三个回合
 			elseif player:getMark("voidtongxinTurn") == 4 then
-				room:broadcastSkillInvoke(self:objectName(), 6)                                       --第四个回合
+				room:broadcastSkillInvoke(self:objectName(), 6) --第四个回合
 			elseif player:getMark("voidtongxinTurn") == 5 then
-				room:broadcastSkillInvoke(self:objectName(), 7)                                       --第五个回合
+				room:broadcastSkillInvoke(self:objectName(), 7) --第五个回合
 			elseif player:getMark("voidtongxinTurn") == 6 then
-				room:broadcastSkillInvoke(self:objectName(), 8)                                       --第六个回合
+				room:broadcastSkillInvoke(self:objectName(), 8) --第六个回合
 			end
 			room:getThread():delay(2000)
 			for _, p in sgs.qlist(AngelsRelics) do
@@ -2323,7 +2323,7 @@ do
 		end
 		--1.重新分配身份
 		local mdbt = room:getLord() --主公(BOSS)身份不变
-		if not mdbt then     --若场上没有主公，1号位成为主公(BOSS)
+		if not mdbt then      --若场上没有主公，1号位成为主公(BOSS)
 			for _, p in sgs.qlist(room:getAllPlayers()) do
 				p:setRole("lord")
 				room:setPlayerProperty(p, "role", sgs.QVariant("lord"))
@@ -2424,12 +2424,12 @@ do
 				room:setPlayerMark(mdbt, "MOD_AngelsRelics_renli", math.random(1, 5))
 			elseif choice == "12" then
 				room:setPlayerMark(mdbt, "MOD_AngelsRelics_boss", math.random(1, 5))
-			end                                                                                      --判断是选择了哪个难度
+			end                                                                          --判断是选择了哪个难度
 		end
-		if choice == "1" or mdbt:getMark("MOD_AngelsRelics_renli") == 1 then                         --人理方，新手教学
+		if choice == "1" or mdbt:getMark("MOD_AngelsRelics_renli") == 1 then             --人理方，新手教学
 			room:setPlayerMark(mdbt, "MOD_AngelsRelics_renli", 1)
-			if math.random() <= 0.05 then room:setPlayerMark(mdbt, "MOD_AngelsRelics_dev", 1) end    --用于后续触发隐藏事件
-		elseif choice == "3" or mdbt:getMark("MOD_AngelsRelics_renli") == 2 then                     --人理方，简单难度
+			if math.random() <= 0.05 then room:setPlayerMark(mdbt, "MOD_AngelsRelics_dev", 1) end --用于后续触发隐藏事件
+		elseif choice == "3" or mdbt:getMark("MOD_AngelsRelics_renli") == 2 then         --人理方，简单难度
 			room:setPlayerMark(mdbt, "MOD_AngelsRelics_renli", 2)
 			if math.random() <= 0.1 then room:setPlayerMark(mdbt, "MOD_AngelsRelics_dev", 1) end
 		elseif choice == "5" or mdbt:getMark("MOD_AngelsRelics_renli") == 3 then --人理方，中等难度
@@ -2467,7 +2467,7 @@ do
 		local MOD_AngelsRelics_s = { "boss_niutou", "boss_mamian", "ol_shenguanyu", "shencaocao", "new_shencaocao",
 			"shenlvbu", "shenzhaoyun", "shenganning", "shenguanyu_nowuhun", "wolongfengchu" } --困难难度(人理方)/简单难度(BOSS方)
 		local MOD_AngelsRelics_ex = { "boss_luocha", "boss_yecha", "boss_heiwuchang", "boss_baiwuchang", "gaodayihao",
-			"shenlvbu2", "shenlvbu3", "shenjiangwei", "shenmachao", "shenxunyu" } --超高难度(人理方)/新手教学(BOSS方)
+			"shenlvbu2", "shenlvbu3", "shenjiangwei", "shenmachao", "shenxunyu" }    --超高难度(人理方)/新手教学(BOSS方)
 		local luakzPackage = sgs.Sanguosha:getLimitedGeneralNames()
 		for _, name in ipairs(luakzPackage) do
 			--补充扩展包武将以及20230705版本开始才有的武庙诸葛亮
@@ -2571,7 +2571,7 @@ do
 		for _, rl in sgs.qlist(room:getOtherPlayers(mdbt)) do
 			if rl:getRoleEnum() ~= sgs.Player_Rebel then continue end
 			local yinglingzuo = sgs.Sanguosha:getLimitedGeneralNames() --并不限制一定不能与BOSS方已选的角色不一样，且不限制人理方一定得选不同的
-			table.removeOne(yinglingzuo, "f_dontchangeHero") --布怕一万，纸怕万一
+			table.removeOne(yinglingzuo, "f_dontchangeHero")  --布怕一万，纸怕万一
 			local rl_general = {}
 			for i = 1, 7 do
 				local yingling = yinglingzuo[math.random(1, #yinglingzuo)]
@@ -2808,8 +2808,9 @@ do
 			local mark = data:toMark()
 			if mark.name == "MOD_AngelsRelics_start" and mark.gain > 0 and mark.who:objectName() == player:objectName() then
 				if room:askForSkillInvoke(player, self:objectName(), ToData("MOD_AngelsRelics_story")) then
-					local twlx, dbt = nil, nil                                                         --对话的两个人物（“主人公”和魔戴比特）
-					if player:getRoleEnum() == sgs.Player_Rebel then                                   --玩家为人理方，则玩家为“主人公”
+					local twlx, dbt = nil,
+						nil                                                                             --对话的两个人物（“主人公”和魔戴比特）
+					if player:getRoleEnum() == sgs.Player_Rebel then                                    --玩家为人理方，则玩家为“主人公”
 						twlx = player
 					elseif player:getRoleEnum() == sgs.Player_Lord or player:getRoleEnum() == sgs.Player_Loyalist then --玩家为BOSS方，则随机挑选一名人理方角色当“主人公”
 						local renlis = {}
@@ -2938,16 +2939,26 @@ do
 					room:removePlayerMark(p, "@MOD_AngelsRelics_xrns")
 					if p:getMark("@MOD_AngelsRelics_xrns") == 0 then
 						sgs.Sanguosha:playSystemAudioEffect("godstrengthenMOD/XRNSdown") --失去抛瓦
-						if p:hasSkill("MOD_AngelsRelics_xrns_c") then room:detachSkillFromPlayer(p,
-								"MOD_AngelsRelics_xrns_c", false, true) end
-						if p:hasSkill("MOD_AngelsRelics_xrns_b") then room:detachSkillFromPlayer(p,
-								"MOD_AngelsRelics_xrns_b", false, true) end
-						if p:hasSkill("MOD_AngelsRelics_xrns_a") then room:detachSkillFromPlayer(p,
-								"MOD_AngelsRelics_xrns_a", false, true) end
-						if p:hasSkill("MOD_AngelsRelics_xrns_s") then room:detachSkillFromPlayer(p,
-								"MOD_AngelsRelics_xrns_s", false, true) end
-						if p:hasSkill("MOD_AngelsRelics_xrns_ex") then room:detachSkillFromPlayer(p,
-								"MOD_AngelsRelics_xrns_ex", false, true) end
+						if p:hasSkill("MOD_AngelsRelics_xrns_c") then
+							room:detachSkillFromPlayer(p,
+								"MOD_AngelsRelics_xrns_c", false, true)
+						end
+						if p:hasSkill("MOD_AngelsRelics_xrns_b") then
+							room:detachSkillFromPlayer(p,
+								"MOD_AngelsRelics_xrns_b", false, true)
+						end
+						if p:hasSkill("MOD_AngelsRelics_xrns_a") then
+							room:detachSkillFromPlayer(p,
+								"MOD_AngelsRelics_xrns_a", false, true)
+						end
+						if p:hasSkill("MOD_AngelsRelics_xrns_s") then
+							room:detachSkillFromPlayer(p,
+								"MOD_AngelsRelics_xrns_s", false, true)
+						end
+						if p:hasSkill("MOD_AngelsRelics_xrns_ex") then
+							room:detachSkillFromPlayer(p,
+								"MOD_AngelsRelics_xrns_ex", false, true)
+						end
 					end
 				end
 			end
@@ -3336,7 +3347,7 @@ dk_guanceVS = sgs.CreateViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return player:getChangeSkillState("dk_guance") == 2 and not player:isKongcheng() and
-		not player:hasUsed("#dk_guanceCard")
+			not player:hasUsed("#dk_guanceCard")
 	end,
 }
 dk_guance = sgs.CreateTriggerSkill { --极光
@@ -3868,7 +3879,7 @@ do
 			data:setValue(damage)
 		end,
 		can_trigger = function(self, player)
-			return player:getMark(self:objectName()) > 0
+			return player and player:getMark(self:objectName()) > 0
 		end,
 	}
 	if not sgs.Sanguosha:getSkill("ER_zhongzhuang") then skills:append(ER_zhongzhuang) end

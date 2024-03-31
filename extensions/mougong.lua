@@ -4315,7 +4315,7 @@ fcbozheJIN = sgs.CreateTargetModSkill {
 	name = "fcbozheJIN",
 	pattern = "Card",
 	residue_func = function(self, from, card, to)
-		if from:hasSkill("fcbozhe") and from:getKingdom() == "jin" and to:getKingdom() ~= "jin" then
+		if from:hasSkill("fcbozhe") and from:getKingdom() == "jin" and to and to:getKingdom() ~= "jin" then
 			return 1000
 		else
 			return 0

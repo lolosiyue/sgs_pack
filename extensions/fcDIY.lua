@@ -2011,7 +2011,7 @@ f_chengwang_DamageRecord = sgs.CreateTriggerSkill {
 		LiuXD:gainMark("&f_chengwang_DR", damage.damage)
 	end,
 	can_trigger = function(self, player)
-		return player and player:getMark("&XD") > 0 or player:hasSkill("f_chengwang")
+		return player and (player:getMark("&XD") > 0 or player:hasSkill("f_chengwang"))
 	end,
 }
 f_chengwang = sgs.CreateTriggerSkill {
@@ -4362,7 +4362,7 @@ sp_taoyuanyi_buffANDlimited = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.HpRecover then
 			local recover = data:toRecover()
-			if recover.who:hasSkill("sp_taoyuanyi") and recover.card:isKindOf("GodSalvation") then
+			if recover.who and recover.who:hasSkill("sp_taoyuanyi") and recover.card:isKindOf("GodSalvation") then
 				room:sendCompulsoryTriggerLog(recover.who, "sp_taoyuanyi")
 				room:broadcastSkillInvoke("sp_taoyuanyi")
 				local n = math.random(1, 3)

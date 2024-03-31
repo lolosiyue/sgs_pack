@@ -6358,7 +6358,7 @@ dg_linghann = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:hasSkill("dg_linghan")
+		return player and player:hasSkill("dg_linghan")
 	end,
 }
 if not sgs.Sanguosha:getSkill("dg_linghan") then skills:append(dg_linghan) end

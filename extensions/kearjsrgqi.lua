@@ -946,7 +946,7 @@ keqiguanhuo = sgs.CreateTriggerSkill {
 		end
 		if (event == sgs.DamageForseen) then
 			local damage = data:toDamage()
-			if damage.card:isKindOf("FireAttack") and (damage.from:getMark("&usekeqiguanhuoda-PlayClear") > 0) then
+			if damage.card and damage.card:isKindOf("FireAttack") and (damage.from:getMark("&usekeqiguanhuoda-PlayClear") > 0) then
 				room:broadcastSkillInvoke(self:objectName())
 				room:sendCompulsoryTriggerLog(damage.from, "keqiguanhuo")
 				local hurt = damage.damage

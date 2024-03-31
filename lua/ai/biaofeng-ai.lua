@@ -6810,7 +6810,7 @@ sgs.ai_skill_choice["SevenZhiDi"] = function(self, choices, data)
 end
 
 function sgs.ai_cardsview_valuable.SevenWeiYuan(self, class_name, player)
-	local dying = player:getRoom():getCurrentDyingPlayer()
+	local dying = self.room:getCurrentDyingPlayer()
 	if not dying or self:isEnemy(dying, player) or dying:objectName() == player:objectName() then return nil end
 	if dying:isLord() and self:isFriend(dying, player) then return "#SevenWeiYuan:.:" end
 
