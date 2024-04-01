@@ -4717,7 +4717,7 @@ meizlzhenshi = sgs.CreateViewAsSkill {
 meizlhuanji = sgs.CreateTriggerSkill {
 	name = "meizlhuanji",
 	frequency = sgs.Skill_Limited,
-	events = { sgs.GameStart, sgs.TargetConfirming, sgs.SlashEffected },
+	events = { sgs.GameStart, sgs.TargetConfirming, sgs.CardEffected },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if event == sgs.GameStart then
@@ -4736,8 +4736,9 @@ meizlhuanji = sgs.CreateTriggerSkill {
 					end
 				end
 			end
-		elseif event == sgs.SlashEffected then
-			if player:getMark("meizlhuanji") > 0 then
+		elseif event == sgs.CardEffected then
+			local effect = data:toCardEffect()
+			if effect.card and effect.card:isKindOf("Slash") and player:getMark("meizlhuanji") > 0 then
 				player:setMark("meizlhuanji", 0)
 				return true
 			end
@@ -12044,10 +12045,12 @@ hujiajh = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local death = data:toDeath()
 		local damage = death.damage
-		local source = damage.from
-		if source == nil then return false end
-		room:loseMaxHp(source, player:getHandcardNum())
-		room:loseHp(source, source:getHandcardNum())
+		if death.damage then
+			local source = damage.from
+			if source == nil then return false end
+			room:loseMaxHp(source, player:getHandcardNum())
+			room:loseHp(source, source:getHandcardNum())
+		end
 	end,
 }
 newmspcaiwenjijh:addSkill(guyanjh)

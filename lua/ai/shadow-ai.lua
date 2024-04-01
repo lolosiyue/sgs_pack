@@ -627,7 +627,8 @@ sgs.ai_skill_invoke.y_zishou = function(self, data)
 	if x >= 2 then
 		return true
 	elseif x == 1 then
-		if s > 0 and self.player:canSlash() then
+		-- if s > 0 and self.player:canSlash() then
+		if s > 0 then
 			if y >= (j + s + n) then
 				return true
 			end
@@ -635,7 +636,8 @@ sgs.ai_skill_invoke.y_zishou = function(self, data)
 			return true
 		end
 	elseif x < 1 then
-		if s > 0 and self.player:canSlash() then
+		-- if s > 0 and self.player:canSlash() then
+		if s > 0 then
 			if (y - (j + s + n + p)) >= 2 then
 				return true
 			end

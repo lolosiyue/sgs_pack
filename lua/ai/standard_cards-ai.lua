@@ -2202,8 +2202,8 @@ function SmartAI:getValuableCard(who)
 			return offhorse:getEffectiveId()
 		end
 	end
-	if weapon and (weapon:isKindOf("MoonSpear") and who:hasSkill("keji") and who:getHandcardNum() > 5)
-		or who:hasSkills("qiangxi|zhulou|taichen")
+	if weapon and ((weapon:isKindOf("MoonSpear") and who:hasSkill("keji") and who:getHandcardNum() > 5)
+			or who:hasSkills("qiangxi|zhulou|taichen"))
 	then
 		return weapon:getEffectiveId()
 	end

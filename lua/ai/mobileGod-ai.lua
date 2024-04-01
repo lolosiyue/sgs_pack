@@ -115,19 +115,27 @@ sgs.ai_skill_invoke.f_dinghanMR = function(self, data)
 end
 
 sgs.ai_skill_choice.f_dinghan = function(self, choices, data)
-	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return
-		"cancel" end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then
+		return
+		"cancel"
+	end
 	return "addtrickcard"
 end
 
 sgs.ai_skill_choice["@f_dinghan1"] = function(self, choices, data) --不包括“无懈可击”，因为本身具有挡锦囊的能力
-	if self.player:getMark("dzxj") > 0 or (self:getCardsNum("ExNihilo") > 0 and self:getCardsNum("Dongzhuxianji") == 0) then return
-		"wzsy" end
+	if self.player:getMark("dzxj") > 0 or (self:getCardsNum("ExNihilo") > 0 and self:getCardsNum("Dongzhuxianji") == 0) then
+		return
+		"wzsy"
+	end
 	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 then return "wgfd" end
-	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 then return
-		"tyjy" end
-	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then return
-		"cancel" end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 then
+		return
+		"tyjy"
+	end
+	if self.player:getMark("dzxj") > 0 and self.player:getMark("wzsy") > 0 and self.player:getMark("wgfd") > 0 and self.player:getMark("tyjy") > 0 then
+		return
+		"cancel"
+	end
 	return "dzxj"
 end
 
@@ -500,10 +508,14 @@ sgs.ai_skill_invoke.olsijun = true
 sgs.ai_skill_invoke.olchuyuan = function(self, data)
 	local player = data:toPlayer()
 	if self.player:getPile("powerful"):length() == 2 then
-		if self.player:hasSkill("oldengji") and self.player:getMark("oldengji") <= 0 then return self.player:getMaxHp() >
-			1 end
-		if self.player:hasSkill("oltianxing") and self.player:getMark("oltianxing") <= 0 then return self.player
-			:getMaxHp() > 1 end
+		if self.player:hasSkill("oldengji") and self.player:getMark("oldengji") <= 0 then
+			return self.player:getMaxHp() >
+				1
+		end
+		if self.player:hasSkill("oltianxing") and self.player:getMark("oltianxing") <= 0 then
+			return self.player
+				:getMaxHp() > 1
+		end
 	end
 	if self:doNotDiscard(player, "h") then
 		return false
@@ -544,7 +556,8 @@ sgs.ai_skill_playerchosen.olshenfu = function(self, targets)
 		local enemies = {}
 		for _, target in sgs.qlist(targets) do
 			if target:isAlive() and self:isEnemy(target) and self:damageIsEffective(target, sgs.DamageStruct_Thunder) then
-				table.insert(enemies, target) end
+				table.insert(enemies, target)
+			end
 		end
 		self:sort(enemies, "hp")
 		return enemies[1]
@@ -606,8 +619,10 @@ sgs.ai_skill_invoke.joyquanxue = true
 --AI应对移除“学”标记的智能选择
 sgs.ai_skill_choice.joyquanxue = function(self, choices, data)
 	if self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and self:getCardsNum("Analeptic") == 0 then return "1" end
-	if self:getCardsNum("Slash") == 0 and self:getCardsNum("Peach") == 0 and self:getCardsNum("TrickCard") == 0 and self:getCardsNum("EquipCard") == 0 then return
-		"1" end
+	if self:getCardsNum("Slash") == 0 and self:getCardsNum("Peach") == 0 and self:getCardsNum("TrickCard") == 0 and self:getCardsNum("EquipCard") == 0 then
+		return
+		"1"
+	end
 	return "2"
 end
 
@@ -743,7 +758,7 @@ end
 sgs.ai_skill_choice.joyhuoxin = function(self, choices, data)
 	if self.player:getHandcardNum() + self.player:getEquips():length() > 4 then return "lh" or "ld" or "lc" or "ls" end
 	return "gh=" .. jsdc:objectName() or "gd=" .. jsdc:objectName() or "gc=" .. jsdc:objectName() or
-	"gs=" .. jsdc:objectName()
+		"gs=" .. jsdc:objectName()
 end
 
 
@@ -2261,7 +2276,7 @@ end
 sgs.ai_skill_invoke.f_lijun = true
 
 sgs.ai_skill_choice.f_lijun = function(self, choices, data)
-	local targets = sgs.QList2Table(targets)
+	local targets = sgs.QList2Table(self.room:getOtherPlayers(self.player))
 	for _, p in pairs(targets) do
 		if self:isEnemy(p) and p:getHandcardNum() - p:getHp() >= 3 then --评估场上是否有手牌溢出较严重的敌方，这样才有选2选项的价值
 			return "2"
@@ -2355,7 +2370,7 @@ sgs.ai_skill_choice.f_fengchu = function(self, choices, data)
 		return "2"
 	else
 		return "1"
-	end              --受伤回复，满血加槽
+	end            --受伤回复，满血加槽
 	return "3" or "4" --为求稳必选这两个选项，摸牌收益高（不考虑被乐了、左慈等）、封印“落凤”保证不发生意外
 end
 

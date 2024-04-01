@@ -396,10 +396,10 @@ function SmartAI:qingxianLose(to, from)
 			and (to:getHp() > 1 or self:getAllPeachNum() > 0) then
 			return true
 		end
-		if self:needToLoseHp(to, self.player, nil, false, true) then return true end
+		--if self:needToLoseHp(to, self.player, nil, false, true) then return true end
 	else
 		if hasZhaxiangEffect(to) then return false end
-		if self:needToLoseHp(to, self.player, nil, false, true) then return false end
+		--if self:needToLoseHp(to, self.player, nil, false, true) then return false end
 	end
 	return not self:isFriend(to, from)
 end
@@ -426,7 +426,7 @@ function SmartAI:qingxianRecover(to, from)
 	else
 		if self:needToThrowCard(to, "e") then return false end
 		if self:isWeak(to) then return false end
-		if self:needToLoseHp(to, self.player, nil, false, true, true) and to:getCards("e"):length() > 0 then return true end
+		--if self:needToLoseHp(to, self.player, nil, false, true, true) and to:getCards("e"):length() > 0 then return true end
 		local can = false
 		for _, card in sgs.qlist(to:getHandcards()) do
 			if card:isKindOf("EquipCard") then
@@ -938,8 +938,10 @@ sgs.ai_skill_choice.wengua = function(self, choices, data)
 			if self:goodJudge(nextAlive, reason, c) then return "top" end
 		end
 
-		if self:isFriend(from) and from:isAlive() and self:needKongcheng(from, true) and table.contains(choices, "cancel") then return
-			"cancel" end
+		if self:isFriend(from) and from:isAlive() and self:needKongcheng(from, true) and table.contains(choices, "cancel") then
+			return
+			"cancel"
+		end
 
 		if not self:isEnemy(from) then return "bottom" end
 		if self:needKongcheng(from, true) then return "bottom" end

@@ -4044,7 +4044,7 @@ tyshencaiCard = sgs.CreateSkillCard {
 			room:setPlayerMark(prisoner, "&tyscCHI", 0)
 			if not judge.card:isKindOf("Spear") and not judge.card:isKindOf("MoonSpear") and not judge.card:objectName() == "sp_moonspear" then
 				room:setPlayerMark(prisoner, "&tyscZHANG", 0)
-			end                                       --判定出【丈八蛇矛】或【银月枪】可以同时获得“杖”和“徒”标记，这里是防止把刚刚获得的“杖”标记给清了
+			end --判定出【丈八蛇矛】或【银月枪】可以同时获得“杖”和“徒”标记，这里是防止把刚刚获得的“杖”标记给清了
 			room:setPlayerMark(prisoner, "&tyscTU", 0)
 			room:setPlayerMark(prisoner, "&tyscLIU", 0)
 			prisoner:gainMark("&tyscTU")
@@ -6364,9 +6364,9 @@ olyuheng = sgs.CreateTriggerSkill {
 					if player:hasFlag("oldiliLocked") and player:getMark("olyuhengSCL") <= 1 then
 						room:setPlayerFlag(
 							player, "-oldiliLocked")
-					end                                                                        --获得最后一个技能前，可以解除限制
+					end     --获得最后一个技能前，可以解除限制
 					room:acquireSkill(player, one)
-					table.insert(sks, one)                                                     --登记为以此法获得的技能
+					table.insert(sks, one) --登记为以此法获得的技能
 					room:removePlayerMark(player, "olyuhengSCL")
 				end
 			end
@@ -15667,7 +15667,7 @@ Fwushuangfangtianjis = sgs.CreateTriggerSkill {
 		end
 	end,
 	can_trigger = function(self, player)
-		return player:getWeapon():isKindOf("Fwushuangfangtianji")
+		return player and player:getWeapon():isKindOf("Fwushuangfangtianji")
 	end,
 }
 Fwushuangfangtianji = sgs.CreateWeapon {
@@ -16513,7 +16513,7 @@ f_shenjiang = sgs.CreateViewAsSkill {
 	end,
 	enabled_at_play = function(self, player)
 		return player:getPile("f_YT"):length() >= 4 and
-			((player:getMark("&fXiaJiang") > 0 and not player:isKongcheng())               --要保证能重铸
+			((player:getMark("&fXiaJiang") > 0 and not player:isKongcheng())                --要保证能重铸
 				or (player:getMark("&fJuJiang") > 0 and player:getPile("spy_shenbingku"):length() > 0)) --神兵库都没装备了还发动个锤子
 	end,
 }

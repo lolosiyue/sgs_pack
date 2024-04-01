@@ -6083,7 +6083,7 @@ function SmartAI:hasHuangenEffect(to)
 			to = to or self.player
 			if type(to) ~= "table" then to = { to } end
 			for _, p in ipairs(to) do
-				if table.connects(friends, p)
+				if table.contains(friends, p)
 				then
 					return lx
 				end
@@ -6734,7 +6734,7 @@ end
 function SmartAI:needToThrowArmor(player, reason)
 	player = player or self.player
 	if type(player) ~= "userdata" or not player:hasArmorEffect(nil) then return false end
-	if player:hasSkills("bazhen|yizhong") and not player:getArmor():isKindOf("EightDiagram")
+	if player:hasSkills("bazhen|yizhong") and player:getArmor() and not player:getArmor():isKindOf("EightDiagram")
 		or self:evaluateArmor(nil, player) <= -2 then
 		return true
 	end

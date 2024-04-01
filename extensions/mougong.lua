@@ -578,7 +578,7 @@ fcmouliegong = sgs.CreateTriggerSkill {
 					killer = nil
 				end
 				local current = room:getCurrent()
-				if killer:hasSkill(self:objectName()) and killer:hasFlag("fromfcmouliegong") and (current:isAlive() or current:objectName() == death.who:objectName()) then
+				if killer and killer:hasSkill(self:objectName()) and killer:hasFlag("fromfcmouliegong") and (current:isAlive() or current:objectName() == death.who:objectName()) then
 					room:broadcastSkillInvoke(self:objectName(), 10)
 				end
 			end

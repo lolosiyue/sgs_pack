@@ -814,6 +814,7 @@ sgs.ai_cardsview["meizlsuxian"] = function(self, class_name, player)
 		end
 	end
 	if #cards == 0 then return end
+	if #needed == 0 then return end
 
 	--if cards[1]:isKindOf("Peach") or cards[1]:isKindOf("Analeptic") then return end
 	--[[	if needed[1]:isKindOf("Peach")
@@ -2718,6 +2719,7 @@ end
 --雪雠（神关银屏）
 sgs.ai_skill_invoke.meizlxuechou = function(self, data)
 	local slash = sgs.Sanguosha:cloneCard("slash")
+	slash:deleteLater()
 	local current = self.room:getCurrent()
 	if not current or current:isDead() then
 		return true
@@ -2725,7 +2727,7 @@ sgs.ai_skill_invoke.meizlxuechou = function(self, data)
 	if current:objectName() == self.player:objectName() then
 		return true
 	end
-	if self:isEnemy(current) and self:slashIsEffective(slash, current) and self:isGoodTarget(current, self.enemies, slash) and not self:slashProhibit(slash, enemy) then
+	if self:isEnemy(current) and self:slashIsEffective(slash, current) and self:isGoodTarget(current, self.enemies, slash) and not self:slashProhibit(slash, current) then
 		return true
 	end
 	return false

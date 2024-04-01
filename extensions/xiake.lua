@@ -140,7 +140,7 @@ LuaLongyaT = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local count = player:getMark("&zhican")
 		if count > 2 then
-			if (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
+			if not use.from or (player:objectName() ~= use.from:objectName()) or (not use.card:isKindOf("Slash")) then return false end
 
 			for _, p in sgs.qlist(use.to) do
 				local _data = sgs.QVariant()
@@ -174,7 +174,7 @@ LuaLongyaT = sgs.CreateTriggerSkill {
 --[[
 	技能名：咆哮（锁定技）曹雪阳
 	]]
-    --
+--
 LuaPaoxiaoC = sgs.CreateTargetModSkill {
 	name = "LuaPaoxiaoC",
 	pattern = "Slash",
