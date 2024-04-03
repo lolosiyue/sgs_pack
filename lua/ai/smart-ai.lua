@@ -4178,6 +4178,7 @@ function SmartAI:getLeastHandcardNum(player)
 		least = player:getHp()
 	end
 	if player:hasSkill("Meowshangshi") and least < player:getLostHp() then least = math.max(player:getLostHp(), 1) end
+	if player:hasSkills("feilianying") and least < 1 then least = 1 end
 
 	return least
 end
@@ -7543,7 +7544,8 @@ function canNiepan(player)
 				player:hasSkill("guicao")
 			)
 		)
-		or (player:hasSkill("se_mowang") and player:getMaxHp() > 2) --add
+		or (player:hasSkill("se_mowang") and player:getMaxHp() > 2)     --add
+		or (player:hasSkill("feiniepan") and player:getMark("@nirvana") > 0) --add
 end
 
 function SmartAI:adjustAIRole()
@@ -8075,6 +8077,7 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 	if from:hasSkill("keyaoleimu") then
 		nature = "T"
 	end
+
 	if to:getMark("&shouli_debuff-Clear") > 0
 	then
 		nature = "T"
@@ -8130,6 +8133,9 @@ function SmartAI:ajustDamage(from, to, dmg, card, nature)
 	--add
 	if from:hasSkill("se_yezhan") and dmg >= to:getHp() then
 		dmg = dmg + 1
+	end
+	if from:hasSkill("feitouhuo") and nature ~= "N" then
+		nature = "F"
 	end
 
 	for ad, s in sgs.list(aiConnect(to)) do
