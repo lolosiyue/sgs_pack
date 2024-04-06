@@ -3,3 +3,4 @@ config.ini
 *.bak
 save.json
 winRate.csv
+autotest.py

@@ -291,7 +291,9 @@ sgs.Sanguosha:addSkills(skills)
 sgs.LoadTranslationTable {
 	["extra"] = "ZY",
 	["-_endplay"] = "",
+	["_lun"] = "",
 	["-_flag"] = "",
+	["_flag"] = "",
 	["_biu"] = "",
 }
 function RIGHT(self, player)
