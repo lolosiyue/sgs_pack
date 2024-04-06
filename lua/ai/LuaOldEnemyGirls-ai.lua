@@ -22,7 +22,7 @@ sgs.ai_use_priority.LuaFengxiCard = sgs.ai_use_priority.Slash + 0.1
 sgs.ai_use_value.LuaFengxiCard = 8.5
 
 function sgs.ai_skill_invoke.LuaLinying(self, data)
-    return (self:isWeak() and self.player:getMaxHp() - self.player:getHandcards() > 2) or
+    return (self:isWeak() and self.player:getMaxHp() - self.player:getHandcardNum() > 2) or
         sgs.ai_skill_playerchosen.LuaLinying(self, self.room:getOtherPlayers(self.player)) ~= nil
 end
 

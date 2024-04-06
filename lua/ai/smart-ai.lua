@@ -5810,6 +5810,7 @@ function SmartAI:getCards(class_name, flags, acards)
 	flags = haspile and "he" or flags
 	self.flags = flags
 	flags = self.player:getCards(flags)
+	self.room:writeToConsole(debug.traceback())
 	if type(acards) == "table"
 	then
 		flags = acards
@@ -5839,13 +5840,14 @@ function SmartAI:getCards(class_name, flags, acards)
 			if cp then table.insert(cards, sgs.Card_Parse(cp)) end
 		end
 	end
-	for c, cs in ipairs(self:cardsView(class_name, true)) do
-		c = sgs.Card_Parse(cs)
-		if self.aiUsing:contains(c:getEffectiveId())
-		then else
-			table.insert(cards, c)
-		end
-	end
+	-- for c, cs in ipairs(self:cardsView(class_name, true)) do
+	-- 	c = sgs.Card_Parse(cs)
+	-- 	if self.aiUsing:contains(c:getEffectiveId())
+	-- 	then else
+	-- 		table.insert(cards, c)
+	-- 	end
+	-- end
+
 	if type(acards) == "table"
 	then
 		for _, c in ipairs(acards) do
@@ -7544,7 +7546,7 @@ function canNiepan(player)
 				player:hasSkill("guicao")
 			)
 		)
-		or (player:hasSkill("se_mowang") and player:getMaxHp() > 2)     --add
+		or (player:hasSkill("se_mowang") and player:getMaxHp() > 2)    --add
 		or (player:hasSkill("feiniepan") and player:getMark("@nirvana") > 0) --add
 end
 

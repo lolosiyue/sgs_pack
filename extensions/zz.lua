@@ -33,7 +33,7 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0, 0 }
         end
     end
 
@@ -61,13 +61,13 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0 }
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package][name] then
             t.Record[package][name][1] = t.Record[package][name][1] + 1
@@ -83,19 +83,66 @@ saveRecord = function(player, record_type) --record_type: 0. +1 gameplay , 1. +1
             t.Record[package] = {}
         end
         if t.Record[package][name] == nil then
-            t.Record[package][name] = { 0, 0, 0, 0, 0, 0 }
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package2] == nil then
             t.Record[package2] = {}
         end
         if t.Record[package2][name2] == nil then
-            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0 }
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0, 0 }
         end
         if t.Record[package][name] then
             t.Record[package][name][2] = t.Record[package][name][2] + 1
         end
         if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
             t.Record[package2][name2][2] = t.Record[package2][name2][2] + 1
+        end
+    end
+
+    writeData(t)
+end
+saveMvp = function(player) --record_type: 0. +1 gameplay , 1. +1 win , 2. +1 win & +1 gameplay
+    local t = readData()
+
+    local all = sgs.Sanguosha:getLimitedGeneralNames()
+    for _, name in pairs(all) do
+        local general = sgs.Sanguosha:getGeneral(name)
+        local package = general:getPackage()
+        if t.Record[package] == nil then
+            t.Record[package] = {}
+        end
+        if t.Record[package][name] == nil then
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0, 0 }
+        end
+    end
+
+    local name = player:getGeneralName()
+    local package = player:getGeneral():getPackage()
+    local roleIndex = 7
+    local package2 = ""
+    local name2 = ""
+    if player:getGeneral2() then
+        name2 = player:getGeneral2Name()
+        package2 = player:getGeneral2():getPackage()
+    end
+    if record_type ~= 0 then -- record_type 1 or 2 +win
+        if t.Record[package] == nil then
+            t.Record[package] = {}
+        end
+        if t.Record[package][name] == nil then
+            t.Record[package][name] = { 0, 0, 0, 0, 0, 0, 0 }
+        end
+        if t.Record[package2] == nil then
+            t.Record[package2] = {}
+        end
+        if t.Record[package2][name2] == nil then
+            t.Record[package2][name2] = { 0, 0, 0, 0, 0, 0, 0 }
+        end
+        if t.Record[package][name] then
+            t.Record[package][name][roleIndex] = t.Record[package][name][roleIndex] + 1
+        end
+        if name2 ~= "" and name ~= name2 and t.Record[package2][name2] then
+            t.Record[package2][name2][roleIndex] = t.Record[package2][name2][roleIndex] + 1
         end
     end
 
@@ -145,6 +192,20 @@ allrecord = sgs.CreateTriggerSkill {
             end
         end
         --end
+
+        local players = sgs.QList2Table(room:getAlivePlayers())
+        for _, p in ipairs(players) do
+            if loser(p) then
+                table.removeOne(players, p)
+            end
+        end
+        local comp = function(a, b)
+            return a:getMark("mvpexp") > b:getMark("mvpexp")
+        end
+        if #players > 1 then
+            table.sort(players, comp)
+        end
+        saveMvp(players[1])
     end
 }
 

@@ -919,7 +919,7 @@ sgs.ai_skill_use_func["#y_shenzhucard"] = function(card, use, self)
 end
 
 sgs.ai_skill_askforag.y_shenzhu = function(self, card_ids)
-	self:sortByUseValue(card_ids)
+	--self:sortByUseValue(card_ids)
 	for _, id in ipairs(card_ids) do
 		local card = sgs.Sanguosha:getCard(id)
 		for _, p in ipairs(self.friends) do

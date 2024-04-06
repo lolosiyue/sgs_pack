@@ -49,7 +49,7 @@ def show_column_percentages(data):
                 max_winRate[3][0] = values[5]
                 max_renegade = column
             
-            sorted_data.append([package, column, values[2],values[3],values[4],values[5],percentage, denominator])
+            sorted_data.append([package, column, values[2],values[3],values[4],values[5],percentage, denominator,values[6]])
 
     sorted_data.sort(key=lambda x: x[6], reverse=True)  # Sort by percentage in descending order
     
@@ -61,7 +61,7 @@ def show_column_percentages(data):
         writer.writerow([max_lord, max_loyalist, max_rebel, max_renegade])
         
         
-        writer.writerow(["Package", "Gerenal", "lord主", "loyalist忠", "rebel反", "renegade內", "Percentage", "GameTimes"])
+        writer.writerow(["Package", "Gerenal", "lord主", "loyalist忠", "rebel反", "renegade內", "Percentage", "GameTimes", "MVP"])
 
         for row in sorted_data:
             writer.writerow(row)

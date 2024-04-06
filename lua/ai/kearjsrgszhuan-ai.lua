@@ -1086,6 +1086,91 @@ function sgs.ai_cardsview.kezhuanmanjuan(self, class_name, player)
 	end
 end
 
+--[[
+	
+function sgs.ai_cardsview.kezhuanmanjuan(self, class_name, player)
+bug for askforpeach
+
+sgs.ai_cardsview["se_chenyan"] = function(self, class_name, player)
+	if sgs.Sanguosha:getCurrentCardUseReason() ~= sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then return end
+	local classname2objectname = {
+		["Slash"] = "slash",
+		["Jink"] = "jink",
+		["Peach"] = "peach",
+		["Analeptic"] = "analeptic",
+		["Nullification"] = "nullification",
+		["FireSlash"] = "fire_slash",
+		["ThunderSlash"] = "thunder_slash"
+	}
+	local name = classname2objectname[class_name]
+	if not name then return end
+	local no_have = true
+	local cards = player:getCards("he")
+	for _, id in sgs.qlist(player:getPile("wooden_ox")) do
+		cards:prepend(sgs.Sanguosha:getCard(id))
+	end
+	for _, c in sgs.qlist(cards) do
+		if c:isKindOf(class_name) then
+			no_have = false
+			break
+		end
+	end
+	if not no_have or player:getMark("se_chenyan-Clear") ~= 0 then return end
+	if class_name == "Peach" and player:getMark("Global_PreventPeach") > 0 then return end
+	cards = sgs.QList2Table(cards)
+	self:sortByKeepValue(cards)
+	if player:getPile("wooden_ox"):length() > 0 then
+		for _, id in sgs.qlist(player:getPile("wooden_ox")) do
+			if not sgs.Sanguosha:getCard(id):isKindOf("Peach") then
+				cards[1] = sgs.Sanguosha:getCard(id)
+			end
+		end
+	end
+	if #cards >= 2 then
+		--if cards[1]:isKindOf("Peach") or cards[1]:isKindOf("Analeptic") then return end
+		if cards[1]:isKindOf("Peach")
+			or cards[1]:isKindOf("Analeptic")
+			or (cards[1]:isKindOf("Jink") and self:getCardsNum("Jink") == 1)
+			or (cards[1]:isKindOf("Slash") and self:getCardsNum("Slash") == 1)
+			or cards[1]:isKindOf("Nullification")
+			or cards[1]:isKindOf("SavageAssault")
+			or cards[1]:isKindOf("ArcheryAttack")
+			or cards[1]:isKindOf("Duel")
+			or cards[1]:isKindOf("ExNihilo")
+		then
+			return
+		end
+		if cards[2]:isKindOf("Peach")
+			or cards[2]:isKindOf("Analeptic")
+			or (cards[2]:isKindOf("Jink") and self:getCardsNum("Jink") == 1)
+			or (cards[2]:isKindOf("Slash") and self:getCardsNum("Slash") == 1)
+			or cards[2]:isKindOf("Nullification")
+			or cards[2]:isKindOf("SavageAssault")
+			or cards[2]:isKindOf("ArcheryAttack")
+			or cards[2]:isKindOf("Duel")
+			or cards[2]:isKindOf("ExNihilo")
+		then
+			return
+		end
+	end
+
+	--local suit = cards[1]:getSuitString()
+	--local number = cards[1]:getNumberString()
+	--local card_id = cards[1]:getEffectiveId()
+	if player:hasSkill("se_chenyan") then
+		--return (name..":se_chenyan[%s:%s]=%d"):format(suit, number, card_id)
+		if #cards >= 2 then
+			--return (name..":se_chenyan[%s:%s]=%d"):format(sgs.Card_NoSuit, -1, cards[1]:getEffectiveId() .."+".. cards[2]:getEffectiveId())
+			return (name .. ":se_chenyan[%s:%s]=%d+%d"):format(sgs.Card_NoSuit, 0, cards[1]:getEffectiveId(),
+				cards[2]:getEffectiveId())
+		elseif not self:isWeak() then
+			return string.format(name .. ":se_chenyan[%s:%s]=.", sgs.Card_NoSuit, 0)
+		end
+	end
+	return
+end
+]]
+
 --范疆张达
 
 sgs.ai_skill_discard.kezhuanfushan = function(self, discard_num, min_num, optional, include_equip)

@@ -2,3 +2,4 @@ config.ini
 /lua/ai/data/*
 *.bak
 save.json
+winRate.csv

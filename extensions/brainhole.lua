@@ -609,6 +609,27 @@ n_mvpexperience = sgs.CreateTriggerSkill {
 			--local skills = players[1]:getGeneral():getVisibleSkillList()
 			if skill then room:broadcastSkillInvoke(skill:objectName(), index) end
 			thread:delay(2900)
+			local str = players[1]:getGeneral2Name()
+			local str2 = players[1]:screenName()
+			--room:doAnimate(2,"skill=MvpAnim:"..str,str)
+			local skills = players[1]:getGeneral2():getVisibleSkillList()
+			local skill = nil
+			local word = ""
+			local index = -1
+			if not skills:isEmpty() then
+				skill = skills:at(math.random(1, skills:length()) - 1)
+				local sources = skill:getSources()
+				if #sources > 1 then index = math.random(1, #sources) end
+				word = "$" .. skill:objectName() .. (index == -1 and "" or tostring(index))
+			end
+			room:doAnimate(2, "skill=MobileMvp:" .. str .. ":" .. str2 .. ":" .. math.random(0, 11), word)
+			room:broadcastSkillInvoke("n_mobile_effect", 12)
+			local thread = room:getThread()
+			--thread:delay(1080)
+			thread:delay(1100)
+			--local skills = players[1]:getGeneral():getVisibleSkillList()
+			if skill then room:broadcastSkillInvoke(skill:objectName(), index) end
+			thread:delay(2900)
 		end
 		return false
 	end
