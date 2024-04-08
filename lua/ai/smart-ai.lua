@@ -2372,7 +2372,16 @@ function SmartAI:filterEvent(event, player, data)
 	then
 		local struct = data:toCardUse()
 		if struct.from ~= player then return end
-		if not player:hasFlag("ZenhuiUser_" .. struct.card:toString())
+		local ZenhuiEffect = false
+		if player:hasFlag("ZenhuiUser_" .. struct.card:toString())
+		then
+			ZenhuiEffect = true
+		end
+		if struct.card:getSkillName() == "_ny_channi"
+		then
+			ZenhuiEffect = true
+		end
+		if not ZenhuiEffect
 		then
 			local callback = sgs.ai_card_intention[struct.card:getClassName()]
 			if type(callback) == "function" then

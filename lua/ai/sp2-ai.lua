@@ -2864,13 +2864,11 @@ sgs.ai_use_priority.LimuCard = sgs.ai_use_priority.Slash - 0.1
 sgs.ai_use_value.LimuCard = sgs.ai_use_value.Slash - 0.1
 
 sgs.ai_use_revises.limu = function(self, card, use)
-	self.player:speak("limu12")
 	if self.player:hasWeapon("spear")
 		and card:isKindOf("Weapon")
 	then
 		return false
 	end
-	self.player:speak("limu4")
 	if card:objectName() == "spear"
 	then
 		use.card = card
@@ -2885,13 +2883,11 @@ sgs.ai_use_revises.limu = function(self, card, use)
 			return true
 		end
 	end
-	self.player:speak("limu5")
 	if self.player:hasWeapon("spear")
 	then
 		local cards = self.player:getCards("he")
 		cards = self:sortByKeepValue(cards, nil, true) -- 按保留值排序
 		for _, c1 in sgs.list(cards) do
-			self.player:speak("limu6")
 			if c1:getSuit() == 3
 				and self.player:hasJudgeArea()
 				and self.player:getJudgingArea():isEmpty()

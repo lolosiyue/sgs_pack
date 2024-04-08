@@ -946,20 +946,20 @@ function sgs.ai_slash_prohibit.fenyong(self, from, to)
 	return to:getMark("@fenyong") > 0 and to:hasSkill("fenyong")
 end
 
-sgs.ai_need_damaged.fenyong = function(self, attacker, player)
-	if not player:hasSkill("fenyong") then return false end
-	if not player:hasSkill("xuehen") then return false end
-	for _, enemy in sgs.list(self.enemies) do
-		local def = sgs.getDefenseSlash(enemy, self)
-		local slash = dummyCard()
-		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
+-- sgs.ai_need_damaged.fenyong = function(self, attacker, player)
+-- 	if not player:hasSkill("fenyong") then return false end
+-- 	if not player:hasSkill("xuehen") then return false end
+-- 	for _, enemy in sgs.list(self.enemies) do
+-- 		local def = sgs.getDefenseSlash(enemy, self)
+-- 		local slash = dummyCard()
+-- 		local eff = self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash)
 
-		if self.player:canSlash(enemy, nil, false) and not self:slashProhibit(nil, enemy) and eff and def < 6 then
-			return true
-		end
-	end
-	return false
-end
+-- 		if self.player:canSlash(enemy, nil, false) and not self:slashProhibit(nil, enemy) and eff and def < 6 then
+-- 			return true
+-- 		end
+-- 	end
+-- 	return false
+-- end
 
 sgs.ai_skill_choice.xuehen = function(self, choices)
 	if self.fenyong_choice then return self.fenyong_choice end
