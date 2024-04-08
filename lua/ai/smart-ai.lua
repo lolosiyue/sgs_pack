@@ -5819,7 +5819,7 @@ function SmartAI:getCards(class_name, flags, acards)
 	flags = haspile and "he" or flags
 	self.flags = flags
 	flags = self.player:getCards(flags)
-	self.room:writeToConsole(debug.traceback())
+	--self.room:writeToConsole(debug.traceback())
 	if type(acards) == "table"
 	then
 		flags = acards

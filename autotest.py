@@ -10,7 +10,7 @@ import win32process
 
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
-choose_general = "feipangtong"
+choose_general = "ny_10th_xiahoumao"
 debug = 1
 wait = 0
 
