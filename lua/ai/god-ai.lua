@@ -1072,7 +1072,8 @@ sgs.ai_skill_invoke.lianpo = true
 
 function SmartAI:needBear(player)
 	player = player or self.player
-    return player:hasSkills("renjie+baiyin") and not player:hasSkill("jilve") and player:getMark("&bear")<4
+    return (player:hasSkills("renjie+baiyin") and not player:hasSkill("jilve") and player:getMark("&bear")<4)
+	or (player:hasSkills("sprenjie+spbaiyin") and player:getMark("spbaiyin") == 0 and player:getMark("&spren") < 4)
 end
 
 sgs.ai_use_revises.renjie = function(self,card)

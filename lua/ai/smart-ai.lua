@@ -2377,7 +2377,11 @@ function SmartAI:filterEvent(event, player, data)
 		then
 			ZenhuiEffect = true
 		end
-		if struct.card:getSkillName() == "_ny_channi"
+		if struct.card:getSkillName() == "ny_channi"
+		then
+			ZenhuiEffect = true
+		end
+		if struct.card:getSkillName() == "xiaoyizi"
 		then
 			ZenhuiEffect = true
 		end
@@ -4188,6 +4192,10 @@ function SmartAI:getLeastHandcardNum(player)
 	end
 	if player:hasSkill("Meowshangshi") and least < player:getLostHp() then least = math.max(player:getLostHp(), 1) end
 	if player:hasSkills("feilianying") and least < 1 then least = 1 end
+	if player:hasSkills("exshangshi")  then 
+		local x = math.max(player:getLostHp(), 1)
+		if least < x then least = x end
+	end
 
 	return least
 end
@@ -4882,6 +4890,7 @@ function SmartAI:askForSinglePeach(dying)
 					and (sgs.SavageAssaultHasLord and getCardsNum("Slash", lord, self.player) < 1
 						or sgs.ArcheryAttackHasLord and getCardsNum("Jink", lord, self.player) < 1))
 			then
+				self.room:writeToConsole("not save not lord?")
 				return "."
 			end
 			local pn = self:getCardsNum("Peach")
@@ -4893,7 +4902,7 @@ function SmartAI:askForSinglePeach(dying)
 					pn = pn + getCardsNum("Peach", friend, self.player)
 				end
 			end
-			if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then return "." end
+			if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
 			local CP = self.room:getCurrent()
 			if dying:objectName() ~= lord:objectName()
 				and lord:getHp() < 2 and self:isFriend(lord)
@@ -4903,6 +4912,7 @@ function SmartAI:askForSinglePeach(dying)
 				and self:getCardsNum("Peach") <= self:getEnemyNumBySeat(CP, lord, self.player) + 1
 				and self:damageIsEffective(CP, nil, lord)
 			then
+				self.room:writeToConsole("not save may damage?")
 				return "."
 			end
 			peach_str = usePeachTo()
@@ -4910,6 +4920,7 @@ function SmartAI:askForSinglePeach(dying)
 				and (self:isFriend(lord) or self.role == "renegade")
 				or self:getAllPeachNum() + dying:getHp() <= 0
 			then
+				self.room:writeToConsole("not save  lord danger?")
 				peach_str = "."
 			else
 				peach_str = usePeachTo()
@@ -7652,6 +7663,10 @@ function hasTuntianEffect(to, need_zaoxian)
 	then
 		return true
 	end
+	if to:hasSkill("nyarz_diancai")
+	then
+		return true
+	end
 
 
 
@@ -8196,6 +8211,9 @@ function hasJueqingEffect(from, to, nature)
 		return true
 	end
 	if from and from:hasSkills("MeowJueqing") then
+		return true
+	end
+	if from and from:hasSkills("exjueqing") then
 		return true
 	end
 

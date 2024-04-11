@@ -576,7 +576,7 @@ jiuwei = sgs.CreateTriggerSkill {
 	events = { sgs.CardOffset },
 	frequency = sgs.Skill_NotFrequent,
 	on_trigger = function(self, event, player, data)
-		local effect = data:CardOffset()
+		local effect = data:toCardEffect()
 		local killer = effect.from
 		if killer:objectName() == player:objectName() and effect.card
 			and effect.card:isKindOf("Slash") and (effect.card:hasFlag("drank")) then

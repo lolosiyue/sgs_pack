@@ -1680,13 +1680,12 @@ sgs.ai_skill_invoke.eight_diagram = function(self, data)
 end
 
 function sgs.ai_armor_value.eight_diagram(player, self)
-	self.room:writeToConsole(debug.traceback())
-	local haszj = self:hasSkills("guidao", self:getEnemies(player))
-	if haszj then return 2 end
-	if player:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou")
-	then
-		return 6
-	end
+	-- local haszj = self:hasSkills("guidao", self:getEnemies(player))
+	-- if haszj then return 2 end
+	-- if player:hasSkills("tiandu|leiji|nosleiji|noszhenlie|gushou")
+	-- then
+	-- 	return 6
+	-- end
 	if self.role == "loyalist" and self.player:getKingdom() == "wei"
 		and getLord(self.player):hasLordSkill("hujia")
 		and not self.player:hasSkill("bazhen")
