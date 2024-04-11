@@ -2344,7 +2344,7 @@ f_tongzhi = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and player:hasSkill(self:objectName())
+			if damage.from and damage.from:objectName() == player:objectName() and player:hasSkill(self:objectName())
 				and damage.to and damage.to:getHp() < player:getHp() then
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:broadcastSkillInvoke(self:objectName())
@@ -2398,7 +2398,7 @@ f_longzu = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and damage.card then
+			if damage.from and damage.from:objectName() == player:objectName() and damage.card then
 				local n = damage.damage
 				if damage.card:hasFlag("f_longzu-KZXJGWN") then
 					room:setCardFlag(damage.card, "-f_longzu-KZXJGWN")

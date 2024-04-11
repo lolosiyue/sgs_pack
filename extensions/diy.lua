@@ -3567,7 +3567,7 @@ spbaiyin = sgs.CreateTriggerSkill{
     end,
     can_wake = function(self, event, player, data, room)
 		if player:getMark("spbaiyin") > 0 then return false end
-        if player:getPhase() == sgs.Player_Start or target:getPhase() == sgs.Player_Finish then
+        if player:getPhase() == sgs.Player_Start or player:getPhase() == sgs.Player_Finish then
             if player:canWake(self:objectName()) then return true end
             return player:getMark("&spren") >= 4 
         end
@@ -6081,7 +6081,7 @@ wwguixin = sgs.CreateTriggerSkill{
             if not owner then return false end
             local card_ids = sgs.IntList()
             for _,id in sgs.qlist(move.card_ids) do
-                if room:getCardOwner(id):objectName() == owner:objectName() then
+                if id and room:getCardOwner(id) and room:getCardOwner(id):objectName() == owner:objectName() then
                     card_ids:append(id)
                 end
             end

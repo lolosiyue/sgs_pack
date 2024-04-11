@@ -320,7 +320,7 @@ moulongdannEX_skill.getTurnUseCard = function(self, inclusive)
 		return sgs.Card_Parse("#moulongdannEX:" .. table.concat(use_cards, "+") .. ":" .. "peach")
 	end
 	for _, enemy in ipairs(self.enemies) do
-		if self.player:canSlash(enemy) and sgs.isGoodTarget(enemy, self.enemies, self, true) and self.player:inMyAttackRange(enemy) then
+		if self.player:canSlash(enemy) and self:isGoodTarget(enemy, self.enemies, nil) and self.player:inMyAttackRange(enemy) then
 			local fire_slash = sgs.Sanguosha:cloneCard("fire_slash")
 			local thunder_slash = sgs.Sanguosha:cloneCard("thunder_slash")
 			local ice_slash = sgs.Sanguosha:cloneCard("ice_slash")
@@ -435,10 +435,25 @@ end
 sgs.ai_skill_invoke.moujizhuoo = true
 
 sgs.ai_skill_playerchosen.moujizhuoo = function(self, targets)
-	return self:getNextAlive() --积著“协力”只有选下家才能收益最大化
+	return self.player:getNextAlive() --积著“协力”只有选下家才能收益最大化
 end
 
-
+sgs.ai_skill_choice.moujizhuoo = function(self, choices, data)
+	local items = choices:split("+")
+	if table.contains(items, "XL_bingjin") and math.random() < 0.7 then
+		return
+		"XL_bingjin"
+	end
+	if table.contains(items, "XL_tongchou") and math.random() < 0.6 then
+		return
+		"XL_tongchou"
+	end
+	if table.contains(items, "XL_luli") and math.random() < 0.6 then
+		return
+		"XL_luli"
+	end
+	return items[math.random(1, #items)]
+end
 
 
 

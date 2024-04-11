@@ -524,10 +524,10 @@ sgs.ai_skill_use_func["#mrds_fenchengCard"] = function(card, use, self)
 	local lastPlayer = self.player
 	for i, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
 		damage.to = p
-		if self:damageIsEffective_(damage) then
-			if sgs.evaluatePlayerRole(p, self.player) == "neutral" then neutral = neutral + 1 end
+		if self:damageStruct(damage) then
+			if sgs.ai_role[p:objectName()]=="neutral"  then neutral = neutral + 1 end
 			local v = 4
-			if (self:getDamagedEffects(p, self.player) or self:needToLoseHp(p, self.player)) and getCardsNum("Peach", p, self.player) + p:getHp() > 2 then
+			if self:needToLoseHp(p, self.player) and getCardsNum("Peach", p, self.player) + p:getHp() > 2 then
 				v = v - 6
 			elseif lastPlayer:objectName() ~= self.player:objectName() and lastPlayer:getCardCount(true) < p:getCardCount(true) then
 				v = v - 4

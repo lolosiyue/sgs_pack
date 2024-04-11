@@ -4902,7 +4902,8 @@ function SmartAI:askForSinglePeach(dying)
 					pn = pn + getCardsNum("Peach", friend, self.player)
 				end
 			end
-			if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
+			--if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
+			if pn + dying:getHp() < 1  then self.room:writeToConsole("not save no enough peach?") return "." end
 			local CP = self.room:getCurrent()
 			if dying:objectName() ~= lord:objectName()
 				and lord:getHp() < 2 and self:isFriend(lord)
@@ -4920,7 +4921,9 @@ function SmartAI:askForSinglePeach(dying)
 				and (self:isFriend(lord) or self.role == "renegade")
 				or self:getAllPeachNum() + dying:getHp() <= 0
 			then
-				self.room:writeToConsole("not save  lord danger?")
+				self.room:writeToConsole("not save lord danger? allpeachnum:" .. self:getAllPeachNum())
+				self.room:writeToConsole("hp:" .. dying:getHp())
+				self.room:writeToConsole("<=0?:" .. self:getAllPeachNum() + dying:getHp())
 				peach_str = "."
 			else
 				peach_str = usePeachTo()

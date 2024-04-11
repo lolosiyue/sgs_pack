@@ -1044,7 +1044,7 @@ xynutao = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and damage.nature == sgs.DamageStruct_Thunder
+			if damage.from and damage.from:objectName() == player:objectName() and damage.nature == sgs.DamageStruct_Thunder
 				and player:getPhase() == sgs.Player_Play and player:hasSkill(self:objectName()) then
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:broadcastSkillInvoke(self:objectName(), math.random(3, 4))

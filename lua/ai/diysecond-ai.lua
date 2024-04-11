@@ -752,7 +752,7 @@ sgs.ai_skill_choice["xsfangzu"] = function(self, choices, data)
 	local target = data:toPlayer()
     choices = choices:split("+")
     if self:isFriend(target) 
-    or (target:faceUp() and target:getHp() > 1 and target:getHandcardNum() >= player:getLostHp())then
+    or (target:faceUp() and target:getHp() > 1 and target:getHandcardNum() >= self.player:getLostHp())then
         for _,p in ipairs(choices) do
             if string.find(p, "turn") then return p end
         end

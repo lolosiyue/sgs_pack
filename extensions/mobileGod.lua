@@ -2262,7 +2262,7 @@ f_jishi = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.CardsMoveOneTime then
 			local move = data:toMoveOneTime()
-			if move.from:objectName() == player:objectName() and move.to_place == sgs.Player_DiscardPile then
+			if move.from and move.from:objectName() == player:objectName() and move.to_place == sgs.Player_DiscardPile then
 				for _, i in sgs.qlist(move.card_ids) do
 					local card = sgs.Sanguosha:getCard(i)
 					if card:hasFlag("f_jishiwillTrigger") then
@@ -6066,20 +6066,23 @@ olchuyuan = sgs.CreateMasochismSkill {
 	on_damaged = function(self, player, damage)
 		local room = player:getRoom()
 		for _, p in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
-			if p:getPile("powerful"):length() < p:getMaxHp() and player and player:isAlive()
-				and p:askForSkillInvoke(self:objectName()) then
-				room:broadcastSkillInvoke(self:objectName())
-				room:drawCards(player, 1, self:objectName())
-				if not player:isKongcheng() then
-					local card_id = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
-					if player:getHandcardNum() == 1 then
-						card_id = player:handCards():first()
-						--room:getThread():delay()
-					else
-						card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
-							:first()
+			if p:getPile("powerful"):length() < p:getMaxHp() and player and player:isAlive() then
+				local dest = sgs.QVariant()
+				dest:setValue(player)
+				if p:askForSkillInvoke(self:objectName(), dest) then
+					room:broadcastSkillInvoke(self:objectName())
+					room:drawCards(player, 1, self:objectName())
+					if not player:isKongcheng() then
+						local card_id = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+						if player:getHandcardNum() == 1 then
+							card_id = player:handCards():first()
+							--room:getThread():delay()
+						else
+							card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
+								:first()
+						end
+						p:addToPile("powerful", card_id)
 					end
-					p:addToPile("powerful", card_id)
 				end
 			end
 		end
@@ -15305,7 +15308,7 @@ f_shenpanTarget = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and player:getPhase() ~= sgs.Player_NotActive then
+			if damage.from and damage.from:objectName() == player:objectName() and player:getPhase() ~= sgs.Player_NotActive then
 				if spt and player:getMark("&f_shenpanTwo") == 0 then
 					room:addPlayerMark(player, "&f_shenpanTwo")
 				end

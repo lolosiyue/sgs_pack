@@ -517,7 +517,7 @@ sgs.ai_skill_invoke.olchuyuan = function(self, data)
 				:getMaxHp() > 1
 		end
 	end
-	if self:doNotDiscard(player, "h") then
+	if player and self:doNotDiscard(player, "h") then
 		return false
 	end
 	return true

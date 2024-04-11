@@ -1569,23 +1569,26 @@ end
 sgs.ai_skill_choice.caiyi = function(self,choices,data)
 	local caiyi_from = self.caiyi_from or self.room:getCurrent()
 	local n = caiyi_from:getChangeSkillState("caiyi")
-	if n>1 then n = 4-#caiyi_from:property("SkillDescriptionChoiceRecord1_caiyi"):toString():split("+")
-	else n = 4-#caiyi_from:property("SkillDescriptionRecord_caiyi"):toString():split("+") end
+	if n>1 then n = 4-(#caiyi_from:property("SkillDescriptionChoiceRecord1_caiyi"):toString():split("+"))
+	else n = 4-(#caiyi_from:property("SkillDescriptionRecord_caiyi"):toString():split("+")) end
 	local items = choices:split("+")
+	self.room:writeToConsole(choices)
+	
 	for _,cho in sgs.list(items)do
-		if cho:startsWith("recover")
+		self.room:writeToConsole(cho)
+		if string.startsWith(cho,"recover")
 		and (self.player:getLostHp()>=n or self:isWeak() and n>0)
 		then return cho end
-		if cho:startsWith(items,"draw")
+		if string.startsWith(cho,"draw")
 		and self.player:getHandcardNum()+n<5
 		then return cho end
-		if cho:startsWith(items,"fuyuan")
+		if string.startsWith(cho,"fuyuan")
 		and not self.player:faceUp()
 		then return cho end
-		if cho:startsWith(items,"discard")
+		if string.startsWith(cho,"discard")
 		and self.player:getCardCount()-n>1
 		then return cho end
-		if cho:startsWith(items,"damage")
+		if string.startsWith(cho,"damage")
 		and self.player:getHp()-n>1
 		then return cho end
 	end

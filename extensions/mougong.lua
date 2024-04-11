@@ -1123,7 +1123,7 @@ XL_bingjin = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local move = data:toMoveOneTime()
-		if move.to:objectName() ~= player:objectName() or not move.from_places:contains(sgs.Player_DrawPile) then return false end
+		if not move.to or move.to:objectName() ~= player:objectName() or not move.from_places:contains(sgs.Player_DrawPile) then return false end
 		local can_invoke = false
 		for _, id in sgs.qlist(move.card_ids) do
 			if room:getCardOwner(id):objectName() == player:objectName() and room:getCardPlace(id) == sgs.Player_PlaceHand then
@@ -1244,7 +1244,8 @@ XL_shucai = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local move = data:toMoveOneTime()
-		if move.from:objectName() ~= player:objectName() or move.to_place ~= sgs.Player_DiscardPile then return false end
+		if not move.from or move.from:objectName() ~= player:objectName() or move.to_place ~= sgs.Player_DiscardPile then return false end
+		if not (bit32.band(move.reason.m_reason, sgs.CardMoveReason_S_MASK_BASIC_REASON) == sgs.CardMoveReason_S_REASON_DISCARD)  then return false end
 		--谋赵云-积著
 		if player:getMark("jizhuoFrom") > 0 or player:getMark("jizhuoTo") > 0 then
 			for _, p in sgs.qlist(room:getAllPlayers()) do
@@ -1912,6 +1913,7 @@ moujizhuoo = sgs.CreateTriggerSkill {
 						room:attachSkillToPlayer(p, "moulongdannEX")
 					end
 					room:setPlayerMark(p, "&XL_success", 0)
+					room:setPlayerMark(p, "&XL_success+_flag", 1)
 					room:setPlayerMark(p, "jizhuoFrom", 0)
 					room:setPlayerMark(player, "jizhuoTo", 0)
 				elseif (p:getMark("jizhuoFrom") > 0 or p:getMark("jizhuoTo") > 0) and p:getMark("&XL_success") == 0 then
@@ -2510,7 +2512,7 @@ mouxiejiBN = sgs.CreateTriggerSkill {
 			end
 		elseif event == sgs.Damage then
 			local damage = data:toDamage()
-			if damage.from:objectName() == player:objectName() and (player:getMark("mouxiejiBNFrom") > 0 or player:getMark("mouxiejiBNHelp") > 0) then
+			if damage.from and damage.from:objectName() == player:objectName() and (player:getMark("mouxiejiBNFrom") > 0 or player:getMark("mouxiejiBNHelp") > 0) then
 				room:addPlayerMark(player, "&mouxiejiBNDamage", damage.damage)
 			end
 		end

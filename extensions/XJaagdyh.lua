@@ -2405,7 +2405,7 @@ WmHuoshou = sgs.CreateTriggerSkill {
 				end
 			end
 		elseif event == sgs.Damage then
-			if damage.from:objectName() == player:objectName() and player:hasFlag("WmHuoshou_drstroyArmor") and damage.to and damage.to:hasFlag("WmHuoshou_loseArmor") then
+			if damage.from and damage.from:objectName() == player:objectName() and player:hasFlag("WmHuoshou_drstroyArmor") and damage.to and damage.to:hasFlag("WmHuoshou_loseArmor") then
 				room:setPlayerFlag(player, "-WmHuoshou_drstroyArmor")
 				room:setPlayerFlag(damage.to, "-WmHuoshou_loseArmor")
 				local amr = damage.to:getArmor()
