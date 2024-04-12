@@ -1,49 +1,71 @@
-<<<<<<< HEAD
+# Qsanguosha 太阳神三国杀
 
-## 概述
+## Introduction
+Sanguosha is both a popular board game and online game, this project try to clone the Sanguosha online version. The whole project is written in C++, using Qt's graphics view framework as the game engine. I've tried many other open source game engines, such as SDL, HGE, Clanlib and others, but many of them lack some important features. Although Qt is an application framework instead of a game engine, its graphics view framework is suitable for my game developing. By Moligaloo
 
-为太阳神三国杀（QSanguosha）
-0705 群內懶人整合+以前的擴展+新擴展整合+新補丁
+This repository is only Integrated package of Qsanguosha.
+Maybe change the C++ code later
+
+## function
+Integrated package of Qsanguosha
+0705 
+different extension
 
 【神杀优化补丁】优化游戏结算&减少本体闪退&扩展lua接口
-https://tieba.baidu.com/p/8691577183
+>https://tieba.baidu.com/p/8691577183
 【神杀完整版】超全+稳定不闪退版本（2023.10.24）
-https://tieba.baidu.com/p/8670131759
-# 已知bug:
-各種閃退問題
-=======
-# 0705
- qsgs
-閃退機率高
-# 新功能?
-## 查看勝率
-zz.lua 將在遊戲結束時儲存記錄(高達殺) winRate.py 可以output成csv檔
-debug為true時不會記錄
+>https://tieba.baidu.com/p/8670131759
 
-scarlet.txt 各種舊擴展升級心得
+## Installation
+`git clone https://github.com/lolosiyue/sgs_pack.git`
 
-## 自動測試/看海
+## Features
+
+### Check the winRate 查看勝率
+zz.lua save record to winRate.py csv
+when debug = true then not save the record
+
+### my experience of work
+scarlet.txt
+
+### AutoTest
 autotest
-在1920x1080 125% 情況下自動選擇武將名稱 和測試用武將組成雙將
+1920x1080 125% auto choose general
 
 
-# To-do List
-進度:?
+## To-do List
 
-把slash effect 之類改到oneffect offset已經足夠大工程了
-shadow
-動漫
+change event slash effect to oneffect offset
+
+### Extensions:
 htms
-賽馬娘
+Umamusume 賽馬娘
 PKM
-艦娘擴展 偏向數值養成和活動圖的PVE玩法
-進度:0
+Kancolle 艦娘擴展 偏向數值養成和活動圖的PVE玩法
 
-# 將來
-寫一寫線下武將
-應該編譯源碼
+
+## Contributing
+Share the screencap of bug to me. Feel free to use the externsions that I rewrite to your game.
+
+## Acknowledgments
+[本家](https://github.com/Mogara/QSanguosha)
+[本家](https://github.com/Mogara/QSanguosha-v2)
+
+## Contact
+Email: a31602603@yahoo.com.hk
+
+
+## Frequently Asked Questions（FAQ）
+Q: Why does the game suddenly shutdown without any warning?
+A: Sudden shutdowns can occur due to various reasons, including technical issues, memory leaks, compatibility problems, or inadequate system resources. It's important to investigate the specific circumstances and error logs to determine the exact cause.
+
+Q: How can I troubleshoot sudden shutdowns of the game?
+Share the Image of the shutdown. If not, tell me the general name of the game.
+
+Shuddenly shutdowns of the game are normally. Don't worry about it.
+
+If your question is not addressed above, please feel free to contact us for further assistance.
+
 
 #
-每天摸魚工作的成品 每次commit只是從工作電腦到家中的過渡 功能不一定成功
- 
->>>>>>> 21b6ef2a6cb9e7faf1b3853de94ef5b941f54df8
+Give me a coffee?
