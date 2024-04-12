@@ -547,7 +547,7 @@ sgs.ai_skill_invoke.mouxianchouu = true
 sgs.ai_skill_playerchosen.mouxianchouu = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-		if self:isFriend(p) and not self:isNude() then
+		if self:isFriend(p) and not self.player:isNude() then
 			return p
 		end
 	end

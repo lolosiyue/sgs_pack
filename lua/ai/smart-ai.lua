@@ -4904,8 +4904,8 @@ function SmartAI:askForSinglePeach(dying)
 			end
 			--if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
 			if pn + dying:getHp() < 1  then 
-				self.room:writeToConsole(pn)
-				self.room:writeToConsole(self:getCardsNum("Peach"))
+				self.room:writeToConsole("pn:"..pn)
+				self.room:writeToConsole("pn+hp:"..(pn + dying:getHp()))
 				self.room:writeToConsole("not save no enough peach?") 
 				return "." 
 			end

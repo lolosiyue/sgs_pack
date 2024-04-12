@@ -1902,7 +1902,7 @@ exjueqing = sgs.CreateTriggerSkill{
                 to = p
                 if n > 1 then return false end
             end
-            if from:objectName() == to:objectName() then return false end
+            if not from or from:objectName() == to:objectName() then return false end
             if (not from:hasSkill(self:objectName())) and (not to:hasSkill(self:objectName())) then return false end
             if to:isNude() or from:isNude() then return false end
             local ta = nil

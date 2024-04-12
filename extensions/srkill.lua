@@ -3633,7 +3633,7 @@ sr_fangxin = sgs.CreateViewAsSkill{
 		indulgence:deleteLater()
 		local supply_shortage = sgs.Sanguosha:cloneCard("supply_shortage",sgs.Card_Club,0)
 		supply_shortage:deleteLater()
-		return string.find(pattern,"peach") and not player:getMark("Global_PreventPeach") > 0 and
+		return string.find(pattern,"peach") and not (player:getMark("Global_PreventPeach") > 0) and
 		not ((player:isProhibited(player,indulgence) or player:containsTrick("indulgence")) and 
 			(player:isProhibited(player,supply_shortage) or player:containsTrick("supply_shortage")))
 	end	

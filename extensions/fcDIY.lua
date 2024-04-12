@@ -2198,7 +2198,7 @@ f_shengongBuff_12SJ = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		local damage = data:toDamage()
 		local card = damage.card
-		if card:isKindOf("Slash") then
+		if card and card:isKindOf("Slash") then
 			room:sendCompulsoryTriggerLog(player, "f_shengong")
 			local xiahouyuan = damage.damage
 			damage.damage = xiahouyuan + 1

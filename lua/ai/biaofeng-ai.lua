@@ -4523,6 +4523,7 @@ sgs.ai_skill_askforag.PlusZhiren = function(self, card_ids)
 			break
 		end
 	end
+	if not target then return -1 end
 
 	for _, card in ipairs(cards) do
 		if card:isKindOf("BasicCard") and target:getHp() < getBestHp(target) then
