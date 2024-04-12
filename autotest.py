@@ -11,8 +11,8 @@ import win32process
 game_path = "QSanguosha.exe"
 batch_file_path = "startclient.bat"
 choose_general = "ny_10th_xiahoumao"
-debug = 1
-wait = 0
+debug = 0
+wait = 1
 
 user_input = ""
 #1920*1080 125%

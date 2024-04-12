@@ -669,6 +669,195 @@ end
 
 sgs.ai_playerchosen_intention.xingwu = 80
 
+
+sgs.ai_skill_cardask["@olxingwu"] = function(self, data)
+	local cards = sgs.QList2Table(self.player:getHandcards())
+	if #cards <= 1 and self.player:getPile("olxingwu"):length() == 1 then return "." end
+
+	local good_enemies = {}
+	for _, enemy in ipairs(self.enemies) do
+		if ((self:damageIsEffective(enemy) and not self:cantbeHurt(enemy, self.player, 2))
+				or (not self:damageIsEffective(enemy) and not enemy:getEquips():isEmpty()
+					and not (enemy:getEquips():length() == 1 and enemy:getArmor() and self:needToThrowArmor(enemy)))) then
+			table.insert(good_enemies, enemy)
+		end
+	end
+	if #good_enemies == 0 and (not self.player:getPile("olxingwu"):isEmpty() or not self.player:hasSkill("luoyan")) then
+		return
+		"."
+	end
+
+	self:sortByKeepValue(cards)
+	local xwcard = nil
+	local heart = 0
+	local to_save = 0
+	for _, card in ipairs(cards) do
+		if self.player:hasSkill("tianxiang") and card:getSuit() == sgs.Card_Heart and heart < math.min(self.player:getHp(), 2) then
+			heart = heart + 1
+		elseif isCard("Jink", card, self.player) then
+			if self.player:hasSkill("liuli") and self.room:alivePlayerCount() > 2 then
+				for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+					if self:canLiuli(self.player, p) then
+						xwcard = card
+						break
+					end
+				end
+			end
+			if not xwcard and self:getCardsNum("Jink") >= 2 then
+				xwcard = card
+			end
+		elseif to_save > self.player:getMaxCards()
+			or (not isCard("Peach", card, self.player) and not (self:isWeak() and isCard("Analeptic", card, self.player))) then
+			xwcard = card
+		else
+			to_save = to_save + 1
+		end
+	end
+	if xwcard then return "$" .. xwcard:getEffectiveId() else return "." end
+end
+
+sgs.ai_skill_playerchosen.olxingwu = function(self, targets)
+	local good_enemies = {}
+	for _, enemy in ipairs(self.enemies) do
+		table.insert(good_enemies, enemy)
+	end
+	if #good_enemies == 0 then return targets:first() end
+
+	local getCmpValue = function(enemy)
+		local value = 0
+		if self:damageIsEffective(enemy) then
+			local x = 2
+			if enemy:hasArmorEffect("silver_lion") or (enemy:isFemale()) then
+				x = 1
+			end
+			local dmg = x
+			if enemy:getHp() <= dmg then value = 5 else value = value + enemy:getHp() / (enemy:getHp() - dmg) end
+			if not self:isGoodTarget(enemy, self.enemies) then value = value - 2 end
+			if self:cantbeHurt(enemy, self.player, dmg) then value = value - 5 end
+			if enemy:isLord() then value = value + 2 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 1.5 end
+			if self:hasSkills(sgs.exclusive_skill, enemy) then value = value - 1 end
+			if self:hasSkills(sgs.masochism_skill, enemy) then value = value - 0.5 end
+		end
+		if not enemy:getEquips():isEmpty() then
+			local len = enemy:getEquips():length()
+			if enemy:hasSkills(sgs.lose_equip_skill) then value = value - 0.6 * len end
+			if enemy:getArmor() and self:needToThrowArmor() then value = value - 1.5 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 0.5 end
+
+			if enemy:getWeapon() then value = value + 0.8 end
+			if enemy:getArmor() then value = value + 1 end
+			if enemy:getDefensiveHorse() then value = value + 0.9 end
+			if enemy:getOffensiveHorse() then value = value + 0.7 end
+			if self:getDangerousCard(enemy) then value = value + 0.3 end
+			if self:getValuableCard(enemy) then value = value + 0.15 end
+		end
+		return value
+	end
+
+	local cmp = function(a, b)
+		return getCmpValue(a) > getCmpValue(b)
+	end
+	table.sort(good_enemies, cmp)
+	return good_enemies[1]
+end
+
+sgs.ai_playerchosen_intention.olxingwu = 80
+
+sgs.ai_skill_cardask["@tenyearxingwu"] = function(self, data)
+	local cards = sgs.QList2Table(self.player:getHandcards())
+	if #cards <= 1 and self.player:getPile("tenyearxingwu"):length() == 1 then return "." end
+
+	local good_enemies = {}
+	for _, enemy in ipairs(self.enemies) do
+		if ((self:damageIsEffective(enemy) and not self:cantbeHurt(enemy, self.player, 2))
+				or (not self:damageIsEffective(enemy) and not enemy:getEquips():isEmpty()
+					and not (enemy:getEquips():length() == 1 and enemy:getArmor() and self:needToThrowArmor(enemy)))) then
+			table.insert(good_enemies, enemy)
+		end
+	end
+	if #good_enemies == 0 and (not self.player:getPile("tenyearxingwu"):isEmpty() or not self.player:hasSkill("luoyan")) then
+		return
+		"."
+	end
+
+	self:sortByKeepValue(cards)
+	local xwcard = nil
+	local heart = 0
+	local to_save = 0
+	for _, card in ipairs(cards) do
+		if self.player:hasSkill("tianxiang") and card:getSuit() == sgs.Card_Heart and heart < math.min(self.player:getHp(), 2) then
+			heart = heart + 1
+		elseif isCard("Jink", card, self.player) then
+			if self.player:hasSkill("liuli") and self.room:alivePlayerCount() > 2 then
+				for _, p in sgs.qlist(self.room:getOtherPlayers(self.player)) do
+					if self:canLiuli(self.player, p) then
+						xwcard = card
+						break
+					end
+				end
+			end
+			if not xwcard and self:getCardsNum("Jink") >= 2 then
+				xwcard = card
+			end
+		elseif to_save > self.player:getMaxCards()
+			or (not isCard("Peach", card, self.player) and not (self:isWeak() and isCard("Analeptic", card, self.player))) then
+			xwcard = card
+		else
+			to_save = to_save + 1
+		end
+	end
+	if xwcard then return "$" .. xwcard:getEffectiveId() else return "." end
+end
+
+sgs.ai_skill_playerchosen.tenyearxingwu = function(self, targets)
+	local good_enemies = {}
+	for _, enemy in ipairs(self.enemies) do
+		table.insert(good_enemies, enemy)
+	end
+	if #good_enemies == 0 then return targets:first() end
+
+	local getCmpValue = function(enemy)
+		local value = 0
+		if self:damageIsEffective(enemy) then
+			local x = 2
+			if enemy:hasArmorEffect("silver_lion") or (enemy:isFemale()) then
+				x = 1
+			end
+			local dmg = x
+			if enemy:getHp() <= dmg then value = 5 else value = value + enemy:getHp() / (enemy:getHp() - dmg) end
+			if not self:isGoodTarget(enemy, self.enemies) then value = value - 2 end
+			if self:cantbeHurt(enemy, self.player, dmg) then value = value - 5 end
+			if enemy:isLord() then value = value + 2 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 1.5 end
+			if self:hasSkills(sgs.exclusive_skill, enemy) then value = value - 1 end
+			if self:hasSkills(sgs.masochism_skill, enemy) then value = value - 0.5 end
+		end
+		if not enemy:getEquips():isEmpty() then
+			local len = enemy:getEquips():length()
+			if enemy:hasSkills(sgs.lose_equip_skill) then value = value - 0.6 * len end
+			if enemy:getArmor() and self:needToThrowArmor() then value = value - 1.5 end
+			if enemy:hasArmorEffect("silver_lion") then value = value - 0.5 end
+
+			if enemy:getWeapon() then value = value + 0.8 end
+			if enemy:getArmor() then value = value + 1 end
+			if enemy:getDefensiveHorse() then value = value + 0.9 end
+			if enemy:getOffensiveHorse() then value = value + 0.7 end
+			if self:getDangerousCard(enemy) then value = value + 0.3 end
+			if self:getValuableCard(enemy) then value = value + 0.15 end
+		end
+		return value
+	end
+
+	local cmp = function(a, b)
+		return getCmpValue(a) > getCmpValue(b)
+	end
+	table.sort(good_enemies, cmp)
+	return good_enemies[1]
+end
+
+sgs.ai_playerchosen_intention.tenyearxingwu = 80
+
 sgs.ai_skill_cardask["@yanyu-discard"] = function(self, data)
 	if self.player:getHandcardNum() < 3 and self.player:getPhase() ~= sgs.Player_Play then
 		if self:needToThrowArmor() then
