@@ -5687,8 +5687,8 @@ sgs.ai_skill_use_func["#shijun"] = function(card, use, self)
 				self:useBasicCard(slash, dummy_use)
 				self.player:setFlags("-slashNoDistanceLimit")
 				local target
-				if not dummyuse.to:isEmpty() then
-					for _, p in sgs.qlist(dummyuse.to) do
+				if not dummy_use.to:isEmpty() then
+					for _, p in sgs.qlist(dummy_use.to) do
 						if p:getMark("shijuntarget") == 0 and not self.player:inMyAttackRange(p) then
 							target = p
 							break

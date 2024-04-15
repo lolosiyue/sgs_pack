@@ -146,20 +146,13 @@ fatewangzhe=sgs.CreateTriggerSkill{
 	name="fatewangzhe",
 	--frequency=sgs.Skill_Frequent,
     view_as_skill = fatewangzheVS,
-	events={sgs.CardEffected,sgs.SlashEffected},
+	events={sgs.CardEffected},
 	on_trigger=function(self,event,player,data)
 		local room=player:getRoom()
-		if event == sgs.CardEffected then
 			local effect=data:toCardEffect()
 			local card=effect.card
 			if  effect.to:hasSkill(self:objectName()) == false then return end
-			if (card:isNDTrick() == false) then return end
-	--		player = effect.to
-		elseif event == sgs.SlashEffected then
-			local effect = data:toSlashEffect()
-			if effect.to:hasSkill(self:objectName()) == false then return end
-	--		player = effect.to
-		end
+			if (card:isNDTrick() or card:isKindOf("Slash")) then 
 		if(room:askForSkillInvoke(player,"fatewangzhe") ==false) then return end
         local _guojia = sgs.SPlayerList()
         _guojia:append(player)
@@ -245,6 +238,7 @@ fatewangzhe=sgs.CreateTriggerSkill{
 			room:moveCardTo(sgs.Sanguosha:getCard(card_ids:first()), player, sgs.Player_DrawPile, true)
 		end]]
 		--room:clearAG()
+	end
 		return false
 	end,
 }
@@ -274,6 +268,7 @@ fateqiuzhan_card = sgs.CreateSkillCard
 		if (not slash) then
 			local duel = sgs.Sanguosha:cloneCard("duel",sgs.Card_NoSuit, 0)
 			duel:setSkillName("fateqiuzhan_card")
+			duel:deleteLater()
 			local use = sgs.CardUseStruct()
   			use.card = duel
 			use.to : append(to)
@@ -346,8 +341,8 @@ fateshenjianVS = sgs.CreateViewAsSkill
 		new_card:setSkillName("fateshenjian")
 		return new_card
 	end,
-enabled_at_play=function()
-	return (sgs.Self:getMark("@shenjian_mark")>0) and sgs.Self:isWounded()
+enabled_at_play= function(self, player)
+	return (player:getMark("@shenjian_mark")>0) and player:isWounded()
 end,
 enabled_at_response=function(self, player, pattern)
 	return false
@@ -850,8 +845,8 @@ fatebumoVS = sgs.CreateViewAsSkill
 		return new_card
 		end
 	end,
-enabled_at_play=function()
-	return (sgs.Self:getMark("@bumo_mark")>0) and (sgs.Self:isWounded() or sgs.Self:getHandcardNum() < sgs.Self:getMaxHp())
+	enabled_at_play = function(self, player)
+	return (player:getMark("@bumo_mark")>0) and (player:isWounded() or player:getHandcardNum() < player:getMaxHp())
 end,
 enabled_at_response=function(self, player, pattern)
 	return false
@@ -894,20 +889,17 @@ fateshilian=sgs.CreateTriggerSkill{
 }
 
 --巨力 锁定技，当你使用【杀】指定一名角色为目标后，该角色需连续使用一张【杀】和一张【闪】才能抵消。
-fatejuli = sgs.CreateTriggerSkill
-{
+fatejuli = sgs.CreateTriggerSkill {
 	name = "fatejuli",
-	events = {sgs.SlashProceed, sgs.CardEffected},
 	frequency = sgs.Skill_Compulsory,
-	can_trigger = function(self, player)
-		return true
-	end,
+	events = { sgs.CardEffect },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
-		if(event == sgs.SlashProceed) then
-			local effect = data:toSlashEffect()
-			if not effect.from:isAlive() then return end
-			if not effect.from:hasSkill(self:objectName()) then return false end 			
+		local effect = data:toCardEffect()
+		local dest = effect.to
+		local source = effect.from
+		if effect.card and effect.card:isKindOf("Slash") and source:hasSkill(self:objectName()) then
+			room:notifySkillInvoked(source, self:objectName())
 			local firstjink, secondjink = nil, nil
 			local log= sgs.LogMessage()
 			log.type = "#TriggerSkill"
@@ -924,14 +916,21 @@ fatejuli = sgs.CreateTriggerSkill
 				jink = sgs.Sanguosha:cloneCard("jink", sgs.Card_SuitToBeDecided, -1)
 				jink:addSubcard(firstjink)
 				jink:addSubcard(secondjink)
-				room:slashResult(effect, jink)
+				jink:deleteLater()
+				effect.offset_card = jink
+				data:setValue(effect)
 				return true
 			else
-				room:slashResult(effect, nil)
-			return true
+				effect.offset_card = nil
+				data:setValue(effect)
+				return true
 			end		
 		end
-	end
+		return false
+	end,
+	can_trigger = function(self, target)
+		return target
+	end,
 }
 
 --Medea
@@ -1185,7 +1184,7 @@ fateluanshe_vs = sgs.CreateViewAsSkill
 		return card
 	end,
 enabled_at_play=function(self,player)
-	return not sgs.Self:hasFlag("luansheused")
+	return not player:hasFlag("luansheused")
 end,
 enabled_at_response=function(self, player, pattern)
 	return false
@@ -1222,6 +1221,7 @@ on_trigger=function(self,event,player,data)
 	while(i<x+1 and slashto:isAlive()) do
 		local slash = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit, 0)
 		slash:setSkillName("fatechuanxin_trs")
+		slash:deleteLater()
 		local slashuse = sgs.CardUseStruct()
 		slashuse.from = from
 		slashuse.to:append(slashto)
@@ -1261,6 +1261,7 @@ fatetiangong_card = sgs.CreateSkillCard
 	end ,
 	on_use = function(self, room, source, targets)		
 			local slash = sgs.Sanguosha:cloneCard("fire_slash",sgs.Card_NoSuit, 0)
+			slash:deleteLater()
 		    slash:setSkillName("fatetiangong_card")
 			local use = sgs.CardUseStruct()
 			use.from = source
@@ -1290,8 +1291,8 @@ fatetiangong_vs = sgs.CreateViewAsSkill
 		end
 	end,
 	
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#fatetiangong_card") 
+	enabled_at_play=function(self,player)
+		return not player:hasUsed("#fatetiangong_card") 
 	end,
 	
 	enabled_at_response = function(self, player, pattern)
@@ -1365,6 +1366,7 @@ on_trigger=function(self,event,player,data)
 				local slashto=room:askForPlayerChosen(player, targets, "@fatejianzhong2")
 				local slash = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit, 0)
 				slash:setSkillName("fatejianzhong")
+				slash:deleteLater()
 				local slashuse = sgs.CardUseStruct()
 				slashuse.from = player
 				slashuse.to:append(slashto)
@@ -1569,7 +1571,7 @@ fateyanfan_vs = sgs.CreateViewAsSkill
 	enabled_at_play = function(self, player)
 		table.remove(yanfan_pattern) -- reset the pattern
 		local use_slash = false --这个只有在第一遍时赋值
-		if player:canSlashWithoutCrossbow() or (sgs.Self:getWeapon() and sgs.Self:getWeapon():objectName() == "Crossbow") then use_slash = true end  --注意写法，太阳神论坛里某人的神赵云的写法是错的
+		if player:canSlashWithoutCrossbow() or sgs.Slash_IsAvailable(player) then use_slash = true end  --注意写法，太阳神论坛里某人的神赵云的写法是错的
 		if use_slash then table.insert(yanfan_pattern, "slash")
 		end
 		return #yanfan_pattern ~= 0
@@ -1724,8 +1726,8 @@ view_as = function(self, cards)
 		return acard
 	end
 end,
-enabled_at_play = function()
-	return (sgs.Self:hasUsed("#fateheijian_card")==false) and  (sgs.Self:getPile("fateheijiancards"):length() < 5)
+enabled_at_play=function(self,player)
+	return (player:hasUsed("#fateheijian_card")==false) and  (player:getPile("fateheijiancards"):length() < 5)
 end,
 enabled_at_response = function()
 	return false
@@ -2060,8 +2062,8 @@ fatemoshu_vs = sgs.CreateViewAsSkill
 		end
 	end,
 	
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#fatemoshu_card") 
+	enabled_at_play = function(self, player)	
+		return not player:hasUsed("#fatemoshu_card") 
 	end,
 	
 	enabled_at_response = function(self, player, pattern)
@@ -2073,10 +2075,12 @@ fatemoshu_vs = sgs.CreateViewAsSkill
 fatejiejie=sgs.CreateTriggerSkill{
 	name="fatejiejie",
 	frequency=sgs.Skill_NotFrequent,
-	events=sgs.SlashEffected,
+	events=sgs.CardEffected,
 	on_trigger=function(self,event,player,data)
 		local room=player:getRoom()
-		if(room:askForSkillInvoke(player, self:objectName()) ==false) then return end
+		local effect = data:toCardEffect()
+		if not effect.card or not effect.card:isKindOf("Slash") then return end
+		if(room:askForSkillInvoke(player, self:objectName(), data) ==false) then return end
 	--	local card_id = room:drawCard()
 	--	local card = sgs.Sanguosha:getCard(card_id)
 	--	room:showCard(player, card_id)
@@ -2151,8 +2155,8 @@ fatejuntuan_vs = sgs.CreateViewAsSkill
 		end
 	end,
 	
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#fatejuntuan_card") 
+	enabled_at_play = function(self, player)
+		return not player:hasUsed("#fatejuntuan_card") 
 	end,
 	
 	enabled_at_response = function(self, player, pattern)
@@ -2329,32 +2333,32 @@ fatebimie=sgs.CreateTriggerSkill{
 --突刺 当你使用【杀】指定一名角色为目标后，你可以弃一张手牌使此【杀】伤害+1且强制命中。
 fatetuci=sgs.CreateTriggerSkill{
 name="fatetuci",
-events={sgs.TargetSpecified,sgs.SlashProceed,sgs.DamageCaused},
+events={sgs.TargetSpecified,sgs.DamageCaused},
 on_trigger=function(self,event,player,data)
 	local room=player:getRoom()
 	if event==sgs.TargetSpecified then
 	local use = data:toCardUse()
 	if use.card:isKindOf("Slash") and not player:isKongcheng() and use.to:length() == 1  then 
-		if not room:askForSkillInvoke(player,self:objectName()) then return end
+		if not room:askForSkillInvoke(player,self:objectName(), data) then return end
 		local card=room:askForCard(player, ".|.|.|hand|.", "@fatetuci", data, sgs.CardDiscarded)
 		if card ~= nil then
-			room:setPlayerFlag(player,"fatetuci_actived")
+			local jink_table = sgs.QList2Table(player:getTag("Jink_" .. use.card:toString()):toIntList())
+			local index = 1
+			for _, p in sgs.qlist(use.to) do
+				jink_table[index] = 0
+				index = index + 1
+			end
+			local jink_data = sgs.QVariant()
+			jink_data:setValue(Table2IntList(jink_table))
+			player:setTag("Jink_" .. use.card:toString(), jink_data)
+			room:setCardFlag(use.card, "fatetuci_dmgenhaced")
+			return false
 		end
 		end
-	elseif event==sgs.SlashProceed then
-		local effect=data:toSlashEffect()				
-		if player:hasFlag("fatetuci_actived") then	
-			room:setPlayerFlag(player,"-fatetuci_actived")
-			room:setPlayerFlag(player,"fatetuci_dmgenhaced")	--防止寒冰剑	
-			room:slashResult(effect, nil)
-			return true
-		else
-			return false 
-		end				
 	elseif event==sgs.DamageCaused then --防止寒冰剑诱导出bug
 		local damage = data:toDamage()
 		if not damage.card or (not damage.card:isKindOf("Slash")) then return end
-		if player:hasFlag("fatetuci_dmgenhaced") then
+		if damage.card:hasFlag("fatetuci_dmgenhaced") then
 			local log = sgs.LogMessage()
 			log.type = "#fatetucibuff"
 			log.from = player
@@ -2364,7 +2368,7 @@ on_trigger=function(self,event,player,data)
 			room:sendLog(log)
 			damage.damage = damage.damage + 1
 			data:setValue(damage)
-			room:setPlayerFlag(player,"-fatetuci_dmgenhaced")
+			room:setPlayerFlag(damage.card,"-fatetuci_dmgenhaced")
 		end
 	end
 end,	
@@ -2399,6 +2403,7 @@ fatesiji_card = sgs.CreateSkillCard
 		if to:isAlive() and from:canSlash(to,nil,false ) then 		
 			local slash = sgs.Sanguosha:cloneCard("slash",sgs.Card_NoSuit, 0)
 		    slash:setSkillName("fatesiji_card")
+			slash:deleteLater()
 			local use = sgs.CardUseStruct()
 			use.from = from
 			use.to:append(to)
@@ -2426,8 +2431,8 @@ fatesiji_vs = sgs.CreateViewAsSkill
 		end
 	end,
 	
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#fatesiji_card") and sgs.Self:getLostHp()>1
+	enabled_at_play=function(self,player)
+		return not player:hasUsed("#fatesiji_card") and player:getLostHp()>1
 	end,
 	
 	enabled_at_response = function(self, player, pattern)
@@ -2544,8 +2549,8 @@ fatechongshuVS = sgs.CreateViewAsSkill
 		end
 	end,
 	
-	enabled_at_play = function()
-		return not sgs.Self:hasUsed("#fatechongshu_card") 
+	enabled_at_play = function(self, player)
+		return not player:hasUsed("#fatechongshu_card") 
 	end,
 	
 	enabled_at_response = function(self, player, pattern)

@@ -322,7 +322,7 @@ sgs.ai_skill_cardask["@srbenxi-discard"] = function(self, data, pattern, target,
 	if #equip == 0 or not hasjink then return "." end
 	local needDamaged = false
 	if self.player:getHp() > getBestHp(self.player) then needDamaged = true end
-	if not needDamaged and not sgs.isGoodTarget(self.player, self.friends, self) then needDamaged = true end
+	if not needDamaged and not self:isGoodTarget(self.player, self.friends, nil) then needDamaged = true end
 	if not needDamaged then
 		for _, skill in sgs.qlist(self.player:getVisibleSkillList()) do
 			local callback = sgs.ai_need_damaged[skill:objectName()]
@@ -1875,7 +1875,7 @@ end
 function needDamaged(self,player)
 	local need = false
 	if player:getHp() > getBestHp(player) then need = true end
-	if not need and not sgs.isGoodTarget(player, self.friends, self) then need = true end
+	if not need and not self:isGoodTarget(player, self.friends, nil) then need = true end
 	if not need then
 		for _, skill in sgs.qlist(player:getVisibleSkillList()) do
 			local callback = sgs.ai_need_damaged[skill:objectName()]
@@ -3267,7 +3267,7 @@ sgs.ai_skill_use["@@jiwu_extarget"] = function(self, prompt, method)
 	self:sort(self.enemies, "defenseSlash")
 	local targets = {}
 	for _, target in ipairs(self.enemies) do
-		if (not self:slashProhibit(slash, target)) and sgs.isGoodTarget(target, self.enemies, self) and self:slashIsEffective(slash, target) and target:getMark("jiwu_target") == 0 and target:getMark("jiwu_nil") == 0 then
+		if (not self:slashProhibit(slash, target)) and self:isGoodTarget(target, self.enemies, slash) and self:slashIsEffective(slash, target) and target:getMark("jiwu_target") == 0 and target:getMark("jiwu_nil") == 0 then
 			table.insert(targets, target:objectName())
 		end
 	end

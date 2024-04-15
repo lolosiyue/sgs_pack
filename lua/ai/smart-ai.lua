@@ -897,7 +897,7 @@ end
 function SmartAI:adjustUsePriority(card, v)
 	local suits_value, suits = nil, { "club", "spade", "diamond", "heart" }
 	for cb, s in ipairs(sgs.getPlayerSkillList(self.player)) do
-		cb = sgs.ai_card_priority[s]
+		cb = sgs.ai_card_priority[s:objectName()]
 		if type(cb) == "table"
 		then
 			cb = cb[card:getSuitString()]
@@ -4798,6 +4798,9 @@ function SmartAI:ableToSave(saver, dying)
 	if dying.who and dying.who:getMark("@zhou") > 0 then
 		return false
 	end
+	if dying.who and dying.who:getMark("@fatebimie") > 0 then
+		return false
+	end
 	return true
 end
 
@@ -4890,7 +4893,6 @@ function SmartAI:askForSinglePeach(dying)
 					and (sgs.SavageAssaultHasLord and getCardsNum("Slash", lord, self.player) < 1
 						or sgs.ArcheryAttackHasLord and getCardsNum("Jink", lord, self.player) < 1))
 			then
-				self.room:writeToConsole("not save not lord?")
 				return "."
 			end
 			local pn = self:getCardsNum("Peach")
@@ -4904,9 +4906,6 @@ function SmartAI:askForSinglePeach(dying)
 			end
 			--if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
 			if pn + dying:getHp() < 1  then 
-				self.room:writeToConsole("pn:"..pn)
-				self.room:writeToConsole("pn+hp:"..(pn + dying:getHp()))
-				self.room:writeToConsole("not save no enough peach?") 
 				return "." 
 			end
 			local CP = self.room:getCurrent()
@@ -4918,7 +4917,6 @@ function SmartAI:askForSinglePeach(dying)
 				and self:getCardsNum("Peach") <= self:getEnemyNumBySeat(CP, lord, self.player) + 1
 				and self:damageIsEffective(CP, nil, lord)
 			then
-				self.room:writeToConsole("not save may damage?")
 				return "."
 			end
 			peach_str = usePeachTo()
@@ -4926,9 +4924,6 @@ function SmartAI:askForSinglePeach(dying)
 				and (self:isFriend(lord) or self.role == "renegade")
 				or self:getAllPeachNum() + dying:getHp() <= 0
 			then
-				self.room:writeToConsole("not save lord danger? allpeachnum:" .. self:getAllPeachNum())
-				self.room:writeToConsole("hp:" .. dying:getHp())
-				self.room:writeToConsole("<=0?:" .. self:getAllPeachNum() + dying:getHp())
 				peach_str = "."
 			else
 				peach_str = usePeachTo()
@@ -5026,7 +5021,7 @@ function SmartAI:getTurnUse()
 				file:write("getTurnUse"..c:objectName()..c:toString())
 				file:close()--]]
 		end
-		if #turnUse >= 5 then break end
+		if #turnUse >= 20 then break end
 	end
 	self.toUse = turnUse
 	return turnUse
@@ -5739,7 +5734,7 @@ function getKnownCards(player, from, flags, suit)
 	flags = flags or "h"
 	if flags:match("h")
 	then
-		--InsertList(gs, player:getHandcards())
+		InsertList(gs, player:getHandcards())
 		if flags:match("&")
 		then
 			for _, id in sgs.qlist(player:getHandPile()) do
@@ -6645,6 +6640,9 @@ function SmartAI:needToLoseHp(to, from, card, passive, recover)
 		return
 	end
 	if from:hasSkill("LuaBimie") and card and card:isKindOf("Slash") then
+		return
+	end
+	if from:hasSkill("fatebimie") and card and card:isKindOf("Slash") then
 		return
 	end
 	if from:hasSkill("qingyue") and card and card:isKindOf("Slash") and to:isMale() then
@@ -8406,6 +8404,9 @@ function SmartAI:dontHurt(to, from) --针对队友
 		return true
 	end
 	if to:hasSkill("se_shenglong") then
+		return true
+	end
+	if to:hasSkill("fateheijian") and to:getPile("fateheijiancards"):length() > 0 then
 		return true
 	end
 

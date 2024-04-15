@@ -12,7 +12,7 @@ sgs.ai_skill_playerchosen.fateyezhan = sgs.ai_skill_playerchosen.damage
 
 
 
---ÍÁ¹·
+--ï¿½ï¿½ï¿½ï¿½
 
 local fatetouying_skill = {}
 fatetouying_skill.name = "fatetouying"
@@ -29,6 +29,7 @@ fatetouying_skill.getTurnUseCard = function(self, inclusive)
 	local cards = {}
 	for _,c in ipairs(usable_cards) do
 		local cardex = sgs.Sanguosha:cloneCard(sgs.Sanguosha:getCard(self.player:getMark("fatetouyingskill")):objectName(), c:getSuit(), c:getNumber())
+		cardex:deleteLater()
 		if not self.player:isCardLimited(cardex, sgs.Card_MethodUse, true) and cardex:isAvailable(self.player) and not c:isKindOf("Peach") and not (c:isKindOf("Jink") and self:getCardsNum("Jink") < 3) then
 		local name = sgs.Sanguosha:getCard(self.player:getMark("fatetouyingskill")):objectName()
 		local new_card = sgs.Card_Parse((name..":fatetouying[%s:%s]=%d"):format(c:getSuitString(), c:getNumberString(), c:getEffectiveId()))
@@ -52,7 +53,7 @@ end
 
 
 
---saber ÍõÕß 
+--saber ï¿½ï¿½ï¿½ï¿½ 
 
 sgs.ai_skill_invoke.fatewangzhe = function(self, data)
 	return true
@@ -206,7 +207,7 @@ end
 
 
 
---saber:ÇóÕ½
+--saber:ï¿½ï¿½Õ½
 local fateqiuzhan_skill={}
 fateqiuzhan_skill.name="fateqiuzhan"
 table.insert(sgs.ai_skills,fateqiuzhan_skill)
@@ -217,10 +218,10 @@ fateqiuzhan_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fateqiuzhan_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
 			if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and  self:damageIsEffective(enemy, sgs.DamageStruct_Normal)		then
-				use.card = sgs.Card_Parse("#fateqiuzhan_card:.:") -- ²»°üº¬ÈÎºÎ×Ó¿¨µÄ¼¼ÄÜ¿¨
+				use.card = sgs.Card_Parse("#fateqiuzhan_card:.:") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -231,7 +232,7 @@ end
 
 
 
--- ÊÖÖĞÉ±´óÓÚµÈÓÚSaberÊÖÅÆµÄÒ»°ë£¬Ôò²»´ò³öÉ±
+-- ï¿½ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Saberï¿½ï¿½ï¿½Æµï¿½Ò»ï¿½ë£¬ï¿½ò²»´ï¿½ï¿½É±
 sgs.ai_skill_cardask["@fateqzslash"]=function(self, data, pattern, target)
 	target = target or global_room:getCurrent()
 	if (self:hasSkill("fatehuyou") and #self.enemies > 0) then
@@ -321,7 +322,7 @@ sgs.dynamic_value.damage_card["fateshenjian_card"] = true
 sgs.ai_card_intention["fateshenjian_card"] = 100
 
 
---Archer:Ìì¹­ ³öÅÆ½×¶Î£¬Äã¿ÉÒÔÆúÒ»ÕÅÊÖÅÆÈ»ºóÑ¡ÔñÒ»Ãû½ÇÉ«»òÁ½Ãû¾àÀë1ÒÔÄÚµÄ½ÇÉ«£¬ÊÓÎª¶ÔÆä´ò³öÁËÒ»ÕÅ²»¼ÆÈë³öÅÆ½×¶ÎÏŞÖÆµÄÎŞÉ«µÄ¡¾»ğÉ±¡¿¡£Ã¿»ØºÏÏŞÒ»´Î¡£
+--Archer:ï¿½ì¹­ ï¿½ï¿½ï¿½Æ½×¶Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È»ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ÚµÄ½ï¿½É«ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Å²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½×¶ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½É«ï¿½Ä¡ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½Øºï¿½ï¿½ï¿½Ò»ï¿½Î¡ï¿½
 local fatetiangong_skill={}
 fatetiangong_skill.name="fatetiangong_vs"
 table.insert(sgs.ai_skills,fatetiangong_skill)
@@ -338,11 +339,12 @@ end
 sgs.ai_skill_use_func["#fatetiangong_card"]=function(card,use,self)
 	local first
 	local slash = sgs.Sanguosha:cloneCard("fire_slash", sgs.Card_NoSuit, 0)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	slash:deleteLater()
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and self.player:canSlash(enemy, slash) and not self:slashProhibit(slash, enemy) 
-						and self:slashIsEffective(slash, enemy) and sgs.isGoodTarget(enemy, self.enemies, self) then
-			use.card = sgs.Card_Parse("#fatetiangong_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+						and self:slashIsEffective(slash, enemy) and self:isGoodTarget(enemy, self.enemies, slash) then
+			use.card = sgs.Card_Parse("#fatetiangong_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				first=enemy
@@ -369,6 +371,13 @@ sgs.ai_card_intention.fatetiangong_card = 70
 sgs.ai_skill_invoke.fatejianzhong = function(self, data)
 	return true
 end
+sgs.ai_target_revises.fatejianzhong = function(to, card)
+	if  card:isKindOf("ArcheryAttack")
+	then
+		return true
+	end
+end
+
 
 sgs.ai_skill_playerchosen["@fatejianzhong2"] = sgs.ai_skill_playerchosen.zero_card_as_slash
 
@@ -390,8 +399,8 @@ sgs.ai_skill_cardask["@fatejuli-jink-1"] = function(self, data, pattern, target)
 
 	local slash
 	if type(data) == "userdata" then
-		local effect = data:toSlashEffect()
-		slash = effect.slash
+		local effect = data:toCardEffect()
+		slash = effect.card
 	else
 		slash = sgs.Sanguosha:cloneCard("slash")
 	end
@@ -399,23 +408,9 @@ sgs.ai_skill_cardask["@fatejuli-jink-1"] = function(self, data, pattern, target)
 	if (not target or self:isFriend(target)) and slash:hasFlag("nosjiefan-slash") then return "." end
 	if sgs.ai_skill_cardask.nullfilter(self, data, pattern, target) then return "." end
 	if not target then return getJink() end
-	if not self:hasHeavySlashDamage(target, slash, self.player) and self:getDamagedEffects(self.player, target, slash) then return "." end
+	if not self:hasHeavyDamage(target, slash, self.player) and self:needToLoseHp(self.player, target, slash) then return "." end
 	
-	--ÅÅ³ıÓĞ´óìF·ÇÀ×š¢³öéW
-	local shenzhugeliang = self.room:findPlayerBySkillName("dawu")
-	if shenzhugeliang and not target:hasSkill("jueqing") and self.player:getMark("@fog") > 0 and slash and not slash:isKindOf("ThunderSlash") then return "." end
-	--ĞÂÉñÚwë…ÊÖÖĞÓĞ¾Æ»òÌÒÙuÑªÃşÅÆ
-	if self.player:hasSkills("new_longhun+new_juejing") and not self:hasHeavySlashDamage(target, slash, self.player) then
-		if self:getCardId("Peach") or self:getCardId("Analeptic") then
-			return "."
-		end
-	end
-	
-	--ÒÑÏÂ¿ÉÒÔ×¢áŒµô£¬Òòésgs.ai_skill_cardask.nullfilterÒÑ½›™z²éÔªËØ‚ûº¦²¿·ÖÓĞ›]ÓĞĞ§¡£µ«îA·ÀÈfÒ»ß€ÊÇ±£Áô¡£
-	--ÅÅ³ıË¾ñR»Õë[Ê¿¼¼ÄÜ£¬AIË¾ñR»Õ±»´ò
-	if slash and target and slash:isKindOf("NatureSlash") and not target:hasSkill("jueqing") and self.player:hasSkill("yinshi") and self.player:getMark("@dragon") + self.player:getMark("@phoenix") == 0 and not self.player:getArmor() then return "." end
-	--ÅÅ³ıTWñRÁ¼°×Ã¼£¬TWñRÁ¼±»´ò
-	if slash and target and slash:isKindOf("NatureSlash") and not target:hasSkill("jueqing") and self.player:hasSkill("twyj_baimei") and self.player:isKongcheng() then return "." end
+	if self:ajustDamage(target, nil, 1, slash) <= 0 then return "." end
 
 	if slash:isKindOf("NatureSlash") and self.player:isChained() and self:isGoodChainTarget(self.player, target, nil, nil, slash) then return "." end
 	if self:isFriend(target) then
@@ -428,7 +423,7 @@ sgs.ai_skill_cardask["@fatejuli-jink-1"] = function(self, data, pattern, target)
 			if target:hasSkill("BurningLove") and slash:isKindOf("FireSlash") then return "." end
 		end
 	else
-		if self:hasHeavySlashDamage(target, slash) then return getJink() end
+		if self:hasHeavyDamage(target, slash, self.player) then return getJink() end
 
 		local current = self.room:getCurrent()
 		if current and current:hasSkill("juece") and self.player:getHp() > 0 then
@@ -476,7 +471,7 @@ sgs.ai_skill_cardask["@fatejuli-jink-1"] = function(self, data, pattern, target)
 				if slash:isKindOf("NatureSlash") and self.player:hasArmorEffect("vine")
 					or self.player:hasArmorEffect("renwang_shield")
 					or self:hasEightDiagramEffect()
-					or self:hasHeavySlashDamage(target, slash)
+					or self:hasHeavyDamage(target, slash, self.player)
 					or (self.player:getHp() == 1 and #self.friends_noself == 0) then
 				elseif (self:getCardsNum("Jink") <= getCardsNum("Slash", target, self.player) or self.player:hasSkill("qingnang")) and self.player:getHp() > 1
 					or (self.player:hasSkill("jijiu") and getKnownCard(self.player, self.player, "red") > 0)
@@ -504,8 +499,8 @@ sgs.ai_skill_cardask["@fatejuli-jink-2"] = function(self, data, pattern, target)
 
 	local slash
 	if type(data) == "userdata" then
-		local effect = data:toSlashEffect()
-		slash = effect.slash
+		local effect = data:toCardEffect()
+		slash = effect.card
 	else
 		slash = sgs.Sanguosha:cloneCard("slash")
 	end
@@ -513,23 +508,9 @@ sgs.ai_skill_cardask["@fatejuli-jink-2"] = function(self, data, pattern, target)
 	if (not target or self:isFriend(target)) and slash:hasFlag("nosjiefan-slash") then return "." end
 	if sgs.ai_skill_cardask.nullfilter(self, data, pattern, target) then return "." end
 	if not target then return getJink() end
-	if not self:hasHeavySlashDamage(target, slash, self.player) and self:getDamagedEffects(self.player, target, slash) then return "." end
+	if not self:hasHeavyDamage(target, slash, self.player) and self:needToLoseHp(self.player, target, slash) then return "." end
 	
-	--ÅÅ³ıÓĞ´óìF·ÇÀ×š¢³öéW
-	local shenzhugeliang = self.room:findPlayerBySkillName("dawu")
-	if shenzhugeliang and not target:hasSkill("jueqing") and self.player:getMark("@fog") > 0 and slash and not slash:isKindOf("ThunderSlash") then return "." end
-	--ĞÂÉñÚwë…ÊÖÖĞÓĞ¾Æ»òÌÒÙuÑªÃşÅÆ
-	if self.player:hasSkills("new_longhun+new_juejing") and not self:hasHeavySlashDamage(target, slash, self.player) then
-		if self:getCardId("Peach") or self:getCardId("Analeptic") then
-			return "."
-		end
-	end
-	
-	--ÒÑÏÂ¿ÉÒÔ×¢áŒµô£¬Òòésgs.ai_skill_cardask.nullfilterÒÑ½›™z²éÔªËØ‚ûº¦²¿·ÖÓĞ›]ÓĞĞ§¡£µ«îA·ÀÈfÒ»ß€ÊÇ±£Áô¡£
-	--ÅÅ³ıË¾ñR»Õë[Ê¿¼¼ÄÜ£¬AIË¾ñR»Õ±»´ò
-	if slash and target and slash:isKindOf("NatureSlash") and not target:hasSkill("jueqing") and self.player:hasSkill("yinshi") and self.player:getMark("@dragon") + self.player:getMark("@phoenix") == 0 and not self.player:getArmor() then return "." end
-	--ÅÅ³ıTWñRÁ¼°×Ã¼£¬TWñRÁ¼±»´ò
-	if slash and target and slash:isKindOf("NatureSlash") and not target:hasSkill("jueqing") and self.player:hasSkill("twyj_baimei") and self.player:isKongcheng() then return "." end
+	if self:ajustDamage(target, nil, 1, slash) <= 0 then return "." end
 
 	if slash:isKindOf("NatureSlash") and self.player:isChained() and self:isGoodChainTarget(self.player, target, nil, nil, slash) then return "." end
 	if self:isFriend(target) then
@@ -542,7 +523,7 @@ sgs.ai_skill_cardask["@fatejuli-jink-2"] = function(self, data, pattern, target)
 			if target:hasSkill("BurningLove") and slash:isKindOf("FireSlash") then return "." end
 		end
 	else
-		if self:hasHeavySlashDamage(target, slash) then return getJink() end
+		if self:hasHeavyDamage(target, slash, self.player) then return getJink() end
 
 		local current = self.room:getCurrent()
 		if current and current:hasSkill("juece") and self.player:getHp() > 0 then
@@ -590,7 +571,7 @@ sgs.ai_skill_cardask["@fatejuli-jink-2"] = function(self, data, pattern, target)
 				if slash:isKindOf("NatureSlash") and self.player:hasArmorEffect("vine")
 					or self.player:hasArmorEffect("renwang_shield")
 					or self:hasEightDiagramEffect()
-					or self:hasHeavySlashDamage(target, slash)
+					or self:hasHeavyDamage(target, slash, self.player)
 					or (self.player:getHp() == 1 and #self.friends_noself == 0) then
 				elseif (self:getCardsNum("Jink") <= getCardsNum("Slash", target, self.player) or self.player:hasSkill("qingnang")) and self.player:getHp() > 1
 					or (self.player:hasSkill("jijiu") and getKnownCard(self.player, self.player, "red") > 0)
@@ -609,7 +590,7 @@ sgs.ai_skill_invoke.fateshilian = function(self, data)
 end
 
 
---Iriya£ºÄ§Á¦
+--Iriyaï¿½ï¿½Ä§ï¿½ï¿½
 sgs.ai_skill_invoke.fatemoli = function(self, data)
 	local baba = self.room:findPlayerBySkillName("fatejiezhi")
     if baba and self:isEnemy(baba) then
@@ -619,7 +600,7 @@ sgs.ai_skill_invoke.fatemoli = function(self, data)
 	end
 end
 
---ÔİÊ±ÓĞbug
+--ï¿½ï¿½Ê±ï¿½ï¿½bug
 --Iriya:Loli
 local fateloli_skill={}
 fateloli_skill.name="fateloli_vs"
@@ -632,10 +613,10 @@ end
 
 
 sgs.ai_skill_use_func["#fateloli_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
 			if not enemy:isKongcheng() then
-				use.card = sgs.Card_Parse("#fateloli_card:.:") -- ²»°üº¬ÈÎºÎ×Ó¿¨µÄ¼¼ÄÜ¿¨
+				use.card = sgs.Card_Parse("#fateloli_card:.:") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -801,7 +782,9 @@ sgs.ai_skill_discard["fateduoluo"] = function(self, discard_num, min_num, option
 	return {}
 end
 
---Ñà·µ Äã¿ÉÒÔ½«²İ»¨ÅÆµ±¡¾ÉÁ¡¿Ê¹ÓÃ»ò´ò³ö£»½«·½Æ¬ÅÆµ±¡¾É±¡¿Ê¹ÓÃ»ò´ò³ö¡£
+sgs.need_kongcheng = sgs.need_kongcheng .. "|fatenixi"
+
+--ï¿½à·µ ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½İ»ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½Æµï¿½ï¿½ï¿½É±ï¿½ï¿½Ê¹ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½
 sgs.ai_view_as.fateyanfan_vs = function(card, player, card_place)
     local suit = card:getSuitString()
     local number = card:getNumberString()
@@ -852,11 +835,25 @@ sgs.Kojirou_suit_value =
     club = 4.8
 }
 
---Carene Ê¥º¡
+--Carene Ê¥ï¿½ï¿½
 sgs.ai_skill_invoke.fateshenghai = function(self, data)
 	return true
 end
 
+sgs.ai_ajustdamage_to.fateshenghai = function(self, from, to, card, nature)
+	if to:getMark("@fateshenghai") > 0 
+	then
+		return -99
+	end
+end
+
+sgs.ai_can_damagehp.fateshenghai = function(self, from, card, to)
+	if from and to:getHp() - self:ajustDamage(from, to, 1, card) == 0
+		and self:canLoseHp(from, card, to) and self:getAllPeachNum() > 0
+	then
+		return to:getPhase() == sgs.Player_NotActive
+	end
+end
 
 fateshenghai_damageeffect = function(self, to, nature, from)
 	if to:hasSkill("fateshenghai") and to:getMark("@fateshenghai") > 0 then return false end
@@ -864,8 +861,8 @@ fateshenghai_damageeffect = function(self, to, nature, from)
 end
 table.insert(sgs.ai_damage_effect, fateshenghai_damageeffect)
 
---Kirei ºÚ¼ü Äã¿ÉÒÔÔÚ³öÅÆ½×¶Î½«Ò»ÕÅºÚÉ«ÊÖÅÆ£¨Ã¿»ØºÏÏŞÒ»´Î£©»òÆäËû½ÇÉ«ËÀÍöÊ±ÆúµôµÄºÚÉ«ÅÆÖÃÓÚÄãµÄÎä½«ÅÆÉÏ£¬³ÆÎª¡¾¼ü¡¿¡£ÄãÃ¿ÓµÓĞÒ»ÕÅ¡¾¼ü¡¿£¬ÊÖÅÆÉÏÏŞ±ã+1¡£
---ÄãÊÜµ½ÉËº¦Ê±£¬¿ÉÒÔÆúµôÒ»ÕÅ¡¾¼ü¡¿Ê¹ÉËº¦-1£»Ôì³ÉÉËº¦Ê±£¬¿ÉÒÔÆúµôÒ»ÕÅ¡¾¼ü¡¿Ê¹ÉËº¦+1¡£Äã×î¶àÖ»ÄÜÍ¬Ê±ÓµÓĞÎåÕÅ¡¾¼ü¡¿¡£
+--Kirei ï¿½Ú¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½Æ½×¶Î½ï¿½Ò»ï¿½Åºï¿½É«ï¿½ï¿½ï¿½Æ£ï¿½Ã¿ï¿½Øºï¿½ï¿½ï¿½Ò»ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Äºï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä½«ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿Óµï¿½ï¿½Ò»ï¿½Å¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ş±ï¿½+1ï¿½ï¿½
+--ï¿½ï¿½ï¿½Üµï¿½ï¿½Ëºï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Å¡ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ëºï¿½-1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëºï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Å¡ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ëºï¿½+1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Í¬Ê±Óµï¿½ï¿½ï¿½ï¿½ï¿½Å¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 local fateheijian_skill={}
 fateheijian_skill.name="fateheijian"
@@ -891,11 +888,11 @@ sgs.ai_skill_use_func["#fateheijian_card"]=function(card,use,self)
 end
 
 sgs.ai_skill_invoke["fateheijianDamage"] = function(self, data)
-	--²»ÄÜ·¢¶¯Ê±²»·¢¶¯
+	--ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	local damage = data:toDamage()
-	if self:isFriend(damage.to) then return false end--¶Ô¶ÓÓÑ²»·¢¶¯
-	if damage.to:getHp()<3 then return true end--¶Ô2Ñª»ò2ÑªÒÔÏÂµÄµĞÈË·¢¶¯
-	if self.player:getHp() == 1 then return false end--1ÑªÊ±²»·¢¶¯
+	if self:isFriend(damage.to) then return false end--ï¿½Ô¶ï¿½ï¿½Ñ²ï¿½ï¿½ï¿½ï¿½ï¿½
+	if damage.to:getHp()<3 then return true end--ï¿½ï¿½2Ñªï¿½ï¿½2Ñªï¿½ï¿½ï¿½ÂµÄµï¿½ï¿½Ë·ï¿½ï¿½ï¿½
+	if self.player:getHp() == 1 then return false end--1ÑªÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 --[[	local i=0
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards)
@@ -904,14 +901,14 @@ sgs.ai_skill_invoke["fateheijianDamage"] = function(self, data)
 			i=i+1
 		end
 	end]]
-	if ((self.player:getPile("fateheijiancards")):length() < 2)  and (self:getCardsNum("Jink") == 0) then --and (i==0) then--·ñÔòÖ»ÓĞÒ»ÕÅ¼üÇÒÊÖÅÆÎŞÉÁÊ±£¬²»·¢¶¯
+	if ((self.player:getPile("fateheijiancards")):length() < 2)  and (self:getCardsNum("Jink") == 0) then --and (i==0) then--ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Ò»ï¿½Å¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		return false
 	end
 	return true	
 end
 
 sgs.ai_skill_invoke["fateheijianDefense"] = function(self, data)
-	if self:getCardsNum("Peach") < 2 then --ÓĞÁ½¸ö»òÒÔÉÏµÄÌÒ
+	if self:getCardsNum("Peach") < 2 then --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½
 		return true
 	end		
 end
@@ -930,7 +927,7 @@ sgs.Kirei_suit_value =
 --sgs.ai_skill_invoke["fatefanji"] = function(self, data)
 sgs.ai_skill_invoke["fatefanji"] = function(self, data, pattern, target)
 --[[	local target = data:toResponsed().m_who
-	if self:getCardsNum("Slash") >0 and not self:isFriend(target) then --ÓĞÉ±ÇÒ²»ÊÇ¶ÓÓÑ
+	if self:getCardsNum("Slash") >0 and not self:isFriend(target) then --ï¿½ï¿½É±ï¿½Ò²ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½
 		return true
 	end	
 	
@@ -942,7 +939,7 @@ sgs.ai_skill_invoke["fatefanji"] = function(self, data, pattern, target)
 	if self:getCardsNum("Slash") == 0 then --Ã»É±
 		return false
 	end
-	local cur = self.room:getCurrent() --Õâ¾äÒÑ²âÊÔ£¬Ã»ÓĞÎÊÌâ
+	local cur = self.room:getCurrent() --ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½ï¿½Ô£ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	--local target = data:toPlayer()
 --	local target = data:toResponsed().m_who
 	--if target then return true end               self:isFriend(next_player)
@@ -960,10 +957,10 @@ fatefanshi_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatefanshi_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
 			if self:objectiveLevel(enemy) > 3 and self.player:distanceTo(enemy) <= self.player:getAttackRange() then
-				use.card = sgs.Card_Parse("#fatefanshi_card:.:") -- ²»°üº¬ÈÎºÎ×Ó¿¨µÄ¼¼ÄÜ¿¨
+				use.card = sgs.Card_Parse("#fatefanshi_card:.:") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -986,10 +983,10 @@ fatexinyin_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatexinyin_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
 			if self:objectiveLevel(enemy) > 3 and self.player:distanceTo(enemy) <= 1 then
-				use.card = sgs.Card_Parse("#fatexinyin_card:.:") -- ²»°üº¬ÈÎºÎ×Ó¿¨µÄ¼¼ÄÜ¿¨
+				use.card = sgs.Card_Parse("#fatexinyin_card:.:") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -1005,11 +1002,11 @@ sgs.ai_skill_choice.fatexinyin_card=function(self,choices)
 	return "xychoice1"
 end
 
---Rin Ô¶ÛàÁİ
+--Rin Ô¶ï¿½ï¿½ï¿½ï¿½
 sgs.ai_skill_invoke["fateqingxing"] = function(self, data)
-	--¶Ô×Ô¼º£¬Èç¹ûÓĞÅĞ¶¨»òËğÑª¾Í·¢¶¯
-	--¶Ô¶ÓÓÑ£¬Èç¹ûÑªÁ¿Ğ¡ÓÚ3»òËğÑªÇÒÉÁ+ºìÌÒ>2¿ÉÒÔ·¢¶¯
-	--²»ÄÜ·¢¶¯Ê±²»·¢¶¯
+	--ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½Ñªï¿½Í·ï¿½ï¿½ï¿½
+	--ï¿½Ô¶ï¿½ï¿½Ñ£ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½Ğ¡ï¿½ï¿½3ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½ï¿½>2ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½
+	--ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	local cards = self.player:getCards("he")
 	local i=0
 	cards = sgs.QList2Table(cards)
@@ -1021,18 +1018,18 @@ sgs.ai_skill_invoke["fateqingxing"] = function(self, data)
 	if i==0 then return false end
 	local player = self.room:getCurrent()
 	if not self:isFriend(player) then return false end
-	local judges = player:getJudgingArea() --·µ»Ø QList<const Card *>
+	local judges = player:getJudgingArea() --ï¿½ï¿½ï¿½ï¿½ QList<const Card *>
 	if player:hasSkill("fateqingxing") then 
 		if player:isWounded() and player:getMark("@fatebimie")==0 then
 			return true
 		end
 		if not judges:isEmpty() then
-			if self:hasWizard(self.enemies) then return true end --Èç¹ûµĞÈËÓĞÉñ¹÷£¬Ö±½Ó·¢¶¯
+			if self:hasWizard(self.enemies) then return true end --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó·ï¿½ï¿½ï¿½
 			for _,cd in sgs.qlist(judges) do
-				if not cd:isKindOf("Lightning") then return true end --"Lightning"ÆäÊµÓ¦¸ÄÎª¡°ÌìÔÖ¡±
+				if not cd:isKindOf("Lightning") then return true end --"Lightning"ï¿½ï¿½ÊµÓ¦ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½
 			end
 		else 
-			return false --ÓĞÇÒÖ»ÓĞÉÁµç
+			return false --ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		end
 	end
 	if (player:getHp() < 2 and player:isWounded()) and player:getMark("@fatebimie")==0 then return true end
@@ -1065,18 +1062,18 @@ sgs.ai_skill_cardask["@fateqingxing1"] = function(self, data, pattern, target)
 	if i==0 then return "." end
 	local player = self.room:getCurrent()
 	if not self:isFriend(player) then return "." end
-	local judges = player:getJudgingArea() --·µ»Ø QList<const Card *>
+	local judges = player:getJudgingArea() --ï¿½ï¿½ï¿½ï¿½ QList<const Card *>
 	if player:hasSkill("fateqingxing") then 
 		if player:isWounded() and player:getMark("@fatebimie")==0 then
 			return "$" .. heart[1]
 		end
 		if not judges:isEmpty() then
-			if self:hasWizard(self.enemies) then return "$" .. heart[1] end --Èç¹ûµĞÈËÓĞÉñ¹÷£¬Ö±½Ó·¢¶¯
+			if self:hasWizard(self.enemies) then return "$" .. heart[1] end --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½Ó·ï¿½ï¿½ï¿½
 			for _,cd in sgs.qlist(judges) do
-				if not cd:isKindOf("Lightning") then return "$" .. heart[1] end --"Lightning"ÆäÊµÓ¦¸ÄÎª¡°ÌìÔÖ¡±
+				if not cd:isKindOf("Lightning") then return "$" .. heart[1] end --"Lightning"ï¿½ï¿½ÊµÓ¦ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½Ö¡ï¿½
 			end
 		else 
-			return "." --ÓĞÇÒÖ»ÓĞÉÁµç
+			return "." --ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		end
 	end
 	if (self:isWeak(player) and player:isWounded()) and player:getMark("@fatebimie")==0 then return  "$" .. heart[1] end
@@ -1134,7 +1131,7 @@ sgs.ai_skill_use_func["#fatebumo_card"]=function(card,use,self)
     end
 end
 
---Sakura ¼äÍ©Ó£
+--Sakura ï¿½ï¿½Í©Ó£
 
 local fatechuyi_vs_skill={}
 fatechuyi_vs_skill.name="fatechuyi_vs"
@@ -1180,7 +1177,7 @@ sgs.ai_skill_use_func["#fatechuyi_card"]=function(card,use,self)
             return
         end
     end
-	if self:getOverflow()>0 then --ÎŞÈËÊÜÉËÇÒĞèÆúÅÆÊ±Ê±Ñ¡ÔñÊÖÅÆ×îÉÙµÄÄÇ¸ö
+	if self:getOverflow()>0 then --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±Ê±Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ùµï¿½ï¿½Ç¸ï¿½
 		self:sort(self.friends_noself, "handcard")
 		for _, friend in ipairs(self.friends_noself) do 
       		if not (friend:hasSkill("kongcheng") and friend:isKongcheng()) then
@@ -1204,7 +1201,7 @@ end
 
 
 --Medea
---vs²¿·Ö£¬³ıÁËÌÒºÍÎŞÖĞÖ®Íâ¶¼¿ÉÒÔreturn£¬ÊÇ·ñÊ¹ÓÃÔÚºóÃæÅĞ¶Ï
+--vsï¿½ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½â¶¼ï¿½ï¿½ï¿½ï¿½returnï¿½ï¿½ï¿½Ç·ï¿½Ê¹ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½
 
 local fateyaoshu_skill={}
 fateyaoshu_skill.name="fateyaoshu"
@@ -1216,37 +1213,13 @@ fateyaoshu_skill.getTurnUseCard=function(self)
 		local cards = self.player:getHandcards()
 		local same_suit=false
 		cards = sgs.QList2Table(cards)
-	--[[	local jinknum=0
-		for _, card in ipairs(cards) do
-			if card:isKindOf("Jink") then
-				jinknum = jinknum+1
-			end
-		end]]
 		for _, fcard in ipairs(cards) do
 			if not (fcard:isKindOf("Peach") or fcard:isKindOf("ExNihilo")) then
 				first_card = fcard
 				first_found = true
 				for _, scard in ipairs(cards) do
-					--[[local jinksin2=0
-					local jinktag=true
-					if fcard:isKindOf("Jink") then 
-						jinksin2 = 1
-						if scard:isKindOf("Jink") then 
-							jinksin2 = 2
-						end
-					elseif scard:isKindOf("Jink") then
-						jinksin2 = 1
-					else jinksin2 = 0
-					end
-					Èç¹û²»ÊÇ1ÑªÇÒ·¢¶¯ºó¾ÍÃ»ÉÁÁË£¬Ôò²»·¢¶¯
-					--if jinksin2 == self.player:getCardsNum("Jink") then Õâ¾ä»áÓĞÎÊÌâ£¬¿´À´²»ÄÜÕâÃ´µ÷ÓÃ
-					if jinksin2 > 0 and jinksin2 == jinknum then --and jinksin2~=0 and self.player:getHp() >1 then
-						jinktag = false
-					else jinktag = true
-					end]]
 					if first_card ~= scard and scard:getSuitString() == first_card:getSuitString() and 
 						not (scard:isKindOf("Peach") or scard:isKindOf("ExNihilo")) then -- and 
-						--jinktag then
 						second_card = scard
 						second_found = true
 						break
@@ -1256,22 +1229,119 @@ fateyaoshu_skill.getTurnUseCard=function(self)
 			end
 		end
 	end
+	if first_found and second_found then
+		local card_str = "#fateyaoshu:.:"
+		assert(card_str)
+    	return sgs.Card_Parse(card_str)
+	end
+end
 
+sgs.ai_skill_use_func["#fateyaoshu"]=function(card,use,self)
+	local first_found, second_found = false, false
+	local first_card, second_card
+	if self.player:getHandcardNum() >= 2 then
+		local cards = self.player:getHandcards()
+		local same_suit=false
+		cards = sgs.QList2Table(cards)
+		for _, fcard in ipairs(cards) do
+			if not (fcard:isKindOf("Peach") or fcard:isKindOf("ExNihilo")) then
+				first_card = fcard
+				first_found = true
+				for _, scard in ipairs(cards) do
+					if first_card ~= scard and scard:getSuitString() == first_card:getSuitString() and 
+						not (scard:isKindOf("Peach") or scard:isKindOf("ExNihilo")) then -- and 
+						second_card = scard
+						second_found = true
+						break
+					end
+				end
+				if second_card then break end
+			end
+		end
+	end
 	if first_found and second_found then
 		local first_suit, first_id = first_card:getSuit(), first_card:getEffectiveId()
 		local second_suit, second_id = second_card:getSuit(), second_card:getEffectiveId()
-		local card_str
+		local card_str = ("#fateyaoshu:%d+%d:"):format(first_id, second_id)
 		if first_suit == sgs.Card_Diamond then 
-			card_str = ("#fateyaoshu3:%d+%d:"):format(first_id, second_id)
+			use.card = sgs.Card_Parse(card_str)
+			if use.to then use.to:append(self.player) end
+			return
 		elseif first_suit == sgs.Card_Spade then 
-			card_str = ("#fateyaoshu2:%d+%d:"):format(first_id, second_id)
+			local target
+			for _,friend in ipairs(self.friends)do
+				if not friend:faceUp() then
+						target = friend
+					break
+				end
+				if not target then
+					if not self:toTurnOver(friend,0,"fateyaoshu") then
+						target = friend
+						break
+					end
+				end
+			end
+			self:sort(self.enemies)
+			for _,enemy in ipairs(self.enemies)do
+				if self:toTurnOver(enemy,0,"fateyaoshu") then
+					target = enemy
+					break
+				end
+			end
+			if not target then
+				for _,enemy in ipairs(self.enemies)do
+					if self:toTurnOver(enemy,0,"fateyaoshu") and self:hasSkills(sgs.priority_skill,enemy) then
+						target = enemy
+						break
+					end
+				end
+			end
+			if not target then
+				for _,enemy in ipairs(self.enemies)do
+					if self:toTurnOver(enemy,0,"fateyaoshu") then
+						target = enemy
+						break
+					end
+				end
+			end
+			if target then
+				use.card = sgs.Card_Parse(card_str)
+				if use.to then use.to:append(target) end
+				return
+			end
 		elseif first_suit == sgs.Card_Heart then 
-			card_str = ("#fateyaoshu1:%d+%d:"):format(first_id, second_id)
+			local arr1, arr2 = self:getWoundedFriend(false, true)
+			local target = nil
+
+			if #arr1 > 0 and (self:isWeak(arr1[1]) or self:getOverflow() >= 1) and arr1[1]:getHp() < getBestHp(arr1[1]) then
+				target =
+					arr1[1]
+			end
+			if target then
+				use.card = sgs.Card_Parse(card_str)
+				if use.to then use.to:append(target) end
+				return 
+			end
+			if self:getOverflow() > 0 and #arr2 > 0 then
+				for _, friend in ipairs(arr2) do
+					if not friend:hasSkills("hunzi|longhun") then
+						use.card = sgs.Card_Parse(card_str)
+						if use.to then use.to:append(friend) end
+						return
+					end
+				end
+			end
 		elseif first_suit == sgs.Card_Club  then 
-			card_str = ("#fateyaoshu4:%d+%d:"):format(first_id, second_id)
+			for _,enemy in sgs.list(self.enemies)do
+				if self:objectiveLevel(enemy)>3 and not self:cantbeHurt(enemy) and self:damageIsEffective(enemy, sgs.DamageStruct_Thunder)
+				then
+					use.card = sgs.Card_Parse(card_str)
+						if use.to then use.to:append(enemy) end
+						return
+				end
+			end
 		end
-		assert(card_str)
-    	return sgs.Card_Parse(card_str)
+    	return
 	end
 end
 
@@ -1296,10 +1366,10 @@ sgs.ai_skill_use_func["#fateyaoshu1"]=function(card,use,self)
 end
 
 sgs.ai_skill_use_func["#fateyaoshu2"]=function(card,use,self)
-	self:sort(self.enemies, "chaofeng") -- °´³°·íÖµ´Ó´óµ½Ğ¡ÅÅĞò
+	self:sort(self.enemies, "chaofeng") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½Ó´ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
 			if self:objectiveLevel(enemy) > 3 and enemy:faceUp() then
-				use.card = card -- ¼¼ÄÜ¿¨
+				use.card = card -- ï¿½ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -1308,7 +1378,7 @@ sgs.ai_skill_use_func["#fateyaoshu2"]=function(card,use,self)
 		end
 		for _, friend in ipairs(self.friends) do
         	if not friend:faceUp() then
-				use.card = card -- ¼¼ÄÜ¿¨
+				use.card = card -- ï¿½ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(friend)
 				end
@@ -1317,8 +1387,9 @@ sgs.ai_skill_use_func["#fateyaoshu2"]=function(card,use,self)
         end
 end
 
---ÔİÊ±Ö»ÄÜ¶Ô×Ô¼ºÊ¹ÓÃ
+--ï¿½ï¿½Ê±Ö»ï¿½Ü¶ï¿½ï¿½Ô¼ï¿½Ê¹ï¿½ï¿½
 sgs.ai_skill_use_func["#fateyaoshu3"]=function(card,use,self)
+	self.room:writeToConsole("t4")
 	use.card=card
 	if use.to then
 		use.to:append(self.player)
@@ -1327,11 +1398,11 @@ end
 
 
 sgs.ai_skill_use_func["#fateyaoshu4"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for _, enemy in ipairs(self.enemies) do
-			if self:getOverflow()<1 and enemy:getHp()>1 then return end --Èç¹û²»ĞèÒªÆúÅÆ£¬ÔòÖ»ÔÚ²¹µ¶Ê±·¢¶¯
+			if self:getOverflow()<1 and enemy:getHp()>1 then return end --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½Ö»ï¿½Ú²ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 			if self:objectiveLevel(enemy) > 3 then
-				use.card = card -- ¼¼ÄÜ¿¨
+				use.card = card -- ï¿½ï¿½ï¿½Ü¿ï¿½
 				if use.to then
 					use.to:append(enemy)
 				end
@@ -1352,9 +1423,15 @@ fatefapao_damageeffect = function(self, to, nature, from)
 	return true
 end
 table.insert(sgs.ai_damage_effect, fatefapao_damageeffect)
+sgs.ai_ajustdamage_to.fatefapao = function(self, from, to, card, nature)
+	if nature ~= "N"
+	then
+		return -99
+	end
+end
 
 
---Gilgamesh ¼ª¶ûÙ¤ÃÀÊ²
+--Gilgamesh ï¿½ï¿½ï¿½ï¿½Ù¤ï¿½ï¿½Ê²
 local fateluanshe_vs_skill={}
 fateluanshe_vs_skill.name="fateluanshe_vs"
 table.insert(sgs.ai_skills,fateluanshe_vs_skill)
@@ -1382,7 +1459,7 @@ fateluanshe_vs_skill.getTurnUseCard=function(self,inclusive)
 end
 --[[
 sgs.ai_skill_playerchosen["@fatechuanxin2"] = function(self, targets)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and enemy:getMark("@fateshenghai") < 1
 		and enemy:getMark("@fatesakura_mark") < 1 and not (enemy:hasSkill("yiji") or enemy:hasSkill("jieming") or enemy:hasSkill("fangzhu") or enemy:hasSkill("guixin") or enemy:hasSkill("fatewangzhe"))
@@ -1399,6 +1476,16 @@ sgs.ai_skill_playerchosen["@fatechuanxin2"] = function(self, targets)
 	end
 end
 ]]
+sgs.ai_skill_cardask["@fatechuanxin1"] = function(self, data, pattern, target, target2)
+	if #self.enemies == 0 then return "." end
+	local card = sgs.QList2Table(self.player:getHandcards())
+	if #card == 0 then return "." end
+	if sgs.ai_skill_playerchosen.zero_card_as_slash(self, self.room:getOtherPlayers(self.player)) ~= nil then
+		self:sortByKeepValue(card)
+		return "$"..card[1]:getEffectiveId()
+	end
+	return "."
+end
 sgs.ai_skill_playerchosen["@fatechuanxin2"] = sgs.ai_skill_playerchosen.zero_card_as_slash
 sgs.Gilgamesh_suit_value = 
 {
@@ -1411,13 +1498,13 @@ sgs.Gilgamesh_use_value =
 }
 
 --Rider Medusa 
---Èô¡¾É±¡¿¶àÓÚ1£¬Ö±½ÓÌìÒå
---·ñÔòÈôÓĞÎäÆ÷ÇÒ¾àÀëÄÚÓĞµĞÈË/»ò¾àÀëÄÚÓĞ±ôËÀµĞÈËÇÒ×Ô¼º2ÑªÒÔÉÏ£¬Ñ¡ÔñÇ¿Ï®
---·ñÔòÈôÊÖÅÆÖĞºÚÅÆÊı´óÓÚµÈÓÚ2£¬Ñ¡ÔñÆæÏ®
---·ñÔòÈôÓĞÒ»ÕÅÉ±£¬Ñ¡ÔñÌìÒå
---·ñÔò±ØÎŞÉ±£¬Èô¹¥»÷·¶Î§ÄÚÓĞµĞÈË£¬Ñ¡ÔñÎäÊ¥
---·ñÔòÈôÓĞºÚÅÆÑ¡ÔñÆæÏ®
---·ñÔòÑ¡ÔñÌìÒå
+--ï¿½ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½2Ñªï¿½ï¿½ï¿½Ï£ï¿½Ñ¡ï¿½ï¿½Ç¿Ï®
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½2ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ï®
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½É±ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½ï¿½Ğµï¿½ï¿½Ë£ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ê¥
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğºï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ï®
+--ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 sgs.ai_skill_invoke.fateguangbo = function(self, data)
 	return true
@@ -1477,7 +1564,7 @@ sgs.ai_skill_choice.fateguangbo=function(self,choices)
 	return "fateguangbo3"
 end
 
---Ö±½ÓÔÚÊ×ÂÖ·¢¶¯£¬¼òµ¥Ê¡ÊÂ~~~~~~~~~~~~~~~~~~~~~~~~~
+--Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¡ï¿½ï¿½~~~~~~~~~~~~~~~~~~~~~~~~~
 sgs.ai_skill_invoke.fatetuji = function(self, data)
 	return self:isWeak() or sgs.turncount > 1
 end
@@ -1551,18 +1638,18 @@ end
 
 
 sgs.ai_skill_invoke["fatehuyoubad"] = function(self, data)
---ÓĞÅĞ¶¨ÅÆÊ±£¬¶ÔÓÑ·½µÄ²ğË³²»·¢¶¯;»ò´¦ÓÚºáÖÃ×´Ì¬Ê±£¬¶ÔÌúË÷²»·¢¶¯
+--ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ñ·ï¿½ï¿½Ä²ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½;ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½×´Ì¬Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 --	local effect = data:toCardEffect()
 	--local from=data:toCardEffect().from
 --	local card = effect.card
---	local cur = self.room:getCurrent() --Õâ¾äÒÑ²âÊÔ£¬Ã»ÓĞÎÊÌâ
---	local judges = self:getJudgingArea() --·µ»Ø QList<const Card *>
+--	local cur = self.room:getCurrent() --ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½ï¿½Ô£ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+--	local judges = self:getJudgingArea() --ï¿½ï¿½ï¿½ï¿½ QList<const Card *>
 	--if self:isFriend(cur) and ((effect.card:isKindOf("Snatch") or effect.card:isKindOf("Dismantlement")) and judges:isEmpty()==false) then return false end
 --	if self:isFriend(cur) and (effect.card:isKindOf("Snatch") or effect.card:isKindOf("Dismantlement")) then return false end
 --	if not judges:isEmpty() then return false end
 --	if self:isChained() and effect.card:isKindOf("IronChain") then return false end
 --	if self:isFriend(cur) then return true end
---	if (card:isKindOf("Snatch") or card:isKindOf("Dismantlement")) then return true end --Õâ¾äÓĞ´í£¡
+--	if (card:isKindOf("Snatch") or card:isKindOf("Dismantlement")) then return true end --ï¿½ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½ï¿½
 	return true
 end
 
@@ -1579,7 +1666,7 @@ sgs.ai_skill_playerchosen["#fatehuyoubad_target"] = function(self, targets)
 				table.insert(choices, target)
 			end
 		end
-		self:sort(choices, "hp", true) --²»¼ÓÕâ¾ä£¬»áÖ±½Ó¸øÖ÷¹«(targets:at(0))
+		self:sort(choices, "hp", true) --ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä£¬ï¿½ï¿½Ö±ï¿½Ó¸ï¿½ï¿½ï¿½ï¿½ï¿½(targets:at(0))
 		return choices[1] --targets:at(0)
 	end
 	self:sort(choices, "hp")
@@ -1587,7 +1674,7 @@ sgs.ai_skill_playerchosen["#fatehuyoubad_target"] = function(self, targets)
 end
 
 sgs.ai_skill_invoke["fatehuyougood"] = function(self, data)
-	for _, friend in ipairs(self.friends_noself) do  --ÎÔ²Û£¬ÕâÀïÓÃisWounded()¾ÓÈ»²»ĞĞ£¬mlgb
+	for _, friend in ipairs(self.friends_noself) do  --ï¿½Ô²Û£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½isWounded()ï¿½ï¿½È»ï¿½ï¿½ï¿½Ğ£ï¿½mlgb
         if friend:getLostHp() > 0 and self.player:getLostHp()==0 then -- and (self.player:distanceTo(friend) <= self.player:getAttackRange()) 
             return true
         end
@@ -1662,7 +1749,7 @@ sgs.ai_skill_playerchosen["fatehuyou"] = function(self, targets)
 			end
 		end
 		for _, friend in ipairs(self.friends) do
-			if ((friend:hasSkills(sgs.masochism_skill) or self:needToLoseHp(friend, effect.from, false)) and not self:isWeak(friend)) or not self:hasTrickEffective(card, effect.from, friend) or not self:damageIsEffective(friend, nature)  and  table.contains(targets, friend) then
+			if ((friend:hasSkills(sgs.masochism_skill) or self:needToLoseHp(friend, effect.from, card,false)) and not self:isWeak(friend)) or not self:hasTrickEffective(card, effect.from, friend) or not self:damageIsEffective(friend, nature)  and  table.contains(targets, friend) then
 				return friend
 			end
 		end
@@ -1685,7 +1772,7 @@ sgs.ai_skill_playerchosen["fatehuyou"] = function(self, targets)
 			end
 		end
 		for _, friend in ipairs(self.friends) do
-			if (((friend:hasSkills(sgs.masochism_skill) or self:needToLoseHp(friend, effect.from, false)) and not self:isWeak(friend)) or not self:hasTrickEffective(card, effect.from, friend) or not self:damageIsEffective(friend, nature) or  friend:hasArmorEffect("vine")) and  table.contains(targets, friend) then
+			if (((friend:hasSkills(sgs.masochism_skill) or self:needToLoseHp(friend, effect.from, card,false)) and not self:isWeak(friend)) or not self:hasTrickEffective(card, effect.from, friend) or not self:damageIsEffective(friend, nature) or  friend:hasArmorEffect("vine")) and  table.contains(targets, friend) then
 				return friend
 			end
 		end
@@ -1751,6 +1838,7 @@ sgs.ai_skill_invoke.fatejiejie = function(self, data)
 end
 ]]
 sgs.ai_skill_invoke.fatejiejie = function(self, data)
+	local effect = data:toCardEffect()
 	local dying = 0
 	local handang = self.room:findPlayerBySkillName("nosjiefan")
 	for _, aplayer in sgs.qlist(self.room:getAlivePlayers()) do
@@ -1759,16 +1847,16 @@ sgs.ai_skill_invoke.fatejiejie = function(self, data)
 	if handang and self:isFriend(handang) and dying > 0 then return false end
 
 	
-	--ê ÓÑÒªèFæißB­hš¢×Ô¼º•r²»ÓÃ°ËØÔê‡
+	--ï¿½ï¿½ï¿½Òªï¿½Fï¿½iï¿½Bï¿½hï¿½ï¿½ï¿½Ô¼ï¿½ï¿½rï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½
 	local current = self.room:getCurrent()
-	if current and self:isFriend(current) and self.player:isChained() and self:isGoodChainTarget(self.player, current) then return false end	--ƒÈ¼éÌø·´•şÓĞ†–î}£¬·ÇŒÙĞÔš¢Ò²ÓĞ†–î}¡£µ« î›rÌØÊâ£¬°ËØÔê‡Ô­´aÙYÓ²»×ã£¬•º•rß@˜ÓŒ‘¡£
+	if current and self:isFriend(current) and self.player:isChained() and self:isGoodChainTarget(self.player, current) then return false end	--ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ†ï¿½ï¿½}ï¿½ï¿½ï¿½ÇŒï¿½ï¿½Ôšï¿½Ò²ï¿½Ğ†ï¿½ï¿½}ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rï¿½ï¿½ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½aï¿½YÓï¿½ï¿½ï¿½ã£¬ï¿½ï¿½ï¿½rï¿½@ï¿½ÓŒï¿½ï¿½ï¿½
 
 	if self.player:getHandcardNum() == 1 and self:getCardsNum("Jink") == 1 and self.player:hasSkills("zhiji|beifa") and self:needKongcheng() then
 		local enemy_num = self:getEnemyNumBySeat(self.room:getCurrent(), self.player, self.player)
 		if self.player:getHp() > enemy_num and enemy_num <= 1 then return false end
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
-	if self:getDamagedEffects(self.player, nil, true) or self:needToLoseHp(self.player, nil, true, true) then return false end
+	if self:needToLoseHp(self.player, effect.from,effect.card, true, true) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 	
 	return true
@@ -1788,10 +1876,10 @@ fatemoshu_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatemoshu_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if not enemy:isKongcheng() and not enemy:hasSkill("tiandu") then
-			use.card = sgs.Card_Parse("#fatemoshu_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatemoshu_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -1800,7 +1888,7 @@ sgs.ai_skill_use_func["#fatemoshu_card"]=function(card,use,self)
 	end
 	for _, enemy in ipairs(self.enemies) do
 		if self:getOverflow()>0 then
-			use.card = sgs.Card_Parse("#fatemoshu_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatemoshu_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -1832,12 +1920,12 @@ end
 
 sgs.ai_skill_use_func["#fatejuntuan_card"]=function(card,use,self)
 	local first
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and self.player:distanceTo(enemy) < 2
 		and not ((enemy:hasSkill("yiji") or enemy:hasSkill("jieming") or enemy:hasSkill("fangzhu") or enemy:hasSkill("guixin")) and enemy:getHp()>1)
 		then
-			use.card = sgs.Card_Parse("#fatejuntuan_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatejuntuan_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				first=enemy
@@ -1879,13 +1967,15 @@ sgs.ai_skill_invoke.fatehuwei = function(self, data)
 	return false
 end
 
+
 sgs.ai_skill_playerchosen["@fatehuwei"] = function(self, targets)
 	local choices = {}
 	local card = sgs.Sanguosha:cloneCard("savage_assault", sgs.Card_NoSuit, -1)
+	card:deleteLater()
 	for _, target in sgs.qlist(targets) do
 		local armor = target:getArmor()
 		if self:isFriend(target)  and self:hasTrickEffective(card, target, self.player)
-		and not (armor and armor:isKindOf("Vine")) --ÌÙ¼×
+		and not (armor and armor:isKindOf("Vine")) --ï¿½Ù¼ï¿½
 		then
 			table.insert(choices, target)
 		end
@@ -1893,6 +1983,13 @@ sgs.ai_skill_playerchosen["@fatehuwei"] = function(self, targets)
 	self:sort(choices, "hp")
 	return choices[1]
 end
+
+sgs.ai_target_revises.fatehuwei = function(to, card)
+	if card:isKindOf("SavageAssault")then
+		return true
+	end
+end
+
 
 --Diarmuid
 sgs.ai_skill_invoke.fatepomo = function(self, data)
@@ -1905,19 +2002,19 @@ sgs.ai_skill_playerchosen["@fatepomo"] = function(self, targets)
 			return enemy
 		end
 	end
-	--·ñÔò¾àÀë1ÒÔÄÚµÄ£º¶éÂä
+	--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ÚµÄ£ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkill("fateduoluo") and enemy:distanceTo(self.player)< 2 then
 			return enemy
 		end
 	end
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
-	--fate£ºÍõÕß£¬Ä§Á¦£¬ºÚ¼ü£¬Ñà·µ£¬»¤ÓÓ£¬½á½ç£¬+ÇÓÅ³
-	--Õı³£°æ£ºÒÅ¼Æ£¬¼éĞÛ£¬·´À¡£¬Çã¹ú£¬½ÚÃü£¬¸ÕÁÒ£¬ÒãÖØ£¬¿Õ³Ç£¬Áúµ¨£¬°ËÕó£¬¿´ÆÆ£¬ÎŞÑÔ£¬Á÷Àë£¬ÌìÏã£¬À×»÷£¬¹Æ»ó£¬·ÅÖğ£¬á¡Ä»£¬ÍÍÌï£¬ÏíÀÖ£¬¹éĞÄ£¬·ÉÓ°£¬¾ø¾³£¬Áú»ê£¬ÈÌ½ä
-	--»òÊÇÓĞ·À¾ßµÄ
-	--ÈçÖ»ÓĞ1Ñª£¬Ôò¼ÓÉÏ£º
-	--fate£ºÊ¥º¡£¬ÊÔÁ¶
-	--±ê×¼°æ£º»ÓÀá£¬Îä»ê£¬×·Òä£¬¼±¾È£¬²»Çü, ¶Ï³¦
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	--fateï¿½ï¿½ï¿½ï¿½ï¿½ß£ï¿½Ä§ï¿½ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½à·µï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ç£¬+ï¿½ï¿½Å³
+	--ï¿½ï¿½ï¿½ï¿½ï¿½æ£ºï¿½Å¼Æ£ï¿½ï¿½ï¿½ï¿½Û£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò£ï¿½ï¿½ï¿½ï¿½Ø£ï¿½ï¿½Õ³Ç£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬¿ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½Ô£ï¿½ï¿½ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ã£¬ï¿½×»ï¿½ï¿½ï¿½ï¿½Æ»ó£¬·ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï£¬ï¿½ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê£¬ï¿½Ì½ï¿½
+	--ï¿½ï¿½ï¿½ï¿½ï¿½Ğ·ï¿½ï¿½ßµï¿½
+	--ï¿½ï¿½Ö»ï¿½ï¿½1Ñªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½
+	--fateï¿½ï¿½Ê¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	--ï¿½ï¿½×¼ï¿½æ£ºï¿½ï¿½ï¿½á£¬ï¿½ï¿½ê£¬×·ï¿½ä£¬ï¿½ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ï³ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:distanceTo(enemy) <= self.player:getAttackRange() and
 		(enemy:hasSkill("fatewangzhe") or enemy:hasSkill("fatemoli") or enemy:hasSkill("fateheijian") or enemy:hasSkill("fateyanfan_vs") or enemy:hasSkill("fatehuyou") or enemy:hasSkill("fatejiejie") or enemy:hasSkill("fateqienuo") 
@@ -1934,9 +2031,9 @@ sgs.ai_skill_playerchosen["@fatepomo"] = function(self, targets)
 		end
 	end
 	
-	-- ·ñÔòÈ«ÌåµÄ£º
-	--fate£º½ßÖÇ£¬Ê¥Æ÷
-	--Õı³£°æ£º¿´ÆÆ£¬¹í²Å£¬¹íµÀ£¬¼±¾È
+	-- ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ä£ï¿½
+	--fateï¿½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½Ê¥ï¿½ï¿½
+	--ï¿½ï¿½ï¿½ï¿½ï¿½æ£ºï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½Å£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkill("fatejiezhi") or enemy:hasSkill("fateshengqi") or enemy:hasSkill("kanpo") or enemy:hasSkill("guicai") or enemy:hasSkill("guidao") 
 		or enemy:hasSkill("jijiu") 
@@ -1946,9 +2043,9 @@ sgs.ai_skill_playerchosen["@fatepomo"] = function(self, targets)
 	end
 	
 	
-	--·ñÔòÈ«ÌåµÄ£º
-	--fate£ºÍõÕß£¬»¤ÓÓ
-	--Õı³£°æ£ºÒÅ¼Æ£¬½ÚÃü£¬·ÅÖğ£¬¸ÊÂ¶£¬¹éĞÄ
+	--ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ä£ï¿½
+	--fateï¿½ï¿½ï¿½ï¿½ï¿½ß£ï¿½ï¿½ï¿½ï¿½ï¿½
+	--ï¿½ï¿½ï¿½ï¿½ï¿½æ£ºï¿½Å¼Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ğ£¬¸ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkill("fatewangzhe") or enemy:hasSkill("fatehuyou") or enemy:hasSkill("yiji") or enemy:hasSkill("jieming") or enemy:hasSkill("fangzhu") 
 		or enemy:hasSkill("ganlu") or enemy:hasSkill("guixin")
@@ -1957,9 +2054,9 @@ sgs.ai_skill_playerchosen["@fatepomo"] = function(self, targets)
 		end
 	end
 
-	--·ñÔòÈ«ÌåµÄ£º
-	--fate£º½£Ú££¬»¤ÎÀ£¬ºÚ¼ü
-	--Õı³£°æ£º¾ŞÏó£¬¼éĞÛ£¬»öÊ×£¬á¡Ä»£¬ÍÍÌï
+	--ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ä£ï¿½
+	--fateï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½
+	--ï¿½ï¿½ï¿½ï¿½ï¿½æ£ºï¿½ï¿½ï¿½ó£¬¼ï¿½ï¿½Û£ï¿½ï¿½ï¿½ï¿½×£ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:hasSkill("fatejianzhong") or enemy:hasSkill("fatehuwei") or enemy:hasSkill("fateheijian") or enemy:hasSkill("juxiang") or enemy:hasSkill("jianxiong") 
 		or enemy:hasSkill("huoshou") or enemy:hasSkill("weimu") or enemy:hasSkill("tuntian") 
@@ -1968,9 +2065,9 @@ sgs.ai_skill_playerchosen["@fatepomo"] = function(self, targets)
 		end
 	end
 	
-	--·ñÔò¹¥»÷·¶Î§ÄÚµÄ£º
-	--fate£º»úÖÇ£¬·¨ÅÛ£¬Ï×Éí
-	--±ê×¼°æ£ºÎäÊ¥£¬èÉ¼§£¬Òå´Ó£¬ÖÇ³Ù£¬Ç«Ñ·£¬¿ñ±©£¬»¯Éí
+	--ï¿½ï¿½ï¿½ò¹¥»ï¿½ï¿½ï¿½Î§ï¿½ÚµÄ£ï¿½
+	--fateï¿½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½ï¿½ï¿½ï¿½Û£ï¿½ï¿½ï¿½ï¿½ï¿½
+	--ï¿½ï¿½×¼ï¿½æ£ºï¿½ï¿½Ê¥ï¿½ï¿½ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½Ç³Ù£ï¿½Ç«Ñ·ï¿½ï¿½ï¿½ñ±©£ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self.player:distanceTo(enemy) <= self.player:getAttackRange() and
 		(enemy:hasSkill("fatejizhi") or enemy:hasSkill("fatefapao") or enemy:hasSkill("fatexianshen") or enemy:hasSkill("wusheng") or enemy:hasSkill("xiaoji") 
@@ -2002,10 +2099,10 @@ end
 
 --Lancer
 sgs.ai_skill_invoke.fatetuci = function(self, data)
+	local use = data:toCardUse()
 	if self.player:getHandcardNum()<1 then return nil end
-    local target = data:toPlayer()
-	if target then
-    return not self:isFriend(target) 
+    for _, target in sgs.qlist(use.to) do
+    	return not self:isFriend(target) 
 	end
 	return false
 end
@@ -2051,13 +2148,13 @@ fatesiji_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatesiji_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		local armor = enemy:getArmor()
 		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and self:distanceTo(enemy) < 3 
-		and not (armor and armor:isKindOf("Vine")) --ÌÙ¼×
+		and not (armor and armor:isKindOf("Vine")) --ï¿½Ù¼ï¿½
 		then
-			use.card = sgs.Card_Parse("#fatesiji_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatesiji_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -2066,6 +2163,14 @@ sgs.ai_skill_use_func["#fatesiji_card"]=function(card,use,self)
 	end
 end
 ]]
+sgs.ai_skill_cardask["@fatetuci"] = function(self, data, pattern, target)
+	local cards = sgs.QList2Table(self.player:getCards("h"))
+	self:sortByKeepValue(cards, true)
+	for _, card in ipairs(cards) do
+		return "$" .. card:getEffectiveId()
+	end
+	return "."
+end
 
 local fatesiji_skill={}
 fatesiji_skill.name="fatesiji_vs"
@@ -2085,11 +2190,11 @@ fatesiji_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatesiji_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and enemy:getMark("@fateshenghai") < 1
 		and enemy:getMark("@fatesakura_mark") < 1 and self.player:distanceTo(enemy) < 3 then
-			use.card = sgs.Card_Parse("#fatesiji_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatesiji_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -2177,12 +2282,12 @@ fatechongshu_skill.getTurnUseCard=function(self)
 end
 
 sgs.ai_skill_use_func["#fatechongshu_card"]=function(card,use,self)
-	self:sort(self.enemies, "hp") -- °´ÌåÁ¦Öµ´ÓĞ¡µ½´óÅÅĞò
+	self:sort(self.enemies, "hp") -- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for _, enemy in ipairs(self.enemies) do
 		if enemy:getHp()<2 and self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and enemy:getMark("@fateshenghai") < 1
 		and enemy:getMark("@fatesakura_mark") < 1 and enemy:getHandcardNum()<2
 		then
-			use.card = sgs.Card_Parse("#fatechongshu_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatechongshu_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -2193,7 +2298,7 @@ sgs.ai_skill_use_func["#fatechongshu_card"]=function(card,use,self)
 		if (self:objectiveLevel(enemy) > 3 and not self:cantbeHurt(enemy) and enemy:getMark("@fog") < 1 and enemy:getMark("@fateshenghai") < 1
 		and enemy:getMark("@fatesakura_mark") < 1 and enemy:getHandcardNum()<2) or enemy:getHandcardNum()>1
 		then
-			use.card = sgs.Card_Parse("#fatechongshu_card:" .. card:getEffectiveId()..":")  -- °üº¬×Ó¿¨µÄ¼¼ÄÜ¿¨
+			use.card = sgs.Card_Parse("#fatechongshu_card:" .. card:getEffectiveId()..":")  -- ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½Ä¼ï¿½ï¿½Ü¿ï¿½
 			if use.to then
 				use.to:append(enemy)
 				return
@@ -2212,14 +2317,14 @@ sgs.ai_skill_invoke.fatejiushu = function(self, data)
     return (#self.friends_noself > 0)
 end
 
---Ò»¶¨²»»áÑ¡ÔñÄÚ¼é
---²»»áÑ¡ÔñÒ»ÑªÒÔÉÏµÄ¹ù¼Î¡¢¹·»ò¡¢²ÜØ§
---ÓÅÏÈ»ªÙ¢£¬ÏãÏã£¬Áİ£¬Ó£(Î´¾õĞÑÊ±)
---·ñÔò´óÊ¦
---·ñÔòÇĞËÃ£¬õõ²õ£¬Ğ¡´ÎÀÉ
---·ñÔòÖÒ³¼Ñ¡ÔñÖ÷¹«
---·ñÔòÑ¡ÔñÒ»Ñª¶ÓÓÑ
---·ñÔò°´³°·íÅÅĞò£¬Ñ¡×î³°·íµÄ
+--Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ú¼ï¿½
+--ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»Ñªï¿½ï¿½ï¿½ÏµÄ¹ï¿½ï¿½Î¡ï¿½ï¿½ï¿½ï¿½ò¡¢²ï¿½Ø§
+--ï¿½ï¿½ï¿½È»ï¿½Ù¢ï¿½ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½İ£ï¿½Ó£(Î´ï¿½ï¿½ï¿½ï¿½Ê±)
+--ï¿½ï¿½ï¿½ï¿½ï¿½Ê¦
+--ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½
+--ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+--ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»Ñªï¿½ï¿½ï¿½ï¿½
+--ï¿½ï¿½ï¿½ò°´³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½î³°ï¿½ï¿½ï¿½ï¿½
 sgs.ai_skill_playerchosen["@fatejiushu"]= function(self, targets) 
 	self:sort(self.friends_noself, "chaofeng")
 	for _, friend in ipairs(self.friends_noself) do
@@ -2239,7 +2344,7 @@ sgs.ai_skill_playerchosen["@fatejiushu"]= function(self, targets)
     end
 	
     local lord = self.room:getLord()
-    if self:isFriend(lord) and not self.player:isLord() then --ÒòÎªÄÚ¼é²»»á·¢¶¯´Ë¼¼ÄÜ¡­¡­
+    if self:isFriend(lord) and not self.player:isLord() then --ï¿½ï¿½Îªï¿½Ú¼é²»ï¿½á·¢ï¿½ï¿½ï¿½Ë¼ï¿½ï¿½Ü¡ï¿½ï¿½ï¿½
         return lord
     end
 	
@@ -2255,35 +2360,10 @@ sgs.ai_skill_playerchosen["@fatejiushu"]= function(self, targets)
     end
 end
 
-fatejiushu_damageeffect = function(self, to, nature, from)
-	if to:getMark("@fatesakura_mark") > 0 and nature == sgs.DamageStruct_Thunder then return false end
-	return true
-end
-table.insert(sgs.ai_damage_effect, fatejiushu_damageeffect)
+sgs.ai_playerchosen_intention["@fatejiushu"] = -800
 
-sgs.ai_chaofeng = {
-	Kiritsugu=5,
-	Shirou=2,
-	Saber =0,
-	Carene=-1,
-	Medusa=2,
-	Rin=3,
-	Heracles=-2,
-	Medea=2,
-	Sakura=4,
-	Gilgamesh=2,
-	Emiya_Archer=4,
-	Iriya=3,
-	Gilles=2,
-	Kojirou=5,
-	Lancelot=4,
-	Kirei=1,
-	Hassan_Sabbah=4,
-	Irisviel=1,
-	Tokiomi=3,
-	Alexander=4,
-	Diarmuid=4,
-	Chulainn=5,
-	Shinji=1,
-	Kariya=6
-}
+sgs.ai_ajustdamage_to["@fatesakura_mark"] = function(self, from, to, card, nature)
+	if nature ~= sgs.DamageStruct_Thunder then
+		return -999
+	end
+end

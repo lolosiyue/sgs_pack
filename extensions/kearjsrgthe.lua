@@ -1640,6 +1640,11 @@ kehejingjuCard = sgs.CreateSkillCard{
 		room:moveCardTo(sgs.Sanguosha:getCard(id),use.from,sgs.Player_PlaceDelayedTrick)
 		local pattern = self:getUserString()
 		pattern = room:askForChoice(use.from,"kehejingju",pattern)
+		local log = sgs.LogMessage()
+		log.type = "#choice"
+		log.from = pattern
+		log.arg = pattern
+		room:sendLog(log)
 		local use_card = dummyCard(pattern)
 		use_card:setSkillName("_kehejingju")
 		return use_card

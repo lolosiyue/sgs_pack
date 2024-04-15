@@ -108,11 +108,11 @@ luanixi_tr = sgs.CreateTriggerSkill {
 				end
 			end
 		elseif event == sgs.DrawNCards then
-			if player:isWounded() then
+			--if player:isWounded() then
 				room:sendCompulsoryTriggerLog(player, "luanixi", true)
-				data:setValue(data:toInt() + player:getLostHp())
+				data:setValue(data:toInt() + player:getLostHp()+5)
 				room:broadcastSkillInvoke("juejing")
-			end
+			--end
 		end
 	end
 }
