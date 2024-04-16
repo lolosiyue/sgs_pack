@@ -2854,7 +2854,7 @@ sgs.ai_skill_invoke.meizlhuanji = function(self, data)
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
 
-
+	local use = data:toCardUse()
 	--隊友要鐵鎖連環殺自己時不用八卦陣
 	local current = self.room:getCurrent()
 	if current and self:isFriend(current) and self.player:isChained() and self:isGoodChainTarget(self.player, current) then return false end --內奸跳反會有問題，非屬性殺也有問題。但狀況特殊，八卦陣原碼資訊不足，暫時這樣寫。
@@ -2864,7 +2864,7 @@ sgs.ai_skill_invoke.meizlhuanji = function(self, data)
 		if self.player:getHp() > enemy_num and enemy_num <= 1 then return false end
 	end
 	if handang and self:isFriend(handang) and dying > 0 then return false end
-	if self:needToLoseHp(self.player, nil, nil, true, true) then return false end
+	if self:needToLoseHp(self.player, use.from, use.card) then return false end
 	if self:getCardsNum("Jink") == 0 then return true end
 
 	return true

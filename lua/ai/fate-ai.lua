@@ -1724,7 +1724,7 @@ sgs.ai_skill_playerchosen["fatehuyou"] = function(self, targets)
 		if self:isWeak() and self:hasTrickEffective(card, effect.from, self.player)  then
 			return nil
 		else
-			for _, target in sgs.qlist(self.friends) do
+			for _, target in ipairs(self.friends) do
 				if self:hasTrickEffective(card, effect.from, target) and target:getHp() < getBestHp(target)   and table.contains(targets, target) then
 					return target
 				end

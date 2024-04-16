@@ -719,6 +719,7 @@ fateguangbo = sgs.CreateTriggerSkill
 						player:setFlags("gbwusheng")
 						room:handleAcquireDetachSkills(player,"wusheng")
 					end
+					room:addPlayerMark(player, "&fateguangbo+"..choice .."-Clear")
 		elseif  (event == sgs.EventPhaseStart and player:getPhase()==sgs.Player_Finish) then
 			if player:hasFlag("gbwansha") then
 				room:handleAcquireDetachSkills(player,"-wansha")
@@ -935,7 +936,7 @@ fatejuli = sgs.CreateTriggerSkill {
 
 --Medea
 --妖术:出牌阶段，你可以弃掉两张相同花色的手牌。根据花色有不同效果。
---红桃：使任意角色回复一点体力。黑桃：使任意角色翻面。方片：使任意角色摸3张牌。草花：对任意角色造成一点雷属性伤害。每回合限一次。
+--红桃：使任意角色回复一点体力。黑桃：使任意角色翻面。方块：使任意角色摸3张牌。梅花：对任意角色造成一点雷属性伤害。每回合限一次。
 
 fateyaoshucard = sgs.CreateSkillCard
 {
@@ -1539,7 +1540,7 @@ on_trigger=function(self,event,player,data)
 end,
 }
 
---燕返 你可以将草花手牌当【闪】使用或打出；将方片手牌当【杀】使用或打出。
+--燕返 你可以将梅花手牌当【闪】使用或打出；将方块手牌当【杀】使用或打出。
 yanfan_pattern = {} -- to control the card pattern
 fateyanfan_vs = sgs.CreateViewAsSkill
 {
@@ -1995,8 +1996,8 @@ fateshengqi = sgs.CreateTriggerSkill{
 --魔术 出牌阶段，你可以弃一张手牌令一名角色进行一次判定，根据判定牌花色不同有如下效果：
 --红桃：你获得该角色一张牌
 --黑桃：若该武将牌正面向上，将其翻面
---方片：弃置该角色全部的装备牌，并将该角色武将牌横置
---草花：令该角色弃置两张手牌
+--方块：弃置该角色全部的装备牌，并将该角色武将牌横置
+--梅花：令该角色弃置两张手牌
 --每回合限一次。
 
 fatemoshu_card = sgs.CreateSkillCard
@@ -2071,7 +2072,7 @@ fatemoshu_vs = sgs.CreateViewAsSkill
 	end,
 }
 
---结界 当你成为【杀】的目标时，你可以展示牌堆顶的一张牌。若该牌花色是红桃或方片，将终止此【杀】的结算。之后此牌进入弃牌堆。
+--结界 当你成为【杀】的目标时，你可以展示牌堆顶的一张牌。若该牌花色是红桃或方块，将终止此【杀】的结算。之后此牌进入弃牌堆。
 fatejiejie=sgs.CreateTriggerSkill{
 	name="fatejiejie",
 	frequency=sgs.Skill_NotFrequent,
@@ -2257,6 +2258,7 @@ fatepomo=sgs.CreateTriggerSkill{
 			if not player:hasSkill(self:objectName()) then return end
 			if not room:askForSkillInvoke(player,self:objectName()) then return end
 			local target = room:askForPlayerChosen(player, room:getOtherPlayers(player), "@fatepomo")
+			room:addPlayerMark(target, "&fatepomo+to+#"..player:objectName().."-Clear")
 			local skills={}
 			for _,skill in sgs.qlist(target:getVisibleSkillList())do
 				if not table.contains(skills,skill:objectName()) then
@@ -2702,9 +2704,9 @@ sgs.LoadTranslationTable{
 	["fate_Kiritsugu"]="卫宫切嗣",
 	["fatejiezhi"] = "竭智",	
 	["fatejiezhiPhase"] = "竭智",
-	[":fatejiezhi"] = "每当场上即将有判定发生时，你可以观看牌顶的X张牌，并将这些牌以任意顺序置于牌堆顶。X为场上存活角色数与你的体力上限中的较大者且最多为5。",
+	[":fatejiezhi"] = "每当一名角色进行判定时，你可以观看牌顶的X张牌，并将这些牌以任意顺序置于牌堆顶。X为场上存活角色数与你的体力上限中的较大者且最多为5。",
 	["fateyezhan"] = "夜战",
-	[":fateyezhan"] = "回合开始阶段，你可以选择除你以外的一名角色，令其进行一次判定。若判定结果为黑桃，你对其造成1点无属性伤害。",
+	[":fateyezhan"] = "回合开始阶段，你可以令一名其他角色进行一次判定。若判定结果为黑桃，你对其造成1点无属性伤害。",
 	["fateyezhan-invoke"] = "你可以发动“夜战”<br/> <b>操作提示</b>: 选择一名其他角色→点击确定<br/>",
 	["fateqiangyun"] = "强运",
 	[":fateqiangyun"] = "<font color=\"blue\"><b>锁定技，</b></font>你的手牌上限始终+1。",
@@ -2712,68 +2714,68 @@ sgs.LoadTranslationTable{
 	
 	["fate_Saber"]="Saber",
 	["fatewangzhe"] = "王者",	
-	[":fatewangzhe"] = "每当你成为【杀】或非延时锦囊的目标（或目标之一）时，你可观看牌堆顶的2张牌，并可以获得其中一张。",
+	[":fatewangzhe"] = "每当你成为【杀】或非延时锦囊的目标（或目标之一）时，你可以观看牌堆顶的2张牌，并可以获得其中一张。",
     ["@fatewangzhe"] = "你获得其中一张。",
     ["~fatewangzhe"] = "选择一张牌→点击确定",
 	["fateqiuzhan_card"] = "求战",
 	["fateqiuzhan"] = "求战",
 	["fateqiuzhan_"] = "求战",
-	[":fateqiuzhan"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以令一名其他角色对你使用一张【杀】，该【杀】不受距离限制。若该角色不如此做，视为你对之打出了一张无色的【决斗】。",	
+	[":fateqiuzhan"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以令一名其他角色对你使用一张【杀】，该【杀】不受距离限制。否则视为你对该角色使用一张【决斗】。",	
 	["@fateqzslash"] = "请打出一张【杀】",
 	["fateshenjian_card"] = "神剑",	
 	["fateshenjian"] = "神剑",
 	["@shenjian_mark"] = "神剑",
-	[":fateshenjian"] = "<font color=\"red\"><b>限定技，</b></font>出牌阶段，若你不处于满血状态，你可以弃两张手牌并选择攻击范围内的最多两名角色，对他们分别造成X点无属性伤害。X为你已损失的体力值且最多为2。",	
+	[":fateshenjian"] = "<font color=\"red\"><b>限定技，</b></font>出牌阶段，若你已受伤，你可以弃置两张手牌并选择攻击范围内的最多两名其他角色，对其分别造成X点伤害。（X为你已损失的体力值且最多为2）。",	
 	["fate_Shirou"]="卫宫士郎",
 	["@touyingused"] = "投影",
 	["fatetouying"] = "投影",	
-	[":fatetouying"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可将一张手牌当你上一张使用的基本牌或非延时锦囊使用，以此法使用的【杀】不受出牌阶段限制。",
+	[":fatetouying"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将一张手牌当你上一张使用的基本牌或非延时锦囊使用，以此法使用的【杀】不受出牌阶段限制。",
 	["fatesizhan"] = "死战",
-	[":fatesizhan"] = "<font color=\"purple\"><b>觉醒技，</b></font>当你进入濒死状态时，你立即回复至1点体力，然后增加一点体力上限，摸三张牌，并永久获得技能【不屈】。",
+	[":fatesizhan"] = "<font color=\"purple\"><b>觉醒技，</b></font>当你进入濒死状态时，你回复至1点体力，然后增加1点体力上限，摸三张牌，并获得技能【不屈】。",
 	
 	["fate_Carene"]="卡莲",
 	["fatexianshen"] = "献身",
-	[":fatexianshen"] = "每当你受到一次伤害，你可以观看牌堆顶X+3张牌，并将这些牌以任意顺序置于牌堆顶或牌堆底。（X为你已损失体力值）",
+	[":fatexianshen"] = "每当你受到一次伤害，你可以观看牌堆顶 X+3 张牌，并将这些牌以任意顺序置于牌堆顶或牌堆底。（X为你已损失体力值）",
 	["fateshenghai"]="圣骸",
-	[":fateshenghai"]="若你在其他角色的回合内进入了濒死状态，你可以在当前回合内不再受到任何伤害。并且在该角色回合结束后，你可以立刻获得一个额外回合。",
+	[":fateshenghai"]="若你在其他角色的回合内进入濒死状态，濒死结算后若你存活，你可以在当前回合内防止所有伤害。并且在该角色回合结束后，你可以获得一个额外回合。",
 	["@fateshenghai"]="圣骸",
 	["#fateshenghaiwudi"] = "%from 使用了技能【<font color='yellow'><b>圣骸</b></font>】 ，此伤害无效",
 	
 	["fate_Medusa"]="梅杜莎",
 	["fateguangbo"] = "广博",
-	[":fateguangbo"] = "摸牌阶段，你可少摸一张牌。若如此做，你可以选择获得技能“完杀”“强袭”“天义”“奇袭”“武圣”之中的一个直至回合结束。",
+	[":fateguangbo"] = "摸牌阶段，你可以少摸一张牌。若如此做，你可以选择获得技能“完杀”“强袭”“天义”“奇袭”“武圣”之中的一个直至回合结束。",
 	["fateguangbo1"] = "完杀",
 	["fateguangbo2"] = "强袭",
 	["fateguangbo3"] = "天义",
 	["fateguangbo4"] = "奇袭",
 	["fateguangbo5"] = "武圣",
 	["fatetuji"]="突击",
-	[":fatetuji"]="<font color=\"red\"><b>限定技，</b></font>在回合结束阶段，你可以立即获得一个额外的回合。",
+	[":fatetuji"]="<font color=\"red\"><b>限定技，</b></font>在回合结束阶段，你可以获得一个额外的回合。",
 	["@fatetuji"]="突击",
 	
 	["fate_Rin"]="远坂凛",
 	["fateqingxing"]="清醒",
-	[":fateqingxing"]="你可以弃一张红桃牌或【闪】使任意角色跳过判定阶段并使之回复一点体力。若以此法跳过了自己的判定阶段，你将获得你判定区中的所有牌。",
-	["@fateqingxing1"]="你可以弃掉一张红桃牌或【闪】发动“清醒”。",
+	[":fateqingxing"]="你可以弃置一张红桃牌或【闪】令一名角色跳过判定阶段并回复1点体力。若这名角色是你，你获得你判定区中的所有牌。",
+	["@fateqingxing1"]="你可以弃置一张红桃牌或【闪】发动“清醒”。",
 	["fatejizhi"]="机智",
-	[":fatejizhi"]="<font color=\"blue\"><b>锁定技，</b></font>当你的装备区内无防具时，你无法成为【过河拆桥】,【顺手牵羊】及【借刀杀人】的目标。",
+	[":fatejizhi"]="<font color=\"blue\"><b>锁定技，</b></font>当你的装备区内无防具时，你不能被选择为【过河拆桥】,【顺手牵羊】及【借刀杀人】的目标。",
 	["fatebumo_"] = "补魔",	
 	["fatebumo"] = "补魔",
 	["@bumo_mark"] = "补魔",
-	[":fatebumo"] = "<font color=\"red\"><b>限定技，</b></font>出牌阶段，若你不处于满血状态或你的手牌数小于你的体力上限，你可以选择一名不处于满血状态或手牌数小于其体力上限的异性角色，你们各回复一点体力，并将手牌数补至体力上限（最多为5）。",	
+	[":fatebumo"] = "<font color=\"red\"><b>限定技，</b></font>出牌阶段，若你已受伤或你的手牌数小于你的体力上限，你可以选择一名其他已受伤或手牌数小于其体力上限的异性角色，你和该角色各回复1点体力，并将手牌数补至体力上限（最多为5）。",	
 	
 	["fate_Heracles"]="海格力斯",
 	["fateshilian"]="试炼",
-	[":fateshilian"]="当你处于濒死状态时,若你的体力上限大于3，你可以减少一点体力上限并回复3点体力。",
+	[":fateshilian"]="当你处于濒死状态时，若你的体力上限大于3，你可以减1点体力上限并回复3点体力。",
 	["fatejuli"] = "巨力",
-	[":fatejuli"] = "<font color=\"blue\"><b>锁定技，</b></font>当你使用【杀】指定一名角色为目标后，该角色需连续使用一张【闪】和一张【杀】才能抵消。",
+	[":fatejuli"] = "<font color=\"blue\"><b>锁定技，</b></font>每当你指定【杀】的目标后，目标角色需连续使用一张【闪】和一张【杀】抵消此【杀】。",
 	["@fatejuli-jink-1"] = "%src 拥有【巨力】技能，你必须出一张【杀】和一张【闪】,才能抵消这张【杀】。请先出一张【杀】", 
 	["@fatejuli-jink-2"] = "%src 拥有【巨力】技能，你还需出一张【闪】", 
 	
 	["fate_Medea"]="美狄亚",
 	["fateyaoshu"]="妖术",
 	["fateyaoshu_"] = "妖术",
-	[":fateyaoshu"]="出牌阶段，你可以弃掉两张相同花色的手牌，根据花色不同有如下效果：红桃：使任意角色回复一点体力。黑桃：使任意角色翻面。方片：使任意角色摸3张牌。草花：对任意角色造成一点雷属性伤害。",	
+	[":fateyaoshu"]="出牌阶段，你可以弃置两张相同花色的手牌，根据花色不同有如下效果：红桃：使一名角色回复一点体力。黑桃：使一名角色翻面。方块：使一名角色摸3张牌。梅花：对一名角色造成一点雷属性伤害。",	
 	["fateshenyan"] = "神言",
 	[":fateshenyan"]= "回合开始阶段，你可以摸一张牌。",
 	["fatefapao"] = "法袍",
@@ -2782,12 +2784,12 @@ sgs.LoadTranslationTable{
 	["fate_Sakura"]="间桐樱",
 	["fatechuyi_vs"]="厨艺",
 	["fatechuyi_"] = "厨艺",
-	[":fatechuyi_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃掉两张手牌，使除你以外的任意一名角色摸两张牌并回复一点体力。",	
+	[":fatechuyi_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置两张手牌，令一名其他角色摸两张牌并回复一点体力。",	
 	["fateheihua"] = "黑化",
-	[":fateheihua"] = "<font color=\"purple\"><b>觉醒技，</b></font>当你处于濒死状态时，弃置你的所有手牌，然后将你的武将牌翻至正面朝上，摸三张牌并使体力回复至3点。然后你失去技能【厨艺】，并永久获得技能【妖术】与【吸能】。（吸能：锁定技，你在回合开始阶段强制获得下家的一张牌，并可以使其流失一点体力。）",
+	[":fateheihua"] = "<font color=\"purple\"><b>觉醒技，</b></font>当你处于濒死状态时，弃置你的所有手牌，将武将牌恢复至初始状态，摸三张牌并回复至3点体力，然后你失去技能【厨艺】，并获得技能【妖术】与【吸能】。（吸能：锁定技，准备阶段开始时，你获得下家的一张牌，并可以令其失去一点体力。）",
 	["fatexineng"] = "吸能",
 	["@fatexineng"] = "吸能",
-	[":fatexineng"] = "<font color=\"blue\"><b>锁定技，</b></font>你在回合开始阶段强制获得下家的一张牌，并可以使其流失一点体力。",
+	[":fatexineng"] = "<font color=\"blue\"><b>锁定技，</b></font>准备阶段开始时，你获得下家的一张牌，并可以令其失去一点体力。",
 	["fatexinengloseHP"] = "吸能",
 	["xnchoice"]="流失体力？",
 	["xnchoice1"] = "是",
@@ -2795,13 +2797,13 @@ sgs.LoadTranslationTable{
 	
 	["fate_Gilgamesh"]="吉尔伽美什",
 	["fateluanshe_vs"]="乱射",
-	[":fateluanshe_vs"]="<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将任意一张红桃手牌当【万箭齐发】打出。",
+	[":fateluanshe_vs"]="<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将一张红桃手牌当【万箭齐发】使用。",
 	["fatechuanxin_trs"]="穿心",
 	["fatechuanxin_card"]="穿心",
 	["fatechuanxin_"]="穿心",
 	["@fatechuanxin1"]="是否发动【穿心】？如发动，请弃掉一张手牌",
 	["@fatechuanxin2"]="请选择一名角色",
-	[":fatechuanxin_trs"]="当你的【万箭齐发】结算完毕后，你可以弃一张手牌并选择除你以外的一名角色，视为你对其打出了X张无色的【杀】。X为场上存活角色数除以5（向上取整）。以此法打出的【杀】不计入出牌阶段限制。",
+	[":fatechuanxin_trs"]="当你的【万箭齐发】结算完毕后，你可以弃一张手牌并选择一名其他角色，视为你对其使用X张【杀】。X为场上存活角色数除以5（向上取整）。以此法使用的【杀】不计入出牌阶段限制。",
 	["#fateluanshe"]="去死吧，杂种！",
 	
 	["fate_Emiya_Archer"]="英灵卫宫",
@@ -2809,23 +2811,23 @@ sgs.LoadTranslationTable{
 	["fatetiangong_vs"] = "天弓",
 	["fatetiangong_trs"] = "天弓",
 	["fatetiangong_"] = "天弓",
-	[":fatetiangong_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃一张手牌然后选择一名角色或两名距离1以内的角色，视为对其打出了一张不计入出牌阶段限制的无色的【火杀】。",	
+	[":fatetiangong_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张手牌然后选择一名角色或两名距离1以内的角色，视为对其使用一张不计入出牌阶段限制的【火杀】。",	
 	["fatejianzhong"] = "剑冢",
-	[":fatejianzhong"] = "<font color=\"blue\"><b>锁定技，</b></font>【万箭齐发】对你无效；当其他角色使用【万箭齐发】，轮到你结算时，你可以弃掉一张牌并选择一名角色，视为对之打出了一张无色的【杀】。",
+	[":fatejianzhong"] = "<font color=\"blue\"><b>锁定技，</b></font>【万箭齐发】对你无效；当其他角色使用【万箭齐发】，对你的效果改为你可以弃置一张牌并选择一名角色，视为对其使用一张【杀】。",
 	["@fatejianzhong1"]="请弃掉一张牌",
 	["@fatejianzhong2"]="请选择一名角色",
 	
 	["fate_Iriya"]="依莉雅",
 	["fatemoli"] = "魔力",
-	[":fatemoli"] = "每当你使用或打出了一张基本牌或【五谷丰登】及【无中生有】之外的非延时锦囊牌，在结算后你可以进行一次判定。若结果为红色，你可以回收这张牌。",
+	[":fatemoli"] = "每当你使用或打出一张基本牌或【五谷丰登】及【无中生有】之外的非延时锦囊牌，在结算后你可以进行一次判定。若结果为红色，你可以获得之。",
 	["#fatemoli"]="技能<font color='yellow'><b>【魔力】</b></font> 判定成功",
 	["fateloli_vs"] = "萝莉",
 	["fateloli_"] = "萝莉",
-	[":fateloli_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以观看任意一名角色的手牌，并可展示其中的一张然后将之置于牌堆顶。",
+	[":fateloli_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以观看一名角色的手牌，并可以展示其中的一张然后将之置于牌堆顶。",
 	["fateloli_card"] = "萝莉",
 	["fate_Gilles"]="吉尔·德·莱斯",
 	["fateduoluo"] = "堕落",
-	[":fateduoluo"] = "<font color=\"blue\"><b>锁定技，</b></font>与你距离1以内的角色（包括你自己在内）在回合开始阶段须弃一张手牌，不弃牌或无法如此做者在摸牌阶段少摸一张牌。",
+	[":fateduoluo"] = "<font color=\"blue\"><b>锁定技，</b></font>与你距离1以内的角色回合开始阶段须弃置一张手牌，否则该角色摸牌阶段少摸一张牌。",
 	["@fateduoluo"] = "请弃掉一张手牌，否则你在摸牌阶段将少摸一张牌",
 	["fatenixi"] = "逆袭",
 	[":fatenixi"] = "摸牌阶段，若你没有手牌，你可以多摸3张牌并回复一点体力。",
@@ -2834,17 +2836,17 @@ sgs.LoadTranslationTable{
     ["fatezonghe"] = "宗和",
 	[":fatezonghe"] = "结束阶段开始时，你可以将手牌数补充至体力上限+2。",
 	["fateyanfan_vs"] = "燕返",
-	[":fateyanfan_vs"] = "你可以将草花牌当【闪】使用或打出；将方片牌当【杀】使用或打出。",
+	[":fateyanfan_vs"] = "你可以将梅花牌当【闪】使用或打出；将方块牌当【杀】使用或打出。",
  	["fatexunjie"] = "迅捷",
 	[":fatexunjie"] = "<font color=\"blue\"><b>锁定技，</b></font>回合结束时，你获得一个额外的出牌阶段。",
 	
 	["fate_Lancelot"] = "兰斯洛特",
     ["fatefanshi"] = "反噬",
-	[":fatefanshi"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以向攻击范围内的一名角色展示你的手牌。若如此做，该角色流失1点体力。",
+	[":fatefanshi"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以对攻击范围内的一名角色展示你的手牌。若如此做，该角色失去1点体力。",
 	["fatefanshi_card"] = "反噬",
 	["fatefanshi_"] = "反噬",
 	["fatefanji"] = "反击",
-	[":fatefanji"] = "每当你使用或打出了一张【闪】，你可以立即对使用者打出一张【杀】。此【杀】无视防具且不计入出牌阶段限制。",
+	[":fatefanji"] = "每当你使用或打出一张【闪】，你可以对使用者使用一张【杀】。此【杀】无视防具且不计入出牌阶段限制。",
 	["fatefanji-slash"] = "你可以发动“反击”，对 %src 使用一张【杀】",
 	["@myslash"] = "请打出一张【杀】",
 	
@@ -2856,13 +2858,13 @@ sgs.LoadTranslationTable{
 	["fateheijian_card"] = "黑键",
 	["fateheijian_"] = "黑键",
 	["fateheijiancards"] = "键",
-	[":fateheijian"] = "你可以在出牌阶段将一张黑色手牌（每回合限一次）或其他角色死亡时弃掉的黑色牌置于你的武将牌上，称为【键】。你每拥有一张【键】，手牌上限便+1。你受到伤害时，可以弃掉一张【键】使伤害-1；造成伤害时，可以弃掉一张【键】使伤害+1。你最多只能同时拥有五张【键】。",
-	["#fateheijianbuff1"] = "%from 弃掉了一张<font color='yellow'><b>【键】</b></font>，此伤害+1",
-	["#fateheijianbuff2"] = "%from 弃掉了一张<font color='yellow'><b>【键】</b></font>，此伤害-1",
+	[":fateheijian"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以将一张黑色手牌置于你的武将牌上，称为“键”。其他角色死亡时，你可以将该角色弃置的黑色牌置于你的武将牌上，称为“键”。你手牌上限+X（X为“键”的数量） 。每当你受到伤害时，你可以弃置一张“键”：若如此做，此伤害-1；每当你造成伤害时，你可以弃置一张“键”：若如此做，此伤害+1。你最多只能同时拥有五张“键”。",
+	["#fateheijianbuff1"] = "%from 弃掉了一张<font color='yellow'><b>“键”</b></font>，此伤害+1",
+	["#fateheijianbuff2"] = "%from 弃掉了一张<font color='yellow'><b>“键”</b></font>，此伤害-1",
 	
 	["fate_Hassan_Sabbah"] = "哈桑•萨巴赫",
 	["fatexinyin"] = "心音",
-	[":fatexinyin"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以使距离1以内的一名角色进行一次判定。若结果不为红桃，你可以对其造成一点伤害或者获得该角色的一张牌。",
+	[":fatexinyin"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以令距离1以内的一名角色进行一次判定。若结果不为红桃，你可以对其造成一点伤害或者获得该角色的一张牌。",
 	["fatexinyin_card"] = "心音",
 	["xychoice1"] = "造成1点伤害",
 	["xychoice2"] = "获取1张牌",
@@ -2873,49 +2875,49 @@ sgs.LoadTranslationTable{
 	["fatehuyou"] = "护佑",
 	["fatehuyougood"] = "护佑",
 	["fatehuyoubad"] = "护佑",
-	[":fatehuyou"] = "当你成为其他角色打出的非延时锦囊牌的目标时，你可让除你以外的一名角色替你结算。此角色不能是该锦囊牌的使用者。",
+	[":fatehuyou"] = "当你成为其他角色使用的非延时锦囊牌的目标时，你可以令一名其他角色代替你成为此锦囊牌的目标。此角色不能是该锦囊牌的使用者。",
 	["fatehuyou-invoke"] = "你可以发动“护佑”<br/> <b>操作提示</b>: 选择一名角色→点击确定<br/>",
 	["fateshengqi_card"] = "圣器",
 	["fateshengqi_vs"] = "圣器",
 	["@fateshengqi-card"] ="<font color = 'gold'><b>%src</b></font>可以发动<font color = 'gold'><b>圣器</b></font>打出一张红色牌修改<font color = 'gold'><b>%dest</b></font>的<font color = 'gold'><b>%arg</b></font>判定。",
 	["fateshengqi"] = "圣器",
-	[":fateshengqi"] = "在一名角色的判定牌生效前，你可以打出一张红色牌替换之。",
+	[":fateshengqi"] = "每当一名角色的判定牌生效前，你可以打出一张红色牌替换之。",
 	["~fateshengqi"] = "请打出一张红色牌替换判定牌",
 	
 	["fate_Tokiomi"] = "远坂时臣",
 	["fatemoshu_vs"]="魔术",
 	["fatemoshu_card"] = "魔术",
-	[":fatemoshu_vs"]="<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃一张手牌令一名角色进行一次判定，根据判定牌花色不同有如下效果：红桃：你获得该角色一张牌；黑桃：若该角色武将牌正面向上，将其翻面；方片：弃置该角色全部的装备牌，并将该角色武将牌横置；草花：令该角色弃置两张手牌。",	
+	[":fatemoshu_vs"]="<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张手牌令一名角色进行一次判定，根据判定牌花色不同有以下效果：红桃：你获得该角色一张牌；黑桃：若该角色武将牌正面向上，将其翻面；方块：弃置该角色全部的装备牌，并将该角色武将牌横置；梅花：令该角色弃置两张手牌。",	
 	["fatejiejie"] = "结界",
-	[":fatejiejie"] = "当你成为【杀】的目标时，你可以展示牌堆顶的一张牌。若该牌花色是红桃或方片，将终止此【杀】对你的结算。之后该牌进入弃牌堆。",
+	[":fatejiejie"] = "当你成为【杀】的目标时，你可以亮出牌堆顶的一张牌。若该牌为红色，此【杀】对你无效。",
 	
 	["fate_Alexander"] = "征服王",
 	["fatejuntuan_vs"]="军团",
 	["fatejuntuan_card"] = "军团",
-	[":fatejuntuan_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃一张黑色手牌并指定距离1以内最多两名角色。他们需打出一张【杀】，否则受到你造成的1点无属性伤害。",
+	[":fatejuntuan_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张黑色手牌并指定距离1以内最多两名角色。其需打出一张【杀】，否则受到你造成1点伤害。",
 	["fatehuwei"]="护卫",
-	[":fatehuwei"] = "<font color=\"blue\"><b>锁定技，</b></font>【南蛮入侵】对你无效。当任意角色打出【南蛮入侵】时，你可以使一名其他角色跳过【南蛮入侵】的结算。",
+	[":fatehuwei"] = "<font color=\"blue\"><b>锁定技，</b></font>【南蛮入侵】对你无效。当一名角色使用【南蛮入侵】时，你可以令【南蛮入侵】对一名其他角色无效。",
 	
 	["fate_Diarmuid"] = "迪尔姆德",
 	["fatepomo"]="破魔",
-	[":fatepomo"] = "回合开始阶段，你可以使一名其他角色失去所有技能和防具效果直至回合结束。",
+	[":fatepomo"] = "回合开始阶段，你可以令一名其他角色失去所有技能和防具效果直至回合结束。",
 	["fatebimie"]="必灭",
-	[":fatebimie"] = "<font color=\"blue\"><b>锁定技，</b></font>若你使用【杀】对一名角色造成了伤害，该角色将无法回复体力直至你死亡或游戏结束。",
+	[":fatebimie"] = "<font color=\"blue\"><b>锁定技，</b></font>每当你使用【杀】造成伤害后，受伤角色将无法回复体力直至你死亡或游戏结束。",
 	["@fatebimie"] = "必灭",
 	["#fatebimiebuff"] = "%from 受到【<font color='yellow'><b>必灭</b></font>】的影响 ，无法回复体力！",
 	
 	["fate_Chulainn"] = "库丘林",
 	["fatetuci"]="突刺",
-	[":fatetuci"] = "当你使用【杀】指定一名角色为目标后，你可以弃一张手牌使此【杀】强制命中且伤害+1。",	
+	[":fatetuci"] = "当你使用【杀】指定一名角色为目标后，你可以弃置一张手牌令此【杀】不能被响应且造成的伤害+1。",	
 	["#fatetucibuff"] = "%from 的 <font color='yellow'><b>杀</b></font> 受到【<font color='yellow'><b>突刺</b></font>】的影响，伤害 +1。",
 	["@fatetuci"]="请弃掉一张手牌",
 	["fatesiji_vs"]="死棘",
 	["fatesiji_"] = "死棘",
-	[":fatesiji_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>若你已损失2点或2点以上的体力，你可以弃掉一张武器牌使距离2以内的一名角色进行一次判定。若结果为【雷杀】或【闪电】，该角色直接死亡；否则视为你对其打出了一张无色的【杀】。此【杀】不计入出牌阶段限制。",
+	[":fatesiji_vs"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>若你已损失2点或以上的体力值，你可以弃置一张武器牌令距离2以内的一名角色进行一次判定。若结果为【雷杀】或【闪电】，该角色直接死亡；否则视为你对其使用一张【杀】。此【杀】不计入出牌阶段限制。",
 	
 	["fate_Shinji"] = "间桐慎二",
 	["fateqienuo"]="怯懦",
-	[":fateqienuo"] = "你可以将任意基本牌当【闪】使用或打出。",	
+	[":fateqienuo"] = "你可以将基本牌当【闪】使用或打出。",	
 	["fateqiangtui"]="强推",
 	["@fateqiangtui"]="请选择一名角色",
 	[":fateqiangtui"] = "摸牌阶段，你可以少摸一张牌。若如此做，你可以获得距离1以内一名其他角色的一张手牌。若该角色为女性，你回复一点体力。",
@@ -2923,7 +2925,7 @@ sgs.LoadTranslationTable{
 	["fate_Kariya"] = "间桐雁夜",
 	["fatechongshu"] = "虫术",
 	["fatechongshu_"] = "虫术",
-	[":fatechongshu"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃一张手牌并选择一名其他角色。若该角色手牌数不小于2，其需弃置两张手牌；若其手牌数不足2，将受到你造成的1点无属性伤害。若以此法杀死了一名角色，你可以回复1点体力并摸两张牌。",
+	[":fatechongshu"] = "<font color=\"green\"><b>出牌阶段限一次，</b></font>你可以弃置一张手牌并选择一名其他角色。若该角色手牌数不小于2，其需弃置两张手牌；若其手牌数不足2，将受到你造成的1点伤害。若以此法杀死了一名角色，你可以回复1点体力并摸两张牌。",
 	["fatejiushu"] = "救赎",
 	[":fatejiushu"] = "<font color=\"red\"><b>限定技，</b></font>回合开始阶段，你可以选择一名其他角色。在你死亡前，该角色不会受到除雷属性伤害之外的任何伤害。",
 	["@fatejiushu_mark"] = "救赎",

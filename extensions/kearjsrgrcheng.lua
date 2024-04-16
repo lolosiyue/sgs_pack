@@ -174,7 +174,7 @@ kechengzhiheng = sgs.CreateTriggerSkill{
 		end
 		if (event == sgs.CardUsed) then
 			local use = data:toCardUse()
-			local resto = use.who
+			local resto = use.from
 			--resto就是出杀的人
 			local scs = room:findPlayersBySkillName(self:objectName())
 			for _, sc in sgs.qlist(scs) do  

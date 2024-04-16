@@ -2201,13 +2201,13 @@ function SmartAI:findSE_DixianTarget(player, SE_Dixian_value)
 		local value = 0
 		if not self:damageIsEffective(enemy, sgs.DamageStruct_Fire, player) then return 100 end
 		if self:cantbeHurt(enemy, player, 1) or self:objectiveLevel(enemy) < 3
-			or (enemy:isChained() and not self:isGoodChainTarget(enemy, player, sgs.DamageStruct_Fire, 1)) then
+			or (enemy:isChained() and not self:isGoodChainTarget(enemy,  sgs.DamageStruct_Fire,player, 1)) then
 			return 100
 		end
 		if not self:isGoodTarget(enemy, self.enemies, nil) then value = value + 50 end
 		if enemy:hasSkills(sgs.exclusive_skill) then value = value + 10 end
 		if enemy:hasSkills(sgs.masochism_skill) then value = value + 5 end
-		if enemy:isChained() and self:isGoodChainTarget(enemy, player, sgs.DamageStruct_Fire, 1) and #(self:getChainedEnemies(player)) > 1 then
+		if enemy:isChained() and self:isGoodChainTarget(enemy,  sgs.DamageStruct_Fire,player, 1) and #(self:getChainedEnemies(player)) > 1 then
 			value =
 				value - 25
 		end
@@ -3008,9 +3008,9 @@ sgs.ai_skill_use_func["#se_kanhucard"] = function(card, use, self)
 	end]]
 end
 
-sgs.ai_use_value["se_kanhucard"]       = 6
-sgs.ai_use_priority["se_kanhucard"]    = 9
-sgs.ai_card_intention["se_kanhucard"]  = -100
+sgs.ai_use_value["#se_kanhucard"]       = 6
+sgs.ai_use_priority["#se_kanhucard"]    = 9
+sgs.ai_card_intention["#se_kanhucard"]  = -100
 
 
 --坂本龙太

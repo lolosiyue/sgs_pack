@@ -4727,7 +4727,7 @@ meizlhuanji = sgs.CreateTriggerSkill {
 			local slash = use.card
 			if slash and slash:isKindOf("Slash") then
 				if player:getMark("@meizlhuanji") > 0 and not use.from:isNude() then
-					if player:askForSkillInvoke(self:objectName()) then
+					if player:askForSkillInvoke(self:objectName(), data) then
 						room:doLightbox("$meizlhuanjianimate", 1000)
 						player:loseMark("@meizlhuanji", 1)
 						local card_id = room:askForCardChosen(use.from, use.from, "he", self:objectName())

@@ -12,7 +12,14 @@ addAiSkills("mobilemoukeji").getTurnUseCard = function(self)
 	cards = self:sortByKeepValue(cards,nil,"j")
 	if #cards<2 and self:isWeak() then return end
 	local m = self.player:getMark("mobilemoukeji-PlayClear")
-	local toids = self:isWeak() or #cards>2 and cards[1]:getEffectiveId() or "."
+	local toids
+	if self:isWeak() then
+		toids =  cards[1]:getEffectiveId()
+	end
+	if #cards>2 then
+		toids =  "."
+	end
+
 	if m<1 or m==1 and toids~="." or m>1 and toids=="."
 	then
 		return sgs.Card_Parse("@MobileMouKejiCard="..toids)

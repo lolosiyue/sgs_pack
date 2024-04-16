@@ -226,7 +226,7 @@ end
 sgs.ai_skill_choice["ny_shenjun"] = function(self, choices, data)
     local cards = sgs.QList2Table(self.player:getHandcards())
     self:sortByUseValue(cards)
-	for _,card in sgs.qlist(cards) do
+	for _,card in ipairs(cards) do
         if card:hasFlag("ny_shenjun") then
             local usec = {isDummy=true,to=sgs.SPlayerList()}
             self:useCardByClassName(card, usec)

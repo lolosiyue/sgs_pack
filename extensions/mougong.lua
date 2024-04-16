@@ -5102,6 +5102,7 @@ moufenweiiCard = sgs.CreateSkillCard {
 					end
 				end
 				local dummy = sgs.Sanguosha:cloneCard("slash", sgs.Card_NoSuit, 0)
+				dummy:deleteLater()
 				for _, id in ipairs(moufenweii_cards) do
 					dummy:addSubcard(id)
 				end
@@ -5140,9 +5141,11 @@ moufenweii = sgs.CreateTriggerSkill {
 			for _, mgn in sgs.qlist(mgns) do
 				if mgn:getMark("@moufenweii") > 0 then
 					room:setPlayerFlag(mgn, "moufenweii_CanUse")
+					mgn:setTag("moufenwei", data)
 					if not room:askForUseCard(mgn, "@@moufenweii", "@moufenweii-card") then
 						room:setPlayerFlag(mgn, "-moufenweii_CanUse")
 					end
+					mgn:removeTag("moufenwei")
 				end
 			end
 

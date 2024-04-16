@@ -3109,7 +3109,7 @@ se_tianmingWore = sgs.CreateTriggerSkill {
 	name = "se_tianming",
 	view_as_skill = se_tianming,
 	frequency = sgs.Skill_Notfrequent,
-	events = { sgs.CardResponded, sgs.TargetConfirmed, sgs.CardFinished, sgs.TurnStart, sgs.GameStart, sgs.EventAcquireSkill, sgs.CardAsked },
+	events = { sgs.CardResponded, sgs.TargetConfirmed, sgs.CardFinished, sgs.TurnStart, sgs.GameStart, sgs.EventAcquireSkill, sgs.CardAsked, sgs.CardUsed },
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		if event == sgs.CardResponded then
@@ -3155,6 +3155,14 @@ se_tianmingWore = sgs.CreateTriggerSkill {
 				player:gainMark("@Tianming", 10)
 			else
 				player:gainMark("@Tianming", 32)
+			end
+		elseif event == sgs.CardUsed then
+			local use = data:toCardUse()
+			local card = use.card
+			if card and card:getSkillName() == "se_tianming" then
+				if card:isKindOf("Jink") then
+					player:loseMark("@Tianming", 17)
+				end
 			end
 		elseif event == sgs.GameStart or (event == sgs.EventAcquireSkill and data:toString() == "se_tianming") then
 			player:loseAllMarks("@Tianming")
