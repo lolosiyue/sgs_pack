@@ -948,7 +948,8 @@ s4_txbw_disgeneralCard = sgs.CreateSkillCard {
     target_fixed = true,
     will_throw = false,
     on_use = function(self, room, source, targets)
-        room:setPlayerMark(source, "@s4_txbw_general", 0)
+        room:setPlayerMark(source, "@s4_txbw_general_1", 0)
+        room:setPlayerMark(source, "@s4_txbw_general_2", 0)
     end
 }
 s4_txbw_disgeneral = sgs.CreateViewAsSkill {
@@ -961,7 +962,7 @@ s4_txbw_disgeneral = sgs.CreateViewAsSkill {
         end
     end,
     enabled_at_play = function(self, player)
-        return player:getMark("@s4_txbw_general") > 0
+        return player:getMark("@s4_txbw_general_1") > 0 or player:getMark("@s4_txbw_general_2") > 0
     end
 }
 
@@ -971,7 +972,7 @@ s4_txbw_general_gain = sgs.CreateTriggerSkill {
     events = { sgs.GameStart },
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
-        room:addPlayerMark(player, "@s4_txbw_general")
+        room:addPlayerMark(player, "@s4_txbw_general_1")
         return false
     end
 }
@@ -979,13 +980,13 @@ s4_txbw_general_gain = sgs.CreateTriggerSkill {
 s4_txbw_general_limit = sgs.CreateCardLimitSkill {
     name = "s4_txbw_general_limit",
     limit_list = function(self, player)
-        if player and player:getMark("@s4_txbw_general") > 0 and player:getPhase() == sgs.Player_Play and
+        if player and (player:getMark("@s4_txbw_general_1") > 0 or player:getMark("@s4_txbw_general_2") > 0) and player:getPhase() == sgs.Player_Play and
             not player:hasFlag("s4_txbw_general_duel") then
             return "use"
         end
     end,
     limit_pattern = function(self, player)
-        if player and player:getMark("@s4_txbw_general") > 0 and player:getPhase() == sgs.Player_Play and
+        if player and (player:getMark("@s4_txbw_general_1") > 0 or player:getMark("@s4_txbw_general_2") > 0) and player:getPhase() == sgs.Player_Play and
             not player:hasFlag("s4_txbw_general_duel") then
             return "Slash"
         end
@@ -1001,13 +1002,13 @@ s4_txbw_general = sgs.CreateTriggerSkill {
     on_trigger = function(self, event, player, data)
         local room = player:getRoom()
         if event == sgs.GameStart then
-            for _, p in sgs.qlist(room:getAlivePlayers()) do
-                if p:getMark("@s4_txbw_general") > 0 then
-                    room:attachSkillToPlayer(p, "s4_txbw_disgeneral")
-                    room:attachSkillToPlayer(p, "s4_txbw_general_duel")
-                    room:attachSkillToPlayer(p, "s4_txbw_general_duel_rule")
+            --for _, p in sgs.qlist(room:getAlivePlayers()) do
+                if player:getMark("@s4_txbw_general_1") > 0 then
+                    room:attachSkillToPlayer(player, "s4_txbw_disgeneral")
+                    room:attachSkillToPlayer(player, "s4_txbw_general_duel")
+                    room:attachSkillToPlayer(player, "s4_txbw_general_duel_rule")
                 end
-            end
+            --end
         end
         return false
     end,
@@ -1040,7 +1041,7 @@ s4_txbw_general_duelCard = sgs.CreateSkillCard {
         room:setPlayerFlag(source, "s4_txbw_general_duel")
         source:setTag("s4_txbw_general_duel", ToQVData(target))
         target:setTag("s4_txbw_general_duel", ToQVData(source))
-        if target:getMark("@s4_txbw_general") > 0 then
+        if target:getMark("@s4_txbw_general_1") > 0 or target:getMark("@s4_txbw_general_2") > 0 then
             if source:isKongcheng() then
                 source:drawCards(2)
             else
@@ -1291,7 +1292,7 @@ s4_txbw_general_duel = sgs.CreateViewAsSkill {
         end
     end,
     enabled_at_play = function(self, player)
-        return player:getMark("@s4_txbw_general") > 0 and player:usedTimes("#s4_txbw_general_duel_start") < 1 +
+        return (player:getMark("@s4_txbw_general_1") > 0 or player:getMark("@s4_txbw_general_2") > 0) and player:usedTimes("#s4_txbw_general_duel_start") < 1 +
             player:getMark("s4_txbw_general_duel_extra") + player:getMark("s4_txbw_general_duel_extra-Clear")
     end
 }
@@ -1409,7 +1410,8 @@ if not skill then
 end
 sgs.LoadTranslationTable {
     ["s4_txbw_general_gain"] = "武将",
-    ["@s4_txbw_general"] = "武将",
+    ["@s4_txbw_general_1"] = "武将",
+    ["@s4_txbw_general_2"] = "武将",
     ["s4_txbw_disgeneral"] = "弃武从文",
     [":s4_txbw_disgeneral"] = "出牌阶段，你可以移除武将标签。若如此做，你不再是武将，失去所有和对决相关的技能。",
     ["s4_txbw_general_duel_rule"] = "武将規則",
@@ -3468,17 +3470,390 @@ sgs.LoadTranslationTable {
 
 }
 
+s4_txbw_weiyan = sgs.General(extension, "s4_txbw_weiyan", "shu", 4, true)
 
 
 
+function generateAllCardObjectNameTablePatterns()
+	local patterns = {}
+	for i = 0, 10000 do
+		local card = sgs.Sanguosha:getEngineCard(i)
+		if card == nil then break end
+		if (card:isKindOf("BasicCard") or card:isKindOf("TrickCard")) and not table.contains(patterns, card:objectName()) then
+			table.insert(patterns, card:objectName())
+		end
+	end
+	return patterns
+end
+
+function getPos(table, value)
+	for i, v in ipairs(table) do
+		if v == value then
+			return i
+		end
+	end
+	return 0
+end
+
+local pos = 0
+s4_txbw_cangying_select = sgs.CreateSkillCard {
+	name = "s4_txbw_cangying",
+	will_throw = true,
+	target_fixed = false,
+    filter = function(self, targets, to_select)
+		return #targets == 0 and to_select:objectName() ~= sgs.Self:objectName() and not to_select:isKongcheng()
+	end,
+	on_use = function(self, room, source, targets)
+        local card = sgs.Sanguosha:getCard(self:getSubcards():first())
+        local target = targets[1]
+        local suit = card:getSuitString()
+        local pattern = string.format(".|%s|.|hand",suit)
+        local data = sgs.QVariant()
+        data:setValue(source)
+        local to_give = room:askForCard(target, pattern, "@s4_txbw_cangying", data, sgs.Card_MethodNone)
+        room:addPlayerMark(source, "s4_txbw_cangying-Clear")
+        if to_give then
+            local cd = to_give:getEffectiveId()
+            room:showCard(target, cd)
+            room:obtainCard(source, to_give, true)
+            local patterns = generateAllCardObjectNameTablePatterns()
+            local choices = {}
+            for i = 0, 10000 do
+                local card = sgs.Sanguosha:getEngineCard(i)
+                if card == nil then break end
+                if (not (Set(sgs.Sanguosha:getBanPackages()))[card:getPackage()]) and not (table.contains(choices, card:objectName())) then
+                    if card:isAvailable(source) and card:isNDTrick() then
+                        table.insert(choices, card:objectName())
+                    end
+                end
+            end
+
+            if next(choices) ~= nil then
+                table.insert(choices, "cancel")
+                local pattern = room:askForChoice(source, "s4_txbw_cangying", table.concat(choices, "+"))
+                if pattern and pattern ~= "cancel" then
+                    local poi = sgs.Sanguosha:cloneCard(pattern, sgs.Card_NoSuit, -1)
+                    if poi:targetFixed() then
+                        poi:setSkillName("s4_txbw_cangying")
+                        if self:subcardsLength() == 1 then
+                            poi:addSubcard(self:getSubcards():first())
+                        end
+                        room:useCard(sgs.CardUseStruct(poi, source, source), true)
+                    else
+                        pos = getPos(patterns, pattern)
+                        room:setPlayerMark(source, "s4_txbw_cangyingpos", pos)
+                        room:askForUseCard(source, "@@s4_txbw_cangying", "@s4_txbw_cangying:" .. pattern) --%src
+                    end
+                end
+            end
+        else
+            room:setPlayerMark(source, "&s4_txbw_cangying+s4_txbw_general_duel+-Clear", card:getNumber())
+            room:acquireOneTurnSkills(source, "s4_txbw_cangying", "s4_txbw_juanzhuo")
+        end
+	end
+}
+s4_txbw_cangyingCard = sgs.CreateSkillCard {
+	name = "s4_txbw_cangyingCard",
+	will_throw = false,
+	filter = function(self, targets, to_select)
+		local name = ""
+		local card
+		local plist = sgs.PlayerList()
+		for i = 1, #targets do plist:append(targets[i]) end
+		local aocaistring = self:getUserString()
+		if aocaistring ~= "" then
+			local uses = aocaistring:split("+")
+			name = uses[1]
+			card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+			if card and card:targetFixed() then
+				return false
+			else
+				return card and card:targetFilter(plist, to_select, sgs.Self) and
+					not sgs.Self:isProhibited(to_select, card, plist)
+			end
+		end
+		return true
+	end,
+	target_fixed = function(self)
+		local name = ""
+		local card
+		local aocaistring = self:getUserString()
+		if aocaistring ~= "" then
+			local uses = aocaistring:split("+")
+			name = uses[1]
+			card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+		end
+		return card and card:targetFixed()
+	end,
+	feasible = function(self, targets)
+		local name = ""
+		local card
+		local plist = sgs.PlayerList()
+		for i = 1, #targets do plist:append(targets[i]) end
+		local aocaistring = self:getUserString()
+		if aocaistring ~= "" then
+			local uses = aocaistring:split("+")
+			name = uses[1]
+			card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+		end
+		return card and card:targetsFeasible(plist, sgs.Self)
+	end,
+	on_validate_in_response = function(self, user)
+		local room = user:getRoom()
+		local aocaistring = self:getUserString()
+		local use_card = sgs.Sanguosha:cloneCard(self:getUserString(), sgs.Card_NoSuit, -1)
+		if string.find(aocaistring, "+") then
+			local uses = {}
+			for _, name in pairs(aocaistring:split("+")) do
+				table.insert(uses, name)
+			end
+			local name = room:askForChoice(user, "s4_txbw_cangying", table.concat(uses, "+"))
+			use_card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+		end
+		use_card:setSkillName("s4_txbw_cangying")
+		return use_card
+	end,
+	on_validate = function(self, card_use)
+		local room = card_use.from:getRoom()
+		local aocaistring = self:getUserString()
+		local use_card = sgs.Sanguosha:cloneCard(self:getUserString(), sgs.Card_NoSuit, -1)
+		if string.find(aocaistring, "+") then
+			local uses = {}
+			for _, name in pairs(aocaistring:split("+")) do
+				table.insert(uses, name)
+			end
+			local name = room:askForChoice(card_use.from, "s4_txbw_cangying", table.concat(uses, "+"))
+			use_card = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+		end
+		if use_card == nil then return false end
+		use_card:setSkillName("s4_txbw_cangying")
+		local available = true
+		for _, p in sgs.qlist(card_use.to) do
+			if card_use.from:isProhibited(p, use_card) then
+				available = false
+				break
+			end
+		end
+		if not available then return nil end
+		return use_card
+	end
+}
+s4_txbw_cangyingVS = sgs.CreateViewAsSkill {
+	name = "s4_txbw_cangying",
+	n = 1,
+	view_filter = function(self, selected, to_select)
+		local pattern = sgs.Sanguosha:getCurrentCardUsePattern()
+		if pattern and pattern == "@@s4_txbw_cangying" then
+			return false
+		else
+			return not to_select:isEquipped()
+		end
+	end,
+	view_as = function(self, cards)
+		local patterns = generateAllCardObjectNameTablePatterns()
+		if sgs.Sanguosha:getCurrentCardUseReason() == sgs.CardUseStruct_CARD_USE_REASON_PLAY then
+			if #cards == 1 then
+				local acard = s4_txbw_cangying_select:clone()
+				acard:addSubcard(cards[1]:getId())
+				return acard
+			end
+		else
+			local pattern = sgs.Sanguosha:getCurrentCardUsePattern()
+			local acard = s4_txbw_cangyingCard:clone()
+			if pattern and pattern == "@@s4_txbw_cangying" then
+				pattern = patterns[sgs.Self:getMark("s4_txbw_cangyingpos")]
+				if #cards ~= 0 then return end
+			end
+			acard:setUserString(pattern)
+			return acard
+		end
+	end,
+	enabled_at_play = function(self, player)
+		local patterns = generateAllCardObjectNameTablePatterns()
+		local choices = {}
+		for _, name in ipairs(patterns) do
+			local poi = sgs.Sanguosha:cloneCard(name, sgs.Card_NoSuit, -1)
+			if poi:isAvailable(player) and poi:isNDTrick() then
+				table.insert(choices, name)
+			end
+		end
+		return next(choices) and player:getMark("s4_txbw_cangying-Clear") == 0
+	end,
+	enabled_at_response = function(self, player, pattern)
+		if sgs.Sanguosha:getCurrentCardUseReason() ~= sgs.CardUseStruct_CARD_USE_REASON_RESPONSE_USE then return false end
+		return pattern == "@@s4_txbw_cangying"
+	end,
+}
+
+s4_txbw_cangying = sgs.CreateTriggerSkill {
+	name = "s4_txbw_cangying",
+	view_as_skill = s4_txbw_cangyingVS,
+	events = { sgs.EventPhaseEnd, sgs.PreCardUsed },
+	on_trigger = function(self, event, player, data)
+		local room = player:getRoom()
+		if event == sgs.EventPhaseEnd then
+			for _, mygod in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				room:setPlayerMark(mygod, "s4_txbw_cangying-Clear", 0)
+				room:setPlayerMark(mygod, "&s4_txbw_cangying-Clear", 0)
+			end
+		end
+		if event == sgs.PreCardUsed then
+			local use = data:toCardUse()
+			if use.card:getSkillName() == "s4_txbw_cangying" and use.card:getTypeId() ~= 0 then
+				room:addPlayerMark(player, "s4_txbw_cangying-Clear")
+				room:addPlayerMark(player, "&s4_txbw_cangying-Clear")
+			end
+		end
+	end,
+	can_trigger = function(self, target)
+		return target ~= nil
+	end,
+}
+s4_txbw_cangying_duel = sgs.CreateTriggerSkill {
+    name = "#s4_txbw_cangying_duel",
+    frequency = sgs.Skill_NotFrequent,
+    events = { sgs.CardFinished },
+    priority = -1,
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        if event == sgs.CardFinished then
+            local use = data:toCardUse()
+            if use.card and use.card:isKindOf("SkillCard") then
+                if use.card:getSkillName() == "s4_txbw_general_duel_cal" then
+                    if player:getMark("&s4_txbw_cangying+s4_txbw_general_duel+-Clear") > 0 then
+                        local msg = sgs.LogMessage()
+                        msg.type = "#s4_txbw_general_duel_cal_point_add"
+                        msg.from = player
+                        msg.arg = "s4_txbw_cangying"
+                        msg.arg2 = player:getMark("s4_txbw_general_duel")
+                        room:addPlayerMark(player, "s4_txbw_general_duel", player:getMark("&s4_txbw_cangying+s4_txbw_general_duel+-Clear"))
+                    end
+                end
+            end
+        end
+        return false
+    end,
+    can_trigger = function(self, target)
+        return target
+    end
+}
 
 
+s4_txbw_juanzhuoCard = sgs.CreateSkillCard{
+	name = "s4_txbw_juanzhuo" ,
+	filter = function(self, targets, to_select)
+		return #targets == 0 and sgs.Self:inMyAttackRange(to_select) and to_select:objectName() ~= sgs.Self:objectName() and not to_select:isKongcheng()
+	end ,
+	on_effect = function(self, effect)
+		local room = effect.from:getRoom()
+		local card_id = room:askForCardChosen(effect.from, effect.to, "h", self:objectName())
+        room:obtainCard(effect.from, card_id)
+        for _, p in sgs.qlist(room:getAlivePlayers()) do
+            if p:inMyAttackRange(effect.from) then
+                room:askForUseSlashTo(p,effect.from, "@s4_txbw_juanzhuo-slash:" .. effect.from:objectName())
+            end
+        end
+	end
+}
+s4_txbw_juanzhuo = sgs.CreateViewAsSkill{
+	name = "s4_txbw_juanzhuo",
+	n = 0 ,
+	view_as = function()
+		return s4_txbw_juanzhuoCard:clone()
+	end ,
+	enabled_at_play = function(self, player)
+		return player:isKongcheng()
+	end
+}
 
 
+s4_txbw_weiyan:addSkill("s4_txbw_general_gain")
+s4_txbw_weiyan:addSkill(s4_txbw_cangying)
+s4_txbw_weiyan:addSkill(s4_txbw_cangying_duel)
+extension:insertRelatedSkills("s4_txbw_cangying", "#s4_txbw_cangying_duel")
+if not sgs.Sanguosha:getSkill("s4_txbw_juanzhuo") then
+    s4_skillList:append(s4_txbw_juanzhuo)
+end
+
+s4_txbw_weiyan:addRelateSkill("s4_txbw_juanzhuo")
+
+sgs.LoadTranslationTable {
+    ["s4_txbw_weiyan"] = "魏延",
+    ["&s4_txbw_weiyan"] = "魏延",
+    ["#s4_txbw_weiyan"] = "璞瑶隙逆",
+    ["~s4_txbw_weiyan"] = "",
+    ["designer:s4_txbw_weiyan"] = "",
+    ["cv:s4_txbw_weiyan"] = "",
+    ["illustrator:s4_txbw_weiyan"] = "",
+
+    ["s4_txbw_cangying"] = "藏缨",
+    [":s4_txbw_cangying"] = "出牌阶段限一次，你可以弃置一张手牌并令一名其他角色选择一项：交给你一张同花色的手牌，你视为使用一张普通锦囊；本回合内，你获得“狷浊”，对决点数+X（X为你弃置牌的点数）。",
+
+    ["s4_txbw_juanzhuo"] = "狷浊",
+    [":s4_txbw_juanzhuo"] = "出牌阶段，若你没有手牌，你可以获得攻击范围内一名其他角色一张手牌，然后攻击范围内包含你的角色可以依次对你使用一张【杀】。",
 
 
+}
 
 
+s4_txbw_huangzhong = sgs.General(extension, "s4_txbw_huangzhong", "shu", 4, true)
+
+s4_txbw_zaoying = sgs.CreateTriggerSkill {
+    name = "s4_txbw_zaoying",
+    frequency = sgs.Skill_NotFrequent,
+    events = { sgs.CardFinished },
+    priority = -1,
+    on_trigger = function(self, event, player, data)
+        local room = player:getRoom()
+        if event == sgs.CardFinished then
+            local use = data:toCardUse()
+            if use.card and use.card:isKindOf("SkillCard") then
+                if use.card:getSkillName() == "s4_txbw_general_duel_start" then
+                    if player:getMark("@s4_txbw_general_1") > 0 then
+                        local card = room:askForCard(player, ".Basic", self:objectName(), ToQVData(use.from),
+                            sgs.Card_MethodDiscard,
+                            player,
+                            false, "@s4_txbw_zaoying", true)
+                        if card then
+                            room:setPlayerMark(player, "@s4_txbw_general_1", 0)
+                            room:setPlayerMark(player, "@s4_txbw_general_2", 1)
+                            room:setPlayerMark(player, "&" .. self:objectName() .. "-Clear", 1)
+                        end
+                    end
+                end
+            end
+        end
+        return false
+    end,
+}
+
+s4_txbw_liegong = sgs.CreateAttackRangeSkill{
+	name = "s4_txbw_liegong",
+	fixed_func = function(self, player, include_weapon)
+		if player:hasSkill("s4_txbw_liegong") and player:getMark("@s4_txbw_general_2") > 0 then
+			return 998
+		end
+	end,
+}
+
+
+sgs.LoadTranslationTable {
+    ["s4_txbw_huangzhong"] = "黄忠",
+    ["&s4_txbw_huangzhong"] = "黄忠",
+    ["#s4_txbw_huangzhong"] = "神弓定军",
+    ["~s4_txbw_huangzhong"] = "",
+    ["designer:s4_txbw_huangzhong"] = "",
+    ["cv:s4_txbw_huangzhong"] = "",
+    ["illustrator:s4_txbw_huangzhong"] = "",
+
+    ["s4_txbw_zaoying"] = "噪营",
+    [":s4_txbw_zaoying"] = "发起对决后，你可以弃置一张基本牌并扣置武将标签。若如此做，防止你于该对决受到的对决伤害。",
+
+    ["s4_txbw_liegong"] = "烈弓",
+    [":s4_txbw_liegong"] = "锁定技，若武将标签已扣置，你的攻击范围无限。发起对决后，改为重置武将标签并对对方造成2点对决伤害。",
+
+
+}
 
 
 
