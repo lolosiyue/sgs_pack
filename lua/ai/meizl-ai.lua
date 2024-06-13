@@ -4912,13 +4912,12 @@ sgs.ai_cardneed.meizlshxianggui = function(to, card)
 end
 
 sgs.ai_slash_prohibit.meizlshxiuhua = function(self, from, enemy, card)
-	if enemy:hasSkill("meizlshxiuhua") and card:isKindOf("NatureSlash") then return true end
+	if enemy:hasSkill("meizlshxiuhua") and card and card:isKindOf("NatureSlash") then return true end
 	return
 end
 
 sgs.ai_ajustdamage_to.meizlshxiuhua = function(self, from, to, card, nature)
-	if nature ~= sgs.DamageStruct_Normal
-	then
+	if nature and nature ~= sgs.DamageStruct_Normal then
 		return -99
 	end
 end

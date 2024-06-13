@@ -32,7 +32,7 @@ yinyang = sgs.CreateTriggerSkill {
 		if player:getPhase() == sgs.Player_Start then
 			local room = player:getRoom()
 			local counter = player:getPile("femaleshiki"):length() + player:getPile("maleshiki"):length() +
-			player:getHandcardNum()
+				player:getHandcardNum()
 			if player:isFemale() and counter > 0 then
 				if player:askForSkillInvoke(self:objectName(), data) then
 					room:broadcastSkillInvoke(self:objectName())
@@ -323,7 +323,7 @@ jishaCard = sgs.CreateSkillCard {
 	skill_name = "jisha",
 	filter = function(self, targets, to_select)
 		return (#targets == 0) and (to_select:objectName() ~= sgs.Self:objectName()) and
-		to_select:getPile("ren"):length() == 0
+			to_select:getPile("ren"):length() == 0
 	end,
 	on_effect = function(self, effect)
 		local room = effect.from:getRoom()
@@ -448,7 +448,7 @@ fanzhuan = sgs.CreateTriggerSkill {
 	on_trigger = function(self, event, player, data)
 		local room = player:getRoom()
 		local death = data:toDeath()
-		if death.who:objectName() ~= player:objectName() and death.damage.from == player then
+		if death.who:objectName() ~= player:objectName() and death.damage and death.damage.from and death.damage.from == player then
 			local isSecondaryHero = (player:getGeneralName() ~= "shiki")
 			room:broadcastSkillInvoke(self:objectName())
 			room:doLightbox("$fanzhuanAnimate", 4000)

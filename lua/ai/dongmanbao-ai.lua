@@ -2201,13 +2201,13 @@ function SmartAI:findSE_DixianTarget(player, SE_Dixian_value)
 		local value = 0
 		if not self:damageIsEffective(enemy, sgs.DamageStruct_Fire, player) then return 100 end
 		if self:cantbeHurt(enemy, player, 1) or self:objectiveLevel(enemy) < 3
-			or (enemy:isChained() and not self:isGoodChainTarget(enemy,  sgs.DamageStruct_Fire,player, 1)) then
+			or (enemy:isChained() and not self:isGoodChainTarget(enemy, sgs.DamageStruct_Fire, player, 1)) then
 			return 100
 		end
 		if not self:isGoodTarget(enemy, self.enemies, nil) then value = value + 50 end
 		if enemy:hasSkills(sgs.exclusive_skill) then value = value + 10 end
 		if enemy:hasSkills(sgs.masochism_skill) then value = value + 5 end
-		if enemy:isChained() and self:isGoodChainTarget(enemy,  sgs.DamageStruct_Fire,player, 1) and #(self:getChainedEnemies(player)) > 1 then
+		if enemy:isChained() and self:isGoodChainTarget(enemy, sgs.DamageStruct_Fire, player, 1) and #(self:getChainedEnemies(player)) > 1 then
 			value =
 				value - 25
 		end
@@ -3008,9 +3008,9 @@ sgs.ai_skill_use_func["#se_kanhucard"] = function(card, use, self)
 	end]]
 end
 
-sgs.ai_use_value["#se_kanhucard"]       = 6
-sgs.ai_use_priority["#se_kanhucard"]    = 9
-sgs.ai_card_intention["#se_kanhucard"]  = -100
+sgs.ai_use_value["#se_kanhucard"]      = 6
+sgs.ai_use_priority["#se_kanhucard"]   = 9
+sgs.ai_card_intention["#se_kanhucard"] = -100
 
 
 --坂本龙太
@@ -5760,7 +5760,8 @@ se_huanyuan_skill = {}
 se_huanyuan_skill.name = "se_huanyuan"
 table.insert(sgs.ai_skills, se_huanyuan_skill)
 se_huanyuan_skill.getTurnUseCard          = function(self, inclusive)
-	if self.player:hasFlag("se_huanyuan_used") then return end
+	--if self.player:hasFlag("se_huanyuan_used") then return end
+	if self.player:hasUsed("#se_huanyuancard") then return end
 	if self.player:getMark("&se_huanyuan_Pre_MaxHp") <= 0 then return end
 	if #self.friends < 1 and #self.enemies < 1 then return end
 	for _, friend in ipairs(self.friends) do
@@ -6359,8 +6360,13 @@ sgs.ai_target_revises.SE_Jiepi = function(to, card, self)
 end
 
 sgs.ai_use_revises.SE_Jiepi = function(self, card, use)
-	if card:isNDTrick() and self.player:getHandcardNum() > to:getHandcardNum()
+	if card:isNDTrick()
 	then
+		for _, p in sgs.qlist(use.to) do
+			if self.player:getHandcardNum() <= p:getHandcardNum() then
+				return true
+			end
+		end
 		return false
 	end
 end

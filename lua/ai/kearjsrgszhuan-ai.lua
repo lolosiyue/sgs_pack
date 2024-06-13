@@ -371,7 +371,7 @@ sgs.ai_skill_use_func["#kezhuanxushiCard"] = function(card, use, self)
 		self:sort(self.friends)
 		local num = 0
 		for _, friend in ipairs(self.friends) do
-			if self:isFriend(friend) and (friend:objectName() ~= self.player:objectName()) and ((num <= 1) or (num < self.player:getOverflow())) then
+			if self:isFriend(friend) and (friend:objectName() ~= self.player:objectName()) and ((num <= 1) or (num < self:getOverflow())) then
 				use.card = card
 				if use.to then use.to:append(friend) end
 				num = num + 1
@@ -557,7 +557,7 @@ sgs.ai_skill_use_func["#kezhuanjiaohaoCard"] = function(card, use, self)
 			if acard:isKindOf("EquipCard") then
 				local i = acard:getRealCard():toEquipCard():location()
 				for _, friend in ipairs(self.friends_noself) do
-					if self:isFriend(friend) and friend:hasSkill("kezhuanjiaohao") and not self:getSameEquip(acard, friend) and friend:hasEquipArea(i) and ((num <= 1) or (num < self.player:getOverflow())) then
+					if self:isFriend(friend) and friend:hasSkill("kezhuanjiaohao") and not self:getSameEquip(acard, friend) and friend:hasEquipArea(i) and ((num <= 1) or (num < self:getOverflow())) then
 						use.card = sgs.Card_Parse("#kezhuanjiaohaoCard:" .. acard:getEffectiveId() .. ":")
 						if use.to then use.to:append(friend) end
 						num = num + 1
@@ -852,6 +852,26 @@ sgs.ai_ajustdamage_from.kezhuanhuchou = function(self, from, to, card, nature)
 end
 
 --张楚
+kezhuanhuozhong_skill = {}
+kezhuanhuozhong_skill.name = "kezhuanhuozhong"
+table.insert(sgs.ai_skills, kezhuanhuozhong_skill)
+kezhuanhuozhong_skill.getTurnUseCard = function(self)
+	if self.player:containsTrick("supply_shortage") then return nil end
+	local cards = self:addHandPile("he")
+	local card
+	self:sortByUseValue(cards, true)
+	for _, acard in ipairs(cards) do
+		if (acard:isBlack()) and (acard:isKindOf("BasicCard") or acard:isKindOf("EquipCard")) and (self:getDynamicUsePriority(acard) < sgs.ai_use_value.SupplyShortage) then
+			card = acard
+			break
+		end
+	end
+	if not card then return nil end
+
+	local card_id = card:getEffectiveId()
+	return sgs.Card_Parse("#kezhuanhuozhongCard:" .. card_id .. ":")
+end
+
 kezhuanhuozhongex_skill = {}
 kezhuanhuozhongex_skill.name = "kezhuanhuozhongex"
 table.insert(sgs.ai_skills, kezhuanhuozhongex_skill)
@@ -869,11 +889,11 @@ kezhuanhuozhongex_skill.getTurnUseCard = function(self)
 	if not card then return nil end
 
 	local card_id = card:getEffectiveId()
-	return sgs.Card_Parse("#kezhuanhuozhongCard:" .. card_id .. ".:")
+	return sgs.Card_Parse("#kezhuanhuozhongCard:" .. card_id .. ":")
 end
 
 sgs.ai_skill_use_func["#kezhuanhuozhongCard"] = function(card, use, self)
-	for _, p in ipairs(self.friends_noself) do
+	for _, p in ipairs(self.friends) do
 		if p:hasSkill("kezhuanhuozhong") then
 			if self.player:getJudgingArea():length() == 0 then
 				use.card = card

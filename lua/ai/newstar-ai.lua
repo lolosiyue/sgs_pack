@@ -585,12 +585,7 @@ end
 sgs.ai_card_priority.LuaLongzhen_o = function(self, card)
 	if card:getSkillName() == "LuaLongzhen_o"
 	then
-		self.room:writeToConsole("lualongzhen_star")
-		if self.useValue
-		then
-			return 2
-		end
-		return 0.08
+		return 2
 	end
 end
 

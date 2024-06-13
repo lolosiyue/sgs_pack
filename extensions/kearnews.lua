@@ -1847,7 +1847,7 @@ ketiaoxin = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if (event == sgs.Damage) then
 			local damage = data:toDamage()
-			if damage.card:hasFlag("ketiaoxinsha") then
+			if damage.card and damage.card:hasFlag("ketiaoxinsha") then
 				room:setCardFlag(damage.card, "-ketiaoxinsha")
 				--room:setPlayerFlag(jw,"ketiaoxinhit")
 			end
@@ -8780,8 +8780,7 @@ xiajianxin = sgs.CreateTriggerSkill {
 						--,-1,sgs.Card_MethodUse,true,xk,nil,"thecixucard"
 						if (#pattern > 0) then
 							--if not sgs.Sanguosha:getCard(room:askForUseCard(xk, table.concat(pattern, ",") , "xiajianxin-ask"):getSubcards():first()):isDamageCard() then
-							local theid = room:askForUseCard(xk, table.concat(pattern, ","), "xiajianxin-ask")
-								:getSubcards():first()
+							local theid = (room:askForUseCard(xk, table.concat(pattern, ","), "xiajianxin-ask"):getSubcards():first())
 							local thecard = sgs.Sanguosha:getCard(theid)
 							if not thecard:isDamageCard() then
 								if xk:hasSkill("xiaqiqiaocixu") and xk:askForSkillInvoke(self, KeToData("jianxin-cixu:" .. use.from:objectName())) then --xk:askForSkillInvoke(self,_data )then

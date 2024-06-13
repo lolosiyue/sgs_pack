@@ -398,8 +398,20 @@ sgs.ai_skill_invoke.y_yuanjiu = function(self, data)
 		end
 	end
 	local dying = data:toDying()
-	if self:askForSinglePeach(dying.who) then return true end
+	if dying.who and self:isFriend(dying.who) and self:askForSinglePeach(dying.who) then return true end
 	return false
+end
+
+sgs.ai_skill_askforag.y_yuanjiu = function(self, card_ids)
+	for i, card_id in ipairs(card_ids) do
+		for j, card_id2 in ipairs(card_ids) do
+			if i ~= j and sgs.Sanguosha:getCard(card_id):getNumber() == sgs.Sanguosha:getCard(card_id2):getNumber() then
+				return card_id
+			end
+		end
+	end
+
+	return card_ids[1]
 end
 
 --[[��̩
@@ -1239,7 +1251,7 @@ sgs.ai_skill_choice.y_xiangxi = function(self, choices, data)
 		return "j"
 	elseif self.player:hasSkill("xiaoji") or self.player:hasSkill("xuanfeng") then
 		return "e"
-	elseif self.player:isWounded() and self.player:getArmor():objectName() == "silverlion" then
+	elseif self.player:isWounded() and self.player:getArmor() and self.player:getArmor():objectName() == "silverlion" then
 		return "e"
 	elseif (self:isFriend(lk) and lk:isWounded()) or (not self:isFriend(lk) and not lk:isWounded()) then
 		return "j"

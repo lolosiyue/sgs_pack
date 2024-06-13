@@ -3817,6 +3817,7 @@ s4_txbw_zaoying = sgs.CreateTriggerSkill {
                         if card then
                             room:setPlayerMark(player, "@s4_txbw_general_1", 0)
                             room:setPlayerMark(player, "@s4_txbw_general_2", 1)
+                            
                             room:setPlayerMark(player, "&" .. self:objectName() .. "-Clear", 1)
                         end
                     end

@@ -2385,6 +2385,10 @@ function SmartAI:filterEvent(event, player, data)
 		then
 			ZenhuiEffect = true
 		end
+		if struct.card:getSkillName() == "f_zhengmie_f"
+		then
+			ZenhuiEffect = true
+		end
 		if not ZenhuiEffect
 		then
 			local callback = sgs.ai_card_intention[struct.card:getClassName()]
@@ -4192,7 +4196,7 @@ function SmartAI:getLeastHandcardNum(player)
 	end
 	if player:hasSkill("Meowshangshi") and least < player:getLostHp() then least = math.max(player:getLostHp(), 1) end
 	if player:hasSkills("feilianying") and least < 1 then least = 1 end
-	if player:hasSkills("exshangshi")  then 
+	if player:hasSkills("exshangshi") then
 		local x = math.max(player:getLostHp(), 1)
 		if least < x then least = x end
 	end
@@ -4905,8 +4909,8 @@ function SmartAI:askForSinglePeach(dying)
 				end
 			end
 			--if pn + dying:getHp() < 1 and math.random() < sgs.turncount * 0.1 then self.room:writeToConsole("not save no enough peach?") return "." end
-			if pn + dying:getHp() < 1  then 
-				return "." 
+			if pn + dying:getHp() < 1 then
+				return "."
 			end
 			local CP = self.room:getCurrent()
 			if dying:objectName() ~= lord:objectName()
@@ -7254,7 +7258,7 @@ function SmartAI:findPlayerToDamage(damage, player, nature, targets, include_sel
 	end
 
 	local func = function(a, b)
-		return bcv[a:objectName()] >= bcv[b:objectName()]
+		return bcv[a:objectName()] > bcv[b:objectName()]
 	end
 	table.sort(targets, func)
 	if return_table then

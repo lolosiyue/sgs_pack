@@ -1454,7 +1454,7 @@ keqijulian = sgs.CreateTriggerSkill {
 			if move.to and move.to:objectName() == player:objectName()
 				and (player:getKingdom() == "qun") and (player:getRole() ~= "lord") then
 				local zhugong = room:findPlayerBySkillName(self:objectName())
-				if (zhugong:getRole() == "lord") then
+				if (zhugong and zhugong:getRole() == "lord") then
 					if (player:getPhase() ~= sgs.Player_Draw) and (move.reason.m_skillName ~= "keqijulian")
 						and (player:getKingdom() == "qun") and (player:getPhase() ~= sgs.Player_NotActive) then
 						for _, id in sgs.qlist(move.card_ids) do

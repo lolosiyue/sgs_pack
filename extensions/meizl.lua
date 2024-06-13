@@ -3858,19 +3858,21 @@ meizlmengyuan = sgs.CreateTriggerSkill
 		frequency = sgs.Skill_NotFrequent,
 		on_trigger = function(self, event, player, data)
 			local room = player:getRoom()
-			local splayer = room:findPlayerBySkillName(self:objectName())
+			local splayers = room:findPlayersBySkillName(self:objectName())
 			local dest = sgs.QVariant()
 			dest:setValue(player)
-			if splayer:faceUp() and room:askForSkillInvoke(splayer, self:objectName(), dest) then
-				room:doLightbox("$meizlmengyuananimate", 1000)
-				local log = sgs.LogMessage()
-				log.from = splayer
-				log.type = "#Meizlmengyuan"
-				log.arg = self:objectName()
-				log.to:append(player)
-				room:sendLog(log)
-				splayer:turnOver()
-				room:setPlayerProperty(player, "maxhp", sgs.QVariant(player:getMaxHp() + 1))
+			for _, splayer in sgs.qlist(splayers) do
+				if splayer:faceUp() and room:askForSkillInvoke(splayer, self:objectName(), dest) then
+					room:doLightbox("$meizlmengyuananimate", 1000)
+					local log = sgs.LogMessage()
+					log.from = splayer
+					log.type = "#Meizlmengyuan"
+					log.arg = self:objectName()
+					log.to:append(player)
+					room:sendLog(log)
+					splayer:turnOver()
+					room:setPlayerProperty(player, "maxhp", sgs.QVariant(player:getMaxHp() + 1))
+				end
 			end
 		end,
 		can_trigger = function(self, target)

@@ -2271,7 +2271,7 @@ f_jishi = sgs.CreateTriggerSkill {
 						player:addToPile("f_REN", card)
 					end
 				end
-			elseif move.from:objectName() == player:objectName() and move.from_places:contains(sgs.Player_PlaceSpecial) and table.contains(move.from_pile_names, "f_REN") then --实测仅“疗疫”给“仁”有效，故其他本应满足此条件的时机需要硬核添加
+			elseif move.from and move.from:objectName() == player:objectName() and move.from_places:contains(sgs.Player_PlaceSpecial) and table.contains(move.from_pile_names, "f_REN") then --实测仅“疗疫”给“仁”有效，故其他本应满足此条件的时机需要硬核添加
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:broadcastSkillInvoke(self:objectName())
 				room:drawCards(player, 1, self:objectName())
@@ -6078,7 +6078,8 @@ olchuyuan = sgs.CreateMasochismSkill {
 							card_id = player:handCards():first()
 							--room:getThread():delay()
 						else
-							card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush"):getSubcards()
+							card_id = room:askForExchange(player, self:objectName(), 1, 1, false, "QuanjiPush")
+								:getSubcards()
 								:first()
 						end
 						p:addToPile("powerful", card_id)
@@ -7190,10 +7191,10 @@ joywuhunRevive = sgs.CreateTriggerSkill {
 		local room = player:getRoom()
 		if event == sgs.QuitDying then
 			local dying = data:toDying()
-			if dying.who:objectName() ~= player:objectName() or not player:hasSkill("joywuhun") or player:isDead() then return false end
+			if not dying.who or dying.who:objectName() ~= player:objectName() or not player:hasSkill("joywuhun") or player:isDead() then return false end
 		elseif event == sgs.Death then
 			local death = data:toDeath()
-			if death.who:objectName() ~= player:objectName() or not player:hasSkill("joywuhun") then return false end
+			if not death.who or death.who:objectName() ~= player:objectName() or not player:hasSkill("joywuhun") then return false end
 		end
 		local mx = 0
 		for _, p in sgs.qlist(room:getOtherPlayers(player)) do
@@ -17397,7 +17398,7 @@ f_kuilei = sgs.CreateTriggerSkill {
 				end
 			end
 		elseif event == sgs.QuitDying then
-			if dying.who:objectName() == player:objectName() and player:hasSkill(self:objectName()) and player:hasFlag("re_f_kuilei") then
+			if dying.who and dying.who:objectName() == player:objectName() and player:hasSkill(self:objectName()) and player:hasFlag("re_f_kuilei") then
 				room:setPlayerFlag(player, "-re_f_kuilei")
 				room:sendCompulsoryTriggerLog(player, self:objectName())
 				room:setPlayerMark(player, "@f_kuilei", 1)

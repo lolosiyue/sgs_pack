@@ -140,9 +140,9 @@ sgs.ai_skill_playerchosen["jiaosha"] = function(self, targets)
 	for _, p in ipairs(targets) do
 		if self:isEnemy(p) then
 			local willKillVictim = (p:getHp() + self:getAllPeachNum(p) <= self:ajustDamage(self.player, p, 1, nil))
-			if (self:willSkipPlayPhase(p) or willKillVictim) and not self:getDamagedEffects(p)
+			if (self:willSkipPlayPhase(p) or willKillVictim)
 				and self:damageIsEffective(p, sgs.DamageStruct_Normal)
-				and not self:needToLoseHp(p) and self:isGoodTarget(p, self.enemies, self) then
+				and not self:cantbeHurt(p) and self:isGoodTarget(p, self.enemies, nil) then
 				return p
 			end
 		end

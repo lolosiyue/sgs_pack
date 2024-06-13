@@ -3075,7 +3075,6 @@ end
 sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 	local current = self.room:getCurrent()
 	if current and self:isFriend(current) and self:isGoodChainTarget(self.player, current) then return "." end
-	self.player:speak("liuli1")
 	local others = self.room:getOtherPlayers(self.player)
 	local slash = self.player:getTag("liuli-card"):toCard()
 	others = sgs.QList2Table(others)
@@ -3094,7 +3093,6 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 			and (getKnownCard(who, self.player, "Jink", true) >= 1 or self:hasEightDiagramEffect(who)) then
 			return "."
 		end
-		self.player:speak("liuli2")
 		local cards = self.player:getCards("h")
 		cards = sgs.QList2Table(cards)
 		self:sortByKeepValue(cards)
@@ -3108,7 +3106,6 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 				end
 			end
 		end
-		self.player:speak("liuli3")
 		local cards = self.player:getCards("e")
 		cards = sgs.QList2Table(cards)
 		self:sortByKeepValue(cards)
@@ -3120,7 +3117,6 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 		end
 		return "."
 	end
-	self.player:speak("liuli4")
 	for _, enemy in ipairs(self.enemies) do
 		if not (source and source:objectName() == enemy:objectName()) then
 			local ret = doLiuli(enemy)
@@ -3141,15 +3137,22 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 
 
 	for _, friend in ipairs(self.friends_noself) do
-		if not self:slashIsEffective(slash, friend) or self:findLeijiTarget(friend, 50, source) then
+		self.player:speak("liuli51")
+		--if not self:slashIsEffective(slash, friend) or self:findLeijiTarget(friend, 50, source) then
+		if self:findLeijiTarget(friend, 50, source) then
+			self.player:speak("liuli52")
 			if not (source and source:objectName() == friend:objectName()) then
+				self.player:speak("liuli53")
 				local ret = doLiuli(friend)
+				self.player:speak("liuli54")
 				if ret ~= "." then return ret end
 			end
 		end
 	end
+	self.player:speak("liuli55")
 
 	for _, friend in ipairs(self.friends_noself) do
+		self.player:speak("liuli551")
 		if self:needToLoseHp(friend, source, nil) then
 			if not (source and source:objectName() == friend:objectName()) then
 				local ret = doLiuli(friend)
@@ -3157,6 +3160,7 @@ sgs.ai_skill_use["@PlusLiuli"] = function(self, prompt, method)
 			end
 		end
 	end
+	self.player:speak("liuli555")
 
 	if (self:isWeak() or self:hasHeavyDamage(source, slash)) and source:hasWeapon("axe") and source:getCards("he"):length() > 2
 		and not self:getCardId("Peach") and not self:getCardId("Analeptic") then

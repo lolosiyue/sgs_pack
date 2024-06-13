@@ -693,7 +693,7 @@ end
 sgs.ai_skill_playerchosen.joyelai = function(self, targets)
 	targets = sgs.QList2Table(targets)
 	for _, p in ipairs(targets) do
-		if self:isEnemy(p) and self:inMyAttackRange(p) then
+		if self:isEnemy(p) and self.player:inMyAttackRange(p) then
 			return p
 		end
 	end

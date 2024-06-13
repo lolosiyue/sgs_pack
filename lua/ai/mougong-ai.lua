@@ -681,8 +681,10 @@ sgs.ai_skill_use_func["#mouzhihenggCard"] = function(card, use, self)
 	end
 	local use_cards = {}
 	for index = #unpreferedCards, 1, -1 do
-		if not self.player:isJilei(sgs.Sanguosha:getCard(unpreferedCards[index])) then table.insert(use_cards,
-				unpreferedCards[index]) end
+		if not self.player:isJilei(sgs.Sanguosha:getCard(unpreferedCards[index])) then
+			table.insert(use_cards,
+				unpreferedCards[index])
+		end
 	end
 	if #use_cards > 0 then
 		use.card = sgs.Card_Parse("#mouzhihenggCard:" .. table.concat(use_cards, "+") .. ":")
@@ -731,8 +733,10 @@ sgs.ai_card_intention.moukejiiCard = -80
 sgs.ai_skill_choice.moukejii = function(self, choices, data)
 	if not self.player:hasFlag("moukejii_get2hujias") then return "2" end
 	if not self.player:isKongcheng() and not self.player:hasFlag("moukejii_get1hujia") then return "1" end
-	if self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and self:getCardsNum("Analeptic") == 0 then return
-		"cancel" end
+	if self.player:getHp() <= 1 and self:getCardsNum("Peach") == 0 and self:getCardsNum("Analeptic") == 0 then
+		return
+		"cancel"
+	end
 	return "2"
 end
 
@@ -828,12 +832,12 @@ end
 --FC文鸯
 --“却敌”AI
 sgs.ai_skill_invoke.fcquedi = function(self, data)
-	local target = data:toPlayer()
+	local target = data:toCardUse().to:first()
 	return not self:isFriend(target)
 end
 
 sgs.ai_skill_choice.fcquedi = function(self, choices, data)
-	local target = data:toPlayer()
+	local target = data:toCardUse().to:first()
 	if target:isKongcheng() then return "damage" end
 	if self.player:getMaxHp() > 0 then return "beishui" end --无脑背水以求输出最大化，背水一战，不胜便死！
 	return "obtain"

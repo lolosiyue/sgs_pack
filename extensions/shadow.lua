@@ -1320,15 +1320,17 @@ y_caipei = sgs.CreateTriggerSkill
 			local room = player:getRoom()
 			local use = data:toCardUse()
 			if not use.card:isNDTrick() then return false end
-			local hcy = room:findPlayerBySkillName(self:objectName())
-			if hcy:isNude() then return false end
-			if player:isFemale() or player:objectName() == hcy:objectName() then
-				if not hcy:askForSkillInvoke(self:objectName(), data) then return false end
-				tar = room:askForPlayerChosen(hcy, room:getAlivePlayers(), self:objectName())
-				room:broadcastSkillInvoke(self:objectName())
-				tar:drawCards(1)
-				if not hcy:isKongcheng() then
-					room:askForDiscard(hcy, self:objectName(), 1, 1, false, true)
+			local hcys = room:findPlayersBySkillName(self:objectName())
+			for _, hcy in sgs.qlist(hcys) do
+				if hcy:isNude() then continue end
+				if player:isFemale() or player:objectName() == hcy:objectName() then
+					if not hcy:askForSkillInvoke(self:objectName(), data) then continue end
+					tar = room:askForPlayerChosen(hcy, room:getAlivePlayers(), self:objectName())
+					room:broadcastSkillInvoke(self:objectName())
+					tar:drawCards(1)
+					if not hcy:isKongcheng() then
+						room:askForDiscard(hcy, self:objectName(), 1, 1, false, true)
+					end
 				end
 			end
 			return false

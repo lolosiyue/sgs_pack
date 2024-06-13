@@ -398,7 +398,6 @@ end
 --慈威
 sgs.ai_skill_cardask["@jinciwei-discard"] = function(self, data)
 	local player = self.player:getTag("jinciwei-player"):toPlayer()
-	self.room:writeToConsole(debug.traceback())
 	if self:isEnemy(player) then
 		local to_discard = self:askForDiscard("dummyreason", 1, 1, false, true)
 		if #to_discard > 0 then return "$" .. to_discard[1] end

@@ -724,7 +724,7 @@ feifenhu = sgs.CreateTriggerSkill {
         if event == sgs.EventPhaseChanging then
             local change = data:toPhaseChange()
             if change.to == sgs.Player_Draw then
-                if room:askForSkillInvoke(player, self:objectName(), data) then
+                if not player:isSkipped(sgs.Player_Draw) and room:askForSkillInvoke(player, self:objectName(), data) then
                     player:skip(change.to)
                     room:askForUseCard(player, "@@feifenhu", "@feifenhu")
                 end

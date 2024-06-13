@@ -947,11 +947,11 @@ end
 sgs.ai_can_damagehp.yinshi = function(self, from, card, to) --类卖血技能决策
 	if not to:getArmor()
 		and to:getMark("&dragon_signet") + to:getMark("&phoenix_signet") < 1
-	then     --先判断是否可以隐士
+	then  --先判断是否可以隐士
 		if card --再判断是否是牌的伤害
 		then
 			if card:isKindOf("NatureSlash")
-			then                    --隐士受到属性杀时不闪
+			then                      --隐士受到属性杀时不闪
 				if self:canLoseHp(from, card, to) --规避掉一些特殊技能，例如绝情，来保证是会造成伤害
 				then
 					return true
@@ -1422,7 +1422,7 @@ sgs.ai_skill_cardask["@anyong-discard"] = function(self, data)
 	local damage = data:toDamage()
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for _, h in sgs.list(cards) do
 		if self:isEnemy(damage.to)
 		then
@@ -1551,7 +1551,7 @@ sgs.ai_use_value.KannanCard = 7
 
 function sgs.ai_skill_pindian.kannan(minusecard, self, requestor)
 	return self:isFriend(requestor) and self:getMaxCard() or
-	(self:getMinCard():getNumber() > 6 and minusecard or self:getMinCard())
+		(self:getMinCard():getNumber() > 6 and minusecard or self:getMinCard())
 end
 
 --集军
@@ -2737,7 +2737,7 @@ sgs.ai_skill_use["@@xingjinfan"] = function(self, prompt)
 	local valid, ts = {}, sgs.IntList()
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for c, id in sgs.list(self.player:getPile("&xingling")) do
 		c = sgs.Sanguosha:getCard(id)
 		ts:append(c:getSuit())
@@ -2780,7 +2780,7 @@ sgs.ai_skill_use["@@secondxingjinfan"] = function(self, prompt)
 	local valid, ts = {}, sgs.IntList()
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for c, id in sgs.list(self.player:getPile("&xingling")) do
 		c = sgs.Sanguosha:getCard(id)
 		ts:append(c:getSuit())
@@ -3019,10 +3019,14 @@ sgs.ai_use_priority.JuesiCard = sgs.ai_use_priority.Duel + 0.1
 sgs.ai_use_value.JuesiCard = sgs.ai_use_value.Duel + 0.1
 
 sgs.ai_skill_discard.juesi = function(self, discard_num, min_num, optional, include_equip)
-	if self:needToThrowArmor() and self.player:canDiscard(self.player, self.player:getArmor():getEffectiveId()) then return {
-			self.player:getArmor():getEffectiveId() } end
-	if self:needToThrowLastHandcard() and self.player:canDiscard(self.player, self.player:handCards():first()) then return {
-			self.player:handCards():first() } end
+	if self:needToThrowArmor() and self.player:canDiscard(self.player, self.player:getArmor():getEffectiveId()) then
+		return {
+			self.player:getArmor():getEffectiveId() }
+	end
+	if self:needToThrowLastHandcard() and self.player:canDiscard(self.player, self.player:handCards():first()) then
+		return {
+			self.player:handCards():first() }
+	end
 
 	local cards = sgs.QList2Table(self.player:getCards("he"))
 	self:sortByKeepValue(cards)
@@ -3446,7 +3450,7 @@ sgs.ai_skill_use["@@mubing"] = function(self, prompt)
 	local valid = {}
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	local cidlist = self.player:getTag("mubingForAI"):toIntList()
 	local n1, n2 = 0, 0
 	for _, h in sgs.list(cards) do
@@ -3483,7 +3487,7 @@ sgs.ai_skill_use["@@ziqu!"] = function(self, prompt)
 	local n = 0
 	local cards = self.player:getCards("he")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for _, h in sgs.list(cards) do
 		if h:getNumber() > n then n = h:getNumber() end
 	end
@@ -3644,7 +3648,7 @@ end
 sgs.ai_fill_skill.xuezhao = function(self)
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for _, c in sgs.list(cards) do
 		if table.contains(self.toUse, c) then continue end
 		return sgs.Card_Parse("@XuezhaoCard=" .. c:getEffectiveId())
@@ -3687,7 +3691,7 @@ end
 sgs.ai_fill_skill.secondxuezhao = function(self)
 	local cards = self.player:getCards("h")
 	cards = sgs.QList2Table(cards) -- 将列表转换为表
-	self:sortByKeepValue(cards)    -- 按保留值排序
+	self:sortByKeepValue(cards) -- 按保留值排序
 	for _, c in sgs.list(cards) do
 		if table.contains(self.toUse, c) then continue end
 		return sgs.Card_Parse("@SecondXuezhaoCard=" .. c:getEffectiveId())
@@ -4039,8 +4043,10 @@ sgs.ai_skill_use["@@mobiletongji"] = function(self, prompt, method)
 		self:sortByKeepValue(cards)
 		for _, card in ipairs(cards) do
 			local range_fix = 0
-			if card:isKindOf("Weapon") then range_fix = range_fix + sgs.weapon_range[card:getClassName()] -
-				self.player:getAttackRange(false) end
+			if card:isKindOf("Weapon") then
+				range_fix = range_fix + sgs.weapon_range[card:getClassName()] -
+					self.player:getAttackRange(false)
+			end
 			if card:isKindOf("OffensiveHorse") then range_fix = range_fix + 1 end
 			if not self.player:isCardLimited(card, method) and (not source or source:canSlash(who, slash, false)) and self.player:inMyAttackRange(who, range_fix) then
 				return "@MobileTongjiCard=" .. card:getEffectiveId() .. "->" .. who:objectName()

@@ -4656,10 +4656,10 @@ Bianhua = sgs.CreateViewAsSkill {
 	end,
 	view_as = function(self, cards)
 		if #cards == 1 then
-			local Bianhua_Card = BianhuaCard:clone()
-			Bianhua_Card:addSubcard(cards[1])
-			Bianhua_Card:setSkillName(self:objectName())
-			return Bianhua_Card
+			local BianhuaCard = BianhuaCard:clone()
+			BianhuaCard:addSubcard(cards[1])
+			BianhuaCard:setSkillName(self:objectName())
+			return BianhuaCard
 		end
 	end,
 	enabled_at_play = function(self, player)
@@ -7221,7 +7221,7 @@ SE_Shuanglang = sgs.CreateTriggerSkill {
 		if event == sgs.TurnStart then
 			if player:isAlive() and not player:faceUp() then
 				local room = player:getRoom()
-				for _, Godsan in sgs.list(self.room:findPlayersBySkillName("yhbuque")) do
+				for _, Godsan in sgs.list(room:findPlayersBySkillName("SE_Shuanglang")) do
 					local dest = sgs.QVariant()
 					dest:setValue(player)
 					if room:askForSkillInvoke(Godsan, "SE_Shuanglang", dest) then
@@ -7235,7 +7235,7 @@ SE_Shuanglang = sgs.CreateTriggerSkill {
 		elseif event == sgs.DamageInflicted then
 			if player:isAlive() and not player:faceUp() and player:hasSkill(self:objectName()) then
 				local room = player:getRoom()
-				for _, Godsan in sgs.list(self.room:findPlayersBySkillName("yhbuque")) do
+				for _, Godsan in sgs.list(room:findPlayersBySkillName("SE_Shuanglang")) do
 					local dest = sgs.QVariant()
 					dest:setValue(player)
 					if room:askForSkillInvoke(Godsan, "SE_Shuanglang", dest) then
@@ -7402,6 +7402,7 @@ SE_Menghei = sgs.CreateTriggerSkill {
 					if source:hasSkill(self:objectName()) then
 						local list = sgs.SPlayerList()
 						local danteng = damage.from
+						if not danteng then return false end
 						for _, p in sgs.qlist(room:getAlivePlayers()) do
 							if danteng:distanceTo(p) <= 1 then
 								list:append(p)
@@ -7789,15 +7790,30 @@ sgs.LoadTranslationTable {
 se_huanyuan_Pre = sgs.CreateTriggerSkill {
 	name = "#se_huanyuan_Pre",
 	frequency = sgs.Skill_Frequent,
-	events = { sgs.EventPhaseEnd },
+	events = { sgs.EventPhaseEnd, sgs.EventPhaseStart },
 	on_trigger = function(self, event, player, data)
+		local room = player:getRoom()
 		if event == sgs.EventPhaseEnd then
 			if player:getPhase() == sgs.Player_Finish then
-				local room = player:getRoom()
 				for _, p in sgs.qlist(room:getAlivePlayers()) do
-					room:setPlayerMark(p, "&se_huanyuan_Pre_Hp", p:getHp())
-					room:setPlayerMark(p, "&se_huanyuan_Pre_MaxHp", p:getMaxHp())
-					room:setPlayerMark(p, "&se_huanyuan_Pre_Handcards", p:getHandcardNum())
+					room:setPlayerMark(p, "se_huanyuan_Pre_Hp", p:getHp())
+					room:setPlayerMark(p, "se_huanyuan_Pre_MaxHp", p:getMaxHp())
+					room:setPlayerMark(p, "se_huanyuan_Pre_Handcards", p:getHandcardNum())
+				end
+			end
+			if player:getPhase() == sgs.Player_Play then
+				for _, p in sgs.qlist(room:getAlivePlayers()) do
+					room:setPlayerMark(p, "&se_huanyuan_Pre_Hp", 0)
+					room:setPlayerMark(p, "&se_huanyuan_Pre_MaxHp", 0)
+					room:setPlayerMark(p, "&se_huanyuan_Pre_Handcards", 0)
+				end
+			end
+		elseif event == sgs.EventPhaseStart then
+			if player:getPhase() == sgs.Player_Play then
+				for _, p in sgs.qlist(room:getAlivePlayers()) do
+					room:setPlayerMark(p, "&se_huanyuan_Pre_Hp", p:getMark("se_huanyuan_Pre_Hp"))
+					room:setPlayerMark(p, "&se_huanyuan_Pre_MaxHp", p:getMark("se_huanyuan_Pre_MaxHp"))
+					room:setPlayerMark(p, "&se_huanyuan_Pre_Handcards", p:getMark("se_huanyuan_Pre_Handcards"))
 				end
 			end
 		end
@@ -7821,7 +7837,7 @@ se_huanyuan = sgs.CreateViewAsSkill {
 		end
 	end,
 	enabled_at_play = function(self, player)
-		return not player:hasFlag("se_huanyuan_used") and not player:isKongcheng() and
+		return not player:hasUsed("#se_huanyuancard") and not player:isKongcheng() and
 			player:getMark("&se_huanyuan_Pre_MaxHp") > 0
 	end,
 }
@@ -9240,30 +9256,32 @@ SE_Qizhuang = sgs.CreateTriggerSkill {
 		elseif event == sgs.Death then
 			local death = data:toDeath()
 			local deadGuy = death.who
-			if deadGuy:objectName() ~= ange:objectName() then
-				if deadGuy:getMark("@Lucifer") == 1 then
-					deadGuy:loseAllMarks("@Lucifer")
-					ange:gainMark("@Lucifer")
-				end
-				if deadGuy:getMark("@Leviathan") == 1 then
-					deadGuy:loseAllMarks("@Leviathan")
-					ange:gainMark("@Leviathan")
-				end
-				if deadGuy:getMark("@Satan") == 1 then
-					deadGuy:loseAllMarks("@Satan")
-					ange:gainMark("@Satan")
-				end
-				if deadGuy:getMark("@Belphegor") == 1 then
-					deadGuy:loseAllMarks("@Belphegor")
-					ange:gainMark("@Belphegor")
-				end
-				if deadGuy:getMark("@Beelzebub") == 1 then
-					deadGuy:loseAllMarks("@Beelzebub")
-					ange:gainMark("@Beelzebub")
-				end
-				if deadGuy:getMark("@Asmodeus") == 1 then
-					deadGuy:loseAllMarks("@Asmodeus")
-					ange:gainMark("@Asmodeus")
+			for _, ange in sgs.qlist(room:findPlayersBySkillName(self:objectName())) do
+				if deadGuy and deadGuy:objectName() ~= ange:objectName() then
+					if deadGuy:getMark("@Lucifer") == 1 then
+						deadGuy:loseAllMarks("@Lucifer")
+						ange:gainMark("@Lucifer")
+					end
+					if deadGuy:getMark("@Leviathan") == 1 then
+						deadGuy:loseAllMarks("@Leviathan")
+						ange:gainMark("@Leviathan")
+					end
+					if deadGuy:getMark("@Satan") == 1 then
+						deadGuy:loseAllMarks("@Satan")
+						ange:gainMark("@Satan")
+					end
+					if deadGuy:getMark("@Belphegor") == 1 then
+						deadGuy:loseAllMarks("@Belphegor")
+						ange:gainMark("@Belphegor")
+					end
+					if deadGuy:getMark("@Beelzebub") == 1 then
+						deadGuy:loseAllMarks("@Beelzebub")
+						ange:gainMark("@Beelzebub")
+					end
+					if deadGuy:getMark("@Asmodeus") == 1 then
+						deadGuy:loseAllMarks("@Asmodeus")
+						ange:gainMark("@Asmodeus")
+					end
 				end
 			end
 		end
@@ -10655,7 +10673,7 @@ SE_Poxiao = sgs.CreateTriggerSkill {
 	can_wake = function(self, event, player, data, room)
 		if player:getPhase() ~= sgs.Player_Start or player:getMark(self:objectName()) > 0 then return false end
 		if player:canWake(self:objectName()) then return true end
-		if player:getPile("Fragments"):length() <= target:getHandcardNum() then
+		if player:getPile("Fragments"):length() <= player:getHandcardNum() then
 			return false
 		end
 		return true
@@ -13899,7 +13917,7 @@ se_fupao = sgs.CreateTriggerSkill {
 						ncard:deleteLater()
 						room:setPlayerFlag(p, "se_fupao_using")
 						local nuse = sgs.CardUseStruct()
-						nuse.from = eu
+						nuse.from = p
 						nuse.to = use.to
 						nuse.card = ncard
 						room:useCard(nuse, false)

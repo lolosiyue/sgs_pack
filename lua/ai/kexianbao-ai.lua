@@ -766,7 +766,7 @@ end
 sgs.ai_skill_choice.kejiexianxiuzhen = function(self, choices)
 	if self.room:getLord() and self.player:isYourFriend(self.room:getLord()) then return self.room:getLord():getKingdom() end
 	choices = choices:split(":")
-	return choices[math.random(1, #choices - 1)]
+	return choices[math.random(1, #choices)]
 end
 
 

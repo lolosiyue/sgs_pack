@@ -582,7 +582,22 @@ ejisiCard = sgs.CreateSkillCard {
 			room:broadcastSkillInvoke("ejisi", 4)
 		end
 		return nil
-	end
+	end,
+	on_validate = function(self, card_use)
+		local room = card_use.from:getRoom()
+		room:setPlayerFlag(card_use.from, "ejisiUsed")
+		local target = room:getCurrent()
+		if target and card_use.from:pindian(target, "ejisi", nil) then
+			room:broadcastSkillInvoke("ejisi", math.random(2, 3))
+			local nullification = sgs.Sanguosha:cloneCard("nullification", sgs.Card_NoSuit, 0)
+			--nullification:toTrick():setCancelable(false)
+			nullification:setSkillName("_ejisi")
+			return nullification
+		else
+			room:broadcastSkillInvoke("ejisi", 4)
+		end
+		return nil
+	end,
 }
 ejisiVS = sgs.CreateViewAsSkill {
 	name = "ejisi",
@@ -601,7 +616,7 @@ ejisiVS = sgs.CreateViewAsSkill {
 	enabled_at_nullification = function(self, player)
 		local room = player:getRoom()
 		local target = room:getCurrent()
-		if not target or target:isDead() or target:getPhase() == sgs.Player_NotActive then return false end
+		if not target or target:isDead() or target:objectName() == player:objectName() or target:getPhase() == sgs.Player_NotActive then return false end
 		if player:canPindian(target) then
 			if target:objectName() ~= player:objectName() then
 				return not player:hasFlag("ejisiUsed")

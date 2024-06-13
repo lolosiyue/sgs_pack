@@ -193,7 +193,7 @@ allrecord = sgs.CreateTriggerSkill {
         end
         --end
 
-        local players = sgs.QList2Table(room:getAlivePlayers())
+        local players = sgs.QList2Table(room:getAllPlayers())
         for _, p in ipairs(players) do
             if loser(p) then
                 table.removeOne(players, p)
@@ -205,7 +205,9 @@ allrecord = sgs.CreateTriggerSkill {
         if #players > 1 then
             table.sort(players, comp)
         end
-        saveMvp(players[1])
+        if #players > 0 then
+            saveMvp(players[1])
+        end
     end
 }
 

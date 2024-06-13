@@ -839,7 +839,7 @@ sgs.ai_use_priority.JuguanCard = 4.8
 
 --驱徙
 sgs.ai_skill_invoke.quxi = function(self, data)
-	return player:getHandcardNum() >= player:getMaxCards()
+	return self.player:getHandcardNum() >= self.player:getMaxCards()
 		and sgs.ai_skill_use["@@quxi1"](self, "quxi1")
 end
 

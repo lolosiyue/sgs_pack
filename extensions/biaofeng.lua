@@ -5229,7 +5229,7 @@ PlusYongyi = sgs.CreateTriggerSkill {
 	events = { sgs.TargetConfirmed },
 	on_trigger = function(self, event, player, data, room)
 		local use = data:toCardUse()
-		if (player:objectName() ~= use.from:objectName()) or (player:getPhase() ~= sgs.Player_Play) or (not use.card:isKindOf("Slash")) then return false end
+		if not use.from or (player:objectName() ~= use.from:objectName()) or (player:getPhase() ~= sgs.Player_Play) or (not use.card:isKindOf("Slash")) then return false end
 		local jink_table = sgs.QList2Table(player:getTag("Jink_" .. use.card:toString()):toIntList())
 		local index = 1
 		for _, p in sgs.qlist(use.to) do
@@ -5287,7 +5287,7 @@ PlusLiegong = sgs.CreateTriggerSkill {
 		local use = data:toCardUse()
 		local source = use.from
 		local targets = use.to
-		if source:objectName() == player:objectName() then
+		if source and source:objectName() == player:objectName() then
 			local card = use.card
 			if card:isKindOf("Slash") then
 				for _, target in sgs.qlist(targets) do

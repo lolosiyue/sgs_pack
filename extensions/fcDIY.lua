@@ -8510,7 +8510,7 @@ sp_shenya = sgs.CreateTriggerSkill {
 			end
 			if choices == "" then return false end
 			local choice = room:askForChoice(player, self:objectName(), table.concat(choices, "+"))
-			local area = tonumber(choice), 0
+			local area = tonumber(choice) or 0
 			player:obtainEquipArea(area)
 		elseif event == sgs.AskForPeachesDone then
 			local dying = data:toDying()
